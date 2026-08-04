@@ -4,12 +4,12 @@ Actualizado: 2026-08-04 (Atlantic/Canary).
 
 ## Punto estable y ramas
 
-- `main`: contiene la nueva arquitectura; último commit remoto de contenidos observado `848313ae3e71e4f6350c44959964b8caff299995`.
+- `main`: contiene la nueva arquitectura y se actualiza desde la rama de trabajo tras cada verificación estable.
 - backup remoto: `backup/static-terminal-2025`.
 - rama de trabajo publicada: `codex/portable-architecture`.
 - commit original de rollback: `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
 
-Atención: Pages todavía tiene seleccionada la fuente legacy `main`/root además del workflow. El workflow produce la web correcta, pero el job legacy vuelve a publicar `index.html` con `/src/main.tsx` y deja la URL en blanco. Antes de otro push, iniciar sesión en GitHub y elegir **Settings > Pages > Source: GitHub Actions**. El intento idempotente del workflow no puede suplir ese permiso administrativo con `GITHUB_TOKEN`.
+GitHub Pages ya tiene seleccionada **Settings > Pages > Source: GitHub Actions**. No se debe volver a elegir una rama como fuente porque publicaría los fuentes Vite sin compilar.
 
 ## Estado funcional actual
 
@@ -17,7 +17,7 @@ Funciona desde un clon sin servicios mediante diez fixtures públicos. La web es
 
 El modo propietario contiene signup, login, recuperación de sesión, inventario, CRUD, papelera recuperable, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. El E2E real pasó en una rama Neon aislada y después en producción con una cuenta temporal: alta, edición, reordenación, borrado, papelera, restauración, historial y logout. La cuenta y los datos temporales productivos se eliminaron. El primer inventario espera la propagación del token para no degradarse accidentalmente a lectura anónima.
 
-Última validación: `pnpm check` (11 tests), build con endpoints productivos y `pnpm portability:verify` desde un clon limpio del último commit pasan. Sobre el artefacto online se probaron los seis stickers, todos los paneles, enlaces, zoom, centrado, pan por teclado, Escape y retorno de foco. La comprobación también demostró el defecto de configuración de Pages descrito arriba: el mismo artefacto correcto fue sobrescrito después por el job legacy.
+Última validación local: `pnpm check` (11 tests) y build con endpoints productivos pasan. `pnpm portability:verify` también pasó desde un clon limpio del commit estable: instalación frozen, scan, lint, tipos, pruebas y build, sin archivos locales anteriores. Sobre el artefacto online anterior se probaron los seis stickers, todos los paneles, enlaces, zoom, centrado, pan por teclado, Escape y retorno de foco. Falta repetir esa auditoría sobre el despliegue final posterior al cambio de fuente.
 
 ## Primeros comandos en otra máquina
 
@@ -40,49 +40,47 @@ pnpm dev
 - base: `neondb`;
 - rama productiva: `br-blue-dawn-ay0e37ed`, con Auth, Data API, migraciones 0001–0004 y fixtures públicos;
 - rama de integración: `codex-integration` (`br-tiny-art-ayb43loi`);
-- Auth y Data API: activos en integración;
+- Auth y Data API: activos en integración y producción;
 - migraciones 0001–0004 y fixtures: verificados en ambas ramas;
-- Storage/Function: pendientes de `neon config plan/deploy`.
+- Storage/Function: desplegados y verificados en ambas ramas;
+- bucket público en ambas ramas: `portfolio-assets`;
+- ciclo live verificado con `pnpm storage:verify-live`; producción requiere además `STORAGE_VERIFY_ALLOW_PRODUCTION=true` como confirmación explícita;
+- el plan actual permite cero ramas protegidas: se desplegó producción con `NEON_PROTECT_DEFAULT_BRANCH=false` y aprobación obligatoria del environment `production` como compensación temporal.
 
 No copiar cadenas de conexión, tokens ni cuentas temporales al repositorio. El proyecto existente “C2 Practice Log” no se tocó.
 
-Para completar Storage/Function hay que autorizar la Neon CLI una vez mediante OAuth; no pegar cadenas de conexión ni claves en el chat.
+La Neon CLI quedó autorizada por OAuth en este ordenador temporal. En otro equipo debe repetirse `neon auth` en el navegador; nunca se pegan tokens, cadenas de conexión ni contraseñas en el chat.
 
 ## Servicios por conectar
 
-1. Object Storage bucket público `portfolio-assets`;
-2. Neon Function `storage` con `ALLOWED_ORIGINS`;
-3. cuenta Auth real allowlisted como propietaria;
-4. GitHub Actions Secrets para provisión administrativa;
-5. GitHub Pages: cambiar una vez la fuente a GitHub Actions y repetir el despliegue.
+1. cuenta Auth real allowlisted como propietaria;
+2. GitHub Actions Secrets para provisión administrativa;
+3. aprobación obligatoria del GitHub Environment `production` mientras la rama Neon no pueda protegerse por limitación del plan.
 
 Notion no forma parte del runtime. Solo se consulta en lectura si una tarea futura necesita contexto y nunca se copia el diario al repositorio.
 
 ## Variables pendientes
 
-Todas las variables de `.env.example` están deliberadamente vacías. Tras provisionar Neon se necesitan los endpoints públicos `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_STORAGE_FUNCTION_URL` y `VITE_STORAGE_PUBLIC_BASE_URL`; en GitHub, además, `VITE_ENABLE_REMOTE_DATA=true`.
+Los valores secretos de `.env.example` están deliberadamente vacíos. Los endpoints públicos `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_STORAGE_FUNCTION_URL` y `VITE_STORAGE_PUBLIC_BASE_URL` tienen fallback productivo versionado en el workflow de Pages y pueden sobreescribirse con Variables; `VITE_ENABLE_REMOTE_DATA` queda activo por defecto en ese workflow.
 
 Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a secrets seguros. `OWNER_AUTH_USER_ID` se usa localmente al crear la allowlist. Nunca convertirlas en `VITE_*`.
 
 ## Próximos pasos concretos
 
-1. Iniciar sesión en GitHub y cambiar Settings > Pages > Source a GitHub Actions.
-2. Relanzar Deploy GitHub Pages y comprobar que `index.html` referencia `/assets/index-*.js`, nunca `/src/main.tsx`.
-3. Autorizar Neon CLI/Console en esta sesión y desplegar Storage/Function sobre integración.
-4. Probar subida/render/export/import/delete de una imagen pública de prueba y después producción.
-5. Crear/allowlistar al propietario real en producción sin compartir credenciales.
-6. Regenerar o cotejar tipos de Data API y configurar Secrets operativos de GitHub.
-7. Repetir clon limpio, auditoría online completa y crear tag estable.
+1. Publicar el commit final y comprobar que `index.html` referencia `/assets/index-*.js`, nunca `/src/main.tsx`.
+2. Crear/allowlistar al propietario real en producción sin compartir credenciales.
+3. Configurar Secrets operativos de GitHub.
+4. Repetir la auditoría online completa y crear tag estable.
 
 ## Errores y limitaciones conocidas
 
 - Neon JS/Auth/Data API/Storage/Functions están en beta.
 - Storage/Functions requieren `aws-us-east-2` en esta arquitectura.
 - Si el PUT de imagen funciona y el registro SQL falla, queda un objeto huérfano hasta reconciliación.
-- Storage/Functions aún no se han desplegado; el resto del E2E de Neon sí pasó en integración.
+- El plan Neon actual no permite proteger ramas; no promover producción sin aprobación del GitHub Environment y volver a `NEON_PROTECT_DEFAULT_BRANCH=true` al ampliar el plan.
 - El preparador de migraciones de lenguaje natural no aceptó el lote completo; la aplicación productiva se completó después como una única transacción de las 76 sentencias versionadas ya verificadas en integración.
 - Git local en esta máquina temporal no tiene credencial GitHub; los commits se publican mediante el conector autorizado.
-- El token efímero de Actions puede desplegar Pages, pero no cambiar un sitio existente de fuente legacy a `build_type=workflow`; se requiere una intervención administrativa única.
+- El selector administrativo de Pages ya se corrigió a GitHub Actions; esta decisión no queda versionada por GitHub y debe revisarse si la URL vuelve a servir `/src/main.tsx`.
 
 ## Decisiones aún cambiables
 
