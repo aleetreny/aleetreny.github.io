@@ -77,10 +77,15 @@ async function fetchEntries(ownerView: boolean): Promise<PortfolioEntry[]> {
   let query = neonClient
     .from('content_entries')
     .select('id,version,slug,title,summary,entry_type,status,metadata,published_at')
-    .is('deleted_at', null)
-    .order('published_at', { ascending: false, nullsFirst: false });
+    .is('deleted_at', null);
 
-  if (!ownerView) query = query.eq('status', 'published');
+  if (ownerView) {
+    query = query.order('updated_at', { ascending: false });
+  } else {
+    query = query
+      .eq('status', 'published')
+      .order('published_at', { ascending: false, nullsFirst: false });
+  }
 
   const { data: entryData, error: entryError } = await query;
   if (entryError) throw new Error(`Could not load entries: ${entryError.message}`);
@@ -177,9 +182,17 @@ export async function isCurrentUserOwner(): Promise<boolean> {
   return false;
 }
 
-export async function saveContentEntry(entry: PortfolioEntry, reason = 'editor save'): Promise<PortfolioEntry> {
+async function getAuthorizedOwnerClient() {
   const neonClient = await getNeonClient();
   if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  if (!(await isCurrentUserOwner())) {
+    throw new Error('La sesión editorial ha caducado. Vuelve a iniciar sesión.');
+  }
+  return neonClient;
+}
+
+export async function saveContentEntry(entry: PortfolioEntry, reason = 'editor save'): Promise<PortfolioEntry> {
+  const neonClient = await getAuthorizedOwnerClient();
 
   const { blocks, ...entryFields } = entry;
   const { data, error } = await neonClient.rpc('save_content_entry', {
@@ -197,8 +210,7 @@ export async function saveContentEntry(entry: PortfolioEntry, reason = 'editor s
 }
 
 export async function deleteContentEntry(entry: Pick<PortfolioEntry, 'id' | 'version'>): Promise<void> {
-  const neonClient = await getNeonClient();
-  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const neonClient = await getAuthorizedOwnerClient();
   const { error } = await neonClient.rpc('soft_delete_content_entry', {
     p_entry_id: entry.id,
     p_expected_version: entry.version,
@@ -209,8 +221,7 @@ export async function deleteContentEntry(entry: Pick<PortfolioEntry, 'id' | 'ver
 export async function restoreDeletedContentEntry(
   entry: Pick<DeletedEntrySummary, 'id' | 'version'>,
 ): Promise<PortfolioEntry> {
-  const neonClient = await getNeonClient();
-  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const neonClient = await getAuthorizedOwnerClient();
   const { data, error } = await neonClient.rpc('restore_deleted_content_entry', {
     p_entry_id: entry.id,
     p_expected_version: entry.version,
@@ -220,8 +231,7 @@ export async function restoreDeletedContentEntry(
 }
 
 export async function listEntryVersions(entryId: string): Promise<EntryVersionSummary[]> {
-  const neonClient = await getNeonClient();
-  if (!neonClient) return [];
+  const neonClient = await getAuthorizedOwnerClient();
   const { data, error } = await neonClient
     .from('entry_versions')
     .select('id,version,reason,created_at')
@@ -241,8 +251,7 @@ export async function restoreEntryVersion(
   version: number,
   expectedVersion: number,
 ): Promise<PortfolioEntry> {
-  const neonClient = await getNeonClient();
-  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const neonClient = await getAuthorizedOwnerClient();
   const { data, error } = await neonClient.rpc('restore_content_entry_version', {
     p_entry_id: entryId,
     p_version: version,
@@ -260,8 +269,7 @@ const presignResponseSchema = z.object({
 });
 
 async function getOwnerToken(): Promise<string> {
-  const neonClient = await getNeonClient();
-  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const neonClient = await getAuthorizedOwnerClient();
   const result = await neonClient.auth.getSession();
   if (result.error || !result.data?.session.token) {
     throw new Error('La sesión ha caducado. Vuelve a iniciar sesión.');
