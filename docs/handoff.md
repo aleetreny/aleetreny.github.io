@@ -4,20 +4,20 @@ Actualizado: 2026-08-04 (Atlantic/Canary).
 
 ## Punto estable y ramas
 
-- `main`: web terminal actualmente publicada; commit base `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
+- `main`: contiene la nueva arquitectura; último commit remoto de contenidos observado `848313ae3e71e4f6350c44959964b8caff299995`.
 - backup remoto: `backup/static-terminal-2025`.
 - rama de trabajo publicada: `codex/portable-architecture`.
-- último commit remoto estable: `019dff9db638b59fa788c01c2ab6f1cafaf8cd02` (`chore: connect Pages to production Neon`, último commit de contenidos publicado mediante GitHub API).
+- commit original de rollback: `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
 
-No promover todavía a `main`: Auth, Data API, esquema, fixtures y origen de Pages ya están activos en producción, pero faltan Storage/Function y una cuenta propietaria productiva.
+Atención: Pages todavía tiene seleccionada la fuente legacy `main`/root además del workflow. El workflow produce la web correcta, pero el job legacy vuelve a publicar `index.html` con `/src/main.tsx` y deja la URL en blanco. Antes de otro push, iniciar sesión en GitHub y elegir **Settings > Pages > Source: GitHub Actions**. El intento idempotente del workflow no puede suplir ese permiso administrativo con `GITHUB_TOKEN`.
 
 ## Estado funcional actual
 
 Funciona desde un clon sin servicios mediante diez fixtures públicos. La web es un tablero de corcho a pantalla completa: pan ilimitado, zoom por rueda/pellizco/botones, stickers con elementos principales y ampliaciones que conservan el corcho. Se verificó a 390 px y escritorio, incluida la apertura de Formación.
 
-El modo propietario contiene login, recuperación de sesión, inventario, CRUD, papelera recuperable, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. El E2E real ya pasó en una rama Neon aislada: alta, edición, reordenación, conflicto obsoleto, borrado, papelera, restauración, historial, registro de metadata y logout. El primer inventario espera la propagación del token para no degradarse accidentalmente a lectura anónima.
+El modo propietario contiene signup, login, recuperación de sesión, inventario, CRUD, papelera recuperable, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. El E2E real pasó en una rama Neon aislada y después en producción con una cuenta temporal: alta, edición, reordenación, borrado, papelera, restauración, historial y logout. La cuenta y los datos temporales productivos se eliminaron. El primer inventario espera la propagación del token para no degradarse accidentalmente a lectura anónima.
 
-Última validación: `pnpm check` (11 tests), build con endpoints productivos y `pnpm portability:verify` desde clon limpio pasan; además se probó en navegador el foco inicial, el ciclo de tabulación, Escape, el retorno al sticker, un login propietario desde cero y la carga del tablero contra producción.
+Última validación: `pnpm check` (11 tests), build con endpoints productivos y `pnpm portability:verify` desde un clon limpio del último commit pasan. Sobre el artefacto online se probaron los seis stickers, todos los paneles, enlaces, zoom, centrado, pan por teclado, Escape y retorno de foco. La comprobación también demostró el defecto de configuración de Pages descrito arriba: el mismo artefacto correcto fue sobrescrito después por el job legacy.
 
 ## Primeros comandos en otra máquina
 
@@ -54,7 +54,7 @@ Para completar Storage/Function hay que autorizar la Neon CLI una vez mediante O
 2. Neon Function `storage` con `ALLOWED_ORIGINS`;
 3. cuenta Auth real allowlisted como propietaria;
 4. GitHub Actions Secrets para provisión administrativa;
-5. GitHub Pages (ya publica `main`; falta promover la nueva versión).
+5. GitHub Pages: cambiar una vez la fuente a GitHub Actions y repetir el despliegue.
 
 Notion no forma parte del runtime. Solo se consulta en lectura si una tarea futura necesita contexto y nunca se copia el diario al repositorio.
 
@@ -66,12 +66,13 @@ Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a se
 
 ## Próximos pasos concretos
 
-1. Autorizar Neon CLI/Console en esta sesión y desplegar Storage/Function sobre integración.
-2. Probar subida/render/export/import/delete de una imagen pública de prueba.
-3. Crear/allowlistar al propietario real en producción sin compartir credenciales.
-4. Regenerar o cotejar tipos de Data API.
-5. Configurar Secrets de GitHub para el workflow de provisión.
-6. Promover la rama a `main`, revisar online cada control/pantalla y crear tag estable.
+1. Iniciar sesión en GitHub y cambiar Settings > Pages > Source a GitHub Actions.
+2. Relanzar Deploy GitHub Pages y comprobar que `index.html` referencia `/assets/index-*.js`, nunca `/src/main.tsx`.
+3. Autorizar Neon CLI/Console en esta sesión y desplegar Storage/Function sobre integración.
+4. Probar subida/render/export/import/delete de una imagen pública de prueba y después producción.
+5. Crear/allowlistar al propietario real en producción sin compartir credenciales.
+6. Regenerar o cotejar tipos de Data API y configurar Secrets operativos de GitHub.
+7. Repetir clon limpio, auditoría online completa y crear tag estable.
 
 ## Errores y limitaciones conocidas
 
@@ -81,6 +82,7 @@ Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a se
 - Storage/Functions aún no se han desplegado; el resto del E2E de Neon sí pasó en integración.
 - El preparador de migraciones de lenguaje natural no aceptó el lote completo; la aplicación productiva se completó después como una única transacción de las 76 sentencias versionadas ya verificadas en integración.
 - Git local en esta máquina temporal no tiene credencial GitHub; los commits se publican mediante el conector autorizado.
+- El token efímero de Actions puede desplegar Pages, pero no cambiar un sitio existente de fuente legacy a `build_type=workflow`; se requiere una intervención administrativa única.
 
 ## Decisiones aún cambiables
 
