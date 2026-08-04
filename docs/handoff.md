@@ -2,19 +2,23 @@
 
 Actualizado: 2026-08-04 (Atlantic/Canary).
 
-## Punto estable y rama
+## Punto estable y ramas
 
-- Último commit estable remoto previo a esta fase: `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c` (`main`, web terminal).
-- Backup remoto: `backup/static-terminal-2025`.
-- Rama de trabajo: `codex/portable-architecture`.
-- Último commit publicado de esta fase: `464e8b9bb7f02a5e340cfc4fcb04cee3c12825a7` (`docs: add setup and recovery guide`).
-- Los 85 blobs publicados coinciden byte por byte con el árbol local verificado; el commit de cierre posterior solo actualiza estado/handoff.
+- `main`: web terminal actualmente publicada; commit base `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
+- backup remoto: `backup/static-terminal-2025`.
+- rama de trabajo publicada: `codex/portable-architecture`.
+- último commit remoto estable de código: `cbf9c871c02375474e67e134f65313f248b2f920` (`feat: build complete public portfolio experience`).
+- el commit documental posterior solo actualiza estado y handoff.
 
-## Estado funcional
+No promover todavía a `main`: el frontend está listo, pero la integración real de Neon no se ha ejecutado.
 
-Funciona localmente sin servicios mediante fixtures. Existe frontend React, modo propietario de login/inventario, cliente Neon, esquema/RLS, function broker de storage, scripts DB/storage, CI/Pages/provisión y documentación. La integración real con Neon no se ha ejecutado porque no se proporcionó un proyecto/branch.
+## Estado funcional actual
 
-Se ejecutó `pnpm portability:verify` desde un clon temporal limpio: instalación frozen, escaneo, lint, typecheck, 7 tests y build pasaron. No incluye el paso externo de crear una rama Neon y aplicar migraciones.
+Funciona desde un clon sin servicios mediante diez fixtures públicos. La web incluye portada, proyectos, experiencia, formación, contacto, metadata social y responsive verificado a 390 px y escritorio.
+
+El modo propietario contiene login, recuperación de sesión, inventario, CRUD, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. Todo compila y está cubierto por pruebas unitarias básicas, pero requiere Neon real para un E2E.
+
+Última validación: `pnpm portability:verify` desde un clon temporal limpio; instalación frozen, escaneo, lint, tipos, 10 tests y build pasan. Todavía no incluye servicios externos porque falta el proyecto Neon correcto.
 
 ## Primeros comandos en otra máquina
 
@@ -30,48 +34,65 @@ pnpm build
 pnpm dev
 ```
 
+## Acción externa necesaria
+
+Crear manualmente en Neon Console:
+
+- nombre: `aleetreny-portfolio`;
+- organización: `Alejandro Treny`;
+- región: AWS US East 2 / Ohio (`aws-us-east-2`);
+- base inicial: `neondb`.
+
+El conector disponible no acepta región y crea en `us-west-2`. Se hizo una creación vacía para comprobarlo y se eliminó inmediatamente. El proyecto existente “C2 Practice Log” no se tocó.
+
+Cuando exista el proyecto correcto, conectar esta sesión o facilitar acceso mediante el conector; no pegar cadenas de conexión ni claves en el chat.
+
 ## Servicios por conectar
 
-1. GitHub Pages (source: Actions).
-2. Neon project en `aws-us-east-2`.
-3. Managed Better Auth y trusted origins.
-4. Data API.
-5. Neon Function `storage`.
-6. Neon Object Storage bucket `portfolio-assets`.
-7. Notion solo lectura, únicamente si una tarea futura necesita contexto.
+1. proyecto Neon correcto y una rama de desarrollo TTL;
+2. Managed Better Auth con orígenes/callbacks local y Pages;
+3. Data API vinculada a Neon Auth;
+4. Object Storage bucket público `portfolio-assets`;
+5. Neon Function `storage` con `ALLOWED_ORIGINS`;
+6. GitHub Actions Variables/Secrets;
+7. GitHub Pages (ya publica `main`; falta promover la nueva versión).
+
+Notion no forma parte del runtime. Solo se consulta en lectura si una tarea futura necesita contexto y nunca se copia el diario al repositorio.
 
 ## Variables pendientes
 
-Todas las variables de `.env.example` carecen deliberadamente de valores reales. Para producción se necesitan como mínimo los endpoints públicos `VITE_*`; para provisionar, `NEON_API_KEY`, `DATABASE_URL`, `NEON_PROJECT_ID`, `NEON_BRANCH`, `ALLOWED_ORIGINS`; para allowlist, `OWNER_AUTH_USER_ID` local.
+Todas las variables de `.env.example` están deliberadamente vacías. Tras provisionar Neon se necesitan los endpoints públicos `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_STORAGE_FUNCTION_URL` y `VITE_STORAGE_PUBLIC_BASE_URL`; en GitHub, además, `VITE_ENABLE_REMOTE_DATA=true`.
+
+Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a secrets seguros. `OWNER_AUTH_USER_ID` se usa localmente al crear la allowlist. Nunca convertirlas en `VITE_*`.
 
 ## Próximos pasos concretos
 
-1. Obtener acceso a Neon y confirmar/create proyecto en región compatible.
-2. Ejecutar `neon plan/deploy` en rama dev.
-3. Migrar, seed, crear propietario y verificar RLS con tres identidades.
-4. Configurar storage/function y probar upload/delete.
-5. Implementar editor transaccional, snapshots y dnd-kit.
-6. Migrar contenido público definitivo.
-7. Configurar GitHub Variables/Secrets, desplegar branch de prueba y después `main`.
-8. Ejecutar clon limpio con rama Neon aislada y etiquetar release.
+1. Crear y conectar el proyecto `aws-us-east-2`.
+2. Crear rama `codex-integration` y ejecutar `neon config plan/deploy`.
+3. Aplicar migraciones 0001–0003, cargar demo y crear propietario.
+4. Verificar anon/no-owner/owner, conflicto de versión y restore.
+5. Probar subida/render/export/import/delete de una imagen no privada.
+6. Regenerar o cotejar tipos de Data API.
+7. Configurar Variables/Secrets de GitHub y ejecutar workflows manuales.
+8. Ejecutar la verificación desde clon limpio contra una rama Neon aislada.
+9. Promover la rama a `main`, verificar Pages y crear tag estable.
 
-## Errores/limitaciones conocidas
+## Errores y limitaciones conocidas
 
-- Storage/Functions y Neon JS/Auth/Data API están en beta.
-- Storage/Functions requieren `aws-us-east-2`.
-- No hay editor persistente ni UI de uploads todavía.
-- No hay pruebas end-to-end con Neon real.
-- El cliente Git local de la máquina temporal no tiene credencial GitHub; se usa el conector autorizado para publicar. Una máquina nueva debe configurar SSH/token normalmente.
-- El repositorio es privado; GitHub Pages privado requiere un plan compatible.
+- Neon JS/Auth/Data API/Storage/Functions están en beta.
+- Storage/Functions requieren `aws-us-east-2` en esta arquitectura.
+- La UI no muestra papelera para restaurar una entrada borrada lógicamente.
+- Si el PUT de imagen funciona y el registro SQL falla, queda un objeto huérfano hasta reconciliación.
+- No hay E2E con servicios reales todavía.
+- Git local en esta máquina temporal no tiene credencial GitHub; los commits se publican mediante el conector autorizado.
 
 ## Decisiones aún cambiables
 
-- migrar storage/broker a otro proveedor si Neon beta/región no encaja;
-- diseño visual definitivo y tipos de bloque;
-- proveedor OAuth adicional;
-- dominio personalizado;
-- política de retención/versiones.
+- proveedor de storage si Neon beta/región deja de encajar;
+- dominio personalizado y proveedor OAuth;
+- política de retención/versiones;
+- textos y periodos definitivos del contenido público.
 
 ## Puntos delicados
 
-No mover secretos a `VITE_*`; no conceder escritura a `authenticated` sin RLS/allowlist; no eliminar el backup terminal; no editar una migración aplicada; no cambiar el bucket a privado sin implementar URLs GET firmadas; no desplegar `production apply` sin revisar el plan.
+No mover secretos a `VITE_*`; no conceder escritura por el mero hecho de estar autenticado; no exponer `app_private`; no desactivar RLS; no eliminar el backup terminal; no editar una migración ya aplicada; no cambiar el bucket a privado sin implementar URLs GET firmadas; no promover producción sin revisar el plan y pasar la matriz de permisos.

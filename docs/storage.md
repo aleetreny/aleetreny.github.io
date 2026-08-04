@@ -41,7 +41,7 @@ Object Storage usa nivel de acceso, no bucket policies S3 arbitrarias. Verifica 
 
 ## Flujo de subida
 
-`POST /uploads/presign` recibe `filename`, `contentType`, `byteSize`. Tras el PUT exitoso, el editor debe insertar `assets` con URL/key/MIME/bytes/alt. Si falla esa segunda operación, el objeto queda huérfano; una tarea de mantenimiento futura debe comparar bucket y tabla antes de borrar.
+`POST /uploads/presign` recibe `filename`, `contentType`, `byteSize`. Tras el PUT exitoso, el editor llama a `public.register_uploaded_asset` para registrar URL/key/MIME/bytes/alt. La función comprueba de nuevo owner, bucket, prefijo, tipo y tamaño. Si falla esa segunda operación, el objeto queda huérfano; una tarea de mantenimiento futura debe comparar bucket y tabla antes de borrar.
 
 ## Backup y restauración
 

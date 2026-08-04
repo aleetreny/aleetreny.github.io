@@ -44,7 +44,7 @@ Metadatos de cada objeto: proveedor, bucket, key, URL pública, MIME, bytes, dim
 
 ### `entry_versions`
 
-Snapshots JSONB inmutables por `(entry_id, version)`, con motivo y autor. La tabla está preparada, pero la creación automática de snapshots desde el editor sigue pendiente.
+Snapshots JSONB inmutables por `(entry_id, version)`, con motivo y autor. `save_content_entry`, `soft_delete_content_entry` y `restore_content_entry_version` crean snapshots automáticamente antes de abandonar una versión.
 
 ### `site_settings`
 
@@ -72,13 +72,13 @@ Configuración clave/JSONB. Solo filas con `is_public` son legibles por visitant
 
 ## Versionado
 
-`version` empieza en 1. La futura operación de guardado debe:
+`version` empieza en 1; el editor usa 0 únicamente para una entrada nueva aún no persistida. La operación de guardado:
 
 1. leer versión actual;
 2. insertar snapshot anterior en `entry_versions`;
-3. actualizar entrada/bloques con bloqueo optimista (`where version = <esperada>`);
+3. bloquea la fila y compara la versión esperada;
 4. incrementar versión;
-5. resolver conflictos en UI, nunca sobrescribir silenciosamente.
+5. devuelve un documento canónico; los conflictos se muestran en UI y nunca sobrescriben silenciosamente.
 
 ## RLS
 

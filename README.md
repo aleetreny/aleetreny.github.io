@@ -2,7 +2,7 @@
 
 Portfolio personal orientado a explicar proyectos de estadística, ciencia de datos, forecasting y optimización mediante contenido visual y estructurado. El repositorio es la fuente principal: una máquina nueva debe poder clonar, instalar, configurar servicios, migrar y desplegar sin recuperar archivos locales anteriores.
 
-La web pública es una SPA estática. Con `VITE_ENABLE_REMOTE_DATA=false` usa fixtures públicos versionados; con Neon configurado lee únicamente contenido publicado. El modo propietario vive en `?owner=1`: autentica con Managed Better Auth y obtiene permisos editoriales solo si el UUID está en `app_private.owner_accounts`. La interfaz actual muestra el inventario editorial; la edición visual completa sigue pendiente y está delimitada en [PROJECT_STATUS.md](PROJECT_STATUS.md).
+La web pública es una SPA estática. Con `VITE_ENABLE_REMOTE_DATA=false` usa fixtures públicos versionados; con Neon configurado lee únicamente contenido publicado. El modo propietario vive en `?owner=1`: autentica con Managed Better Auth y obtiene permisos editoriales solo si el UUID está en `app_private.owner_accounts`. Incluye CRUD de entradas, editor de bloques reordenable, subida de imágenes, bloqueo optimista e historial restaurable.
 
 ## Arquitectura resumida
 
@@ -201,7 +201,7 @@ Los exports de contenido privado no forman parte de estos scripts. No uses el re
 - Decisiones y alternativas: [docs/decisions/](docs/decisions/).
 - Recuperación y rollback: [docs/recovery.md](docs/recovery.md).
 
-La fase actual establece arquitectura, seguridad, persistencia, demo y automatización. Faltan conectar un proyecto Neon real, probar RLS extremo a extremo, implementar el editor visual/drag and drop, integrar la subida en la UI y migrar el contenido definitivo. No declares estable una release hasta completar la prueba de clon limpio con una rama aislada real de Neon.
+La fase actual deja terminados el frontend público, el editor visual, la persistencia versionada, el broker de imágenes y la automatización. Falta crear/conectar el proyecto Neon definitivo en `aws-us-east-2`, probar Auth/RLS/Storage extremo a extremo, configurar los endpoints públicos en GitHub y promover la rama a `main`. No declares estable una release hasta completar la prueba de clon limpio con una rama aislada real de Neon.
 
 ## Contexto de Notion
 

@@ -1,6 +1,6 @@
 # ADR 0006: dnd-kit para drag and drop
 
-- Estado: aceptada, implementación pendiente
+- Estado: aceptada e implementada
 - Fecha: 2026-08-04
 
 ## Contexto
@@ -20,8 +20,8 @@ Usar dnd-kit sortable con sensores de puntero/teclado, más botones subir/bajar.
 
 ## Consecuencias
 
-Añade dependencia y lógica de estado optimista. No se instalará hasta construir el editor para evitar código muerto.
+Añade dependencia y lógica de estado optimista. El editor la carga de forma diferida únicamente en modo propietario, por lo que no penaliza el bundle inicial público.
 
 ## Cómo cambiar
 
-Encapsular reordenación como `moveBlock(entryId, from, to)` independiente de UI; sustituir librería conservando comandos y tests.
+La normalización del orden está aislada en `src/lib/editor.ts`; se puede sustituir la librería conservando esa función, los botones y los tests.

@@ -1,54 +1,52 @@
 # Editor de contenido
 
-## Alcance
+## Alcance implementado
 
-El modo propietario está en `/?owner=1`. La fase actual implementa acceso, comprobación de allowlist e inventario de entradas; todavía no existe edición visual persistente. Esta separación evita confundir un scaffold con una herramienta terminada.
+El modo propietario está en `/?owner=1`. Recupera una sesión existente o muestra login; después exige que `public.is_owner()` confirme la allowlist antes de leer borradores o escribir.
 
-## Diseño previsto
+El estudio editorial incluye:
 
-- panel de entradas con filtros por estado/tipo;
-- formulario de metadatos (título, slug, resumen, publicación);
-- lienzo de bloques tipados;
-- inspector de propiedades y layout;
-- drag and drop accesible por puntero y teclado;
-- subida de imágenes a través del storage broker;
-- autosave explícito con estado visible;
-- historial y restauración de versiones;
-- preview responsive antes de publicar.
+- inventario de entradas y creación de nuevas entradas;
+- título, slug, resumen, tipo, estado y metadatos de presentación;
+- bloques `text`, `heading`, `list`, `metric`, `quote` e `image`;
+- anchura y alineación por bloque;
+- reordenación por puntero, teclado y botones subir/bajar;
+- subida de imágenes con alt text mediante el storage broker;
+- guardado explícito, mensajes de error/éxito y borrado lógico;
+- carga y restauración de versiones anteriores.
 
 ## Contrato de bloques
 
-Cada bloque conserva identidad UUID, tipo, posición, `props`, `layout`, versión y borrado lógico. El renderer debe mantener un registry exhaustivo por `block_type`; un tipo desconocido debe mostrar fallback seguro, no ejecutar HTML arbitrario.
+Cada bloque conserva UUID, tipo, posición, `props` y `layout`. La posición se normaliza antes de persistir. El renderer público ofrece un fallback de texto para tipos desconocidos y nunca interpreta HTML arbitrario.
 
 ## Guardado transaccional
 
-Una edición completa debe persistirse como operación atómica o RPC controlada:
+`public.save_content_entry` realiza en una sola transacción:
 
-1. validar Zod en cliente;
-2. verificar versión esperada;
-3. insertar snapshot de la versión anterior;
-4. actualizar entrada;
-5. upsert/reordenar bloques;
-6. marcar bloques eliminados con `deleted_at`;
-7. incrementar versión;
-8. devolver snapshot canónico.
+1. comprobación de propietario;
+2. validación de versión esperada;
+3. snapshot de la versión que se abandona;
+4. alta o actualización de la entrada;
+5. desactivación temporal de bloques para permitir swaps sin violar el índice único;
+6. upsert y reordenación de bloques;
+7. borrado lógico de bloques retirados;
+8. incremento de versión y devolución del documento canónico.
 
-No se debe guardar HTML sin sanitizar en JSONB. Texto enriquecido requiere un formato estructurado y un renderer/sanitizador documentado.
+El cliente valida el documento con Zod y traduce un conflicto `40001` a una instrucción de recarga. No existe autosave: publicar sigue siendo una elección explícita mediante el campo de estado.
 
-## Drag and drop
+## Imágenes
 
-La decisión es usar dnd-kit con sensores de teclado y puntero, overlay y estrategia sortable vertical. Aún no está instalado para evitar una dependencia muerta. El criterio de finalización exige reordenar, persistir, recargar y conservar orden; además debe existir alternativa por botones “subir/bajar”.
+El bloque pide una URL firmada a `POST /uploads/presign` con el JWT efímero de Neon Auth, ejecuta el `PUT` directo y registra metadata mediante `public.register_uploaded_asset`. Esta función vuelve a comprobar propietario, prefijo, bucket, MIME y tamaño; el navegador nunca recibe credenciales del bucket.
 
-## Publicación
+## Historial
 
-Publicar exige `published_at`, validación de bloques y alt text para imágenes informativas. La UI debe diferenciar guardar borrador de publicar; nunca publicar automáticamente por autosave.
+Antes de cada actualización, restauración o borrado lógico se guarda un snapshot inmutable en `entry_versions`. Restaurar conserva primero la versión actual y genera una nueva versión; nunca reescribe el historial.
 
-## Tests requeridos
+## Pruebas pendientes con infraestructura
 
-- validación de cada bloque;
-- conflicto de versión;
-- reorder con teclado/puntero y alternativa de botones;
-- RLS con propietario/no propietario;
-- carga fallida/reintento de imagen;
-- preview móvil/tablet/desktop;
-- restauración de versión.
+- sesión real y refresh de JWT;
+- RLS con visitante, usuario autenticado no propietario y propietario;
+- conflicto simultáneo entre dos pestañas;
+- reorder persistido después de recarga;
+- subida fallida, reintento y reconciliación de objeto huérfano;
+- restauración de versión y borrado lógico real.
