@@ -8,6 +8,7 @@ import {
   restoreDeletedContentEntry,
   signInOwner,
   signOutOwner,
+  signUpOwner,
 } from '../lib/content-repository';
 import { runtimeConfig } from '../lib/config';
 import type { DeletedEntrySummary, PortfolioEntry } from '../types/content';
@@ -15,10 +16,14 @@ import { ConfirmDialog } from './editor/ConfirmDialog';
 import { EntryEditor } from './editor/EntryEditor';
 
 type AuthState = 'checking' | 'signed-out' | 'signed-in';
+type AccessAction = 'sign-in' | 'sign-up';
 
 export function OwnerMode() {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [accessAction, setAccessAction] = useState<AccessAction>('sign-in');
+  const [candidateUserId, setCandidateUserId] = useState('');
   const [entries, setEntries] = useState<PortfolioEntry[]>([]);
   const [deletedEntries, setDeletedEntries] = useState<DeletedEntrySummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -80,7 +85,17 @@ export function OwnerMode() {
     event.preventDefault();
     setBusy(true);
     setMessage('');
+    setCandidateUserId('');
     try {
+      if (accessAction === 'sign-up') {
+        const userId = await signUpOwner(name.trim(), email, password);
+        await signOutOwner();
+        setPassword('');
+        setMessageTone('success');
+        setMessage('Cuenta creada. Todavía no tiene permisos editoriales.');
+        setCandidateUserId(userId);
+        return;
+      }
       await signInOwner(email, password);
       if (!(await isCurrentUserOwner())) {
         await signOutOwner();
@@ -169,9 +184,25 @@ export function OwnerMode() {
     return (
       <section className="owner-panel owner-panel--narrow" aria-labelledby="owner-title">
         <p className="eyebrow">Modo propietario</p>
-        <h1 id="owner-title">Acceso editorial</h1>
-        <p>Solo las cuentas autenticadas y añadidas a la allowlist privada obtienen permisos de escritura.</p>
+        <h1 id="owner-title">{accessAction === 'sign-in' ? 'Acceso editorial' : 'Crear cuenta editorial'}</h1>
+        <p>
+          {accessAction === 'sign-in'
+            ? 'Solo las cuentas autenticadas y añadidas a la allowlist privada obtienen permisos de escritura.'
+            : 'Crear una cuenta no concede acceso por sí solo. Después, un operador debe añadir su UUID a la allowlist privada.'}
+        </p>
         <form className="owner-form" onSubmit={handleSignIn}>
+          {accessAction === 'sign-up' ? (
+            <label>
+              Nombre
+              <input
+                autoComplete="name"
+                minLength={2}
+                onChange={(event) => setName(event.target.value)}
+                required
+                value={name}
+              />
+            </label>
+          ) : null}
           <label>
             Correo
             <input
@@ -185,7 +216,7 @@ export function OwnerMode() {
           <label>
             Contraseña
             <input
-              autoComplete="current-password"
+              autoComplete={accessAction === 'sign-in' ? 'current-password' : 'new-password'}
               minLength={8}
               onChange={(event) => setPassword(event.target.value)}
               required
@@ -194,9 +225,32 @@ export function OwnerMode() {
             />
           </label>
           <button className="button" disabled={busy} type="submit">
-            {busy ? 'Verificando…' : 'Entrar'}
+            {busy
+              ? (accessAction === 'sign-in' ? 'Verificando…' : 'Creando…')
+              : (accessAction === 'sign-in' ? 'Entrar' : 'Crear cuenta')}
           </button>
-          {message ? <p className="form-error" role="alert">{message}</p> : null}
+          <button
+            className="button button--secondary"
+            disabled={busy}
+            onClick={() => {
+              setAccessAction((current) => current === 'sign-in' ? 'sign-up' : 'sign-in');
+              setMessage('');
+              setCandidateUserId('');
+              setPassword('');
+            }}
+            type="button"
+          >
+            {accessAction === 'sign-in' ? 'Crear una cuenta' : 'Ya tengo una cuenta'}
+          </button>
+          {message ? (
+            <p
+              className={messageTone === 'error' ? 'form-error' : 'form-success'}
+              role={messageTone === 'error' ? 'alert' : 'status'}
+            >
+              {message}
+              {candidateUserId ? <> Identificador: <code>{candidateUserId}</code></> : null}
+            </p>
+          ) : null}
         </form>
       </section>
     );
