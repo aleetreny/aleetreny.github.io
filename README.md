@@ -167,6 +167,8 @@ Variables de repositorio o del environment `github-pages` (públicas):
 - `VITE_STORAGE_FUNCTION_URL`
 - `VITE_STORAGE_PUBLIC_BASE_URL`
 
+Los endpoints públicos de Auth/Data API y `VITE_ENABLE_REMOTE_DATA=true` tienen valores de recuperación versionados en el workflow; las Variables los sobreescriben. Storage no obtiene ningún valor por defecto hasta que exista la Function productiva. Ninguna credencial privada se incorpora al bundle.
+
 El dominio previsto es `https://aleetreny.github.io/`. No hay dominio personalizado configurado ni archivo `CNAME`. Si se añade, debe configurarse también en Settings > Pages, DNS, Auth trusted origins y `ALLOWED_ORIGINS`.
 
 ### Provisionar Neon desde GitHub
