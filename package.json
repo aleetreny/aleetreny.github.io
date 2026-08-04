@@ -27,6 +27,7 @@
     "db:import": "node scripts/db/import-public.mjs",
     "storage:export": "node scripts/storage/export-assets.mjs",
     "storage:import": "node scripts/storage/import-assets.mjs",
+    "storage:verify-live": "node scripts/storage/verify-live.mjs",
     "neon:plan": "neon config plan",
     "neon:deploy": "neon deploy",
     "portability:verify": "node scripts/verify-portability.mjs"
