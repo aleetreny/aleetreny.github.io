@@ -203,7 +203,7 @@ Los exports de contenido privado no forman parte de estos scripts. No uses el re
 - Decisiones y alternativas: [docs/decisions/](docs/decisions/).
 - Recuperación y rollback: [docs/recovery.md](docs/recovery.md).
 
-La fase actual deja terminados el frontend público, el editor visual, la persistencia versionada, el broker de imágenes y la automatización. En el proyecto Neon definitivo de `aws-us-east-2`, Auth, Data API, migraciones, RLS, Storage, Function, flujo editorial y ciclo completo de archivos han pasado en integración y producción con usuarios sintéticos ya eliminados. GitHub Pages ya usa GitHub Actions como fuente. Antes de cerrar la release faltan crear y allowlistar a la propietaria definitiva sin compartir su contraseña, publicar el commit final, repetir la prueba desde clon limpio y auditar de nuevo la URL pública completa.
+La fase actual deja terminados el frontend público, el editor visual, la persistencia versionada, el broker de imágenes y la automatización. En el proyecto Neon definitivo de `aws-us-east-2`, Auth, Data API, migraciones, RLS, Storage, Function, flujo editorial y ciclo completo de archivos han pasado en integración y producción con usuarios sintéticos ya eliminados. GitHub Pages usa GitHub Actions como fuente; la auditoría final cubrió todo el tablero y el flujo editorial real, y el clon limpio final pasó con 14 pruebas. Antes de cerrar la release faltan crear y allowlistar a la propietaria definitiva sin compartir su contraseña, configurar los Secrets operativos de provisión y crear la etiqueta estable.
 
 ## Contexto de Notion
 
