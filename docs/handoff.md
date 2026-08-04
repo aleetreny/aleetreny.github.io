@@ -17,7 +17,7 @@ Funciona desde un clon sin servicios mediante diez fixtures públicos. La web es
 
 El modo propietario contiene login, recuperación de sesión, inventario, CRUD, papelera recuperable, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. Todo compila y está cubierto por pruebas unitarias básicas, pero requiere Neon real para un E2E.
 
-Última validación: `pnpm check` y `pnpm build` pasan; además se probó en navegador el foco inicial, el ciclo de tabulación, Escape y el retorno al sticker tras cerrar. La validación anterior `pnpm portability:verify` también pasó desde un clon temporal limpio. Todavía no incluye servicios externos porque falta el proyecto Neon correcto.
+Última validación: `pnpm check` (11 tests) y `pnpm build` con la variable de Pages vacía pasan; además se probó en navegador el foco inicial, el ciclo de tabulación, Escape y el retorno al sticker tras cerrar. La validación anterior `pnpm portability:verify` también pasó desde un clon temporal limpio. Todavía no incluye servicios externos porque falta el proyecto Neon correcto.
 
 ## Primeros comandos en otra máquina
 

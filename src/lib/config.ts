@@ -3,7 +3,7 @@ import { z } from 'zod';
 const optionalUrl = z.union([z.literal(''), z.url()]).optional().default('');
 
 const runtimeSchema = z.object({
-  VITE_ENABLE_REMOTE_DATA: z.enum(['true', 'false']).optional().default('false'),
+  VITE_ENABLE_REMOTE_DATA: z.enum(['true', 'false']).or(z.literal('')).optional().default('false'),
   VITE_NEON_AUTH_URL: optionalUrl,
   VITE_NEON_DATA_API_URL: optionalUrl,
   VITE_STORAGE_FUNCTION_URL: optionalUrl,

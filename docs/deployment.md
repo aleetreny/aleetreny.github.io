@@ -22,6 +22,8 @@ Todas son públicas porque se incorporan al bundle:
 - `VITE_STORAGE_FUNCTION_URL`
 - `VITE_STORAGE_PUBLIC_BASE_URL`
 
+Si `VITE_ENABLE_REMOTE_DATA` todavía no existe, el workflow usa `false` y publica los fixtures versionados. Esto permite recuperar el frontend sin romper la build, pero no habilita el modo propietario; cambia la variable a `true` únicamente cuando Auth y Data API estén verificados.
+
 No crear una variable `VITE_DATABASE_URL`, `VITE_NEON_API_KEY` ni `VITE_AWS_SECRET_ACCESS_KEY`.
 
 ## Backend Neon

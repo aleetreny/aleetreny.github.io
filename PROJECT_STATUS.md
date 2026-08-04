@@ -17,7 +17,8 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - scripts de migración, seed, propietario, verificación, backup/import DB y storage;
 - CI, GitHub Pages, provisión Neon manual, Dependabot, ADRs y guías de recuperación;
 - backup remoto `backup/static-terminal-2025` de la web anterior;
-- validación desde clon temporal limpio: instalación frozen, repo scan, lint, tipos, 10 tests y build;
+- validación local actual: repo scan, lint, tipos, 11 tests y build con variables de Pages vacías;
+- validación anterior desde clon temporal limpio: instalación frozen, repo scan, lint, tipos, 10 tests y build;
 - revisión visual local desktop/móvil a 390 px sin overflow; pan, zoom, apertura y cierre verificados en navegador.
 
 “Terminado en código” no significa verificado contra servicios reales.

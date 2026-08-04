@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAGES_BASE_PATH: /
-      VITE_ENABLE_REMOTE_DATA: ${{ vars.VITE_ENABLE_REMOTE_DATA }}
+      VITE_ENABLE_REMOTE_DATA: ${{ vars.VITE_ENABLE_REMOTE_DATA || 'false' }}
       VITE_NEON_AUTH_URL: ${{ vars.VITE_NEON_AUTH_URL }}
       VITE_NEON_DATA_API_URL: ${{ vars.VITE_NEON_DATA_API_URL }}
       VITE_STORAGE_FUNCTION_URL: ${{ vars.VITE_STORAGE_FUNCTION_URL }}

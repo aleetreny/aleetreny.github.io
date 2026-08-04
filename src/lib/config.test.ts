@@ -6,6 +6,10 @@ describe('parseRuntimeConfig', () => {
     expect(parseRuntimeConfig({}).remoteDataEnabled).toBe(false);
   });
 
+  it('treats an empty Actions variable as local fixture mode', () => {
+    expect(parseRuntimeConfig({ VITE_ENABLE_REMOTE_DATA: '' }).remoteDataEnabled).toBe(false);
+  });
+
   it('requires both public Neon endpoints for remote mode', () => {
     expect(() => parseRuntimeConfig({ VITE_ENABLE_REMOTE_DATA: 'true' })).toThrow(
       /VITE_NEON_AUTH_URL/,
