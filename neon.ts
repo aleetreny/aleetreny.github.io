@@ -1,5 +1,7 @@
 import { defineConfig } from '@neon/config/v1';
 
+const protectDefaultBranch = process.env.NEON_PROTECT_DEFAULT_BRANCH !== 'false';
+
 export default defineConfig({
   auth: true,
   dataApi: true,
@@ -20,7 +22,7 @@ export default defineConfig({
     },
   },
   branch: (branch) => {
-    if (branch.isDefault) return { protected: true };
+    if (branch.isDefault) return protectDefaultBranch ? { protected: true } : {};
     if (!branch.exists) return { ttl: '7d' };
     return {};
   },
