@@ -1,0 +1,73 @@
+name: Provision Neon backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Preview changes or apply configuration and migrations
+        required: true
+        type: choice
+        options: [plan, apply]
+        default: plan
+      environment:
+        description: GitHub Environment containing the selected Neon configuration
+        required: true
+        type: choice
+        options: [development, production]
+        default: development
+
+permissions:
+  contents: read
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+      NEON_BRANCH: ${{ vars.NEON_BRANCH }}
+      ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+      STORAGE_BUCKET: portfolio-assets
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate provisioning environment
+        run: pnpm validate:env -- --mode=provision
+
+      - name: Plan Neon changes
+        run: neon config plan --project-id "$NEON_PROJECT_ID" --branch "$NEON_BRANCH"
+
+      - name: Deploy Neon services
+        if: inputs.operation == 'apply'
+        run: >-
+          neon deploy
+          --project-id "$NEON_PROJECT_ID"
+          --branch "$NEON_BRANCH"
+          --update-existing
+          --allow-protected
+          --no-env-pull
+
+      - name: Apply migrations
+        if: inputs.operation == 'apply'
+        run: pnpm db:migrate
+
+      - name: Verify database
+        if: inputs.operation == 'apply'
+        run: pnpm db:verify
