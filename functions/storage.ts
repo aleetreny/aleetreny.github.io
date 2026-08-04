@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { Pool } from 'pg';
 import { z } from 'zod';
@@ -19,6 +19,15 @@ const uploadRequestSchema = z.object({
   byteSize: z.number().int().positive(),
 });
 const deleteRequestSchema = z.object({ key: z.string().min(1).max(512) });
+
+class HttpError extends Error {
+  constructor(
+    message: string,
+    readonly status: 400 | 401 | 403 | 502,
+  ) {
+    super(message);
+  }
+}
 
 let pool: Pool | undefined;
 let s3Client: S3Client | undefined;
@@ -61,16 +70,20 @@ function getJwks() {
 
 async function verifyBearerToken(header: string | undefined): Promise<JWTPayload> {
   const token = header?.match(/^Bearer\s+(.+)$/i)?.[1];
-  if (!token) throw new Error('Missing bearer token.');
+  if (!token) throw new HttpError('Falta la sesión de propietario.', 401);
 
-  const authOrigin = new URL(requiredEnv('NEON_AUTH_BASE_URL')).origin;
-  const { payload } = await jwtVerify(token, getJwks(), {
-    issuer: authOrigin,
-    audience: authOrigin,
-    algorithms: ['EdDSA'],
-  });
-  if (!payload.sub) throw new Error('Token has no subject.');
-  return payload;
+  try {
+    const authOrigin = new URL(requiredEnv('NEON_AUTH_BASE_URL')).origin;
+    const { payload } = await jwtVerify(token, getJwks(), {
+      issuer: authOrigin,
+      audience: authOrigin,
+      algorithms: ['EdDSA'],
+    });
+    if (!payload.sub) throw new Error('Token has no subject.');
+    return payload;
+  } catch {
+    throw new HttpError('La sesión de propietario no es válida o ha caducado.', 401);
+  }
 }
 
 async function ownerFromRequest(authorization: string | undefined): Promise<string> {
@@ -84,8 +97,16 @@ async function ownerFromRequest(authorization: string | undefined): Promise<stri
      ) as allowed`,
     [ownerId],
   );
-  if (result.rows[0]?.allowed !== true) throw new Error('Authenticated user is not an owner.');
+  if (result.rows[0]?.allowed !== true) {
+    throw new HttpError('La cuenta autenticada no tiene permisos de propietario.', 403);
+  }
   return ownerId;
+}
+
+function errorResponse(context: Context, error: unknown) {
+  if (error instanceof HttpError) return context.json({ error: error.message }, error.status);
+  if (error instanceof z.ZodError) return context.json({ error: 'La petición no es válida.' }, 400);
+  return context.json({ error: 'El servicio de almacenamiento no está disponible.' }, 502);
 }
 
 app.use('*', async (context, next) => {
@@ -124,6 +145,7 @@ app.post('/uploads/presign', async (context) => {
         Bucket: bucket,
         Key: key,
         ContentType: request.contentType,
+        ContentLength: request.byteSize,
       }),
       { expiresIn: 300 },
     );
@@ -136,8 +158,7 @@ app.post('/uploads/presign', async (context) => {
       expiresIn: 300,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Upload authorization failed.';
-    return context.json({ error: message }, message.includes('owner') ? 403 : 401);
+    return errorResponse(context, error);
   }
 });
 
@@ -157,8 +178,7 @@ app.delete('/uploads', async (context) => {
     );
     return context.body(null, 204);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Delete authorization failed.';
-    return context.json({ error: message }, message.includes('owner') ? 403 : 401);
+    return errorResponse(context, error);
   }
 });
 
