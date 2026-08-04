@@ -18,7 +18,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - scripts de migración, seed, propietario, verificación, backup/import DB y storage;
 - CI, GitHub Pages, provisión Neon manual, Dependabot, ADRs y guías de recuperación;
 - backup remoto `backup/static-terminal-2025` de la web anterior;
-- validación local actual: repo scan, lint, tipos, 11 tests y build con los endpoints públicos productivos;
+- validación local actual: repo scan, lint, tipos, 14 tests y build con los endpoints públicos productivos;
 - validación anterior desde clon temporal limpio: instalación frozen, repo scan, lint, tipos, 10 tests y build;
 - revisión visual local desktop/móvil a 390 px sin overflow; pan, zoom, apertura y cierre verificados en navegador;
 - proyecto Neon definitivo `divine-queen-66854519` creado en `aws-us-east-2` y rama aislada `codex-integration` (`br-tiny-art-ayb43loi`) conectada;
@@ -39,14 +39,17 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - ciclo real de Storage superado en ambas ramas: signup sintético, allowlist temporal, presign, PUT, lectura pública, registro por Data API, export, delete, import, delete y limpieza;
 - producción e integración quedaron limpias tras las pruebas: 10 entradas, 8 bloques, 0 assets y 0 cuentas temporales;
 - contrato TypeScript de cinco tablas y seis RPC cotejado contra `information_schema` de producción;
-- GitHub Pages configurado manualmente para usar GitHub Actions como única fuente de publicación.
+- GitHub Pages configurado manualmente para usar GitHub Actions como única fuente de publicación;
+- auditoría final sobre el despliegue compilado: assets 200, cinco secciones, presentación, zoom, centrado, teclado, Escape, foco, contactos, signup, error de login, sesión, inventario, estados vacíos y editor;
+- flujo editorial online final: seis tipos de bloque, reordenación por botones/teclado, borrado de bloque, preview de imagen, guardado, publicación visible sin redeploy, historial, restauración de versión, archivado, papelera, recuperación y logout;
+- la auditoría detectó y corrigió el scroll retenido tras autenticar y la incompatibilidad entre el timestamp `+00:00` de Postgres y el validador del cliente;
+- comprobación visual sin overlay, alertas inesperadas ni imágenes rotas; la cuenta, entrada, bloques y versiones sintéticos se eliminaron y producción volvió a 10 entradas, 8 bloques, 0 assets y 0 cuentas.
 
 ## Parcialmente implementado
 
 | Elemento | Estado | Archivos | Dependencia | Criterio de finalización |
 | --- | --- | --- | --- | --- |
 | Modo propietario | E2E real superado en integración y producción con usuarios temporales; falta el propietario definitivo | `OwnerMode.tsx`, `components/editor/`, repositorio | signup del propietario + allowlist | el propietario real entra y completa una escritura controlada en Pages |
-| Deploy | fuente de Pages corregida a GitHub Actions; falta publicar el commit final y repetir la auditoría sobre esa URL estable | `.github/workflows/`, Settings > Pages | commit final | `index.html` conserva el bundle `/assets/index-*.js` y la auditoría pública final pasa |
 | Contenido | portfolio público coherente en fixtures | `fixtures/demo-content.json` | revisión final del propietario | textos/periodos/assets aprobados y sembrados en Neon |
 
 ## Pendiente
@@ -55,7 +58,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 | --- | --- | --- | --- |
 | Crear y allowlistar propietario real | `OwnerMode.tsx`, `docs/authentication.md`, `scripts/db/create-owner.mjs` | el propietario crea la cuenta en `?owner=1` y facilita solo el UUID | login/CRUD/logout productivo pasan sin credenciales compartidas |
 | Configurar GitHub Secrets de provisión | workflows, `.env.example` | `NEON_API_KEY` y `DATABASE_URL` en entornos seguros | Actions puede provisionar sin valores locales |
-| Publicar y etiquetar release | `main`, GitHub Pages | verificaciones anteriores | nueva web estable, workflow manual probado y tag `portfolio-v*` |
+| Etiquetar release | `main`, GitHub Pages | propietaria definitiva y comprobación final | tag `portfolio-v*` apunta al commit estable documentado |
 
 ## Bloqueado externamente
 
