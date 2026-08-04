@@ -16,6 +16,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - storage broker con JWT/JWKS, CORS exacto, límites y URLs firmadas;
 - CI, Pages, provisión Neon manual, Dependabot;
 - documentación, ADRs, recuperación y snapshot de la web anterior.
+- clon limpio del código verificado con instalación frozen, 7 tests y build.
 
 “Terminado en código” no significa verificado contra servicios reales.
 
@@ -40,7 +41,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 | Tipos de DB generados | `src/types/database.ts` | Data API real | generación oficial y diff revisado en CI |
 | Tests integración/E2E | `src/**/*.test.ts`, futuros e2e | branch Neon aislada | matriz anon/no-owner/owner en CI seguro |
 | Contenido definitivo | fixtures/DB | revisión propietaria | contenido aprobado, assets/licencias completos |
-| Clon limpio total | `scripts/verify-portability.mjs` | commits + Neon aislado | 10 pasos de portabilidad documentados superados |
+| Clon limpio total con servicios | `scripts/verify-portability.mjs`, `docs/recovery.md` | Neon aislado | prueba local ya pasa; faltan migración/Auth/Storage/deploy reales |
 | Release estable | Git tag/Pages | todo lo anterior crítico | tag `portfolio-v*`, Pages y rollback probados |
 
 ## Bloqueado externamente

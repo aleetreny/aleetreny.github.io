@@ -7,11 +7,14 @@ Actualizado: 2026-08-04 (Atlantic/Canary).
 - Último commit estable remoto previo a esta fase: `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c` (`main`, web terminal).
 - Backup remoto: `backup/static-terminal-2025`.
 - Rama de trabajo: `codex/portable-architecture`.
-- El SHA publicado de esta fase debe sustituir esta nota al cerrar la sesión.
+- Último commit publicado de esta fase: `464e8b9bb7f02a5e340cfc4fcb04cee3c12825a7` (`docs: add setup and recovery guide`).
+- Los 85 blobs publicados coinciden byte por byte con el árbol local verificado; el commit de cierre posterior solo actualiza estado/handoff.
 
 ## Estado funcional
 
 Funciona localmente sin servicios mediante fixtures. Existe frontend React, modo propietario de login/inventario, cliente Neon, esquema/RLS, function broker de storage, scripts DB/storage, CI/Pages/provisión y documentación. La integración real con Neon no se ha ejecutado porque no se proporcionó un proyecto/branch.
+
+Se ejecutó `pnpm portability:verify` desde un clon temporal limpio: instalación frozen, escaneo, lint, typecheck, 7 tests y build pasaron. No incluye el paso externo de crear una rama Neon y aplicar migraciones.
 
 ## Primeros comandos en otra máquina
 
