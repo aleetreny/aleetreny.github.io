@@ -17,7 +17,9 @@ Funciona desde un clon sin servicios mediante diez fixtures públicos. La web es
 
 El modo propietario contiene signup, login, recuperación de sesión, inventario, CRUD, papelera recuperable, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. El E2E real pasó en una rama Neon aislada y después en producción con una cuenta temporal: alta, edición, reordenación, borrado, papelera, restauración, historial y logout. La cuenta y los datos temporales productivos se eliminaron. El primer inventario espera la propagación del token para no degradarse accidentalmente a lectura anónima.
 
-Última validación local: `pnpm check` (11 tests) y build con endpoints productivos pasan. `pnpm portability:verify` también pasó desde un clon limpio del commit estable: instalación frozen, scan, lint, tipos, pruebas y build, sin archivos locales anteriores. Sobre el artefacto online anterior se probaron los seis stickers, todos los paneles, enlaces, zoom, centrado, pan por teclado, Escape y retorno de foco. Falta repetir esa auditoría sobre el despliegue final posterior al cambio de fuente.
+Última validación local: `pnpm check` (14 tests) y build con endpoints productivos pasan. La ejecución final de `pnpm portability:verify` también pasó desde un clon limpio del commit auditado: instalación frozen, scan, lint, tipos, 14 pruebas y build, sin archivos locales anteriores. El commit posterior solo registra esta evidencia documental.
+
+La auditoría final del artefacto online compilado cubrió presentación, cinco stickers, todos los paneles, enlaces, zoom, centrado, pan por teclado, Escape, retorno de foco, login/signup, inventario, seis bloques, reordenación, preview de imagen, guardado, publicación visible en el tablero, historial, restore, archivado, papelera, recuperación y logout. No aparecieron overlays, alertas inesperadas ni imágenes rotas. Se corrigieron durante la auditoría el scroll retenido al autenticar y el timestamp `+00:00` devuelto por Postgres. La cuenta y el contenido sintéticos se eliminaron; producción quedó en 10 entradas, 8 bloques, 0 assets y 0 cuentas.
 
 ## Primeros comandos en otra máquina
 
@@ -67,10 +69,9 @@ Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a se
 
 ## Próximos pasos concretos
 
-1. Publicar el commit final y comprobar que `index.html` referencia `/assets/index-*.js`, nunca `/src/main.tsx`.
-2. Crear/allowlistar al propietario real en producción sin compartir credenciales.
-3. Configurar Secrets operativos de GitHub.
-4. Repetir la auditoría online completa y crear tag estable.
+1. Crear/allowlistar al propietario real en producción sin compartir credenciales.
+2. Configurar Secrets operativos de GitHub.
+3. Crear el tag estable después de completar las dos acciones anteriores.
 
 ## Errores y limitaciones conocidas
 
