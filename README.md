@@ -81,7 +81,7 @@ pnpm preview
 6. Despliega Auth, Data API, bucket y función: `pnpm neon:deploy`.
 7. Recupera variables locales: `pnpm exec neon env pull --file .env.local`.
 
-`neon.ts` marca la rama principal como protegida. No uses `--allow-protected` fuera del flujo de producción consciente.
+`neon.ts` marca la rama principal como protegida por defecto. Si el plan de Neon admite cero ramas protegidas, define conscientemente `NEON_PROTECT_DEFAULT_BRANCH=false` y compensa con aprobación obligatoria en el GitHub Environment `production`; elimina esa excepción al ampliar el plan. No uses `--allow-protected` fuera del flujo de producción consciente.
 
 ### Aplicar o restaurar el esquema
 
@@ -167,7 +167,7 @@ Variables de repositorio o del environment `github-pages` (públicas):
 - `VITE_STORAGE_FUNCTION_URL`
 - `VITE_STORAGE_PUBLIC_BASE_URL`
 
-Los endpoints públicos de Auth/Data API y `VITE_ENABLE_REMOTE_DATA=true` tienen valores de recuperación versionados en el workflow; las Variables los sobreescriben. Storage no obtiene ningún valor por defecto hasta que exista la Function productiva. Ninguna credencial privada se incorpora al bundle.
+Los endpoints públicos de Auth/Data API/Storage y `VITE_ENABLE_REMOTE_DATA=true` tienen valores de recuperación versionados en el workflow; las Variables los sobreescriben. Ninguna credencial privada se incorpora al bundle.
 
 El dominio previsto es `https://aleetreny.github.io/`. No hay dominio personalizado configurado ni archivo `CNAME`. Si se añade, debe configurarse también en Settings > Pages, DNS, Auth trusted origins y `ALLOWED_ORIGINS`.
 
@@ -203,7 +203,7 @@ Los exports de contenido privado no forman parte de estos scripts. No uses el re
 - Decisiones y alternativas: [docs/decisions/](docs/decisions/).
 - Recuperación y rollback: [docs/recovery.md](docs/recovery.md).
 
-La fase actual deja terminados el frontend público, el editor visual, la persistencia versionada, el broker de imágenes y la automatización. El proyecto Neon definitivo ya existe en `aws-us-east-2`; Auth, Data API, migraciones, RLS y el flujo editorial real han pasado en integración y producción con usuarios temporales ya eliminados. `main` contiene la nueva web, pero antes de considerar estable la publicación hay que seleccionar una vez GitHub Actions como fuente de Pages: el modo legacy todavía sobrescribe el artefacto compilado. Faltan además desplegar/probar Storage y Function, crear el propietario definitivo y repetir la prueba desde clon limpio y la auditoría online final.
+La fase actual deja terminados el frontend público, el editor visual, la persistencia versionada, el broker de imágenes y la automatización. En el proyecto Neon definitivo de `aws-us-east-2`, Auth, Data API, migraciones, RLS, Storage, Function, flujo editorial y ciclo completo de archivos han pasado en integración y producción con usuarios sintéticos ya eliminados. GitHub Pages ya usa GitHub Actions como fuente. Antes de cerrar la release faltan crear y allowlistar a la propietaria definitiva sin compartir su contraseña, publicar el commit final, repetir la prueba desde clon limpio y auditar de nuevo la URL pública completa.
 
 ## Contexto de Notion
 
