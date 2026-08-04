@@ -34,7 +34,7 @@ revoke all on all tables in schema app_private from public, anonymous, authentic
 revoke all on all functions in schema app_private from public, anonymous, authenticated;
 
 grant usage on schema public to anonymous, authenticated;
-grant select on public.content_entries, public.content_blocks, public.assets, public.site_settings
+grant select on public.content_entries, public.content_blocks, public.site_settings
   to anonymous;
 grant select, insert, update, delete on
   public.content_entries,
@@ -90,11 +90,6 @@ using (public.is_owner())
 with check (public.is_owner());
 
 drop policy if exists assets_public_read on public.assets;
-create policy assets_public_read
-on public.assets
-for select
-to anonymous, authenticated
-using (is_public = true and deleted_at is null);
 
 drop policy if exists assets_owner_all on public.assets;
 create policy assets_owner_all

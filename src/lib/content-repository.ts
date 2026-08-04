@@ -1,10 +1,21 @@
 import { demoEntries } from '../content/demo';
-import type { ContentBlock, EntryStatus, EntryType, PortfolioEntry } from '../types/content';
+import { z } from 'zod';
+import {
+  portfolioEntrySchema,
+  type ContentBlock,
+  type EntryStatus,
+  type EntryType,
+  type EntryVersionSummary,
+  type PortfolioEntry,
+  type StoredAsset,
+} from '../types/content';
 import type { Json } from '../types/database';
+import { runtimeConfig } from './config';
 import { getNeonClient } from './neon';
 
 type EntryRow = {
   id: string;
+  version: number;
   slug: string;
   title: string;
   summary: string;
@@ -46,6 +57,7 @@ function assembleEntries(entries: EntryRow[], blocks: BlockRow[]): PortfolioEntr
 
   return entries.map((entry) => ({
     id: entry.id,
+    version: entry.version,
     slug: entry.slug,
     title: entry.title,
     summary: entry.summary,
@@ -63,7 +75,7 @@ async function fetchEntries(ownerView: boolean): Promise<PortfolioEntry[]> {
 
   let query = neonClient
     .from('content_entries')
-    .select('id,slug,title,summary,entry_type,status,metadata,published_at')
+    .select('id,version,slug,title,summary,entry_type,status,metadata,published_at')
     .is('deleted_at', null)
     .order('published_at', { ascending: false, nullsFirst: false });
 
@@ -111,10 +123,146 @@ export async function signOutOwner(): Promise<void> {
   if (result.error) throw new Error(result.error.message);
 }
 
+export async function hasOwnerSession(): Promise<boolean> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) return false;
+  const result = await neonClient.auth.getSession();
+  return Boolean(result.data?.session);
+}
+
 export async function isCurrentUserOwner(): Promise<boolean> {
   const neonClient = await getNeonClient();
   if (!neonClient) return false;
   const { data, error } = await neonClient.rpc('is_owner');
   if (error) throw new Error(error.message);
   return data === true;
+}
+
+export async function saveContentEntry(entry: PortfolioEntry, reason = 'editor save'): Promise<PortfolioEntry> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+
+  const { blocks, ...entryFields } = entry;
+  const { data, error } = await neonClient.rpc('save_content_entry', {
+    p_entry_id: entry.id,
+    p_expected_version: entry.version,
+    p_entry: entryFields as Json,
+    p_blocks: blocks as Json,
+    p_reason: reason,
+  });
+  if (error) {
+    const prefix = error.code === '40001' ? 'Conflicto de edición: recarga antes de guardar. ' : '';
+    throw new Error(`${prefix}${error.message}`);
+  }
+  return portfolioEntrySchema.parse(data);
+}
+
+export async function deleteContentEntry(entry: Pick<PortfolioEntry, 'id' | 'version'>): Promise<void> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const { error } = await neonClient.rpc('soft_delete_content_entry', {
+    p_entry_id: entry.id,
+    p_expected_version: entry.version,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function listEntryVersions(entryId: string): Promise<EntryVersionSummary[]> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) return [];
+  const { data, error } = await neonClient
+    .from('entry_versions')
+    .select('id,version,reason,created_at')
+    .eq('entry_id', entryId)
+    .order('version', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    version: row.version,
+    reason: row.reason,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function restoreEntryVersion(
+  entryId: string,
+  version: number,
+  expectedVersion: number,
+): Promise<PortfolioEntry> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const { data, error } = await neonClient.rpc('restore_content_entry_version', {
+    p_entry_id: entryId,
+    p_version: version,
+    p_expected_version: expectedVersion,
+  });
+  if (error) throw new Error(error.message);
+  return portfolioEntrySchema.parse(data);
+}
+
+const presignResponseSchema = z.object({
+  bucket: z.string().min(1),
+  key: z.string().min(1),
+  uploadUrl: z.url(),
+  publicUrl: z.url(),
+});
+
+async function getOwnerToken(): Promise<string> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const result = await neonClient.auth.getSession();
+  if (result.error || !result.data?.session.token) {
+    throw new Error('La sesión ha caducado. Vuelve a iniciar sesión.');
+  }
+  return result.data.session.token;
+}
+
+export async function uploadImage(file: File, altText: string): Promise<StoredAsset> {
+  if (!runtimeConfig.storageFunctionUrl) {
+    throw new Error('VITE_STORAGE_FUNCTION_URL no está configurada.');
+  }
+
+  const token = await getOwnerToken();
+  const presignResponse = await fetch(`${runtimeConfig.storageFunctionUrl}/uploads/presign`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ filename: file.name, contentType: file.type, byteSize: file.size }),
+  });
+  if (!presignResponse.ok) {
+    const body = (await presignResponse.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? 'No se pudo autorizar la subida.');
+  }
+  const presign = presignResponseSchema.parse(await presignResponse.json());
+
+  const uploadResponse = await fetch(presign.uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  });
+  if (!uploadResponse.ok) throw new Error('El almacenamiento rechazó la subida.');
+
+  const neonClient = await getNeonClient();
+  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const { data, error } = await neonClient.rpc('register_uploaded_asset', {
+    p_bucket: presign.bucket,
+    p_object_key: presign.key,
+    p_public_url: presign.publicUrl,
+    p_mime_type: file.type,
+    p_byte_size: file.size,
+    p_alt_text: altText,
+  });
+  if (error) throw new Error(error.message);
+
+  return {
+    id: data.id,
+    bucket: data.bucket,
+    objectKey: data.object_key,
+    publicUrl: data.public_url ?? presign.publicUrl,
+    mimeType: data.mime_type,
+    byteSize: data.byte_size,
+    altText: data.alt_text,
+  };
 }

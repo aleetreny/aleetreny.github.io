@@ -13,6 +13,7 @@ const requiredPaths = [
   'README.md',
   'db/migrations/0001_initial_schema.sql',
   'db/migrations/0002_data_api_permissions.sql',
+  'db/migrations/0003_editor_functions.sql',
   'db/schema.sql',
   'docs/architecture.md',
   'docs/authentication.md',
