@@ -1,6 +1,7 @@
 [
   {
     "id": "10000000-0000-4000-8000-000000000001",
+    "version": 1,
     "slug": "forecasting-financial-cash-flow",
     "title": "Forecasting de cash flow global",
     "summary": "Comparación reproducible de modelos lineales, GAM y gradient boosting para apoyar decisiones de liquidez.",
@@ -8,26 +9,30 @@
     "status": "published",
     "publishedAt": "2026-01-15T12:00:00.000Z",
     "metadata": {
-      "topics": ["forecasting", "machine-learning", "finance"],
-      "featured": true
+      "topics": ["forecasting", "machine learning", "finanzas"],
+      "featured": true,
+      "organization": "Modelado aplicado"
     },
     "blocks": [
       {
         "id": "20000000-0000-4000-8000-000000000001",
         "type": "text",
         "position": 0,
-        "props": {
-          "text": "Pipeline orientado a comparar el error fuera de muestra y comunicar la incertidumbre de forma útil para negocio."
-        },
-        "layout": {
-          "width": "wide",
-          "align": "start"
-        }
+        "props": { "text": "Un pipeline orientado a comparar el error fuera de muestra y comunicar la incertidumbre de forma útil para negocio." },
+        "layout": { "width": "wide", "align": "start" }
+      },
+      {
+        "id": "20000000-0000-4000-8000-000000000002",
+        "type": "list",
+        "position": 1,
+        "props": { "items": ["Validación temporal sin fuga de información", "Comparación de familias de modelos", "Resultados interpretables para planificación"] },
+        "layout": { "width": "wide", "align": "start" }
       }
     ]
   },
   {
     "id": "10000000-0000-4000-8000-000000000002",
+    "version": 1,
     "slug": "operations-optimization",
     "title": "Optimización de operaciones",
     "summary": "Modelos de precio, planificación lineal y cuadros de mando para convertir datos operativos en decisiones medibles.",
@@ -35,22 +40,188 @@
     "status": "published",
     "publishedAt": "2025-10-01T12:00:00.000Z",
     "metadata": {
-      "topics": ["optimization", "power-bi", "econometrics"],
+      "topics": ["optimización", "Power BI", "econometría"],
+      "featured": true,
+      "organization": "Decisión operativa"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000003",
+        "type": "metric",
+        "position": 0,
+        "props": { "label": "Objetivo de diseño", "value": "Decisiones trazables" },
+        "layout": { "width": "medium", "align": "start" }
+      },
+      {
+        "id": "20000000-0000-4000-8000-000000000004",
+        "type": "text",
+        "position": 1,
+        "props": { "text": "La solución conecta restricciones operativas, escenarios de precio y una capa visual para evaluar alternativas antes de ejecutarlas." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "version": 1,
+    "slug": "genai-mavericks",
+    "title": "GenAI Mavericks",
+    "summary": "Exploración de aplicaciones responsables de IA generativa con foco en utilidad, evaluación y comunicación clara.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2025-07-12T12:00:00.000Z",
+    "metadata": {
+      "topics": ["GenAI", "prototipado", "evaluación"],
+      "featured": true,
+      "organization": "Innovación aplicada"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000005",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "Del concepto al prototipo: definición del caso de uso, criterios de calidad y límites explícitos para que la tecnología sea comprensible y gobernable." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000004",
+    "version": 1,
+    "slug": "frulogy-data-product",
+    "title": "Frulogy",
+    "summary": "Concepto de producto de datos que reúne experimentación, señales de mercado y una narrativa visual coherente.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2025-04-20T12:00:00.000Z",
+    "metadata": {
+      "topics": ["producto", "analítica", "visualización"],
+      "featured": false,
+      "organization": "Proyecto personal"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000006",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "Un espacio para ensayar cómo la analítica puede convertirse en una experiencia de producto, no solo en un informe." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000005",
+    "version": 1,
+    "slug": "siemens-data-analytics",
+    "title": "Data & Analytics",
+    "summary": "Trabajo con datos financieros y operativos, automatización de análisis y comunicación de resultados para equipos multidisciplinares.",
+    "entryType": "experience",
+    "status": "published",
+    "publishedAt": "2025-02-01T12:00:00.000Z",
+    "metadata": {
+      "topics": ["datos", "automatización", "forecasting"],
+      "featured": false,
+      "organization": "Siemens",
+      "period": "Etapa profesional"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000007",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "Construcción de análisis mantenibles y énfasis en que cada resultado pueda explicarse, auditarse y convertirse en acción." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000006",
+    "version": 1,
+    "slug": "tropical-millenium-operations",
+    "title": "Operaciones y análisis",
+    "summary": "Análisis próximo al negocio para entender procesos, detectar fricciones y estructurar decisiones con datos.",
+    "entryType": "experience",
+    "status": "published",
+    "publishedAt": "2024-06-01T12:00:00.000Z",
+    "metadata": {
+      "topics": ["operaciones", "modelado", "reporting"],
+      "featured": false,
+      "organization": "Tropical Millenium",
+      "period": "Etapa profesional"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000007",
+    "version": 1,
+    "slug": "ey-analytical-foundations",
+    "title": "Fundamentos analíticos",
+    "summary": "Experiencia temprana en un entorno de consultoría, combinando rigor, estructura y comunicación con distintos interlocutores.",
+    "entryType": "experience",
+    "status": "published",
+    "publishedAt": "2023-09-01T12:00:00.000Z",
+    "metadata": {
+      "topics": ["consultoría", "análisis", "comunicación"],
+      "featured": false,
+      "organization": "EY",
+      "period": "Etapa profesional"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000008",
+    "version": 1,
+    "slug": "master-statistics-data-science",
+    "title": "Máster en Estadística para la Ciencia de Datos",
+    "summary": "Profundización en inferencia, modelado estadístico, aprendizaje automático y tratamiento riguroso de la incertidumbre.",
+    "entryType": "education",
+    "status": "published",
+    "publishedAt": "2024-01-01T12:00:00.000Z",
+    "metadata": {
+      "topics": ["estadística", "machine learning", "inferencia"],
+      "featured": false,
+      "organization": "Universidad Carlos III de Madrid",
+      "period": "Posgrado"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000009",
+    "version": 1,
+    "slug": "economics-foundation",
+    "title": "Formación en Economía",
+    "summary": "Base para entender incentivos, mercados y decisiones antes de traducirlos a modelos cuantitativos.",
+    "entryType": "education",
+    "status": "published",
+    "publishedAt": "2022-06-01T12:00:00.000Z",
+    "metadata": {
+      "topics": ["economía", "econometría", "finanzas"],
+      "featured": false,
+      "organization": "Universidad de Málaga",
+      "period": "Grado"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000010",
+    "version": 1,
+    "slug": "sobre-mi",
+    "title": "Curiosidad cuantitativa, criterio práctico",
+    "summary": "Me interesan los proyectos donde una buena pregunta importa tanto como el modelo: entender el sistema, hacer explícitos los supuestos y dejar una solución que otra persona pueda continuar.",
+    "entryType": "note",
+    "status": "published",
+    "publishedAt": "2026-02-01T12:00:00.000Z",
+    "metadata": {
+      "topics": ["método", "colaboración", "producto"],
       "featured": false
     },
     "blocks": [
       {
-        "id": "20000000-0000-4000-8000-000000000002",
-        "type": "metric",
+        "id": "20000000-0000-4000-8000-000000000008",
+        "type": "quote",
         "position": 0,
-        "props": {
-          "label": "Impacto observado",
-          "value": "Decisiones operativas trazables"
-        },
-        "layout": {
-          "width": "medium",
-          "align": "start"
-        }
+        "props": { "text": "El resultado debe funcionar, pero también debe poder entenderse y mantenerse.", "attribution": "Principio de trabajo" },
+        "layout": { "width": "medium", "align": "start" }
       }
     ]
   }

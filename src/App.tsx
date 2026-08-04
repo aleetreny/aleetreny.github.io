@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
-import { EntryCard } from './components/EntryCard';
-import { OwnerMode } from './components/OwnerMode';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { PublicPortfolio } from './components/PublicPortfolio';
 import { listPublishedEntries } from './lib/content-repository';
 import { runtimeConfig } from './lib/config';
 import type { PortfolioEntry } from './types/content';
+
+const OwnerMode = lazy(() => import('./components/OwnerMode').then((module) => ({
+  default: module.OwnerMode,
+})));
 
 export default function App() {
   const ownerMode = new URLSearchParams(window.location.search).get('owner') === '1';
   const [entries, setEntries] = useState<PortfolioEntry[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(!ownerMode);
 
   useEffect(() => {
     if (ownerMode) return;
@@ -16,10 +20,16 @@ export default function App() {
 
     listPublishedEntries()
       .then((nextEntries) => {
-        if (active) setEntries(nextEntries);
+        if (active) {
+          setEntries(nextEntries);
+          setLoading(false);
+        }
       })
       .catch((reason: unknown) => {
-        if (active) setError(reason instanceof Error ? reason.message : 'No se pudo cargar el contenido.');
+        if (active) {
+          setError(reason instanceof Error ? reason.message : 'No se pudo cargar el contenido.');
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -30,50 +40,40 @@ export default function App() {
   return (
     <div className="site-shell">
       <header className="site-header">
-        <a className="brand" href="/">Alejandro Treny</a>
+        <a className="brand" href={ownerMode ? '/' : '#inicio'}>Alejandro Treny</a>
         <nav aria-label="Navegación principal">
-          <a href={ownerMode ? '/' : '?owner=1'}>{ownerMode ? 'Portfolio' : 'Propietario'}</a>
-          <a href="https://github.com/aleetreny" rel="noreferrer" target="_blank">GitHub</a>
+          {ownerMode ? (
+            <a href="/">Portfolio</a>
+          ) : (
+            <>
+              <a href="#proyectos">Proyectos</a>
+              <a href="#experiencia">Experiencia</a>
+              <a href="#contacto">Contacto</a>
+              <a href="?owner=1">Propietario</a>
+            </>
+          )}
         </nav>
       </header>
 
       <main>
         {ownerMode ? (
-          <OwnerMode />
+          <Suspense fallback={<p className="loading-state" role="status">Cargando editor…</p>}>
+            <OwnerMode />
+          </Suspense>
         ) : (
           <>
-            <section className="hero">
-              <p className="eyebrow">Estadística · datos · producto</p>
-              <h1>Modelos rigurosos, decisiones que se pueden explicar.</h1>
-              <p className="hero__lede">
-                Portfolio evolutivo de proyectos de ciencia de datos, forecasting y optimización. El
-                contenido se publica desde un modo propietario protegido y se entrega como sitio estático.
-              </p>
-              <div className="runtime-badge">
-                <span aria-hidden="true" />
-                {runtimeConfig.remoteDataEnabled ? 'Contenido servido por Neon' : 'Vista reproducible con fixtures'}
-              </div>
-            </section>
-
-            <section className="work" aria-labelledby="work-title">
-              <div className="section-heading">
-                <p className="eyebrow">Trabajo seleccionado</p>
-                <h2 id="work-title">Casos y proyectos</h2>
-              </div>
-              {error ? <p className="form-error" role="alert">{error}</p> : null}
-              <div className="entry-grid">
-                {entries.map((entry) => (
-                  <EntryCard entry={entry} key={entry.id} />
-                ))}
-              </div>
-            </section>
+            {loading ? <p className="loading-state" role="status">Cargando portfolio…</p> : null}
+            {error ? <p className="form-error site-error" role="alert">{error}</p> : null}
+            {!loading ? (
+              <PublicPortfolio entries={entries} remoteDataEnabled={runtimeConfig.remoteDataEnabled} />
+            ) : null}
           </>
         )}
       </main>
 
       <footer>
-        <span>Construido para poder continuar desde cualquier ordenador.</span>
-        <a href="mailto:alejandrotreny100@gmail.com">Contacto</a>
+        <span>© {new Date().getFullYear()} Alejandro Treny</span>
+        <span>Diseñado para ser reproducible desde GitHub.</span>
       </footer>
     </div>
   );
