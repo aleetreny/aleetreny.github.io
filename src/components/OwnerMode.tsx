@@ -11,6 +11,7 @@ import {
 } from '../lib/content-repository';
 import { runtimeConfig } from '../lib/config';
 import type { DeletedEntrySummary, PortfolioEntry } from '../types/content';
+import { ConfirmDialog } from './editor/ConfirmDialog';
 import { EntryEditor } from './editor/EntryEditor';
 
 type AuthState = 'checking' | 'signed-out' | 'signed-in';
@@ -28,6 +29,7 @@ export function OwnerMode() {
   const [message, setMessage] = useState('');
   const [messageTone, setMessageTone] = useState<'success' | 'error'>('error');
   const [busy, setBusy] = useState(false);
+  const [restoreTarget, setRestoreTarget] = useState<DeletedEntrySummary | null>(null);
 
   useEffect(() => {
     if (!runtimeConfig.remoteDataEnabled) {
@@ -135,7 +137,6 @@ export function OwnerMode() {
   }
 
   async function handleRestoreDeleted(entry: DeletedEntrySummary) {
-    if (!window.confirm(`¿Restaurar “${entry.title}” desde la papelera?`)) return;
     setBusy(true);
     setMessage('');
     try {
@@ -151,6 +152,7 @@ export function OwnerMode() {
       setMessage(error instanceof Error ? error.message : 'No se pudo restaurar la entrada.');
     } finally {
       setBusy(false);
+      setRestoreTarget(null);
     }
   }
 
@@ -288,7 +290,7 @@ export function OwnerMode() {
                 <button
                   className="button button--secondary"
                   disabled={busy}
-                  onClick={() => handleRestoreDeleted(entry)}
+                  onClick={() => setRestoreTarget(entry)}
                   type="button"
                 >
                   Restaurar
@@ -342,6 +344,17 @@ export function OwnerMode() {
           )}
         </div>
       </div>
+
+      {restoreTarget ? (
+        <ConfirmDialog
+          busy={busy}
+          confirmLabel="Restaurar entrada"
+          description={`“${restoreTarget.title}” volverá al inventario activo conservando su contenido y su historial.`}
+          onCancel={() => setRestoreTarget(null)}
+          onConfirm={() => void handleRestoreDeleted(restoreTarget)}
+          title="¿Restaurar desde la papelera?"
+        />
+      ) : null}
     </section>
   );
 }
