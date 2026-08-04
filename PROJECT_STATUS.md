@@ -41,6 +41,8 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - contrato TypeScript de cinco tablas y seis RPC cotejado contra `information_schema` de producción;
 - GitHub Pages configurado manualmente para usar GitHub Actions como única fuente de publicación;
 - environments GitHub `development` y `production` creados con sus cuatro Variables públicas; producción restringida a `main` y protegida por confirmación escrita antes de `apply`;
+- workflow de Pages ejecutado manualmente y superado en la ejecución `#11` (`workflow_dispatch`): jobs `build` y `deploy` correctos, bundle y CSS públicos con HTTP 200 y ausencia de `/src/main.tsx`;
+- portabilidad repetida después del guard de producción: clon limpio, instalación frozen, scan, lint, tipos, 14 tests y build correctos;
 - auditoría final sobre el despliegue compilado: assets 200, cinco secciones, presentación, zoom, centrado, teclado, Escape, foco, contactos, signup, error de login, sesión, inventario, estados vacíos y editor;
 - flujo editorial online final: seis tipos de bloque, reordenación por botones/teclado, borrado de bloque, preview de imagen, guardado, publicación visible sin redeploy, historial, restauración de versión, archivado, papelera, recuperación y logout;
 - la auditoría detectó y corrigió el scroll retenido tras autenticar y la incompatibilidad entre el timestamp `+00:00` de Postgres y el validador del cliente;
@@ -63,7 +65,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 
 ## Bloqueado externamente
 
-No hay bloqueos técnicos. La única acción personal pendiente es que la propietaria cree su cuenta definitiva en `?owner=1` con una contraseña que Codex no vea y comparta únicamente el UUID para la allowlist.
+No hay bloqueos técnicos. Quedan dos acciones personales que Codex no debe observar: crear la cuenta definitiva en `?owner=1` y compartir únicamente su UUID; y pegar `NEON_API_KEY`/`DATABASE_URL` directamente en los environments cifrados de GitHub.
 
 Producción contiene el esquema versionado y los fixtures públicos. Las cuentas, entradas y versiones temporales usadas en el E2E productivo se eliminaron al terminar. El proyecto existente “C2 Practice Log” no se tocó.
 
