@@ -13,6 +13,12 @@ Managed Better Auth de Neon, declarado con `auth: true` en `neon.ts`. La sesión
 5. Aplica migraciones.
 6. Crea la cuenta del propietario y allowlist mediante `pnpm db:owner`.
 
+## Estado verificado
+
+El proyecto definitivo es `aleetreny-portfolio` (`divine-queen-66854519`). En la rama aislada `codex-integration` (`br-tiny-art-ayb43loi`) están provisionados Auth y Data API, y se verificaron sesión allowlisted, lectura anónima, rechazo de escritura para una cuenta no propietaria y el ciclo editorial completo. Producción permanece sin migrar.
+
+En integración, `allow_localhost` permite `http://localhost:5173`; antes de activar Pages se debe añadir exactamente `https://aleetreny.github.io` a los orígenes de confianza. No documentar usuarios, contraseñas, tokens ni UUID temporales de las pruebas.
+
 ## Distinción crítica
 
 `authenticated` significa “JWT válido”, no “administrador”. `public.is_owner()` solo devuelve verdadero si `auth.user_id()` coincide con una fila habilitada en `app_private.owner_accounts`. Todas las escrituras editoriales dependen de esa función mediante RLS.
