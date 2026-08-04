@@ -81,7 +81,7 @@ pnpm preview
 6. Despliega Auth, Data API, bucket y función: `pnpm neon:deploy`.
 7. Recupera variables locales: `pnpm exec neon env pull --file .env.local`.
 
-`neon.ts` marca la rama principal como protegida por defecto. Si el plan de Neon admite cero ramas protegidas, define conscientemente `NEON_PROTECT_DEFAULT_BRANCH=false` y compensa con aprobación obligatoria en el GitHub Environment `production`; elimina esa excepción al ampliar el plan. No uses `--allow-protected` fuera del flujo de producción consciente.
+`neon.ts` marca la rama principal como protegida por defecto. Si el plan de Neon admite cero ramas protegidas, define conscientemente `NEON_PROTECT_DEFAULT_BRANCH=false`. El environment `production` debe aceptar únicamente `main` y el workflow exige escribir `APPLY_PRODUCTION` antes de aplicar; elimina esta excepción al ampliar el plan. No uses `--allow-protected` fuera del flujo de producción consciente.
 
 ### Aplicar o restaurar el esquema
 
@@ -176,9 +176,9 @@ El dominio previsto es `https://aleetreny.github.io/`. No hay dominio personaliz
 El workflow manual `.github/workflows/provision-neon.yml` admite `plan` y `apply`. Crea GitHub Environments `development` y `production` con:
 
 - Secrets: `NEON_API_KEY`, `DATABASE_URL`.
-- Variables: `NEON_PROJECT_ID`, `NEON_BRANCH`, `ALLOWED_ORIGINS`.
+- Variables: `NEON_PROJECT_ID`, `NEON_BRANCH`, `NEON_PROTECT_DEFAULT_BRANCH`, `ALLOWED_ORIGINS`.
 
-Usa primero `plan`. `apply` despliega `neon.ts`, migra y verifica. Protege el environment `production` con aprobación manual.
+Usa primero `plan`. `apply` despliega `neon.ts`, migra y verifica. En este repositorio `production` solo admite `main` y exige `production_confirmation=APPLY_PRODUCTION`; añade revisores obligatorios si un plan futuro de GitHub los habilita.
 
 Si Pages falla, descarga los logs de Actions, vuelve a ejecutar `pnpm check && pnpm build` desde un clon limpio y relanza el workflow. La reversión completa a la web anterior está documentada en [docs/recovery.md](docs/recovery.md).
 
