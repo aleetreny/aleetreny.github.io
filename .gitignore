@@ -1,0 +1,32 @@
+# Dependencies and builds
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+.neon
+
+# Database exports and personal data
+backups/*
+!backups/.gitkeep
+*.dump
+*.sql.gz
+
+# Logs and temporary files
+*.log
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+tmp/
+temp/
+
+# Tool caches
+.eslintcache
+.vite/
+.vitest/
