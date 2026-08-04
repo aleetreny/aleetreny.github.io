@@ -68,6 +68,12 @@ export function OwnerMode() {
     };
   }, []);
 
+  useEffect(() => {
+    if (authState !== 'checking') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, [authState]);
+
   if (!runtimeConfig.remoteDataEnabled) {
     return (
       <section className="owner-panel owner-panel--narrow" aria-labelledby="owner-title">
