@@ -9,7 +9,8 @@ import {
 
 describe('storage policy', () => {
   it('normalizes filenames and rejects unsafe content', () => {
-    expect(sanitizeFilename('../../Foto Málaga 01.PNG')).toBe('..-..-foto-malaga-01.png');
+    expect(sanitizeFilename('../../Foto Málaga 01.PNG')).toBe('foto-malaga-01.png');
+    expect(sanitizeFilename('../..')).toBe('upload');
     expect(isUploadAllowed('image/png', MAX_UPLOAD_BYTES)).toBe(true);
     expect(isUploadAllowed('image/svg+xml', 100)).toBe(false);
     expect(isUploadAllowed('image/png', MAX_UPLOAD_BYTES + 1)).toBe(false);
