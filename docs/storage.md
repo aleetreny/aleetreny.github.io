@@ -43,6 +43,16 @@ Object Storage usa nivel de acceso, no bucket policies S3 arbitrarias. Verifica 
 
 `POST /uploads/presign` recibe `filename`, `contentType`, `byteSize`. Tras el PUT exitoso, el editor llama a `public.register_uploaded_asset` para registrar URL/key/MIME/bytes/alt. La función comprueba de nuevo owner, bucket, prefijo, tipo y tamaño. Si falla esa segunda operación, el objeto queda huérfano; una tarea de mantenimiento futura debe comparar bucket y tabla antes de borrar.
 
+Para verificar el ciclo real sobre una rama aislada, carga localmente las variables de esa rama, define `STORAGE_FUNCTION_URL` y ejecuta:
+
+```bash
+pnpm storage:verify-live
+```
+
+El script crea una cuenta sintética con contraseña aleatoria, la allowlista temporalmente, firma y sube `public/og.jpg`, comprueba la lectura pública, registra metadata por Data API, ejecuta los scripts reales de exportación e importación, borra el objeto mediante la Function y elimina cuenta, allowlist, fila y backup temporal en un bloque `finally`. No imprime credenciales ni deja datos de demostración en Auth, Postgres o el bucket.
+
+Por seguridad rechaza la rama `production` salvo que el operador defina explícitamente `STORAGE_VERIFY_ALLOW_PRODUCTION=true` después de revisar el plan y confirmar que la limpieza sintética es aceptable.
+
 ## Backup y restauración
 
 ```bash
