@@ -37,7 +37,7 @@ jobs:
       STORAGE_BUCKET: portfolio-assets
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Require explicit production confirmation
         if: inputs.operation == 'apply' && inputs.environment == 'production'

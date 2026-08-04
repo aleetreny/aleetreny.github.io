@@ -29,7 +29,7 @@ jobs:
       VITE_STORAGE_PUBLIC_BASE_URL: ${{ vars.VITE_STORAGE_PUBLIC_BASE_URL || 'https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
