@@ -65,6 +65,14 @@ type EntryVersionRow = {
   created_at: string;
 };
 
+type SiteSettingsRow = {
+  key: string;
+  value: Json;
+  is_public: boolean;
+  updated_by: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -93,9 +101,9 @@ export type Database = {
         Relationships: [];
       };
       site_settings: {
-        Row: Record<string, unknown>;
-        Insert: Record<string, unknown>;
-        Update: Record<string, unknown>;
+        Row: SiteSettingsRow;
+        Insert: Partial<SiteSettingsRow> & Pick<SiteSettingsRow, 'key' | 'value' | 'updated_by'>;
+        Update: Partial<SiteSettingsRow>;
         Relationships: [];
       };
     };
