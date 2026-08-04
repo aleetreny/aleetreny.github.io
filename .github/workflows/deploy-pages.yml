@@ -28,6 +28,27 @@ jobs:
       VITE_STORAGE_FUNCTION_URL: ${{ vars.VITE_STORAGE_FUNCTION_URL }}
       VITE_STORAGE_PUBLIC_BASE_URL: ${{ vars.VITE_STORAGE_PUBLIC_BASE_URL }}
     steps:
+      - name: Keep Pages on the Actions deployment source
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          response_file="$(mktemp)"
+          status="$({ curl --silent --show-error \
+            --output "$response_file" \
+            --write-out '%{http_code}' \
+            --request PUT \
+            --header 'Accept: application/vnd.github+json' \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
+            --data '{"build_type":"workflow"}'; } 2>/dev/null)"
+
+          if [ "$status" != "204" ]; then
+            echo "::warning::Pages source could not be changed automatically (HTTP $status). Select GitHub Actions in Settings > Pages."
+            sed -n '1,12p' "$response_file"
+          fi
+
       - name: Checkout
         uses: actions/checkout@v6
 
