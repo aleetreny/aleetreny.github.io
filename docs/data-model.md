@@ -86,4 +86,4 @@ Las políticas están en `0002_data_api_permissions.sql`. Son permisivas por ope
 
 ## Tipos TypeScript
 
-`src/types/database.ts` refleja el contrato mínimo que consume la app. Después de cada migración se debe regenerar/verificar contra Data API y revisar el diff; nunca aceptar cambios automáticos que relajen `status`, RLS o nulabilidad sin ADR/migración.
+`src/types/database.ts` refleja el contrato que consume la app. El 2026-08-04 se cotejaron sus cinco tablas y seis funciones contra `information_schema` de producción. La Neon CLI actual no genera tipos de Data API, por lo que el contrato se mantiene manualmente: después de cada migración hay que volver a cotejarlo y revisar el diff; nunca aceptar cambios que relajen `status`, RLS o nulabilidad sin ADR/migración.
