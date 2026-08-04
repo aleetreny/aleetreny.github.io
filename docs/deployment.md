@@ -44,11 +44,11 @@ GitHub Environments recomendados:
 | Entorno | Secrets | Variables | Protección |
 | --- | --- | --- | --- |
 | development | `NEON_API_KEY`, `DATABASE_URL` de rama dev | `NEON_PROJECT_ID`, `NEON_BRANCH`, `ALLOWED_ORIGINS` | opcional |
-| production | `NEON_API_KEY`, `DATABASE_URL` producción | mismas y `NEON_PROTECT_DEFAULT_BRANCH` | aprobación obligatoria |
+| production | `NEON_API_KEY`, `DATABASE_URL` producción | mismas y `NEON_PROTECT_DEFAULT_BRANCH` | solo `main` + confirmación `APPLY_PRODUCTION` |
 
 Ejecuta `plan` antes de `apply`. `apply` despliega `neon.ts`, migra y verifica. No apunta automáticamente a producción en cada push.
 
-La política protege la rama predeterminada salvo que el plan admita cero ramas protegidas. En ese caso usa `NEON_PROTECT_DEFAULT_BRANCH=false`, conserva aprobación obligatoria en el environment y documenta la excepción; vuelve a `true` en cuanto el plan lo permita.
+La política protege la rama predeterminada salvo que el plan admita cero ramas protegidas. En ese caso usa `NEON_PROTECT_DEFAULT_BRANCH=false`, limita el environment `production` a la rama `main` y exige `production_confirmation=APPLY_PRODUCTION` para `apply`; vuelve a `true` en cuanto el plan lo permita. El plan GitHub actual del repositorio privado no ofrece revisores obligatorios, por lo que esta compensación queda documentada y no debe presentarse como aprobación humana.
 
 ## Dominio
 
