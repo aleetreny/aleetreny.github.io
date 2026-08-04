@@ -15,6 +15,10 @@ on:
         type: choice
         options: [development, production]
         default: development
+      production_confirmation:
+        description: Type APPLY_PRODUCTION when applying to production; ignored for plans/development
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -34,6 +38,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Require explicit production confirmation
+        if: inputs.operation == 'apply' && inputs.environment == 'production'
+        env:
+          PRODUCTION_CONFIRMATION: ${{ inputs.production_confirmation }}
+        run: |
+          if [ "$PRODUCTION_CONFIRMATION" != "APPLY_PRODUCTION" ]; then
+            echo "::error::Type APPLY_PRODUCTION in production_confirmation before applying production changes."
+            exit 1
+          fi
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
