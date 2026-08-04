@@ -154,9 +154,27 @@ export async function hasOwnerSession(): Promise<boolean> {
 export async function isCurrentUserOwner(): Promise<boolean> {
   const neonClient = await getNeonClient();
   if (!neonClient) return false;
-  const { data, error } = await neonClient.rpc('is_owner');
-  if (error) throw new Error(error.message);
-  return data === true;
+
+  // Better Auth persists the fresh session before every Data API request sees
+  // its token. Confirm the owner role twice (or retry a briefly stale result)
+  // so the first inventory queries cannot accidentally run as anonymous.
+  const retryDelays = [0, 80, 180, 360];
+  let ownerConfirmedOnce = false;
+
+  for (const delay of retryDelays) {
+    if (delay > 0) await new Promise((resolve) => window.setTimeout(resolve, delay));
+    await neonClient.auth.getSession();
+    const { data, error } = await neonClient.rpc('is_owner');
+    if (error) throw new Error(error.message);
+
+    if (data === true) {
+      if (ownerConfirmedOnce || delay > 0) return true;
+      ownerConfirmedOnce = true;
+      continue;
+    }
+  }
+
+  return false;
 }
 
 export async function saveContentEntry(entry: PortfolioEntry, reason = 'editor save'): Promise<PortfolioEntry> {
