@@ -203,7 +203,7 @@ Los exports de contenido privado no forman parte de estos scripts. No uses el re
 - Decisiones y alternativas: [docs/decisions/](docs/decisions/).
 - Recuperación y rollback: [docs/recovery.md](docs/recovery.md).
 
-La fase actual deja terminados el frontend público, el editor visual, la persistencia versionada, el broker de imágenes y la automatización. El proyecto Neon definitivo ya existe en `aws-us-east-2`; Auth, Data API, migraciones, RLS y el flujo editorial real han pasado en `codex-integration`. Faltan desplegar/probar Storage y Function, promover el esquema de forma controlada a producción, configurar los endpoints públicos en GitHub, promover la rama a `main` y auditar la web publicada. No declares estable una release hasta completar la prueba de clon limpio con una rama aislada real de Neon.
+La fase actual deja terminados el frontend público, el editor visual, la persistencia versionada, el broker de imágenes y la automatización. El proyecto Neon definitivo ya existe en `aws-us-east-2`; Auth, Data API, migraciones, RLS y el flujo editorial real han pasado en integración y producción con usuarios temporales ya eliminados. `main` contiene la nueva web, pero antes de considerar estable la publicación hay que seleccionar una vez GitHub Actions como fuente de Pages: el modo legacy todavía sobrescribe el artefacto compilado. Faltan además desplegar/probar Storage y Function, crear el propietario definitivo y repetir la prueba desde clon limpio y la auditoría online final.
 
 ## Contexto de Notion
 
