@@ -142,6 +142,16 @@ export async function signInOwner(email: string, password: string): Promise<void
   if (result.error) throw new Error(result.error.message);
 }
 
+export async function signUpOwner(name: string, email: string, password: string): Promise<string> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const result = await neonClient.auth.signUp.email({ name, email, password });
+  if (result.error) throw new Error(result.error.message);
+  const userId = result.data?.user.id;
+  if (!userId) throw new Error('Neon creó la cuenta, pero no devolvió su identificador.');
+  return userId;
+}
+
 export async function signOutOwner(): Promise<void> {
   const neonClient = await getNeonClient();
   if (!neonClient) return;
