@@ -8,6 +8,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - stickers de proyectos, trayectoria, formación, perfil y contacto con resumen y ampliación sobre un segundo tablero de corcho;
 - metadatos Open Graph/Twitter y tarjeta social propia;
 - modo propietario con recuperación de sesión, inventario, alta, edición, publicación, archivo, borrado lógico y papelera restaurable;
+- alta de cuenta desde la propia ruta propietaria sin conceder permisos automáticamente ni compartir contraseñas;
 - editor de bloques `text`, `heading`, `list`, `metric`, `quote` e `image`;
 - drag and drop con puntero/teclado y alternativa explícita subir/bajar;
 - subida de imágenes mediante URL firmada y registro seguro de metadata;
@@ -28,7 +29,11 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - producción verificada con cinco tablas bajo RLS, siete índices esperados y lectura anónima limitada a 10 entradas/8 bloques;
 - `https://aleetreny.github.io` añadido y validado como origen de confianza de Auth productiva;
 - workflow Pages conectado a los endpoints públicos productivos, con override por Variables y fallback local de fixtures;
-- segunda verificación de portabilidad superada desde un clon limpio: instalación frozen, scan, lint, tipos, 11 tests y build.
+- segunda verificación de portabilidad superada desde un clon limpio: instalación frozen, scan, lint, tipos, 11 tests y build;
+- E2E editorial productivo superado con una cuenta temporal allowlisted: login, alta, bloques, reordenación, versiones, borrado, papelera, restauración y logout; la cuenta y datos de prueba se eliminaron;
+- auditoría pública online superada sobre un artefacto compilado: seis stickers, cinco paneles, enlaces, zoom, centrado, teclado, Escape y retorno de foco;
+- confirmaciones destructivas propias, accesibles y con estética de papel sustituyen los diálogos nativos del navegador;
+- broker de Storage endurecido para firmar el tamaño esperado y no filtrar errores internos.
 
 “Terminado en código” no significa verificado contra servicios reales.
 
@@ -37,9 +42,9 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 | Elemento | Estado | Archivos | Dependencia | Criterio de finalización |
 | --- | --- | --- | --- | --- |
 | Integración Neon | Auth, Data API, esquema, permisos y contenido público verificados en integración y producción | `neon.ts`, `src/lib/neon.ts`, `db/` | Storage/Function | ciclo de archivos superado |
-| Modo propietario | E2E real superado en rama aislada; falta cuenta productiva | `OwnerMode.tsx`, `components/editor/`, repositorio | Auth productiva + owner | repetir login, CRUD, restore y logout en Pages |
+| Modo propietario | E2E real superado en integración y producción con usuarios temporales; falta el propietario definitivo | `OwnerMode.tsx`, `components/editor/`, repositorio | signup del propietario + allowlist | el propietario real entra y completa una escritura controlada en Pages |
 | Storage | broker y UI completos; sin bucket desplegado | `functions/`, `BlockEditor.tsx`, `scripts/storage/` | Storage/Function real | upload, registro, render, export/import y delete verificados |
-| Deploy | workflow conectado a Neon producción; `main` aún sirve la web anterior | `.github/workflows/` | promoción de rama | rama promovida y URL pública nueva verificada |
+| Deploy | `main` contiene la nueva web y Actions genera un artefacto correcto, pero Pages sigue además en modo legacy y termina sirviendo los fuentes sin compilar | `.github/workflows/`, Settings > Pages | sesión administrativa de GitHub | Source queda en GitHub Actions y una comprobación posterior nunca vuelve a servir `/src/main.tsx` |
 | Contenido | portfolio público coherente en fixtures | `fixtures/demo-content.json` | revisión final del propietario | textos/periodos/assets aprobados y sembrados en Neon |
 
 ## Pendiente
@@ -49,18 +54,20 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 | Desplegar Storage y Function en la rama aislada | `neon.ts`, `functions/` | autorizar Neon CLI/Console en esta sesión | bucket y endpoint activos |
 | Verificar ciclo de imágenes | function, editor, scripts storage | bucket/function | presign, PUT, registro, lectura, export/import y borrado pasan |
 | Generar/revisar tipos oficiales de DB | `src/types/database.ts` | Data API real | tipos generados y diff revisado |
-| Crear y allowlistar propietario real | `docs/authentication.md`, `scripts/db/create-owner.mjs` | cuenta elegida por el propietario | login/CRUD/logout productivo pasan sin credenciales compartidas |
+| Crear y allowlistar propietario real | `OwnerMode.tsx`, `docs/authentication.md`, `scripts/db/create-owner.mjs` | el propietario crea la cuenta en `?owner=1` y facilita solo el UUID | login/CRUD/logout productivo pasan sin credenciales compartidas |
 | Configurar GitHub Secrets de provisión | workflows, `.env.example` | `NEON_API_KEY` y `DATABASE_URL` en entornos seguros | Actions puede provisionar sin valores locales |
 | Clon limpio total con servicios | `scripts/verify-portability.mjs`, `docs/recovery.md` | rama Neon aislada | los 10 pasos documentados pasan desde cero |
-| Publicar y etiquetar release | `main`, GitHub Pages | verificaciones anteriores | nueva web visible, workflow manual probado y tag `portfolio-v*` |
+| Fijar la fuente de Pages | Settings > Pages, `.github/workflows/deploy-pages.yml` | sesión GitHub administrativa | solo GitHub Actions despliega y la URL conserva el bundle compilado |
+| Publicar y etiquetar release | `main`, GitHub Pages | verificaciones anteriores | nueva web estable, workflow manual probado y tag `portfolio-v*` |
 
 ## Bloqueado externamente
 
 | Bloqueo | Impacto | Desbloqueo |
 | --- | --- | --- |
 | La Neon CLI local todavía no está autorizada | no se pueden desplegar Storage/Functions declarados por `neon.ts` | completar una vez el acceso OAuth en Neon Console |
+| GitHub Pages conserva la fuente legacy `main`/root | el job legacy sobrescribe el artefacto de Actions y la URL pública puede quedar en blanco | iniciar sesión en GitHub y elegir Settings > Pages > Source: GitHub Actions |
 
-Producción contiene únicamente el esquema versionado y los fixtures públicos; las cuentas y escrituras editoriales temporales siguen confinadas a `codex-integration`. El proyecto existente “C2 Practice Log” no se tocó.
+Producción contiene el esquema versionado y los fixtures públicos. Las cuentas, entradas y versiones temporales usadas en el E2E productivo se eliminaron al terminar. El proyecto existente “C2 Practice Log” no se tocó.
 
 ## Opcional
 
