@@ -12,6 +12,15 @@ Workflow: `.github/workflows/deploy-pages.yml`.
 
 En Settings > Pages debe seleccionarse GitHub Actions. No se sube `dist/` al repositorio.
 
+El workflow intenta mantener `build_type=workflow` mediante la API y convierte un rechazo en warning para no impedir la build. GitHub puede exigir permisos administrativos que `GITHUB_TOKEN` no recibe. La selección manual inicial en Settings sigue siendo obligatoria. Comprueba el resultado con:
+
+```bash
+curl -fsSL -H 'Cache-Control: no-cache' https://aleetreny.github.io/index.html \
+  | grep -E 'assets/index|src/main'
+```
+
+El resultado correcto contiene `/assets/index-*.js`. Si aparece `/src/main.tsx`, Pages está sirviendo el repositorio sin compilar y hay que corregir la fuente antes de continuar.
+
 ## Variables de Pages
 
 Todas son públicas porque se incorporan al bundle:
