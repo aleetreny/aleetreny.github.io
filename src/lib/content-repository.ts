@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   portfolioEntrySchema,
   type ContentBlock,
+  type DeletedEntrySummary,
   type EntryStatus,
   type EntryType,
   type EntryVersionSummary,
@@ -109,6 +110,26 @@ export function listOwnerEntries(): Promise<PortfolioEntry[]> {
   return fetchEntries(true);
 }
 
+export async function listDeletedEntries(): Promise<DeletedEntrySummary[]> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) return [];
+  const { data, error } = await neonClient
+    .from('content_entries')
+    .select('id,version,slug,title,entry_type,status,deleted_at')
+    .not('deleted_at', 'is', null)
+    .order('deleted_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((entry) => ({
+    id: entry.id,
+    version: entry.version,
+    slug: entry.slug,
+    title: entry.title,
+    entryType: entry.entry_type as EntryType,
+    status: entry.status as EntryStatus,
+    deletedAt: entry.deleted_at as string,
+  }));
+}
+
 export async function signInOwner(email: string, password: string): Promise<void> {
   const neonClient = await getNeonClient();
   if (!neonClient) throw new Error('Neon is not configured in this environment.');
@@ -165,6 +186,19 @@ export async function deleteContentEntry(entry: Pick<PortfolioEntry, 'id' | 'ver
     p_expected_version: entry.version,
   });
   if (error) throw new Error(error.message);
+}
+
+export async function restoreDeletedContentEntry(
+  entry: Pick<DeletedEntrySummary, 'id' | 'version'>,
+): Promise<PortfolioEntry> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) throw new Error('Neon is not configured in this environment.');
+  const { data, error } = await neonClient.rpc('restore_deleted_content_entry', {
+    p_entry_id: entry.id,
+    p_expected_version: entry.version,
+  });
+  if (error) throw new Error(error.message);
+  return portfolioEntrySchema.parse(data);
 }
 
 export async function listEntryVersions(entryId: string): Promise<EntryVersionSummary[]> {

@@ -485,12 +485,31 @@ nav a:hover, footer a:hover { color: var(--accent); }
 .owner-workspace__actions, .entry-editor__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.65rem; }
 .owner-workspace__layout { display: grid; grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
 .entry-inventory { position: sticky; top: 6rem; overflow: hidden; padding: 0.8rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); }
+.entry-inventory__tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; margin-bottom: 0.8rem; }
+.entry-inventory__tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.62rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.entry-inventory__tab[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+.entry-inventory__tab span { min-width: 1.45rem; padding: 0.12rem 0.38rem; border-radius: 999px; background: rgba(255, 255, 255, 0.7); font-size: 0.72rem; text-align: center; }
 .entry-inventory__new { width: 100%; }
 .entry-inventory__list { display: grid; gap: 0.35rem; max-height: calc(100vh - 12rem); margin-top: 0.8rem; overflow: auto; }
 .entry-inventory__item { display: grid; gap: 0.25rem; width: 100%; padding: 0.75rem; border: 0; border-radius: 0.7rem; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
 .entry-inventory__item:hover, .entry-inventory__item[aria-current="true"] { background: var(--accent-soft); }
 .entry-inventory__item span { font-weight: 600; }
 .entry-inventory__item small { color: var(--muted); }
+.entry-inventory__deleted { display: grid; gap: 0.4rem; padding: 0.75rem; border: 1px dashed var(--line); border-radius: 0.7rem; }
+.entry-inventory__deleted > span { font-weight: 600; }
+.entry-inventory__deleted small { color: var(--muted); line-height: 1.4; }
+.entry-inventory__deleted .button { width: 100%; margin-top: 0.2rem; }
 .owner-workspace__editor, .entry-editor { min-width: 0; }
 
 .entry-editor { display: grid; gap: 1rem; }

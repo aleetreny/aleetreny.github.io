@@ -44,7 +44,7 @@ Metadatos de cada objeto: proveedor, bucket, key, URL pública, MIME, bytes, dim
 
 ### `entry_versions`
 
-Snapshots JSONB inmutables por `(entry_id, version)`, con motivo y autor. `save_content_entry`, `soft_delete_content_entry` y `restore_content_entry_version` crean snapshots automáticamente antes de abandonar una versión.
+Snapshots JSONB inmutables por `(entry_id, version)`, con motivo y autor. `save_content_entry`, `soft_delete_content_entry`, `restore_content_entry_version` y `restore_deleted_content_entry` conservan una versión completa antes de abandonar cada estado. La restauración desde papelera recupera entrada y bloques de la última instantánea de borrado y avanza la versión optimista.
 
 ### `site_settings`
 

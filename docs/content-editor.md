@@ -12,7 +12,7 @@ El estudio editorial incluye:
 - anchura y alineación por bloque;
 - reordenación por puntero, teclado y botones subir/bajar;
 - subida de imágenes con alt text mediante el storage broker;
-- guardado explícito, mensajes de error/éxito y borrado lógico;
+- guardado explícito, mensajes de error/éxito, borrado lógico y papelera recuperable;
 - carga y restauración de versiones anteriores.
 
 ## Contrato de bloques
@@ -40,7 +40,7 @@ El bloque pide una URL firmada a `POST /uploads/presign` con el JWT efímero de 
 
 ## Historial
 
-Antes de cada actualización, restauración o borrado lógico se guarda un snapshot inmutable en `entry_versions`. Restaurar conserva primero la versión actual y genera una nueva versión; nunca reescribe el historial.
+Antes de cada actualización, restauración o borrado lógico se guarda un snapshot inmutable en `entry_versions`. Restaurar una versión o recuperar desde la papelera conserva primero una instantánea completa y genera una versión nueva; nunca reescribe el historial.
 
 ## Pruebas pendientes con infraestructura
 
@@ -49,4 +49,4 @@ Antes de cada actualización, restauración o borrado lógico se guarda un snaps
 - conflicto simultáneo entre dos pestañas;
 - reorder persistido después de recarga;
 - subida fallida, reintento y reconciliación de objeto huérfano;
-- restauración de versión y borrado lógico real.
+- restauración de versión, borrado lógico y recuperación desde papelera reales.

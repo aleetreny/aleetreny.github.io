@@ -123,6 +123,10 @@ export type Database = {
         Args: { p_entry_id: string; p_version: number; p_expected_version: number };
         Returns: Json;
       };
+      restore_deleted_content_entry: {
+        Args: { p_entry_id: string; p_expected_version: number };
+        Returns: Json;
+      };
       register_uploaded_asset: {
         Args: {
           p_bucket: string;

@@ -3,12 +3,14 @@ import { createEntry } from '../lib/editor';
 import {
   hasOwnerSession,
   isCurrentUserOwner,
+  listDeletedEntries,
   listOwnerEntries,
+  restoreDeletedContentEntry,
   signInOwner,
   signOutOwner,
 } from '../lib/content-repository';
 import { runtimeConfig } from '../lib/config';
-import type { PortfolioEntry } from '../types/content';
+import type { DeletedEntrySummary, PortfolioEntry } from '../types/content';
 import { EntryEditor } from './editor/EntryEditor';
 
 type AuthState = 'checking' | 'signed-out' | 'signed-in';
@@ -17,11 +19,14 @@ export function OwnerMode() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [entries, setEntries] = useState<PortfolioEntry[]>([]);
+  const [deletedEntries, setDeletedEntries] = useState<DeletedEntrySummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [inventoryView, setInventoryView] = useState<'active' | 'trash'>('active');
   const [authState, setAuthState] = useState<AuthState>(
     runtimeConfig.remoteDataEnabled ? 'checking' : 'signed-out',
   );
   const [message, setMessage] = useState('');
+  const [messageTone, setMessageTone] = useState<'success' | 'error'>('error');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -36,9 +41,13 @@ export function OwnerMode() {
           if (active) setAuthState('signed-out');
           return;
         }
-        const nextEntries = await listOwnerEntries();
+        const [nextEntries, nextDeletedEntries] = await Promise.all([
+          listOwnerEntries(),
+          listDeletedEntries(),
+        ]);
         if (active) {
           setEntries(nextEntries);
+          setDeletedEntries(nextDeletedEntries);
           setSelectedId(nextEntries[0]?.id ?? null);
           setAuthState('signed-in');
         }
@@ -75,12 +84,17 @@ export function OwnerMode() {
         await signOutOwner();
         throw new Error('La cuenta es válida, pero no está en la allowlist de propietarios.');
       }
-      const nextEntries = await listOwnerEntries();
+      const [nextEntries, nextDeletedEntries] = await Promise.all([
+        listOwnerEntries(),
+        listDeletedEntries(),
+      ]);
       setEntries(nextEntries);
+      setDeletedEntries(nextDeletedEntries);
       setSelectedId(nextEntries[0]?.id ?? null);
       setPassword('');
       setAuthState('signed-in');
     } catch (error) {
+      setMessageTone('error');
       setMessage(error instanceof Error ? error.message : 'No se pudo iniciar sesión.');
     } finally {
       setBusy(false);
@@ -92,7 +106,9 @@ export function OwnerMode() {
     try {
       await signOutOwner();
       setEntries([]);
+      setDeletedEntries([]);
       setSelectedId(null);
+      setInventoryView('active');
       setAuthState('signed-out');
     } finally {
       setBusy(false);
@@ -103,11 +119,36 @@ export function OwnerMode() {
     setBusy(true);
     setMessage('');
     try {
-      const nextEntries = await listOwnerEntries();
+      const [nextEntries, nextDeletedEntries] = await Promise.all([
+        listOwnerEntries(),
+        listDeletedEntries(),
+      ]);
       setEntries(nextEntries);
+      setDeletedEntries(nextDeletedEntries);
       if (selectedId && !nextEntries.some((entry) => entry.id === selectedId)) setSelectedId(null);
     } catch (error) {
+      setMessageTone('error');
       setMessage(error instanceof Error ? error.message : 'No se pudo actualizar el inventario.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRestoreDeleted(entry: DeletedEntrySummary) {
+    if (!window.confirm(`¿Restaurar “${entry.title}” desde la papelera?`)) return;
+    setBusy(true);
+    setMessage('');
+    try {
+      const restored = await restoreDeletedContentEntry(entry);
+      setDeletedEntries((current) => current.filter((item) => item.id !== entry.id));
+      setEntries((current) => [restored, ...current]);
+      setInventoryView('active');
+      setSelectedId(restored.id);
+      setMessageTone('success');
+      setMessage(`“${restored.title}” se ha restaurado correctamente.`);
+    } catch (error) {
+      setMessageTone('error');
+      setMessage(error instanceof Error ? error.message : 'No se pudo restaurar la entrada.');
     } finally {
       setBusy(false);
     }
@@ -178,23 +219,56 @@ export function OwnerMode() {
         </div>
       </header>
 
-      {message ? <p className="form-error" role="alert">{message}</p> : null}
+      {message ? (
+        <p
+          className={messageTone === 'error' ? 'form-error' : 'form-success'}
+          role={messageTone === 'error' ? 'alert' : 'status'}
+        >
+          {message}
+        </p>
+      ) : null}
       <div className="owner-workspace__layout">
         <aside className="entry-inventory" aria-label="Inventario de entradas">
-          <button
-            className="button entry-inventory__new"
-            disabled={busy}
-            onClick={() => {
-              const entry = createEntry();
-              setEntries((current) => [entry, ...current]);
-              setSelectedId(entry.id);
-            }}
-            type="button"
+          <div className="entry-inventory__tabs" aria-label="Estado de las entradas">
+            <button
+              aria-pressed={inventoryView === 'active'}
+              className="entry-inventory__tab"
+              onClick={() => setInventoryView('active')}
+              type="button"
+            >
+              Entradas <span>{entries.length}</span>
+            </button>
+            <button
+              aria-pressed={inventoryView === 'trash'}
+              className="entry-inventory__tab"
+              onClick={() => {
+                setInventoryView('trash');
+                setSelectedId(null);
+              }}
+              type="button"
+            >
+              Papelera <span>{deletedEntries.length}</span>
+            </button>
+          </div>
+          {inventoryView === 'active' ? (
+            <button
+              className="button entry-inventory__new"
+              disabled={busy}
+              onClick={() => {
+                const entry = createEntry();
+                setEntries((current) => [entry, ...current]);
+                setSelectedId(entry.id);
+              }}
+              type="button"
+            >
+              Nueva entrada
+            </button>
+          ) : null}
+          <div
+            aria-label={inventoryView === 'active' ? 'Entradas activas' : 'Entradas eliminadas'}
+            className="entry-inventory__list"
           >
-            Nueva entrada
-          </button>
-          <div className="entry-inventory__list">
-            {entries.map((entry) => (
+            {inventoryView === 'active' ? entries.map((entry) => (
               <button
                 aria-current={entry.id === selectedId ? 'true' : undefined}
                 className="entry-inventory__item"
@@ -205,7 +279,25 @@ export function OwnerMode() {
                 <span>{entry.title || 'Entrada sin título'}</span>
                 <small>{entry.entryType} · {entry.status} · v{entry.version}</small>
               </button>
+            )) : deletedEntries.map((entry) => (
+              <article className="entry-inventory__deleted" key={entry.id}>
+                <span>{entry.title}</span>
+                <small>
+                  Eliminada {new Date(entry.deletedAt).toLocaleString('es')} · v{entry.version}
+                </small>
+                <button
+                  className="button button--secondary"
+                  disabled={busy}
+                  onClick={() => handleRestoreDeleted(entry)}
+                  type="button"
+                >
+                  Restaurar
+                </button>
+              </article>
             ))}
+            {inventoryView === 'trash' && deletedEntries.length === 0 ? (
+              <p className="empty-state">La papelera está vacía.</p>
+            ) : null}
           </div>
         </aside>
 
@@ -215,8 +307,23 @@ export function OwnerMode() {
               entry={selectedEntry}
               key={selectedEntry.id}
               onDeleted={(id) => {
+                const deleted = entries.find((entry) => entry.id === id);
                 setEntries((current) => current.filter((entry) => entry.id !== id));
+                if (deleted) {
+                  setDeletedEntries((current) => [{
+                    id: deleted.id,
+                    version: deleted.version + 1,
+                    slug: deleted.slug,
+                    title: deleted.title,
+                    entryType: deleted.entryType,
+                    status: deleted.status,
+                    deletedAt: new Date().toISOString(),
+                  }, ...current]);
+                  setMessageTone('success');
+                  setMessage(`“${deleted.title}” se ha movido a la papelera.`);
+                }
                 setSelectedId(null);
+                setInventoryView('trash');
               }}
               onSaved={(saved) => {
                 setEntries((current) => {

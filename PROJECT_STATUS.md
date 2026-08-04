@@ -7,12 +7,12 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - tablero de corcho público a pantalla completa con pan ilimitado, zoom, soporte táctil/teclado y controles visibles;
 - stickers de proyectos, trayectoria, formación, perfil y contacto con resumen y ampliación sobre un segundo tablero de corcho;
 - metadatos Open Graph/Twitter y tarjeta social propia;
-- modo propietario con recuperación de sesión, inventario, alta, edición, publicación, archivo y borrado lógico;
+- modo propietario con recuperación de sesión, inventario, alta, edición, publicación, archivo, borrado lógico y papelera restaurable;
 - editor de bloques `text`, `heading`, `list`, `metric`, `quote` e `image`;
 - drag and drop con puntero/teclado y alternativa explícita subir/bajar;
 - subida de imágenes mediante URL firmada y registro seguro de metadata;
 - guardado transaccional, bloqueo optimista, snapshots e historial restaurable;
-- esquema SQL, índices, JSONB, estados, permisos, RLS y tres migraciones reproducibles;
+- esquema SQL, índices, JSONB, estados, permisos, RLS y cuatro migraciones reproducibles;
 - Auth/Data API/Storage/Function declarados en `neon.ts`;
 - scripts de migración, seed, propietario, verificación, backup/import DB y storage;
 - CI, GitHub Pages, provisión Neon manual, Dependabot, ADRs y guías de recuperación;
@@ -68,7 +68,6 @@ Se creó únicamente para comprobar la región un proyecto vacío en `us-west-2`
 - `src/types/database.ts` es un contrato manual hasta conectarlo a una API real;
 - falta reconciliación automática de objetos huérfanos;
 - no hay política automática de retención de `entry_versions`;
-- el borrado de una entrada es lógico, pero la UI aún no ofrece una vista de papelera.
 
 ## No romper
 

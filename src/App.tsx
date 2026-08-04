@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { CorkboardPortfolio } from './components/CorkboardPortfolio';
+import { demoEntries } from './content/demo';
 import { listPublishedEntries } from './lib/content-repository';
 import { runtimeConfig } from './lib/config';
 import type { PortfolioEntry } from './types/content';
@@ -26,7 +27,9 @@ export default function App() {
       })
       .catch((reason: unknown) => {
         if (active) {
-          setError(reason instanceof Error ? reason.message : 'No se pudo cargar el contenido.');
+          const detail = reason instanceof Error ? reason.message : 'No se pudo cargar el contenido.';
+          setEntries(demoEntries);
+          setError(`El contenido remoto no está disponible; mostrando la copia segura. ${detail}`);
           setLoading(false);
         }
       });

@@ -45,6 +45,13 @@ export type EntryVersionSummary = {
   createdAt: string;
 };
 
+export type DeletedEntrySummary = Pick<
+  PortfolioEntry,
+  'id' | 'version' | 'slug' | 'title' | 'entryType' | 'status'
+> & {
+  deletedAt: string;
+};
+
 export type StoredAsset = {
   id: string;
   bucket: string;

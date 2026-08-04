@@ -16,7 +16,7 @@ No promover todavía a `main`: el frontend está listo, pero la integración rea
 
 Funciona desde un clon sin servicios mediante diez fixtures públicos. La web es un tablero de corcho a pantalla completa: pan ilimitado, zoom por rueda/pellizco/botones, stickers con elementos principales y ampliaciones que conservan el corcho. Se verificó a 390 px y escritorio, incluida la apertura de Formación.
 
-El modo propietario contiene login, recuperación de sesión, inventario, CRUD, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. Todo compila y está cubierto por pruebas unitarias básicas, pero requiere Neon real para un E2E.
+El modo propietario contiene login, recuperación de sesión, inventario, CRUD, papelera recuperable, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. Todo compila y está cubierto por pruebas unitarias básicas, pero requiere Neon real para un E2E.
 
 Última validación: `pnpm portability:verify` desde un clon temporal limpio; instalación frozen, escaneo, lint, tipos, 10 tests y build pasan. Todavía no incluye servicios externos porque falta el proyecto Neon correcto.
 
@@ -69,7 +69,7 @@ Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a se
 
 1. Crear y conectar el proyecto `aws-us-east-2`.
 2. Crear rama `codex-integration` y ejecutar `neon config plan/deploy`.
-3. Aplicar migraciones 0001–0003, cargar demo y crear propietario.
+3. Aplicar migraciones 0001–0004, cargar demo y crear propietario.
 4. Verificar anon/no-owner/owner, conflicto de versión y restore.
 5. Probar subida/render/export/import/delete de una imagen no privada.
 6. Regenerar o cotejar tipos de Data API.
@@ -81,7 +81,6 @@ Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a se
 
 - Neon JS/Auth/Data API/Storage/Functions están en beta.
 - Storage/Functions requieren `aws-us-east-2` en esta arquitectura.
-- La UI no muestra papelera para restaurar una entrada borrada lógicamente.
 - Si el PUT de imagen funciona y el registro SQL falla, queda un objeto huérfano hasta reconciliación.
 - No hay E2E con servicios reales todavía.
 - Git local en esta máquina temporal no tiene credencial GitHub; los commits se publican mediante el conector autorizado.

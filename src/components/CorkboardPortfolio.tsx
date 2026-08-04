@@ -1,4 +1,13 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
+  type WheelEvent,
+} from 'react';
 import type { PortfolioEntry } from '../types/content';
 import { ContentBlocks } from './ContentBlocks';
 
@@ -74,26 +83,82 @@ function EntryNote({ entry }: { entry: PortfolioEntry }) {
   );
 }
 
-function ExpandedSection({ section, onClose }: { section: BoardSection; onClose: () => void }) {
+function ExpandedSection({
+  section,
+  onClose,
+  returnFocusRef,
+}: {
+  section: BoardSection;
+  onClose: () => void;
+  returnFocusRef: RefObject<HTMLElement | null>;
+}) {
+  const dialogRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
+    const dialog = dialogRef.current;
+    const focusTarget = returnFocusRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialog?.querySelector<HTMLElement>('[data-modal-close]')?.focus();
+
     function handleKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab' || !dialog) return;
+
+      const focusable = [...dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )].filter((element) => !element.hidden);
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!dialog.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      } else if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose]);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = previousOverflow;
+      focusTarget?.focus();
+    };
+  }, [onClose, returnFocusRef]);
 
   return (
-    <div className="board-modal" role="presentation" onMouseDown={(event) => {
+    <div className="board-modal" role="presentation" onPointerDown={(event) => {
       if (event.currentTarget === event.target) onClose();
     }}>
       <section
         aria-labelledby="expanded-section-title"
         aria-modal="true"
         className="expanded-cork"
+        ref={dialogRef}
         role="dialog"
+        tabIndex={-1}
       >
-        <button aria-label="Cerrar sección" autoFocus className="board-modal__close" onClick={onClose} type="button">
+        <button
+          aria-label="Cerrar sección"
+          autoFocus
+          className="board-modal__close"
+          data-modal-close
+          onClick={onClose}
+          type="button"
+        >
           ×
         </button>
         <div className="expanded-sheet">
@@ -128,6 +193,7 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
   const [transform, setTransform] = useState<ViewTransform>(initialTransform);
   const [expandedId, setExpandedId] = useState<SectionId | null>(null);
   const pointers = useRef(new Map<number, PointerPosition>());
+  const lastTrigger = useRef<HTMLElement | null>(null);
   const transformRef = useRef(transform);
   const gesture = useRef<{
     transform: ViewTransform;
@@ -195,6 +261,13 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
   }, [entries]);
 
   const expandedSection = sections.find((section) => section.id === expandedId) ?? null;
+
+  const openSection = useCallback((id: SectionId, trigger: HTMLElement) => {
+    lastTrigger.current = trigger;
+    setExpandedId(id);
+  }, []);
+
+  const closeSection = useCallback(() => setExpandedId(null), []);
 
   function applyTransform(next: ViewTransform) {
     transformRef.current = next;
@@ -272,6 +345,8 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
       onKeyDown={(event) => {
         if (event.target !== event.currentTarget) return;
         const step = event.shiftKey ? 120 : 55;
+        if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-'].includes(event.key)) return;
+        event.preventDefault();
         if (event.key === 'ArrowLeft') applyTransform({ ...transformRef.current, x: transformRef.current.x + step });
         if (event.key === 'ArrowRight') applyTransform({ ...transformRef.current, x: transformRef.current.x - step });
         if (event.key === 'ArrowUp') applyTransform({ ...transformRef.current, y: transformRef.current.y + step });
@@ -287,7 +362,7 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
       tabIndex={0}
     >
       <div className="corkboard__grain" aria-hidden="true" />
-      <header className="board-toolbar" data-board-interactive>
+      <header className="board-toolbar" data-board-interactive inert={Boolean(expandedSection)}>
         <div>
           <strong>Alejandro Treny</strong>
           <span>{remoteDataEnabled ? 'tablero conectado' : 'portfolio / tablero abierto'}</span>
@@ -300,7 +375,7 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
         </div>
       </header>
 
-      <div className="board-hint" data-board-interactive>
+      <div className="board-hint" data-board-interactive inert={Boolean(expandedSection)}>
         <span aria-hidden="true">↔</span>
         arrastra para explorar · pellizca o usa la rueda para acercar
       </div>
@@ -311,13 +386,14 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
       {!loading ? (
         <div
           className="board-world"
+          inert={Boolean(expandedSection)}
           style={{ transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale})` }}
         >
           <button
             aria-label="Abrir presentación de Alejandro"
             className="board-intro"
             data-board-interactive
-            onClick={() => setExpandedId('about')}
+            onClick={(event) => openSection('about', event.currentTarget)}
             style={{ left: 90, top: 100, transform: 'rotate(-2.2deg)' }}
             type="button"
           >
@@ -335,7 +411,7 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
               data-board-interactive
               data-section={section.id}
               key={section.id}
-              onClick={() => setExpandedId(section.id)}
+              onClick={(event) => openSection(section.id, event.currentTarget)}
               style={section.style}
               type="button"
             >
@@ -367,7 +443,13 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
         </div>
       ) : null}
 
-      {expandedSection ? <ExpandedSection onClose={() => setExpandedId(null)} section={expandedSection} /> : null}
+      {expandedSection ? (
+        <ExpandedSection
+          onClose={closeSection}
+          returnFocusRef={lastTrigger}
+          section={expandedSection}
+        />
+      ) : null}
     </main>
   );
 }
