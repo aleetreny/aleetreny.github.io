@@ -8,12 +8,15 @@ import {
 } from '../../lib/content-repository';
 import { portfolioEntrySchema, type EntryVersionSummary, type PortfolioEntry } from '../../types/content';
 import { BlockEditor } from './BlockEditor';
+import { ConfirmDialog } from './ConfirmDialog';
 
 type EntryEditorProps = {
   entry: PortfolioEntry;
   onDeleted: (id: string) => void;
   onSaved: (entry: PortfolioEntry) => void;
 };
+
+type PendingConfirmation = { kind: 'delete' } | { kind: 'restore'; version: number };
 
 function metadataString(entry: PortfolioEntry, key: string): string {
   return typeof entry.metadata[key] === 'string' ? entry.metadata[key] : '';
@@ -26,6 +29,7 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [confirmation, setConfirmation] = useState<PendingConfirmation | null>(null);
 
   const updateMetadata = (key: string, value: unknown) => {
     setDraft((current) => ({ ...current, metadata: { ...current.metadata, [key]: value } }));
@@ -60,7 +64,6 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
   }
 
   async function handleDelete() {
-    if (!window.confirm(`¿Mover “${draft.title || 'esta entrada'}” a la papelera?`)) return;
     setBusy(true);
     setError('');
     try {
@@ -70,13 +73,11 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
       setError(reason instanceof Error ? reason.message : 'No se pudo eliminar la entrada.');
     } finally {
       setBusy(false);
+      setConfirmation(null);
     }
   }
 
   async function handleRestore(version: number) {
-    if (!window.confirm(`¿Restaurar la versión ${version}? La versión actual quedará guardada en el historial.`)) {
-      return;
-    }
     setBusy(true);
     setError('');
     try {
@@ -89,6 +90,7 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
       setError(reason instanceof Error ? reason.message : 'No se pudo restaurar la versión.');
     } finally {
       setBusy(false);
+      setConfirmation(null);
     }
   }
 
@@ -101,7 +103,12 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
         </div>
         <div className="entry-editor__actions">
           {draft.version > 0 ? (
-            <button className="button button--danger" disabled={busy} onClick={handleDelete} type="button">
+            <button
+              className="button button--danger"
+              disabled={busy}
+              onClick={() => setConfirmation({ kind: 'delete' })}
+              type="button"
+            >
               Eliminar
             </button>
           ) : null}
@@ -258,7 +265,7 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
                   <button
                     className="button button--secondary"
                     disabled={busy}
-                    onClick={() => handleRestore(version.version)}
+                    onClick={() => setConfirmation({ kind: 'restore', version: version.version })}
                     type="button"
                   >
                     Restaurar
@@ -268,6 +275,23 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
             </ol>
           ) : null}
         </section>
+      ) : null}
+
+      {confirmation ? (
+        <ConfirmDialog
+          busy={busy}
+          confirmLabel={confirmation.kind === 'delete' ? 'Mover a la papelera' : 'Restaurar versión'}
+          description={confirmation.kind === 'delete'
+            ? `“${draft.title || 'Esta entrada'}” dejará de estar activa, pero podrás recuperarla desde la papelera.`
+            : `La versión actual quedará guardada en el historial antes de recuperar la versión ${confirmation.version}.`}
+          onCancel={() => setConfirmation(null)}
+          onConfirm={() => {
+            if (confirmation.kind === 'delete') void handleDelete();
+            else void handleRestore(confirmation.version);
+          }}
+          title={confirmation.kind === 'delete' ? '¿Mover esta entrada a la papelera?' : `¿Restaurar la versión ${confirmation.version}?`}
+          tone={confirmation.kind === 'delete' ? 'danger' : 'default'}
+        />
       ) : null}
     </form>
   );
