@@ -40,6 +40,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - producción e integración quedaron limpias tras las pruebas: 10 entradas, 8 bloques, 0 assets y 0 cuentas temporales;
 - contrato TypeScript de cinco tablas y seis RPC cotejado contra `information_schema` de producción;
 - GitHub Pages configurado manualmente para usar GitHub Actions como única fuente de publicación;
+- environments GitHub `development` y `production` creados con sus cuatro Variables públicas; producción restringida a `main` y protegida por confirmación escrita antes de `apply`;
 - auditoría final sobre el despliegue compilado: assets 200, cinco secciones, presentación, zoom, centrado, teclado, Escape, foco, contactos, signup, error de login, sesión, inventario, estados vacíos y editor;
 - flujo editorial online final: seis tipos de bloque, reordenación por botones/teclado, borrado de bloque, preview de imagen, guardado, publicación visible sin redeploy, historial, restauración de versión, archivado, papelera, recuperación y logout;
 - la auditoría detectó y corrigió el scroll retenido tras autenticar y la incompatibilidad entre el timestamp `+00:00` de Postgres y el validador del cliente;
@@ -80,7 +81,8 @@ Producción contiene el esquema versionado y los fixtures públicos. Las cuentas
 - `src/types/database.ts` se mantiene manual porque la Neon CLI actual no genera tipos de Data API; está cotejado contra producción y debe revisarse tras cada migración;
 - falta reconciliación automática de objetos huérfanos;
 - no hay política automática de retención de `entry_versions`;
-- el plan Neon actual admite cero ramas protegidas; producción usa `NEON_PROTECT_DEFAULT_BRANCH=false` y la promoción queda compensada por aprobación obligatoria en el environment `production` hasta ampliar el plan;
+- el plan Neon actual admite cero ramas protegidas; producción usa `NEON_PROTECT_DEFAULT_BRANCH=false` y la promoción queda compensada por environment limitado a `main` más confirmación `APPLY_PRODUCTION` hasta ampliar el plan;
+- el plan GitHub del repositorio privado no permite revisores obligatorios de environment; la restricción de rama y la confirmación escrita reducen el riesgo, pero no equivalen a separación de funciones;
 
 ## No romper
 
