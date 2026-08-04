@@ -26,7 +26,7 @@ export const portfolioEntrySchema = z.object({
   summary: z.string(),
   entryType: entryTypeSchema,
   status: entryStatusSchema,
-  publishedAt: z.string().datetime().nullable(),
+  publishedAt: z.string().datetime({ offset: true }).nullable(),
   metadata: z.record(z.string(), z.unknown()),
   blocks: z.array(contentBlockSchema),
 });
