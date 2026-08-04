@@ -28,6 +28,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
       NEON_BRANCH: ${{ vars.NEON_BRANCH }}
+      NEON_PROTECT_DEFAULT_BRANCH: ${{ vars.NEON_PROTECT_DEFAULT_BRANCH || 'true' }}
       ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
       STORAGE_BUCKET: portfolio-assets
     steps:
