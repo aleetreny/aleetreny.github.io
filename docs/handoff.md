@@ -7,8 +7,7 @@ Actualizado: 2026-08-04 (Atlantic/Canary).
 - `main`: web terminal actualmente publicada; commit base `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
 - backup remoto: `backup/static-terminal-2025`.
 - rama de trabajo publicada: `codex/portable-architecture`.
-- último commit remoto estable de código: `0608cbb82b351ca818892d2dc5371677a9681697` (`feat: replace portfolio with infinite corkboard`).
-- el commit documental posterior solo actualiza estado y handoff.
+- último commit remoto estable de código: `84b3aaf841e378d2e3a249b77de79f5fd7769cce` (`feat: add recoverable editor trash`).
 
 No promover todavía a `main`: el frontend está listo, pero la integración real de Neon no se ha ejecutado.
 
@@ -18,7 +17,7 @@ Funciona desde un clon sin servicios mediante diez fixtures públicos. La web es
 
 El modo propietario contiene login, recuperación de sesión, inventario, CRUD, papelera recuperable, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. Todo compila y está cubierto por pruebas unitarias básicas, pero requiere Neon real para un E2E.
 
-Última validación: `pnpm portability:verify` desde un clon temporal limpio; instalación frozen, escaneo, lint, tipos, 10 tests y build pasan. Todavía no incluye servicios externos porque falta el proyecto Neon correcto.
+Última validación: `pnpm check` y `pnpm build` pasan; además se probó en navegador el foco inicial, el ciclo de tabulación, Escape y el retorno al sticker tras cerrar. La validación anterior `pnpm portability:verify` también pasó desde un clon temporal limpio. Todavía no incluye servicios externos porque falta el proyecto Neon correcto.
 
 ## Primeros comandos en otra máquina
 
