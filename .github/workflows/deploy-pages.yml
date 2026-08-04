@@ -19,9 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAGES_BASE_PATH: /
-      VITE_ENABLE_REMOTE_DATA: ${{ vars.VITE_ENABLE_REMOTE_DATA || 'false' }}
-      VITE_NEON_AUTH_URL: ${{ vars.VITE_NEON_AUTH_URL }}
-      VITE_NEON_DATA_API_URL: ${{ vars.VITE_NEON_DATA_API_URL }}
+      # Public production endpoints are safe to commit and keep Pages
+      # recoverable even when repository variables have not been recreated.
+      # Repository variables can still override them during a migration.
+      VITE_ENABLE_REMOTE_DATA: ${{ vars.VITE_ENABLE_REMOTE_DATA || 'true' }}
+      VITE_NEON_AUTH_URL: ${{ vars.VITE_NEON_AUTH_URL || 'https://ep-restless-art-ayzvh2yg.neonauth.c-5.us-east-2.aws.neon.tech/neondb/auth' }}
+      VITE_NEON_DATA_API_URL: ${{ vars.VITE_NEON_DATA_API_URL || 'https://ep-restless-art-ayzvh2yg.apirest.c-5.us-east-2.aws.neon.tech/neondb/rest/v1' }}
       VITE_STORAGE_FUNCTION_URL: ${{ vars.VITE_STORAGE_FUNCTION_URL }}
       VITE_STORAGE_PUBLIC_BASE_URL: ${{ vars.VITE_STORAGE_PUBLIC_BASE_URL }}
     steps:
