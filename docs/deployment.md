@@ -12,7 +12,7 @@ Workflow: `.github/workflows/deploy-pages.yml`.
 
 En Settings > Pages debe seleccionarse GitHub Actions. No se sube `dist/` al repositorio.
 
-El workflow intenta mantener `build_type=workflow` mediante la API y convierte un rechazo en warning para no impedir la build. GitHub puede exigir permisos administrativos que `GITHUB_TOKEN` no recibe. La selección manual inicial en Settings sigue siendo obligatoria. Comprueba el resultado con:
+La selección manual inicial en Settings es obligatoria porque cambiar un sitio existente desde la fuente legacy requiere permiso administrativo. Comprueba el resultado con:
 
 ```bash
 curl -fsSL -H 'Cache-Control: no-cache' https://aleetreny.github.io/index.html \
@@ -44,9 +44,11 @@ GitHub Environments recomendados:
 | Entorno | Secrets | Variables | Protección |
 | --- | --- | --- | --- |
 | development | `NEON_API_KEY`, `DATABASE_URL` de rama dev | `NEON_PROJECT_ID`, `NEON_BRANCH`, `ALLOWED_ORIGINS` | opcional |
-| production | `NEON_API_KEY`, `DATABASE_URL` producción | mismas | aprobación obligatoria |
+| production | `NEON_API_KEY`, `DATABASE_URL` producción | mismas y `NEON_PROTECT_DEFAULT_BRANCH` | aprobación obligatoria |
 
 Ejecuta `plan` antes de `apply`. `apply` despliega `neon.ts`, migra y verifica. No apunta automáticamente a producción en cada push.
+
+La política protege la rama predeterminada salvo que el plan admita cero ramas protegidas. En ese caso usa `NEON_PROTECT_DEFAULT_BRANCH=false`, conserva aprobación obligatoria en el environment y documenta la excepción; vuelve a `true` en cuanto el plan lo permita.
 
 ## Dominio
 
