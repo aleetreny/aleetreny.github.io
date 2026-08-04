@@ -47,7 +47,7 @@ pnpm dev
 - Storage/Function: desplegados y verificados en ambas ramas;
 - bucket público en ambas ramas: `portfolio-assets`;
 - ciclo live verificado con `pnpm storage:verify-live`; producción requiere además `STORAGE_VERIFY_ALLOW_PRODUCTION=true` como confirmación explícita;
-- el plan actual permite cero ramas protegidas: se desplegó producción con `NEON_PROTECT_DEFAULT_BRANCH=false` y aprobación obligatoria del environment `production` como compensación temporal.
+- el plan actual permite cero ramas protegidas: se desplegó producción con `NEON_PROTECT_DEFAULT_BRANCH=false`; el environment GitHub `production` solo acepta `main` y el workflow exige `APPLY_PRODUCTION` como compensación temporal.
 
 No copiar cadenas de conexión, tokens ni cuentas temporales al repositorio. El proyecto existente “C2 Practice Log” no se tocó.
 
@@ -57,7 +57,7 @@ La Neon CLI quedó autorizada por OAuth en este ordenador temporal. En otro equi
 
 1. cuenta Auth real allowlisted como propietaria;
 2. GitHub Actions Secrets para provisión administrativa;
-3. aprobación obligatoria del GitHub Environment `production` mientras la rama Neon no pueda protegerse por limitación del plan.
+3. mantener `production` restringido a `main` y la confirmación `APPLY_PRODUCTION` mientras la rama Neon no pueda protegerse; el plan privado actual no ofrece revisores obligatorios.
 
 Notion no forma parte del runtime. Solo se consulta en lectura si una tarea futura necesita contexto y nunca se copia el diario al repositorio.
 
@@ -78,7 +78,7 @@ Las variables operativas privadas (`NEON_API_KEY`, `DATABASE_URL`) van solo a se
 - Neon JS/Auth/Data API/Storage/Functions están en beta.
 - Storage/Functions requieren `aws-us-east-2` en esta arquitectura.
 - Si el PUT de imagen funciona y el registro SQL falla, queda un objeto huérfano hasta reconciliación.
-- El plan Neon actual no permite proteger ramas; no promover producción sin aprobación del GitHub Environment y volver a `NEON_PROTECT_DEFAULT_BRANCH=true` al ampliar el plan.
+- El plan Neon actual no permite proteger ramas; no promover producción fuera de `main` ni sin `APPLY_PRODUCTION`, y volver a `NEON_PROTECT_DEFAULT_BRANCH=true` al ampliar el plan.
 - El preparador de migraciones de lenguaje natural no aceptó el lote completo; la aplicación productiva se completó después como una única transacción de las 76 sentencias versionadas ya verificadas en integración.
 - Git local en esta máquina temporal no tiene credencial GitHub; los commits se publican mediante el conector autorizado.
 - El selector administrativo de Pages ya se corrigió a GitHub Actions; esta decisión no queda versionada por GitHub y debe revisarse si la URL vuelve a servir `/src/main.tsx`.
