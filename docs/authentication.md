@@ -15,9 +15,9 @@ Managed Better Auth de Neon, declarado con `auth: true` en `neon.ts`. La sesión
 
 ## Estado verificado
 
-El proyecto definitivo es `aleetreny-portfolio` (`divine-queen-66854519`). En la rama aislada `codex-integration` (`br-tiny-art-ayb43loi`) están provisionados Auth y Data API, y se verificaron sesión allowlisted, lectura anónima, rechazo de escritura para una cuenta no propietaria y el ciclo editorial completo. Producción permanece sin migrar.
+El proyecto definitivo es `aleetreny-portfolio` (`divine-queen-66854519`). En la rama aislada `codex-integration` (`br-tiny-art-ayb43loi`) se verificaron sesión allowlisted, lectura anónima, rechazo de escritura para una cuenta no propietaria y el ciclo editorial completo. Auth, Data API, esquema y fixtures también están activos en producción (`br-blue-dawn-ay0e37ed`).
 
-En integración, `allow_localhost` permite `http://localhost:5173`; antes de activar Pages se debe añadir exactamente `https://aleetreny.github.io` a los orígenes de confianza. No documentar usuarios, contraseñas, tokens ni UUID temporales de las pruebas.
+`allow_localhost` permite desarrollo local y `https://aleetreny.github.io` ya está añadido como origen de confianza en integración y producción. Se validó la cabecera CORS contra ambos endpoints Auth. No documentar usuarios, contraseñas, tokens ni UUID temporales de las pruebas.
 
 ## Distinción crítica
 
