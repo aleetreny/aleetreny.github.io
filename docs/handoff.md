@@ -7,14 +7,14 @@ Actualizado: 2026-08-04 (Atlantic/Canary).
 - `main`: web terminal actualmente publicada; commit base `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
 - backup remoto: `backup/static-terminal-2025`.
 - rama de trabajo publicada: `codex/portable-architecture`.
-- último commit remoto estable de código: `cbf9c871c02375474e67e134f65313f248b2f920` (`feat: build complete public portfolio experience`).
+- último commit remoto estable de código: `0608cbb82b351ca818892d2dc5371677a9681697` (`feat: replace portfolio with infinite corkboard`).
 - el commit documental posterior solo actualiza estado y handoff.
 
 No promover todavía a `main`: el frontend está listo, pero la integración real de Neon no se ha ejecutado.
 
 ## Estado funcional actual
 
-Funciona desde un clon sin servicios mediante diez fixtures públicos. La web incluye portada, proyectos, experiencia, formación, contacto, metadata social y responsive verificado a 390 px y escritorio.
+Funciona desde un clon sin servicios mediante diez fixtures públicos. La web es un tablero de corcho a pantalla completa: pan ilimitado, zoom por rueda/pellizco/botones, stickers con elementos principales y ampliaciones que conservan el corcho. Se verificó a 390 px y escritorio, incluida la apertura de Formación.
 
 El modo propietario contiene login, recuperación de sesión, inventario, CRUD, seis tipos de bloque, drag and drop accesible, subida de imágenes, bloqueo optimista, snapshots y restauración. Todo compila y está cubierto por pruebas unitarias básicas, pero requiere Neon real para un E2E.
 

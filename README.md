@@ -1,8 +1,8 @@
 # Alejandro Treny — portfolio reproducible
 
-Portfolio personal orientado a explicar proyectos de estadística, ciencia de datos, forecasting y optimización mediante contenido visual y estructurado. El repositorio es la fuente principal: una máquina nueva debe poder clonar, instalar, configurar servicios, migrar y desplegar sin recuperar archivos locales anteriores.
+Portfolio personal presentado como un tablero de corcho digital: una superficie arrastrable y ampliable donde proyectos, experiencia, formación, perfil y contacto aparecen como notas pegadas que se pueden abrir. El repositorio es la fuente principal: una máquina nueva debe poder clonar, instalar, configurar servicios, migrar y desplegar sin recuperar archivos locales anteriores.
 
-La web pública es una SPA estática. Con `VITE_ENABLE_REMOTE_DATA=false` usa fixtures públicos versionados; con Neon configurado lee únicamente contenido publicado. El modo propietario vive en `?owner=1`: autentica con Managed Better Auth y obtiene permisos editoriales solo si el UUID está en `app_private.owner_accounts`. Incluye CRUD de entradas, editor de bloques reordenable, subida de imágenes, bloqueo optimista e historial restaurable.
+La web pública es una SPA estática con pan, zoom, controles de teclado/táctiles y secciones expandibles dentro de la misma estética de corcho. Con `VITE_ENABLE_REMOTE_DATA=false` usa fixtures públicos versionados; con Neon configurado lee únicamente contenido publicado. El modo propietario vive en `?owner=1`: autentica con Managed Better Auth y obtiene permisos editoriales solo si el UUID está en `app_private.owner_accounts`. Incluye CRUD de entradas, editor de bloques reordenable, subida de imágenes, bloqueo optimista e historial restaurable.
 
 ## Arquitectura resumida
 

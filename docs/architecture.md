@@ -28,7 +28,7 @@ flowchart LR
 ## Responsabilidades
 
 - **GitHub Pages:** entrega únicamente `dist/`; no ejecuta backend ni guarda secretos.
-- **Frontend:** muestra fixtures cuando no hay backend; con Neon, consulta contenido y gestiona sesión.
+- **Frontend:** presenta el contenido en un tablero de corcho con pan/zoom y secciones expandibles; muestra fixtures cuando no hay backend y, con Neon, consulta contenido y gestiona sesión.
 - **Auth:** crea sesiones/JWT. Autenticarse no equivale a ser propietario.
 - **Data API:** convierte consultas del SDK en operaciones Postgres y selecciona rol por JWT.
 - **Postgres:** es la autoridad de permisos mediante roles, allowlist y RLS.
@@ -40,7 +40,7 @@ flowchart LR
 
 ### Lectura pública
 
-El cliente anónimo obtiene un token anónimo de Neon; Data API usa el rol `anonymous`. Las políticas exponen entradas `published` no borradas, sus bloques, assets públicos y settings públicos.
+El cliente anónimo obtiene un token anónimo de Neon; Data API usa el rol `anonymous`. Las políticas exponen entradas `published` no borradas, sus bloques y settings públicos. Las URLs de imágenes publicadas viajan en los bloques; la tabla `assets` no se expone al visitante.
 
 ### Propietario
 

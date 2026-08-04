@@ -4,7 +4,8 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 
 ## Terminado en código
 
-- portfolio público responsive con contenido público reproducible, secciones de proyectos, trayectoria, formación y contacto;
+- tablero de corcho público a pantalla completa con pan ilimitado, zoom, soporte táctil/teclado y controles visibles;
+- stickers de proyectos, trayectoria, formación, perfil y contacto con resumen y ampliación sobre un segundo tablero de corcho;
 - metadatos Open Graph/Twitter y tarjeta social propia;
 - modo propietario con recuperación de sesión, inventario, alta, edición, publicación, archivo y borrado lógico;
 - editor de bloques `text`, `heading`, `list`, `metric`, `quote` e `image`;
@@ -17,7 +18,7 @@ Actualizado: 2026-08-04. Rama: `codex/portable-architecture`.
 - CI, GitHub Pages, provisión Neon manual, Dependabot, ADRs y guías de recuperación;
 - backup remoto `backup/static-terminal-2025` de la web anterior;
 - validación desde clon temporal limpio: instalación frozen, repo scan, lint, tipos, 10 tests y build;
-- revisión visual local desktop/móvil a 390 px sin overflow ni errores de consola.
+- revisión visual local desktop/móvil a 390 px sin overflow; pan, zoom, apertura y cierre verificados en navegador.
 
 “Terminado en código” no significa verificado contra servicios reales.
 

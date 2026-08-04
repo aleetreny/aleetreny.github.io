@@ -10,3 +10,4 @@ Los ADR son inmutables cuando se aceptan: si una decisión cambia, añade un ADR
 6. [Drag and drop](0006-drag-and-drop.md)
 7. [Responsive](0007-responsive-strategy.md)
 8. [Frontera GitHub Pages](0008-github-pages-boundary.md)
+9. [Tablero de corcho infinito](0009-infinite-corkboard.md)
