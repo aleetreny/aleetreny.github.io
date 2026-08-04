@@ -25,30 +25,9 @@ jobs:
       VITE_ENABLE_REMOTE_DATA: ${{ vars.VITE_ENABLE_REMOTE_DATA || 'true' }}
       VITE_NEON_AUTH_URL: ${{ vars.VITE_NEON_AUTH_URL || 'https://ep-restless-art-ayzvh2yg.neonauth.c-5.us-east-2.aws.neon.tech/neondb/auth' }}
       VITE_NEON_DATA_API_URL: ${{ vars.VITE_NEON_DATA_API_URL || 'https://ep-restless-art-ayzvh2yg.apirest.c-5.us-east-2.aws.neon.tech/neondb/rest/v1' }}
-      VITE_STORAGE_FUNCTION_URL: ${{ vars.VITE_STORAGE_FUNCTION_URL }}
-      VITE_STORAGE_PUBLIC_BASE_URL: ${{ vars.VITE_STORAGE_PUBLIC_BASE_URL }}
+      VITE_STORAGE_FUNCTION_URL: ${{ vars.VITE_STORAGE_FUNCTION_URL || 'https://br-blue-dawn-ay0e37ed-storage.compute.c-5.us-east-2.aws.neon.tech' }}
+      VITE_STORAGE_PUBLIC_BASE_URL: ${{ vars.VITE_STORAGE_PUBLIC_BASE_URL || 'https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets' }}
     steps:
-      - name: Keep Pages on the Actions deployment source
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          response_file="$(mktemp)"
-          status="$({ curl --silent --show-error \
-            --output "$response_file" \
-            --write-out '%{http_code}' \
-            --request PUT \
-            --header 'Accept: application/vnd.github+json' \
-            --header "Authorization: Bearer $GH_TOKEN" \
-            --header 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
-            --data '{"build_type":"workflow"}'; } 2>/dev/null)"
-
-          if [ "$status" != "204" ]; then
-            echo "::warning::Pages source could not be changed automatically (HTTP $status). Select GitHub Actions in Settings > Pages."
-            sed -n '1,12p' "$response_file"
-          fi
-
       - name: Checkout
         uses: actions/checkout@v6
 
