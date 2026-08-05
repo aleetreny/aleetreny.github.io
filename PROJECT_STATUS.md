@@ -19,25 +19,25 @@ Actualizado: 2026-08-05. Rama local: `codex/portable-architecture`.
 - workflow de provisión corregido para ejecutar el CLI local con `pnpm exec neon`;
 - planes de Neon exitosos en GitHub Actions: development `#2` (`31030803954`) y production `#3` (`31031757861`);
 - GitHub Pages configurado con GitHub Actions y rollback conservado en `backup/static-terminal-2025`;
-- comprobación local del rediseño: scan de repositorio, lint, tipos, 14 tests y build;
-- inspección visual local del tablero, dossier expandido y superficie administrativa;
+- rediseño publicado en `https://aleetreny.github.io/` y servido con el catálogo vivo de Neon;
+- auditoría online de escritorio: diez fichas, diez dossiers, perfil, índice, zoom, teclado, Escape, retorno de foco, cierre por fondo, scroll interno y contacto;
+- auditoría online móvil a `390 × 844`: composición, navegación inferior, dossier, scroll y contacto sin errores de consola o de página;
+- 21 enlaces únicos inspeccionados; se corrigió la capitalización de `/Cabicity/` y todos los destinos HTTP públicos responden correctamente;
+- modo propietario online verificado con usuario desechable: alta, allowlist, login, inventario, papelera vacía, creación, seis tipos de bloque, edición, orden, borrado de bloque, guardado y snapshot de versión; usuario y datos QA eliminados al terminar;
+- la captura de gestos del lienzo ya no bloquea el cierre ni el scroll de los dossiers;
+- comprobación local del rediseño: scan de repositorio, lint, tipos, 15 tests y build;
+- `pnpm portability:verify` completado desde un clon limpio con 15 tests y build;
 - documentación de arquitectura, datos, autenticación, editor, storage, despliegue, seguridad, recuperación, handoff y ADRs.
 
 ## Parcialmente implementado
 
 | Elemento | Estado | Archivos | Dependencia | Criterio de finalización |
 | --- | --- | --- | --- | --- |
-| Rediseño público/editor | implementado y revisado localmente | `CorkboardPortfolio.tsx`, `EntryEditor.tsx`, `global.css`, fixtures | despliegue de `main` | auditoría completa del artefacto online en escritorio/móvil |
 | Contenido público | 24 entradas sembradas en Neon | `fixtures/demo-content.json`, `scripts/db/seed.mjs` | revisión subjetiva posterior del propietario | textos y enlaces aprobados o ajustados desde el editor |
 
 ## Pendiente
 
-| Descripción | Archivos relacionados | Dependencia | Completado cuando |
-| --- | --- | --- | --- |
-| Publicar el rediseño | frontend, fixtures, docs | commits remotos + Actions | Pages sirve los nuevos bundles y CI/deploy pasan |
-| Auditoría online final | web pública y `?owner=1` | despliegue actualizado | se prueban todas las secciones, controles, enlaces y pantallas sin hallazgos abiertos |
-| Portabilidad final | repositorio completo | commit estable | `pnpm portability:verify` pasa desde clon limpio y `git status` queda limpio |
-| Etiqueta estable | `main` | auditoría y portabilidad | tag `portfolio-v0.2.0` apunta al commit estable publicado |
+No quedan tareas obligatorias de implementación, despliegue, portabilidad o QA para esta fase. La aprobación subjetiva de textos se mantiene como revisión editorial, no como bloqueo técnico.
 
 ## Bloqueado
 
