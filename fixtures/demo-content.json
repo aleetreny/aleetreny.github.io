@@ -2,30 +2,28 @@
   {
     "id": "10000000-0000-4000-8000-000000000001",
     "version": 1,
-    "slug": "forecasting-financial-cash-flow",
-    "title": "Forecasting de cash flow global",
-    "summary": "Comparación reproducible de modelos lineales, GAM y gradient boosting para apoyar decisiones de liquidez.",
-    "entryType": "project",
+    "slug": "mapping-science",
+    "title": "Mapping Science",
+    "summary": "Tesis y explorador interactivo sobre la morfología semántica de los campos científicos a partir de embeddings SPECTER2.",
+    "entryType": "case-study",
     "status": "published",
-    "publishedAt": "2026-01-15T12:00:00.000Z",
+    "publishedAt": "2026-06-01T12:00:00.000Z",
     "metadata": {
-      "topics": ["forecasting", "machine learning", "finanzas"],
+      "section": "research",
+      "topics": ["SPECTER2", "OpenAlex", "UMAP", "investigación"],
       "featured": true,
-      "organization": "Modelado aplicado"
+      "organization": "Trabajo fin de máster",
+      "period": "2026",
+      "signal": "2000—2024",
+      "projectUrl": "https://aleetreny.github.io/Mapping-Science/",
+      "repositoryUrl": "https://github.com/aleetreny/Mapping-Science"
     },
     "blocks": [
       {
         "id": "20000000-0000-4000-8000-000000000001",
         "type": "text",
         "position": 0,
-        "props": { "text": "Un pipeline orientado a comparar el error fuera de muestra y comunicar la incertidumbre de forma útil para negocio." },
-        "layout": { "width": "wide", "align": "start" }
-      },
-      {
-        "id": "20000000-0000-4000-8000-000000000002",
-        "type": "list",
-        "position": 1,
-        "props": { "items": ["Validación temporal sin fuga de información", "Comparación de familias de modelos", "Resultados interpretables para planificación"] },
+        "props": { "text": "El proyecto mide dispersión, densidad local, hubness, estructura espectral y movimiento temporal en el espacio original de embeddings; UMAP queda como capa visual, no como base de las conclusiones." },
         "layout": { "width": "wide", "align": "start" }
       }
     ]
@@ -33,30 +31,28 @@
   {
     "id": "10000000-0000-4000-8000-000000000002",
     "version": 1,
-    "slug": "operations-optimization",
-    "title": "Optimización de operaciones",
-    "summary": "Modelos de precio, planificación lineal y cuadros de mando para convertir datos operativos en decisiones medibles.",
-    "entryType": "case-study",
+    "slug": "scholar-pulse",
+    "title": "ScholarPulse",
+    "summary": "Plataforma de descubrimiento para seguir literatura reciente, redes de citas y una biblioteca de lectura privada.",
+    "entryType": "project",
     "status": "published",
-    "publishedAt": "2025-10-01T12:00:00.000Z",
+    "publishedAt": "2026-02-01T12:00:00.000Z",
     "metadata": {
-      "topics": ["optimización", "Power BI", "econometría"],
+      "section": "research",
+      "topics": ["arXiv", "OpenAlex", "Next.js", "pipelines"],
       "featured": true,
-      "organization": "Decisión operativa"
+      "organization": "Producto de investigación",
+      "period": "2026",
+      "signal": "2 idiomas",
+      "projectUrl": "https://aleetreny.github.io/Scholar-Pulse/",
+      "repositoryUrl": "https://github.com/aleetreny/Scholar-Pulse"
     },
     "blocks": [
       {
-        "id": "20000000-0000-4000-8000-000000000003",
-        "type": "metric",
+        "id": "20000000-0000-4000-8000-000000000002",
+        "type": "list",
         "position": 0,
-        "props": { "label": "Objetivo de diseño", "value": "Decisiones trazables" },
-        "layout": { "width": "medium", "align": "start" }
-      },
-      {
-        "id": "20000000-0000-4000-8000-000000000004",
-        "type": "text",
-        "position": 1,
-        "props": { "text": "La solución conecta restricciones operativas, escenarios de precio y una capa visual para evaluar alternativas antes de ejecutarlas." },
+        "props": { "items": ["Feeds personalizados desde snapshots programados", "Búsqueda y redes de citas con OpenAlex", "Listas, notas y exportación local sin backend público"] },
         "layout": { "width": "wide", "align": "start" }
       }
     ]
@@ -64,23 +60,27 @@
   {
     "id": "10000000-0000-4000-8000-000000000003",
     "version": 1,
-    "slug": "genai-mavericks",
-    "title": "GenAI Mavericks",
-    "summary": "Exploración de aplicaciones responsables de IA generativa con foco en utilidad, evaluación y comunicación clara.",
-    "entryType": "project",
+    "slug": "computational-vexillology",
+    "title": "Computational Vexillology",
+    "summary": "Convierte 250 banderas nacionales en huellas matemáticas para estudiar historia, geografía, economía y cultura.",
+    "entryType": "case-study",
     "status": "published",
-    "publishedAt": "2025-07-12T12:00:00.000Z",
+    "publishedAt": "2026-01-15T12:00:00.000Z",
     "metadata": {
-      "topics": ["GenAI", "prototipado", "evaluación"],
+      "section": "research",
+      "topics": ["visión", "clustering", "HDBSCAN", "Quarto"],
       "featured": true,
-      "organization": "Innovación aplicada"
+      "organization": "Investigación computacional",
+      "period": "2026",
+      "signal": "250 banderas",
+      "repositoryUrl": "https://github.com/aleetreny/Computational-Vexillology"
     },
     "blocks": [
       {
-        "id": "20000000-0000-4000-8000-000000000005",
+        "id": "20000000-0000-4000-8000-000000000003",
         "type": "text",
         "position": 0,
-        "props": { "text": "Del concepto al prototipo: definición del caso de uso, criterios de calidad y límites explícitos para que la tecnología sea comprensible y gobernable." },
+        "props": { "text": "Combina 19 rasgos diseñados a mano con embeddings ResNet-50, UMAP y HDBSCAN. El análisis encuentra la historia colonial como fuerza estructural dominante del diseño." },
         "layout": { "width": "wide", "align": "start" }
       }
     ]
@@ -88,23 +88,28 @@
   {
     "id": "10000000-0000-4000-8000-000000000004",
     "version": 1,
-    "slug": "frulogy-data-product",
-    "title": "Frulogy",
-    "summary": "Concepto de producto de datos que reúne experimentación, señales de mercado y una narrativa visual coherente.",
-    "entryType": "project",
+    "slug": "localizate",
+    "title": "Localízate",
+    "summary": "Inteligencia comercial para Madrid con datos abiertos, analítica geoespacial y modelos de supervivencia.",
+    "entryType": "case-study",
     "status": "published",
-    "publishedAt": "2025-04-20T12:00:00.000Z",
+    "publishedAt": "2026-05-01T12:00:00.000Z",
     "metadata": {
-      "topics": ["producto", "analítica", "visualización"],
-      "featured": false,
-      "organization": "Proyecto personal"
+      "section": "civic",
+      "topics": ["Cox", "MapLibre", "deck.gl", "Cloudflare"],
+      "featured": true,
+      "organization": "Iniciativa con el Ayuntamiento de Madrid",
+      "period": "2026",
+      "signal": "Datos desde 2013",
+      "projectUrl": "https://localizate.pages.dev/",
+      "repositoryUrl": "https://github.com/aleetreny/Localizate"
     },
     "blocks": [
       {
-        "id": "20000000-0000-4000-8000-000000000006",
+        "id": "20000000-0000-4000-8000-000000000004",
         "type": "text",
         "position": 0,
-        "props": { "text": "Un espacio para ensayar cómo la analítica puede convertirse en una experiencia de producto, no solo en un informe." },
+        "props": { "text": "Explora el tejido comercial por distrito, barrio y hexágono, y evalúa ubicaciones concretas mediante una lectura explicable del riesgo y del contexto urbano." },
         "layout": { "width": "wide", "align": "start" }
       }
     ]
@@ -112,24 +117,26 @@
   {
     "id": "10000000-0000-4000-8000-000000000005",
     "version": 1,
-    "slug": "siemens-data-analytics",
-    "title": "Data & Analytics",
-    "summary": "Trabajo con datos financieros y operativos, automatización de análisis y comunicación de resultados para equipos multidisciplinares.",
-    "entryType": "experience",
+    "slug": "arraigo",
+    "title": "Arraigo",
+    "summary": "Índice de habitabilidad personalizado para los distritos de Málaga, construido a partir de más de 80 fuentes de datos.",
+    "entryType": "project",
     "status": "published",
-    "publishedAt": "2025-02-01T12:00:00.000Z",
+    "publishedAt": "2026-05-20T12:00:00.000Z",
     "metadata": {
-      "topics": ["datos", "automatización", "forecasting"],
-      "featured": false,
-      "organization": "Siemens",
-      "period": "Etapa profesional"
+      "section": "civic",
+      "topics": ["datos urbanos", "recomendación", "habitabilidad"],
+      "featured": true,
+      "organization": "Málaga Data Hackathon",
+      "period": "2026",
+      "signal": "2º / 21 equipos"
     },
     "blocks": [
       {
-        "id": "20000000-0000-4000-8000-000000000007",
+        "id": "20000000-0000-4000-8000-000000000005",
         "type": "text",
         "position": 0,
-        "props": { "text": "Construcción de análisis mantenibles y énfasis en que cada resultado pueda explicarse, auditarse y convertirse en acción." },
+        "props": { "text": "Integra precio, servicios, transporte, zonas verdes y ruido para recomendar dónde vivir según las prioridades de cada persona." },
         "layout": { "width": "wide", "align": "start" }
       }
     ]
@@ -137,91 +144,460 @@
   {
     "id": "10000000-0000-4000-8000-000000000006",
     "version": 1,
-    "slug": "tropical-millenium-operations",
+    "slug": "cabicity",
+    "title": "Cabicity",
+    "summary": "Prototipo de movilidad intermodal que compara rutas combinando transporte público, bicicleta, caminar y Cabify.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2026-06-25T12:00:00.000Z",
+    "metadata": {
+      "section": "civic",
+      "topics": ["movilidad", "React", "producto", "Madrid"],
+      "featured": true,
+      "organization": "Cabify Hackathon",
+      "period": "2026",
+      "signal": "Finalista",
+      "projectUrl": "https://aleetreny.github.io/cabicity/",
+      "repositoryUrl": "https://github.com/aleetreny/Cabicity"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000006",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "La propuesta rediseña la pantalla principal como un planificador multimodal con prioridades de viaje y un sistema de puntos dentro de la aplicación." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000007",
+    "version": 1,
+    "slug": "hollywood-mirror",
+    "title": "Hollywood Mirror",
+    "summary": "Buscador semántico de cine que interpreta guiones completos localmente, dentro del navegador.",
+    "entryType": "case-study",
+    "status": "published",
+    "publishedAt": "2026-03-15T12:00:00.000Z",
+    "metadata": {
+      "section": "ai",
+      "topics": ["Transformers.js", "MiniLM", "Web Worker", "privacidad"],
+      "featured": true,
+      "organization": "Experimento de IA local",
+      "period": "2026",
+      "signal": "0 API servers",
+      "projectUrl": "https://hollywood-mirror.vercel.app/",
+      "repositoryUrl": "https://github.com/aleetreny/Hollywood-Mirror"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000007",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "La consulta, el modelo cuantizado y el índice permanecen en el dispositivo. La navegación propone descubrir cine por tono, diálogo y estructura, no por géneros tradicionales." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000008",
+    "version": 1,
+    "slug": "genai-mavericks",
+    "title": "GenAI Mavericks",
+    "summary": "Asistente conversacional de compra para buscar moda por intención, contexto y estilo en lugar de filtros rígidos.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2025-11-15T12:00:00.000Z",
+    "metadata": {
+      "section": "ai",
+      "topics": ["GenAI", "búsqueda semántica", "retail", "prototipado"],
+      "featured": true,
+      "organization": "Accenture Madrid",
+      "period": "2025",
+      "signal": "IA con inventario"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000008",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "El prototipo mantiene el contexto de preferencias y limita la respuesta al inventario disponible para reducir alucinaciones y hacer útil la conversación." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000009",
+    "version": 1,
+    "slug": "exoplanet-architect",
+    "title": "Exoplanet Architect",
+    "summary": "Motor procedural que genera exoplanetas, superficies pixeladas y una historia científica distinta en cada sesión.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2025-12-15T12:00:00.000Z",
+    "metadata": {
+      "section": "ai",
+      "topics": ["generación procedural", "Gemini", "ruido", "pixel art"],
+      "featured": false,
+      "organization": "Laboratorio personal",
+      "period": "2025",
+      "signal": "Código + relato",
+      "repositoryUrl": "https://github.com/aleetreny/Development/tree/main/exo-planet-builder"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000009",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "Separa dos capas: geometría determinista producida con algoritmos de ruido y una narrativa generativa que convierte cada planeta en un artefacto de ciencia ficción." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000010",
+    "version": 1,
+    "slug": "star-synthesizer",
+    "title": "Star Synthesizer",
+    "summary": "Traduce temperatura, masa, metalicidad y edad estelar en sonido y respuesta visual en tiempo real.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2025-06-15T12:00:00.000Z",
+    "metadata": {
+      "section": "experiments",
+      "topics": ["Web Audio", "astrofísica", "sonificación", "Canvas"],
+      "featured": false,
+      "organization": "Interactive GenAI & Physics",
+      "period": "2025",
+      "signal": "Datos que suenan",
+      "repositoryUrl": "https://github.com/aleetreny/Development/tree/main/star-synthesizer"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000011",
+    "version": 1,
+    "slug": "gravity-lens-simulator",
+    "title": "Gravity Lens Simulator",
+    "summary": "Laboratorio de mecánica orbital con trayectorias en tiempo real y una interpretación visual del efecto de lente gravitacional.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2025-11-10T12:00:00.000Z",
+    "metadata": {
+      "section": "experiments",
+      "topics": ["física", "N-body", "Canvas", "simulación"],
+      "featured": false,
+      "organization": "Interactive GenAI & Physics",
+      "period": "2025",
+      "signal": "Tiempo real",
+      "repositoryUrl": "https://github.com/aleetreny/Development/tree/main/gravity-simulator"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000012",
+    "version": 1,
+    "slug": "fermi-paradox-terminal",
+    "title": "Fermi Paradox Terminal",
+    "summary": "Terminal brutalista que convierte la ecuación de Drake en un simulador interactivo de civilizaciones posibles.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2025-09-15T12:00:00.000Z",
+    "metadata": {
+      "section": "experiments",
+      "topics": ["Drake", "exobiología", "interfaz", "simulación"],
+      "featured": false,
+      "organization": "Interactive GenAI & Physics",
+      "period": "2025",
+      "signal": "N = R* × fp…",
+      "repositoryUrl": "https://github.com/aleetreny/Development/tree/main/fermi-paradox-dashboard"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000013",
+    "version": 1,
+    "slug": "c2-practice-log",
+    "title": "C2 Practice Log",
+    "summary": "Simulador y espacio de estudio para Cambridge C2 con bancos reales, corrección, analítica de progreso y repaso adaptativo.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2026-07-15T12:00:00.000Z",
+    "metadata": {
+      "section": "products",
+      "topics": ["edtech", "Neon", "RLS", "offline-first"],
+      "featured": true,
+      "organization": "Producto personal",
+      "period": "2026",
+      "signal": "44+12+33 tests",
+      "projectUrl": "https://aleetreny.github.io/c2-practice-log/",
+      "repositoryUrl": "https://github.com/aleetreny/c2-practice-log"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000013",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "La aplicación combina práctica cronometrada, historial, vocabulario y cuentas privadas. Neon Auth y RLS separan cada espacio personal; el modo demo permanece público y aislado." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000014",
+    "version": 1,
+    "slug": "madrid-plan",
+    "title": "Madrid Plan",
+    "summary": "Agenda cultural que consolida eventos y noticias de Madrid, normaliza duplicados y se actualiza automáticamente.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2026-06-10T12:00:00.000Z",
+    "metadata": {
+      "section": "products",
+      "topics": ["scraping", "ETL", "GitHub Actions", "Vite"],
+      "featured": true,
+      "organization": "Producto personal",
+      "period": "2026",
+      "signal": "22 fuentes",
+      "repositoryUrl": "https://github.com/aleetreny/mad_plan"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000014",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "Un pipeline nocturno extrae, geocodifica, deduplica y publica una aplicación estática. El contrato común permite comparar fechas, precios y enlaces entre fuentes." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000015",
+    "version": 1,
+    "slug": "frulogy",
+    "title": "Frulogy",
+    "summary": "Plataforma que conectó productores de fruta ecológica con consumidores europeos mediante precio, segmentación y operaciones.",
+    "entryType": "project",
+    "status": "published",
+    "publishedAt": "2021-09-01T12:00:00.000Z",
+    "metadata": {
+      "section": "products",
+      "topics": ["emprendimiento", "pricing", "SEO", "operaciones"],
+      "featured": true,
+      "organization": "Fundador",
+      "period": "2020—2021",
+      "signal": "+150% margen"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000015",
+        "type": "metric",
+        "position": 0,
+        "props": { "label": "Valoración Trustpilot", "value": "4,5 / 5" },
+        "layout": { "width": "medium", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000016",
+    "version": 1,
+    "slug": "siemens-energy-data-analytics",
+    "title": "Data & Analytics",
+    "summary": "Datos financieros y operativos, automatización y comunicación de resultados para equipos multidisciplinares.",
+    "entryType": "experience",
+    "status": "published",
+    "publishedAt": "2026-01-01T12:00:00.000Z",
+    "metadata": {
+      "section": "career",
+      "topics": ["forecasting", "automatización", "Power BI"],
+      "featured": false,
+      "organization": "Siemens Energy",
+      "period": "Actualidad",
+      "signal": "Industria + datos"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000016",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "Construcción de análisis mantenibles con énfasis en que cada resultado pueda explicarse, auditarse y convertirse en acción." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000017",
+    "version": 1,
+    "slug": "tropical-millennium-operations",
     "title": "Operaciones y análisis",
     "summary": "Análisis próximo al negocio para entender procesos, detectar fricciones y estructurar decisiones con datos.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2024-06-01T12:00:00.000Z",
     "metadata": {
+      "section": "career",
       "topics": ["operaciones", "modelado", "reporting"],
       "featured": false,
-      "organization": "Tropical Millenium",
-      "period": "Etapa profesional"
+      "organization": "Tropical Millennium",
+      "period": "Etapa profesional",
+      "signal": "Operación real"
     },
     "blocks": []
   },
   {
-    "id": "10000000-0000-4000-8000-000000000007",
+    "id": "10000000-0000-4000-8000-000000000018",
     "version": 1,
-    "slug": "ey-analytical-foundations",
+    "slug": "consulting-analytical-foundations",
     "title": "Fundamentos analíticos",
-    "summary": "Experiencia temprana en un entorno de consultoría, combinando rigor, estructura y comunicación con distintos interlocutores.",
+    "summary": "Experiencia temprana en consultoría, combinando rigor, estructura y comunicación con distintos interlocutores.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2023-09-01T12:00:00.000Z",
     "metadata": {
+      "section": "career",
       "topics": ["consultoría", "análisis", "comunicación"],
       "featured": false,
-      "organization": "EY",
-      "period": "Etapa profesional"
+      "organization": "Entorno de consultoría",
+      "period": "Etapa profesional",
+      "signal": "Rigor + síntesis"
     },
     "blocks": []
   },
   {
-    "id": "10000000-0000-4000-8000-000000000008",
+    "id": "10000000-0000-4000-8000-000000000019",
     "version": 1,
     "slug": "master-statistics-data-science",
     "title": "Máster en Estadística para la Ciencia de Datos",
-    "summary": "Profundización en inferencia, modelado estadístico, aprendizaje automático y tratamiento riguroso de la incertidumbre.",
+    "summary": "Inferencia, modelado estadístico, aprendizaje automático y tratamiento riguroso de la incertidumbre.",
     "entryType": "education",
     "status": "published",
-    "publishedAt": "2024-01-01T12:00:00.000Z",
+    "publishedAt": "2025-09-01T12:00:00.000Z",
     "metadata": {
+      "section": "education",
       "topics": ["estadística", "machine learning", "inferencia"],
       "featured": false,
       "organization": "Universidad Carlos III de Madrid",
-      "period": "Posgrado"
+      "period": "2025—2026",
+      "signal": "Posgrado"
     },
     "blocks": []
   },
   {
-    "id": "10000000-0000-4000-8000-000000000009",
+    "id": "10000000-0000-4000-8000-000000000020",
     "version": 1,
     "slug": "economics-foundation",
     "title": "Formación en Economía",
     "summary": "Base para entender incentivos, mercados y decisiones antes de traducirlos a modelos cuantitativos.",
     "entryType": "education",
     "status": "published",
-    "publishedAt": "2022-06-01T12:00:00.000Z",
+    "publishedAt": "2025-06-01T12:00:00.000Z",
     "metadata": {
+      "section": "education",
       "topics": ["economía", "econometría", "finanzas"],
       "featured": false,
       "organization": "Universidad de Málaga",
-      "period": "Grado"
+      "period": "2020—2025",
+      "signal": "Grado"
     },
     "blocks": []
   },
   {
-    "id": "10000000-0000-4000-8000-000000000010",
+    "id": "10000000-0000-4000-8000-000000000021",
     "version": 1,
-    "slug": "sobre-mi",
-    "title": "Curiosidad cuantitativa, criterio práctico",
-    "summary": "Me interesan los proyectos donde una buena pregunta importa tanto como el modelo: entender el sistema, hacer explícitos los supuestos y dejar una solución que otra persona pueda continuar.",
-    "entryType": "note",
+    "slug": "kareema-excellence-scholarship",
+    "title": "Kareema Excellence Scholarship",
+    "summary": "Reconocimiento de Fundación Kareema y FGUMA al rendimiento académico y al recorrido personal.",
+    "entryType": "custom",
     "status": "published",
-    "publishedAt": "2026-02-01T12:00:00.000Z",
+    "publishedAt": "2025-11-01T12:00:00.000Z",
     "metadata": {
-      "topics": ["método", "colaboración", "producto"],
-      "featured": false
+      "section": "education",
+      "topics": ["excelencia", "beca"],
+      "featured": false,
+      "organization": "Fundación Kareema / FGUMA",
+      "period": "2025",
+      "signal": "Reconocimiento"
+    },
+    "blocks": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000022",
+    "version": 1,
+    "slug": "community-culture",
+    "title": "Comunidad, cultura y escenarios",
+    "summary": "Voluntariado, producción de eventos y jurados culturales como otra forma de aprender a coordinar sistemas humanos.",
+    "entryType": "custom",
+    "status": "published",
+    "publishedAt": "2025-06-01T12:00:00.000Z",
+    "metadata": {
+      "section": "community",
+      "topics": ["voluntariado", "cultura", "coordinación"],
+      "featured": false,
+      "organization": "EYE · Festival de Málaga · TEDxMálaga",
+      "period": "2022—2025",
+      "signal": "Personas, no solo datos"
     },
     "blocks": [
       {
-        "id": "20000000-0000-4000-8000-000000000008",
+        "id": "20000000-0000-4000-8000-000000000022",
+        "type": "list",
+        "position": 0,
+        "props": { "items": ["Voluntario en EYE 2025, Parlamento Europeo", "Jurado de documental, Festival de Málaga", "Coordinación de TEDxMálaga 2022", "Programa educativo Limpio Sur, Fundación Alda"] },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000023",
+    "version": 1,
+    "slug": "international-learning",
+    "title": "Aprender fuera del laboratorio",
+    "summary": "Experiencias internacionales, innovación y ciudadanía activa entre Lituania, Bulgaria, Malta y Estrasburgo.",
+    "entryType": "custom",
+    "status": "published",
+    "publishedAt": "2025-05-01T12:00:00.000Z",
+    "metadata": {
+      "section": "community",
+      "topics": ["Erasmus+", "innovación", "ciudadanía"],
+      "featured": false,
+      "organization": "Programas europeos",
+      "period": "2023—2025",
+      "signal": "4 países"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000023",
+        "type": "text",
+        "position": 0,
+        "props": { "text": "Proyectos de aprendizaje intergeneracional con IA, ciudadanía activa, emprendimiento y coordinación de comunidades internacionales." },
+        "layout": { "width": "wide", "align": "start" }
+      }
+    ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000024",
+    "version": 1,
+    "slug": "about-alejandro",
+    "title": "Números con contexto",
+    "summary": "Economía cuantitativa, estadística aplicada y construcción de productos para convertir matemáticas complejas en decisiones comprensibles.",
+    "entryType": "note",
+    "status": "published",
+    "publishedAt": "2026-08-01T12:00:00.000Z",
+    "metadata": {
+      "section": "profile",
+      "topics": ["método", "producto", "narrativa", "curiosidad"],
+      "featured": true,
+      "organization": "Alejandro Treny",
+      "period": "Madrid",
+      "signal": "Python · R · SQL"
+    },
+    "blocks": [
+      {
+        "id": "20000000-0000-4000-8000-000000000024",
         "type": "quote",
         "position": 0,
-        "props": { "text": "El resultado debe funcionar, pero también debe poder entenderse y mantenerse.", "attribution": "Principio de trabajo" },
-        "layout": { "width": "medium", "align": "start" }
+        "props": { "text": "La pregunta importa tanto como el modelo: entender el sistema, hacer explícitos los supuestos y dejar algo que otra persona pueda continuar.", "attribution": "Principio de trabajo" },
+        "layout": { "width": "wide", "align": "start" }
       }
     ]
   }
