@@ -67,12 +67,12 @@ jobs:
         run: pnpm validate:env -- --mode=provision
 
       - name: Plan Neon changes
-        run: neon config plan --project-id "$NEON_PROJECT_ID" --branch "$NEON_BRANCH"
+        run: pnpm exec neon config plan --project-id "$NEON_PROJECT_ID" --branch "$NEON_BRANCH"
 
       - name: Deploy Neon services
         if: inputs.operation == 'apply'
         run: >-
-          neon deploy
+          pnpm exec neon deploy
           --project-id "$NEON_PROJECT_ID"
           --branch "$NEON_BRANCH"
           --update-existing
