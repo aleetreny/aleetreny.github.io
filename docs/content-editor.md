@@ -8,6 +8,7 @@ El estudio editorial incluye:
 
 - inventario de entradas y creación de nuevas entradas;
 - título, slug, resumen, tipo, estado y metadatos de presentación;
+- asignación a uno de los nueve archivos públicos, señal breve, URL del proyecto y URL del repositorio;
 - bloques `text`, `heading`, `list`, `metric`, `quote` e `image`;
 - anchura y alineación por bloque;
 - reordenación por puntero, teclado y botones subir/bajar;
@@ -42,11 +43,13 @@ El bloque pide una URL firmada a `POST /uploads/presign` con el JWT efímero de 
 
 Antes de cada actualización, restauración o borrado lógico se guarda un snapshot inmutable en `entry_versions`. Restaurar una versión o recuperar desde la papelera conserva primero una instantánea completa y genera una versión nueva; nunca reescribe el historial.
 
-## Pruebas pendientes con infraestructura
+## Pruebas de infraestructura completadas
 
-- sesión real y refresh de JWT;
+- sesión real y propagación de JWT;
 - RLS con visitante, usuario autenticado no propietario y propietario;
-- conflicto simultáneo entre dos pestañas;
-- reorder persistido después de recarga;
-- subida fallida, reintento y reconciliación de objeto huérfano;
-- restauración de versión, borrado lógico y recuperación desde papelera reales.
+- conflicto optimista;
+- reorder persistido;
+- subida, lectura, exportación, borrado e importación de archivo;
+- restauración de versión, borrado lógico y recuperación desde papelera.
+
+La reconciliación automática de objetos huérfanos sigue siendo deuda técnica: si el PUT termina y el registro SQL falla, se necesita mantenimiento manual.
