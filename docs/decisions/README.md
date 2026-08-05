@@ -11,3 +11,4 @@ Los ADR son inmutables cuando se aceptan: si una decisión cambia, añade un ADR
 7. [Responsive](0007-responsive-strategy.md)
 8. [Frontera GitHub Pages](0008-github-pages-boundary.md)
 9. [Tablero de corcho infinito](0009-infinite-corkboard.md)
+10. [Archivo editorial adulto y sistema visual compartido](0010-editorial-archive-visual-system.md)
