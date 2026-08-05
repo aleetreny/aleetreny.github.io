@@ -16,6 +16,17 @@ Unidad editorial principal. Incluye `slug`, título, resumen, tipo, estado, asse
 
 Tipos iniciales: `project`, `case-study`, `experience`, `education`, `note`, `custom`. Son `text` con `CHECK`, más fácil de migrar que un enum Postgres.
 
+El renderer de archivo usa estas claves JSONB documentadas, todas opcionales y editables desde el modo propietario:
+
+- `section`: `research`, `ai`, `civic`, `products`, `experiments`, `career`, `education`, `community` o `profile`;
+- `organization` y `period`: procedencia y marco temporal;
+- `signal`: dato breve mostrado como sello visual;
+- `topics`: lista de etiquetas;
+- `projectUrl` y `repositoryUrl`: enlaces públicos externos;
+- `featured`: reserva editorial para futuras vistas destacadas.
+
+Una entrada antigua sin `section` recibe un destino compatible por tipo; el seed actual asigna sección explícita a las 24 entradas públicas.
+
 ### `content_blocks`
 
 Bloques ordenados por `position` dentro de una entrada. `block_type` discrimina el renderizador; `props` contiene contenido específico y `layout` decisiones visuales. Ambos deben ser objetos JSONB. El índice parcial impide dos bloques activos en la misma posición.
