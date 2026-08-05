@@ -282,7 +282,7 @@ function ExpandedSection({
   }, [onClose, returnFocusRef]);
 
   return (
-    <div className="board-modal" role="presentation" onPointerDown={(event) => {
+    <div className="board-modal" data-board-interactive role="presentation" onPointerDown={(event) => {
       if (event.currentTarget === event.target) onClose();
     }}>
       <section
@@ -444,6 +444,7 @@ export function CorkboardPortfolio({ entries, error, loading, remoteDataEnabled 
   }
 
   function handleWheel(event: WheelEvent<HTMLDivElement>) {
+    if ((event.target as HTMLElement).closest('[data-board-interactive]')) return;
     event.preventDefault();
     zoomAt(event.clientX, event.clientY, transformRef.current.scale * Math.exp(-event.deltaY * 0.0012));
   }
