@@ -4,7 +4,11 @@ import { createDatabaseClient } from './client.mjs';
 
 const sql = createDatabaseClient();
 const entries = JSON.parse(await readFile(resolve('fixtures/demo-content.json'), 'utf8'));
+const settings = JSON.parse(await readFile(resolve('fixtures/site-settings.json'), 'utf8'));
 const ownerId = process.env.OWNER_AUTH_USER_ID || 'public-demo-fixture';
+// When true, active entries that are not part of this catalogue are moved to the
+// recoverable trash — used to replace an older catalogue on first seed.
+const replace = process.env.SEED_REPLACE === 'true';
 
 try {
   await sql.begin(async (transaction) => {
@@ -52,8 +56,38 @@ try {
         `;
       }
     }
+
+    for (const setting of settings) {
+      await transaction`
+        insert into public.site_settings (key, value, is_public, updated_by)
+        values (${setting.key}, ${transaction.json(setting.value)}, ${setting.is_public ?? true}, ${ownerId})
+        on conflict (key) do update set
+          value = excluded.value,
+          is_public = excluded.is_public,
+          updated_by = excluded.updated_by
+      `;
+    }
+
+    if (replace) {
+      const keepIds = entries.map((entry) => entry.id);
+      await transaction`
+        update public.content_entries
+        set deleted_at = now()
+        where deleted_at is null
+          and id <> all(${keepIds}::uuid[])
+      `;
+      await transaction`
+        update public.content_blocks b
+        set deleted_at = now()
+        where b.deleted_at is null
+          and exists (
+            select 1 from public.content_entries e
+            where e.id = b.entry_id and e.deleted_at is not null
+          )
+      `;
+    }
   });
-  console.log(`Seeded ${entries.length} public demo entries.`);
+  console.log(`Seeded ${entries.length} entries and ${settings.length} settings documents${replace ? ' (catalogue replaced)' : ''}.`);
 } finally {
   await sql.end();
 }

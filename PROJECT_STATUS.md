@@ -1,6 +1,15 @@
 # Estado del proyecto
 
-Actualizado: 2026-08-05. Rama local: `codex/portable-architecture`.
+Actualizado: 2026-08-05. Rama: `claude/portfolio-neon-editor-oyxees`.
+
+## Rediseño "working board" (2026-08)
+
+- Se reemplazó la estética de archivo de corcho por el **working board** de la pizarra: `src/components/DeskBoard.tsx` + `src/components/desk/*` + `src/styles/global.css` (Bricolage Grotesque + IBM Plex Mono, acentos oklch óxido/ámbar/azul, cuatro texturas de fondo).
+- Contenido real (los dossiers de trabajo, estudios, laboratorio, voluntariado, hackathones, código, viajes, obsesiones y contacto) versionado en `content/source/` y compilado a `fixtures/demo-content.json` + `fixtures/site-settings.json` con `pnpm content:build`.
+- Edición total desde la web sin tocar código: texto en línea, posición (drag/tidy/scatter/reset), colores y tipografías (panel *theme*), fotos (Neon Object Storage) y alta/baja de dossiers. Persistencia en `content_entries`/`content_blocks` (RPC) y `site_settings` (tema y layout, ya con RLS de propietario existente).
+- Nuevo workflow `seed-content.yml` para cargar el catálogo y los ajustes en Neon desde GitHub Actions.
+
+Lo que sigue documenta la arquitectura reproducible, que se mantiene.
 
 ## Terminado y verificado
 

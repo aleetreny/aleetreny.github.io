@@ -1,4 +1,4 @@
-import { demoEntries } from '../content/demo';
+import { demoEntries, demoSettings } from '../content/demo';
 import { z } from 'zod';
 import {
   portfolioEntrySchema,
@@ -109,6 +109,38 @@ async function fetchEntries(ownerView: boolean): Promise<PortfolioEntry[]> {
 
 export function listPublishedEntries(): Promise<PortfolioEntry[]> {
   return fetchEntries(false);
+}
+
+type SettingRow = { key: string; value: Json };
+
+/** Public read of every published settings document (theme, board, layout). */
+export async function listSiteSettings(): Promise<Record<string, unknown>> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) return demoSettings;
+  const { data, error } = await neonClient.from('site_settings').select('key,value');
+  if (error) throw new Error(`Could not load settings: ${error.message}`);
+  const map: Record<string, unknown> = {};
+  for (const row of (data ?? []) as SettingRow[]) map[row.key] = row.value;
+  return map;
+}
+
+async function getOwnerUserId(): Promise<string> {
+  const neonClient = await getAuthorizedOwnerClient();
+  const result = await neonClient.auth.getSession();
+  const session = result.data?.session as
+    | { user?: { id?: string }; userId?: string }
+    | undefined;
+  return session?.user?.id ?? session?.userId ?? 'owner';
+}
+
+/** Owner upsert of a single settings document (theme / board / board.layout). */
+export async function saveSiteSetting(key: string, value: unknown, isPublic = true): Promise<void> {
+  const neonClient = await getAuthorizedOwnerClient();
+  const updatedBy = await getOwnerUserId();
+  const { error } = await neonClient
+    .from('site_settings')
+    .upsert({ key, value: value as Json, is_public: isPublic, updated_by: updatedBy }, { onConflict: 'key' });
+  if (error) throw new Error(error.message);
 }
 
 export function listOwnerEntries(): Promise<PortfolioEntry[]> {

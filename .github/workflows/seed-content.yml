@@ -1,0 +1,79 @@
+name: Seed portfolio content
+
+# Loads the versioned catalogue (fixtures/demo-content.json) and board settings
+# (fixtures/site-settings.json) into the selected Neon environment. Runs the
+# migrations first (idempotent) so a fresh branch is ready before seeding.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment holding the Neon DATABASE_URL secret
+        required: true
+        type: choice
+        options: [development, production]
+        default: development
+      replace_catalogue:
+        description: Move any entry not in this catalogue to the recoverable trash
+        required: true
+        type: boolean
+        default: true
+      production_confirmation:
+        description: Type APPLY_PRODUCTION when seeding production; ignored otherwise
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      OWNER_AUTH_USER_ID: ${{ vars.OWNER_AUTH_USER_ID }}
+      SEED_REPLACE: ${{ inputs.replace_catalogue }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Require explicit production confirmation
+        if: inputs.environment == 'production'
+        env:
+          PRODUCTION_CONFIRMATION: ${{ inputs.production_confirmation }}
+        run: |
+          if [ "$PRODUCTION_CONFIRMATION" != "APPLY_PRODUCTION" ]; then
+            echo "::error::Type APPLY_PRODUCTION in production_confirmation before seeding production."
+            exit 1
+          fi
+
+      - name: Guard database secret
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL secret is missing for this environment."
+            exit 1
+          fi
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations
+        run: pnpm db:migrate
+
+      - name: Seed content and settings
+        run: pnpm db:seed
+
+      - name: Verify database
+        run: pnpm db:verify

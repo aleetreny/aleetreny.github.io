@@ -15,7 +15,12 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
     },
-    rules: reactHooks.configs.recommended.rules,
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      // Advisory React Compiler optimisation hint; the imperative board keeps
+      // hand-written memoisation on purpose. Correctness rules stay on.
+      'react-hooks/preserve-manual-memoization': 'off',
+    },
   },
   {
     files: ['functions/**/*.ts', 'scripts/**/*.mjs', 'vite.config.ts', 'neon.ts'],

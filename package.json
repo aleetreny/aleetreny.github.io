@@ -19,6 +19,7 @@
     "check": "pnpm validate:repo && pnpm lint && pnpm typecheck && pnpm test",
     "validate:repo": "node scripts/validate-repo.mjs",
     "validate:env": "node scripts/validate-env.mjs",
+    "content:build": "node scripts/content/build-fixtures.mjs",
     "db:migrate": "node scripts/db/migrate.mjs",
     "db:seed": "node scripts/db/seed.mjs",
     "db:verify": "node scripts/db/verify.mjs",
