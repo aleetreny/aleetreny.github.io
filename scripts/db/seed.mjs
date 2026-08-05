@@ -10,6 +10,13 @@ try {
   await sql.begin(async (transaction) => {
     for (const entry of entries) {
       await transaction`
+        update public.content_blocks
+        set deleted_at = now()
+        where entry_id = ${entry.id}
+          and deleted_at is null
+      `;
+
+      await transaction`
         insert into public.content_entries (
           id, owner_id, slug, title, summary, entry_type, status, metadata, published_at
         ) values (
@@ -23,7 +30,8 @@ try {
           entry_type = excluded.entry_type,
           status = excluded.status,
           metadata = excluded.metadata,
-          published_at = excluded.published_at
+          published_at = excluded.published_at,
+          deleted_at = null
       `;
 
       for (const block of entry.blocks) {
@@ -35,6 +43,7 @@ try {
             ${transaction.json(block.props)}, ${transaction.json(block.layout)}
           )
           on conflict (id) do update set
+            entry_id = excluded.entry_id,
             block_type = excluded.block_type,
             position = excluded.position,
             props = excluded.props,
