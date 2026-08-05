@@ -209,6 +209,34 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
             />
           </label>
         </div>
+        <div className="field-grid field-grid--two">
+          <label>
+            Archivo / sección
+            <select
+              onChange={(event) => updateMetadata('section', event.target.value)}
+              value={metadataString(draft, 'section') || 'products'}
+            >
+              <option value="research">Research systems</option>
+              <option value="ai">AI / interfaces</option>
+              <option value="civic">Civic intelligence</option>
+              <option value="products">Products in the wild</option>
+              <option value="experiments">Interactive experiments</option>
+              <option value="career">Career field notes</option>
+              <option value="education">Education / awards</option>
+              <option value="community">Community / culture</option>
+              <option value="profile">Numbers with context</option>
+            </select>
+          </label>
+          <label>
+            Dato o señal breve
+            <input
+              maxLength={32}
+              onChange={(event) => updateMetadata('signal', event.target.value)}
+              placeholder="Ej.: 22 fuentes"
+              value={metadataString(draft, 'signal')}
+            />
+          </label>
+        </div>
         <label>
           Temas, separados por comas
           <input
@@ -219,6 +247,26 @@ export function EntryEditor({ entry, onDeleted, onSaved }: EntryEditorProps) {
             value={Array.isArray(draft.metadata.topics) ? draft.metadata.topics.join(', ') : ''}
           />
         </label>
+        <div className="field-grid field-grid--two">
+          <label>
+            URL pública del proyecto
+            <input
+              onChange={(event) => updateMetadata('projectUrl', event.target.value)}
+              placeholder="https://…"
+              type="url"
+              value={metadataString(draft, 'projectUrl')}
+            />
+          </label>
+          <label>
+            URL del repositorio
+            <input
+              onChange={(event) => updateMetadata('repositoryUrl', event.target.value)}
+              placeholder="https://github.com/…"
+              type="url"
+              value={metadataString(draft, 'repositoryUrl')}
+            />
+          </label>
+        </div>
         <label className="checkbox-field">
           <input
             checked={draft.metadata.featured === true}
