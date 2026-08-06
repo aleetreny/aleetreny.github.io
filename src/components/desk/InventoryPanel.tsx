@@ -11,6 +11,7 @@ import {
 
 type InventoryPanelProps = {
   entries: PortfolioEntry[];
+  remoteDataEnabled: boolean;
   onClose: () => void;
   onCreated: (entry: PortfolioEntry) => void;
   onDeleted: (id: string) => void;
@@ -29,15 +30,16 @@ const GROUP_LABEL: Record<string, string> = {
   random: 'The drawer', contact: 'Reachable',
 };
 
-export function InventoryPanel({ entries, onClose, onCreated, onDeleted, onRestored, notify }: InventoryPanelProps) {
+export function InventoryPanel({ entries, remoteDataEnabled, onClose, onCreated, onDeleted, onRestored, notify }: InventoryPanelProps) {
   const [group, setGroup] = useState<string>('random');
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
   const [trash, setTrash] = useState<DeletedEntrySummary[]>([]);
 
   useEffect(() => {
+    if (!remoteDataEnabled) return;
     listDeletedEntries().then(setTrash).catch(() => setTrash([]));
-  }, []);
+  }, [remoteDataEnabled]);
 
   async function create() {
     const clean = title.trim();
@@ -48,15 +50,17 @@ export function InventoryPanel({ entries, onClose, onCreated, onDeleted, onResto
       const order = entriesForGroup(entries, group).length;
       const entry: PortfolioEntry = {
         ...base,
+        version: 1,
         slug: slugify(clean) || `nota-${base.id.slice(0, 6)}`,
         title: clean,
         summary: 'Click to write the opening line.',
         status: 'published',
         publishedAt: new Date().toISOString(),
-        metadata: { kicker: GROUP_LABEL[group] ?? '', when: '', where: '', group, order, stats: [], tags: [], links: [], photos: 0 },
+        metadata: { kicker: GROUP_LABEL[group] ?? '', when: '', where: '', group, order },
         blocks: [],
       };
-      const saved = await saveContentEntry(entry, 'create from board');
+      // Local preview keeps it in session; production persists to Neon.
+      const saved = remoteDataEnabled ? await saveContentEntry(entry, 'create from board') : entry;
       onCreated(saved);
       setTitle('');
       notify('Dossier creado.');
@@ -70,9 +74,11 @@ export function InventoryPanel({ entries, onClose, onCreated, onDeleted, onResto
   async function remove(entry: PortfolioEntry) {
     if (!window.confirm(`¿Enviar "${entry.title}" a la papelera?`)) return;
     try {
-      await deleteContentEntry({ id: entry.id, version: entry.version });
+      if (remoteDataEnabled) {
+        await deleteContentEntry({ id: entry.id, version: entry.version });
+        setTrash(await listDeletedEntries());
+      }
       onDeleted(entry.id);
-      setTrash(await listDeletedEntries());
       notify('Movido a la papelera.');
     } catch (error) {
       notify(error instanceof Error ? error.message : 'No se pudo borrar.', true);

@@ -7,7 +7,6 @@ import {
   parseLayout,
   parseTheme,
   themeVars,
-  toDossier,
 } from './board';
 import type { PortfolioEntry } from '../types/content';
 
@@ -59,12 +58,5 @@ describe('board derivations', () => {
 
   it('builds a stable dossier order across drawers', () => {
     expect(dossierOrder(entries)).toEqual(['a', 'b', 'c']);
-  });
-
-  it('derives dossier bullets from sorted blocks', () => {
-    const dossier = toDossier(entries[0]);
-    expect(dossier.bullets).toEqual(['first', 'second']);
-    expect(dossier.stats).toEqual([['1', 'a']]);
-    expect(dossier.tags).toEqual(['x']);
   });
 });

@@ -43,20 +43,23 @@ const entries = ORDER.map((slug) => {
     where: item.where ?? '',
     group,
     order: orderOf[slug] ?? 0,
-    stats: item.stats ?? [],
-    tags: item.tags ?? [],
-    links: item.links ?? [],
-    photos: typeof item.photos === 'number' ? item.photos : 0,
   };
   if (TRAVEL_CODES[slug]) metadata.code = TRAVEL_CODES[slug];
 
-  const blocks = (item.bullets ?? []).map((text, index) => ({
-    id: uuidv5(`${slug}#block#${index}`),
-    type: 'text',
-    position: index,
-    props: { text },
-    layout: {},
-  }));
+  // The dossier body is a plain ordered list of blocks — the same palette the
+  // owner edits with. Existing rich fields become their block equivalents.
+  const blocks = [];
+  const push = (type, props) => {
+    blocks.push({ id: uuidv5(`${slug}#${type}#${blocks.length}`), type, position: blocks.length, props, layout: {} });
+  };
+  const photos = typeof item.photos === 'number' ? item.photos : 0;
+  for (let i = 0; i < photos; i += 1) {
+    push('image', { url: '', alt: item.where ?? '', caption: (item.where ?? '') + (photos > 1 ? ` · ${i + 1}` : '') });
+  }
+  if (Array.isArray(item.stats) && item.stats.length) push('metrics', { items: item.stats });
+  for (const bullet of item.bullets ?? []) push('text', { text: bullet });
+  if (Array.isArray(item.tags) && item.tags.length) push('tags', { items: item.tags });
+  if (Array.isArray(item.links) && item.links.length) push('links', { items: item.links });
 
   return {
     id: uuidv5(slug),

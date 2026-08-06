@@ -17,10 +17,12 @@ describe('demo content', () => {
     const groups = new Set<string>(GROUP_SEQUENCE);
     for (const entry of demoEntries) {
       expect(groups.has(String(entry.metadata.group))).toBe(true);
-      const links = entry.metadata.links;
-      if (Array.isArray(links)) {
-        for (const link of links) {
-          const href = Array.isArray(link) ? link[1] : '';
+      for (const block of entry.blocks) {
+        if (block.type !== 'links') continue;
+        const items = block.props.items;
+        if (!Array.isArray(items)) continue;
+        for (const pair of items) {
+          const href = Array.isArray(pair) ? pair[1] : '';
           expect(() => new URL(String(href))).not.toThrow();
         }
       }

@@ -105,21 +105,6 @@ export type BoardConfig = {
 export type LayoutOverride = { x: number; y: number; rot: number; w?: number };
 export type LayoutMap = Record<string, LayoutOverride>;
 
-export type Dossier = {
-  slug: string;
-  kicker: string;
-  when: string;
-  where: string;
-  title: string;
-  lede: string;
-  stats: Array<[string, string]>;
-  bullets: string[];
-  tags: string[];
-  links: Array<[string, string]>;
-  photos: number;
-  code?: string;
-};
-
 /** Fixed order of the drawers across the board (drives dossier prev/next). */
 export const GROUP_SEQUENCE = [
   'work', 'edu', 'lab', 'vol', 'hack', 'repos', 'travel', 'random', 'contact',
@@ -179,13 +164,6 @@ function metaNumber(entry: PortfolioEntry, key: string): number {
   return typeof value === 'number' ? value : 0;
 }
 
-function pairList(value: unknown): Array<[string, string]> {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((pair): pair is [unknown, unknown] => Array.isArray(pair) && pair.length >= 2)
-    .map(([a, b]) => [String(a), String(b)] as [string, string]);
-}
-
 export function entryGroup(entry: PortfolioEntry): string {
   return metaString(entry, 'group') || 'random';
 }
@@ -208,30 +186,6 @@ export function dossierOrder(entries: PortfolioEntry[]): string[] {
     if (!order.includes(entry.slug)) order.push(entry.slug);
   }
   return order;
-}
-
-export function toDossier(entry: PortfolioEntry): Dossier {
-  const bullets = [...entry.blocks]
-    .sort((a, b) => a.position - b.position)
-    .map((block) => (typeof block.props.text === 'string' ? block.props.text : ''))
-    .filter((text) => text.length > 0);
-  const tags = Array.isArray(entry.metadata.tags)
-    ? entry.metadata.tags.filter((tag): tag is string => typeof tag === 'string')
-    : [];
-  return {
-    slug: entry.slug,
-    kicker: metaString(entry, 'kicker'),
-    when: metaString(entry, 'when'),
-    where: metaString(entry, 'where'),
-    title: entry.title,
-    lede: entry.summary,
-    stats: pairList(entry.metadata.stats),
-    bullets,
-    tags,
-    links: pairList(entry.metadata.links),
-    photos: metaNumber(entry, 'photos'),
-    code: metaString(entry, 'code') || undefined,
-  };
 }
 
 /** Board texture presets (viewport gradient + grid image + ink colour). */

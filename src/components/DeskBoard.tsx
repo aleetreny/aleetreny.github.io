@@ -3,6 +3,7 @@ import type { PortfolioEntry } from '../types/content';
 import { demoEntries, demoSettings } from '../content/demo';
 import {
   BOARD_TEXTURES,
+  GROUP_SEQUENCE,
   dossierOrder,
   parseBoard,
   parseLayout,
@@ -10,6 +11,7 @@ import {
   themeVars,
   type BoardCard,
   type BoardConfig,
+  type CardTone,
   type LayoutMap,
   type LayoutOverride,
   type Marginal,
@@ -46,20 +48,27 @@ const JUMPS: Array<[string, string]> = [
   ['odd', 'random'], ['reach', 'contact'],
 ];
 
+const TONES: CardTone[] = ['paper', 'paperWarm', 'paperCream', 'dark', 'slate', 'amber'];
+const DRAWER_LAYOUTS = ['list', 'compact', 'grid', 'notes', 'atlas'] as const;
+
 export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [entries, setEntries] = useState<PortfolioEntry[]>(demoEntries);
   const [settings, setSettings] = useState<Record<string, unknown>>(demoSettings);
   const [error, setError] = useState('');
 
+  // Local preview: on a build without remote data, `?owner=1` unlocks the full
+  // editor against local state so the whole editing surface is usable offline
+  // (persistence is skipped). Production keeps the Neon sign-in.
+  const localEdit = !remoteDataEnabled && ownerIntent;
   const [openSlug, setOpenSlug] = useState<string | null>(null);
-  const [authed, setAuthed] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(ownerIntent && !remoteDataEnabled);
+  const [authed, setAuthed] = useState(localEdit);
+  const [editing, setEditing] = useState(localEdit);
+  const [loginOpen, setLoginOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [cardMenu, setCardMenu] = useState<string | null>(null);
   const [loginError, setLoginError] = useState('');
   const [toast, setToast] = useState<{ text: string; error?: boolean } | null>(null);
-  const [photoBusy, setPhotoBusy] = useState<number | null>(null);
   const [polBusy, setPolBusy] = useState<string | null>(null);
 
   const theme = useMemo<ThemeConfig>(() => parseTheme(settings.theme), [settings.theme]);
@@ -126,9 +135,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       boardEl.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.s})`;
     }
     if (gridEl) {
+      // Constant on-screen density: the grid keeps the same cell size no matter
+      // the zoom (only its offset follows the pan), so zooming out never turns
+      // the dot pattern into grain. It reads as a calm fixed backdrop.
       const sizes = texture.size.split(',').map((piece) => piece.trim().split(' ').map((n) => parseFloat(n)));
       gridEl.style.backgroundImage = texture.img;
-      gridEl.style.backgroundSize = sizes.map(([w, h]) => `${w * v.s}px ${h * v.s}px`).join(', ');
+      gridEl.style.backgroundSize = sizes.map(([w, h]) => `${w}px ${h}px`).join(', ');
       gridEl.style.backgroundPosition = sizes.map(() => `${v.x}px ${v.y}px`).join(', ');
     }
   }, [texture]);
@@ -199,11 +211,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   // ---- persistence ----------------------------------------------------------
   const settingTimers = useRef<Record<string, number>>({});
   const saveSetting = useCallback((key: string, value: unknown, delay = 450) => {
+    if (!remoteDataEnabled) return; // local preview: keep edits in session only
     window.clearTimeout(settingTimers.current[key]);
     settingTimers.current[key] = window.setTimeout(() => {
       saveSiteSetting(key, value).catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'No se pudo guardar.', true));
     }, delay);
-  }, [flash]);
+  }, [flash, remoteDataEnabled]);
 
   const commitTheme = useCallback((next: ThemeConfig) => { setSettings((s) => ({ ...s, theme: next })); saveSetting('theme', next); }, [saveSetting]);
   const commitBoard = useCallback((next: BoardConfig) => { setSettings((s) => ({ ...s, board: next })); saveSetting('board', next); }, [saveSetting]);
@@ -214,6 +227,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const entryTimer = useRef<number>(0);
   const flushRef = useRef<() => void>(() => {});
   const flushEntry = useCallback(() => {
+    if (!remoteDataEnabled) { pendingEntry.current = null; return; } // local preview
     if (savingRef.current || !pendingEntry.current) return;
     const entry = pendingEntry.current;
     pendingEntry.current = null;
@@ -222,7 +236,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       .then((saved) => { setEntries((list) => list.map((item) => (item.id === saved.id ? { ...item, version: saved.version } : item))); })
       .catch((reason: unknown) => { flash(reason instanceof Error ? reason.message : 'No se pudo guardar el texto.', true); })
       .finally(() => { savingRef.current = false; if (pendingEntry.current) entryTimer.current = window.setTimeout(() => flushRef.current(), 60); });
-  }, [flash]);
+  }, [flash, remoteDataEnabled]);
   useEffect(() => { flushRef.current = flushEntry; }, [flushEntry]);
 
   const changeEntry = useCallback((next: PortfolioEntry) => {
@@ -236,32 +250,65 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     commitBoard({ ...board, cards: board.cards.map((card) => (card.id === cardId ? { ...card, ...patch } : card)) });
   }, [board, commitBoard]);
 
-  const pickDossierPhoto = useCallback((index: number, file: File) => {
-    const entry = openEntry;
-    if (!entry) return;
-    setPhotoBusy(index);
-    uploadImage(file, entry.title)
-      .then((asset) => {
-        const current = Array.isArray(entry.metadata.photoAssets) ? [...(entry.metadata.photoAssets as Array<{ url?: string; alt?: string }>)] : [];
-        current[index] = { url: asset.publicUrl, alt: entry.title };
-        const photos = Math.max(typeof entry.metadata.photos === 'number' ? entry.metadata.photos : 0, current.length);
-        changeEntry({ ...entry, metadata: { ...entry.metadata, photoAssets: current, photos } });
-        flash('Foto subida.');
-      })
-      .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'No se pudo subir la foto.', true))
-      .finally(() => setPhotoBusy(null));
-  }, [openEntry, changeEntry, flash]);
+  // Photo upload: Neon Object Storage in production, an in-browser data URL in
+  // local preview so the whole flow is testable offline.
+  const uploadPhoto = useCallback(async (file: File): Promise<string> => {
+    if (!remoteDataEnabled) {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error('No se pudo leer la imagen.'));
+        reader.readAsDataURL(file);
+      });
+    }
+    const asset = await uploadImage(file, file.name);
+    return asset.publicUrl;
+  }, [remoteDataEnabled]);
 
   const pickPolaroidPhoto = useCallback((polaroidId: string, file: File) => {
     setPolBusy(polaroidId);
-    uploadImage(file, polaroidId)
-      .then((asset) => {
-        commitBoard({ ...board, polaroids: board.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: asset.publicUrl } : p)) });
-        flash('Foto subida.');
-      })
+    uploadPhoto(file)
+      .then((url) => { commitBoard({ ...board, polaroids: board.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: url } : p)) }); })
       .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'No se pudo subir la foto.', true))
       .finally(() => setPolBusy(null));
-  }, [board, commitBoard, flash]);
+  }, [board, commitBoard, flash, uploadPhoto]);
+
+  // ---- board card management ------------------------------------------------
+  const viewCenterWorld = useCallback(() => {
+    const vp = viewportRef.current;
+    const v = view.current;
+    if (!vp) return { x: 200, y: 200 };
+    const rect = vp.getBoundingClientRect();
+    return { x: Math.round((rect.width / 2 - v.x) / v.s - 150), y: Math.round((rect.height / 2 - v.y) / v.s - 90) };
+  }, []);
+
+  const addCard = useCallback((type: 'drawer' | 'spotlight') => {
+    const at = viewCenterWorld();
+    const id = crypto.randomUUID();
+    const card: BoardCard = type === 'drawer'
+      ? { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: 'new drawer', title: 'New drawer', group: 'random', layout: 'compact' }
+      : { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: 'spotlight', title: 'New\nspotlight', blurb: 'Say what this is.', open: entries[0]?.slug };
+    commitBoard({ ...board, cards: [...board.cards, card] });
+    setCardMenu(id);
+  }, [board, commitBoard, entries, viewCenterWorld]);
+
+  const addPolaroid = useCallback(() => {
+    const at = viewCenterWorld();
+    const polaroid: Polaroid = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 280, h: 220, caption: 'Caption', placeholder: 'drop a photo' };
+    commitBoard({ ...board, polaroids: [...board.polaroids, polaroid] });
+  }, [board, commitBoard, viewCenterWorld]);
+
+  const addNote = useCallback(() => {
+    const at = viewCenterWorld();
+    const note: Marginal = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 250, style: 'amber', text: 'A new note.' };
+    commitBoard({ ...board, marginalia: [...board.marginalia, note] });
+  }, [board, commitBoard, viewCenterWorld]);
+
+  const removeCard = useCallback((id: string) => { commitBoard({ ...board, cards: board.cards.filter((c) => c.id !== id) }); setCardMenu(null); }, [board, commitBoard]);
+  const removePolaroid = useCallback((id: string) => { commitBoard({ ...board, polaroids: board.polaroids.filter((p) => p.id !== id) }); }, [board, commitBoard]);
+  const removeNote = useCallback((id: string) => { commitBoard({ ...board, marginalia: board.marginalia.filter((n) => n.id !== id) }); }, [board, commitBoard]);
+  const editPolaroid = useCallback((id: string, patch: Partial<Polaroid>) => { commitBoard({ ...board, polaroids: board.polaroids.map((p) => (p.id === id ? { ...p, ...patch } : p)) }); }, [board, commitBoard]);
+  const editNote = useCallback((id: string, patch: Partial<Marginal>) => { commitBoard({ ...board, marginalia: board.marginalia.map((n) => (n.id === id ? { ...n, ...patch } : n)) }); }, [board, commitBoard]);
 
   // ---- pointer / wheel ------------------------------------------------------
   useEffect(() => {
@@ -276,7 +323,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     };
 
     const isInteractive = (el: HTMLElement | null) =>
-      !!el && !!el.closest('[data-nodrag], a, button, input, select, textarea, .slot');
+      !!el && !!el.closest('[data-nodrag], a, button, input, select, textarea');
 
     const onPointerDown = (event: PointerEvent) => {
       if (event.button !== 0 || openSlugRef.current) return;
@@ -473,15 +520,56 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 data-rot={geom.rot}
                 style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 10 + index, animation: 'drop .7s cubic-bezier(.2,.9,.2,1) both', animationDelay: `${0.02 + index * 0.05}s` }}
               >
+                {editing ? (
+                  <div className="card-ctrl" data-nodrag>
+                    <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label="Ajustes de tarjeta">⚙</button>
+                    {cardMenu === card.id ? (
+                      <div className="card-ctrl__menu">
+                        {card.type !== 'hero' ? (
+                          <label>tone
+                            <select value={card.tone ?? 'paper'} onChange={(e) => editCard(card.id, { tone: e.target.value as CardTone })}>
+                              {TONES.map((t) => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                          </label>
+                        ) : null}
+                        {card.type === 'drawer' ? (
+                          <>
+                            <label>list
+                              <select value={card.group ?? 'random'} onChange={(e) => editCard(card.id, { group: e.target.value })}>
+                                {GROUP_SEQUENCE.map((g) => <option key={g} value={g}>{g}</option>)}
+                              </select>
+                            </label>
+                            <label>layout
+                              <select value={card.layout ?? 'list'} onChange={(e) => editCard(card.id, { layout: e.target.value as BoardCard['layout'] })}>
+                                {DRAWER_LAYOUTS.map((l) => <option key={l} value={l}>{l}</option>)}
+                              </select>
+                            </label>
+                          </>
+                        ) : null}
+                        {card.type === 'spotlight' ? (
+                          <label>opens
+                            <select value={card.open ?? ''} onChange={(e) => editCard(card.id, { open: e.target.value })}>
+                              <option value="">—</option>
+                              {entries.map((entry) => <option key={entry.id} value={entry.slug}>{entry.title}</option>)}
+                            </select>
+                          </label>
+                        ) : null}
+                        <button className="card-ctrl__del" type="button" onClick={() => removeCard(card.id)}>delete card</button>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
                 <BoardCardView card={card} entries={entries} editing={editing} onCardEdit={editCard} />
               </div>
             );
           })}
 
-          {board.polaroids.map((p) => {
+          {board.polaroids.map((p, index) => {
             const geom = polGeom(p);
             return (
-              <div key={p.id} className="polaroid" data-card={p.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)` }}>
+              <div key={p.id} className="polaroid" data-card={p.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 40 + index }}>
+                {editing ? <span className="item-grip" aria-hidden="true">⠿ drag</span> : null}
+                {editing ? <button className="item-del" type="button" data-nodrag onClick={() => removePolaroid(p.id)} aria-label="Eliminar polaroid">✕</button> : null}
                 <div className="polaroid__frame">
                   {p.tape ? <div className="polaroid__tape" /> : null}
                   <div style={{ position: 'relative', width: '100%', height: p.h }}>
@@ -489,20 +577,27 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                   </div>
                   <div
                     className="polaroid__cap"
-                    {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => commitBoard({ ...board, polaroids: board.polaroids.map((q) => (q.id === p.id ? { ...q, caption: (e.currentTarget.textContent ?? '').trim() } : q)) }) } : {})}
+                    {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => editPolaroid(p.id, { caption: (e.currentTarget.textContent ?? '').trim() }) } : {})}
                   >{p.caption}</div>
                 </div>
               </div>
             );
           })}
 
-          {theme.showMarginalia && board.marginalia.map((n) => {
+          {theme.showMarginalia && board.marginalia.map((n, index) => {
             const geom = noteGeom(n);
             return (
-              <div key={n.id} className={`note note--${n.style}`} data-card={n.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)` }}>
+              <div key={n.id} className={`note note--${n.style}`} data-card={n.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 60 + index }}>
+                {editing ? <span className="item-grip" aria-hidden="true">⠿ drag</span> : null}
+                {editing ? (
+                  <div className="note-ctrl" data-nodrag>
+                    <button className="note-ctrl__style" type="button" onClick={() => editNote(n.id, { style: n.style === 'amber' ? 'paper-dashed' : 'amber' })} aria-label="Cambiar estilo">◑</button>
+                    <button className="item-del item-del--inline" type="button" onClick={() => removeNote(n.id)} aria-label="Eliminar nota">✕</button>
+                  </div>
+                ) : null}
                 <div
                   className="note__body"
-                  {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => commitBoard({ ...board, marginalia: board.marginalia.map((m) => (m.id === n.id ? { ...m, text: (e.currentTarget.textContent ?? '').trim() } : m)) }) } : {})}
+                  {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => editNote(n.id, { text: (e.currentTarget.textContent ?? '').trim() }) } : {})}
                 >{n.text}</div>
               </div>
             );
@@ -518,9 +613,18 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       {authed ? (
         <div className="ownerbar">
           <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => !v)}>{editing ? 'editing · on' : 'edit mode'}</button>
+          {editing ? (
+            <>
+              <span className="ownerbar__add">add:</span>
+              <button className="tbtn" type="button" onClick={() => addCard('drawer')}>drawer</button>
+              <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>spotlight</button>
+              <button className="tbtn" type="button" onClick={addPolaroid}>photo</button>
+              <button className="tbtn" type="button" onClick={addNote}>note</button>
+            </>
+          ) : null}
           <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
           <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
-          <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>
+          {localEdit ? <span className="ownerbar__badge" title="Vista previa local — los cambios no se guardan">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
         </div>
       ) : (
         <button className="signin" type="button" onClick={() => setLoginOpen(true)}>⌗ sign in</button>
@@ -550,12 +654,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           prevTitle={prevEntry?.title ?? ''}
           nextTitle={nextEntry?.title ?? ''}
           editing={editing}
-          photoBusy={photoBusy}
           onClose={() => setOpenSlug(null)}
           onPrev={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i - 1 + orderedSlugs.length) % orderedSlugs.length]); }}
           onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}
           onChange={changeEntry}
-          onPickPhoto={pickDossierPhoto}
+          uploadPhoto={uploadPhoto}
         />
       ) : null}
 
@@ -581,6 +684,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       {inventoryOpen ? (
         <InventoryPanel
           entries={entries}
+          remoteDataEnabled={remoteDataEnabled}
           onClose={() => setInventoryOpen(false)}
           onCreated={(entry) => { setEntries((list) => [...list, entry]); }}
           onDeleted={(id) => { setEntries((list) => list.filter((e) => e.id !== id)); }}
