@@ -1,13 +1,15 @@
 import siteSettingsFixture from '../../fixtures/site-settings.json';
 import type { PortfolioEntry } from '../types/content';
 
-export type BoardStyle = 'blueprint' | 'cork' | 'graphite' | 'slate';
-export type CardTone = 'paper' | 'paperWarm' | 'paperCream' | 'dark' | 'slate' | 'amber';
+export const BOARD_STYLE_IDS = ['blueprint', 'cork', 'graphite', 'slate', 'paper', 'midnight', 'sunset'] as const;
+export type BoardStyle = (typeof BOARD_STYLE_IDS)[number];
+export type CardTone = 'paper' | 'paperWarm' | 'paperCream' | 'dark' | 'slate' | 'amber' | 'custom';
 
 export type ThemeConfig = {
   boardStyle: BoardStyle;
   chaos: number;
   showMarginalia: boolean;
+  cardRadius: number;
   fonts: { display: string; mono: string; scale: number };
   colors: {
     accent: string;
@@ -47,9 +49,13 @@ export type BoardCard = {
   tags?: TagChip[];
   hint?: string;
   layout?: 'list' | 'grid' | 'compact' | 'notes' | 'atlas';
+  maxItems?: number;
   stats?: Array<[string, string]>;
   tech?: string[];
   sweep?: boolean;
+  /** Only used when tone === 'custom'. */
+  bg?: string;
+  ink?: string;
   label?: string;
   current?: string;
   next?: string;
@@ -95,8 +101,12 @@ export type Marginal = {
   text: string;
 };
 
+/** A drawer list. Owner-editable: rename, create, delete, reorder. */
+export type BoardGroup = { id: string; label: string };
+
 export type BoardConfig = {
   size: { width: number; height: number };
+  groups: BoardGroup[];
   cards: BoardCard[];
   polaroids: Polaroid[];
   marginalia: Marginal[];
@@ -104,11 +114,6 @@ export type BoardConfig = {
 
 export type LayoutOverride = { x: number; y: number; rot: number; w?: number };
 export type LayoutMap = Record<string, LayoutOverride>;
-
-/** Fixed order of the drawers across the board (drives dossier prev/next). */
-export const GROUP_SEQUENCE = [
-  'work', 'edu', 'lab', 'vol', 'hack', 'repos', 'travel', 'random', 'contact',
-] as const;
 
 const fixtureByKey = Object.fromEntries(
   (siteSettingsFixture as Array<{ key: string; value: unknown }>).map((row) => [row.key, row.value]),
@@ -128,22 +133,29 @@ export function parseTheme(value: unknown): ThemeConfig {
   const fonts = isRecord(value.fonts) ? value.fonts : {};
   const colors = isRecord(value.colors) ? value.colors : {};
   return {
-    boardStyle: (['blueprint', 'cork', 'graphite', 'slate'] as const).includes(value.boardStyle as BoardStyle)
+    boardStyle: (BOARD_STYLE_IDS as readonly string[]).includes(value.boardStyle as string)
       ? (value.boardStyle as BoardStyle)
       : DEFAULT_THEME.boardStyle,
     chaos: typeof value.chaos === 'number' ? value.chaos : DEFAULT_THEME.chaos,
     showMarginalia: typeof value.showMarginalia === 'boolean' ? value.showMarginalia : DEFAULT_THEME.showMarginalia,
+    cardRadius: typeof value.cardRadius === 'number' ? value.cardRadius : DEFAULT_THEME.cardRadius,
     fonts: { ...DEFAULT_THEME.fonts, ...(fonts as Partial<ThemeConfig['fonts']>) },
     colors: { ...DEFAULT_THEME.colors, ...(colors as Partial<ThemeConfig['colors']>) },
   };
 }
 
+function isBoardGroup(value: unknown): value is BoardGroup {
+  return isRecord(value) && typeof value.id === 'string' && typeof value.label === 'string';
+}
+
 export function parseBoard(value: unknown): BoardConfig {
   if (!isRecord(value) || !Array.isArray(value.cards)) return DEFAULT_BOARD;
+  const groups = Array.isArray(value.groups) ? value.groups.filter(isBoardGroup) : [];
   return {
     size: isRecord(value.size)
       ? { width: Number(value.size.width) || DEFAULT_BOARD.size.width, height: Number(value.size.height) || DEFAULT_BOARD.size.height }
       : DEFAULT_BOARD.size,
+    groups: groups.length > 0 ? groups : DEFAULT_BOARD.groups,
     cards: value.cards as BoardCard[],
     polaroids: Array.isArray(value.polaroids) ? (value.polaroids as Polaroid[]) : [],
     marginalia: Array.isArray(value.marginalia) ? (value.marginalia as Marginal[]) : [],
@@ -176,9 +188,9 @@ export function entriesForGroup(entries: PortfolioEntry[], group: string): Portf
 }
 
 /** Board-wide dossier order: drawers in sequence, entries by order within each. */
-export function dossierOrder(entries: PortfolioEntry[]): string[] {
+export function dossierOrder(entries: PortfolioEntry[], groupIds: string[]): string[] {
   const order: string[] = [];
-  for (const group of GROUP_SEQUENCE) {
+  for (const group of groupIds) {
     for (const entry of entriesForGroup(entries, group)) order.push(entry.slug);
   }
   // Any entry with an unknown group still gets a place at the end.
@@ -214,6 +226,24 @@ export const BOARD_TEXTURES: Record<BoardStyle, { vp: string; img: string; size:
     size: '26px 26px, 130px 130px, 130px 130px',
     ink: '#f0ece1',
   },
+  paper: {
+    vp: 'radial-gradient(130% 110% at 26% -10%, #f7f2e6 0%, #efe8d6 46%, #e6dcc4 100%)',
+    img: 'radial-gradient(rgba(23,21,15,.09) 1.2px, transparent 1.6px), linear-gradient(rgba(23,21,15,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,21,15,.05) 1px, transparent 1px)',
+    size: '20px 20px, 140px 140px, 140px 140px',
+    ink: '#171510',
+  },
+  midnight: {
+    vp: 'radial-gradient(130% 110% at 24% -10%, #0c1220 0%, #070a12 50%, #030408 100%)',
+    img: 'radial-gradient(rgba(255,255,255,.09) 1px, transparent 1.4px), radial-gradient(rgba(255,255,255,.04) 1px, transparent 1.6px)',
+    size: '90px 90px, 220px 220px',
+    ink: '#eef1f8',
+  },
+  sunset: {
+    vp: 'radial-gradient(130% 110% at 30% -10%, #6a2f3a 0%, #4a2032 46%, #2c1424 100%)',
+    img: 'radial-gradient(rgba(255,214,170,.12) 1.2px, transparent 1.6px), linear-gradient(rgba(255,214,170,.05) 1px, transparent 1px)',
+    size: '22px 22px, 150px 150px',
+    ink: '#fbe9dc',
+  },
 };
 
 /** CSS custom properties derived from a theme, applied on the viewport. */
@@ -223,6 +253,7 @@ export function themeVars(theme: ThemeConfig): Record<string, string> {
     '--font-display': theme.fonts.display,
     '--font-mono': theme.fonts.mono,
     '--font-scale': String(theme.fonts.scale),
+    '--card-radius': `${theme.cardRadius}px`,
     '--c-accent': c.accent,
     '--c-accent2': c.accent2,
     '--c-signal': c.signal,

@@ -9,9 +9,10 @@ export const BOARD = { width: 2540, height: 2290 };
 // Default visual theme. Every value here is editable live from the owner theme
 // panel and stored in site_settings.theme.
 export const THEME = {
-  boardStyle: 'slate', // blueprint | cork | graphite | slate
+  boardStyle: 'slate', // blueprint | cork | graphite | slate | paper | midnight | sunset
   chaos: 1, // 0..2 — how much the cards are rotated
   showMarginalia: true,
+  cardRadius: 0, // px — corner rounding applied to every surface
   fonts: {
     display: "'Bricolage Grotesque', system-ui, sans-serif",
     mono: "'IBM Plex Mono', ui-monospace, monospace",
@@ -46,6 +47,14 @@ export const GROUPS = {
   travel: ['w-paraguay', 'w-norway', 'w-slovakia', 'w-nordics', 'w-uk', 'w-usa', 'w-austria', 'w-czech', 'w-hungary', 'w-lithuania', 'w-bulgaria', 'w-france', 'w-benelux', 'w-italy', 'w-croatia', 'w-greece', 'w-portugal', 'w-morocco', 'w-canarias', 'w-nevada', 'w-andalucia'],
   random: ['garden', 'telescope', 'racket', 'apocalypse', 'genome', 'investing', 'lasik', 'podcast', 'diary'],
   contact: ['contact'],
+};
+
+// Human label for each default list — the owner can rename or delete any of
+// these, and add new ones, once the board is live.
+export const GROUP_LABELS = {
+  work: 'Paid work', edu: 'Schooling', lab: 'Lab bench', vol: 'Unpaid',
+  hack: 'Hackathons & prizes', repos: 'The workshop', travel: 'Field log',
+  random: 'The drawer', contact: 'Reachable',
 };
 
 // entry_type per group (DB constraint: project|case-study|experience|education|note|custom)

@@ -3,8 +3,8 @@ import type { PortfolioEntry } from '../types/content';
 import { demoEntries, demoSettings } from '../content/demo';
 import {
   BOARD_TEXTURES,
-  GROUP_SEQUENCE,
   dossierOrder,
+  entriesForGroup,
   parseBoard,
   parseLayout,
   parseTheme,
@@ -31,6 +31,7 @@ import {
 } from '../lib/content-repository';
 import { BoardCardView } from './desk/BoardCards';
 import { DossierPlate } from './desk/DossierPlate';
+import { GroupOverflowPanel } from './desk/GroupOverflowPanel';
 import { ImageSlot } from './desk/ImageSlot';
 import { ThemePanel } from './desk/ThemePanel';
 import { InventoryPanel } from './desk/InventoryPanel';
@@ -48,7 +49,7 @@ const JUMPS: Array<[string, string]> = [
   ['odd', 'random'], ['reach', 'contact'],
 ];
 
-const TONES: CardTone[] = ['paper', 'paperWarm', 'paperCream', 'dark', 'slate', 'amber'];
+const TONES: CardTone[] = ['paper', 'paperWarm', 'paperCream', 'dark', 'slate', 'amber', 'custom'];
 const DRAWER_LAYOUTS = ['list', 'compact', 'grid', 'notes', 'atlas'] as const;
 
 export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
@@ -67,6 +68,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [themeOpen, setThemeOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [cardMenu, setCardMenu] = useState<string | null>(null);
+  const [overflowGroup, setOverflowGroup] = useState<string | null>(null);
   const [loginError, setLoginError] = useState('');
   const [toast, setToast] = useState<{ text: string; error?: boolean } | null>(null);
   const [polBusy, setPolBusy] = useState<string | null>(null);
@@ -87,7 +89,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const authedRef = useRef(false);
 
   const texture = BOARD_TEXTURES[theme.boardStyle] ?? BOARD_TEXTURES.slate;
-  const orderedSlugs = useMemo(() => dossierOrder(entries), [entries]);
+  const groupIds = useMemo(() => board.groups.map((g) => g.id), [board.groups]);
+  const orderedSlugs = useMemo(() => dossierOrder(entries, groupIds), [entries, groupIds]);
   const openEntry = openSlug ? entries.find((entry) => entry.slug === openSlug) ?? null : null;
 
   useEffect(() => { openSlugRef.current = openSlug; }, [openSlug]);
@@ -250,6 +253,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     commitBoard({ ...board, cards: board.cards.map((card) => (card.id === cardId ? { ...card, ...patch } : card)) });
   }, [board, commitBoard]);
 
+  const moveEntryGroup = useCallback((entry: PortfolioEntry, group: string) => {
+    const order = entriesForGroup(entries, group).length;
+    changeEntry({ ...entry, metadata: { ...entry.metadata, group, order } });
+  }, [entries, changeEntry]);
+
   // Photo upload: Neon Object Storage in production, an in-browser data URL in
   // local preview so the whole flow is testable offline.
   const uploadPhoto = useCallback(async (file: File): Promise<string> => {
@@ -395,6 +403,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       if (didDrag.current) return;
       const target = event.target as HTMLElement;
       if (isInteractive(target) || target.isContentEditable) return;
+      const more = target.closest<HTMLElement>('[data-more]');
+      if (more?.dataset.more) { setOverflowGroup(more.dataset.more); return; }
       const hit = target.closest<HTMLElement>('[data-open]');
       if (hit?.dataset.open) setOpenSlug(hit.dataset.open);
     };
@@ -423,7 +433,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const target = event.target as HTMLElement | null;
       const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
       if (typing) { if (event.key === 'Escape') target?.blur(); return; }
-      if (loginOpen || themeOpen || inventoryOpen) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setInventoryOpen(false); } return; }
+      if (loginOpen || themeOpen || inventoryOpen || overflowGroup) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setInventoryOpen(false); setOverflowGroup(null); } return; }
       const current = openSlugRef.current;
       if (current) {
         if (event.key === 'Escape') setOpenSlug(null);
@@ -436,7 +446,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [fitAll, orderedSlugs, loginOpen, themeOpen, inventoryOpen]);
+  }, [fitAll, orderedSlugs, loginOpen, themeOpen, inventoryOpen, overflowGroup]);
 
   // ---- arrange --------------------------------------------------------------
   const draggableIds = useMemo(() => [
@@ -445,35 +455,20 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     ...(theme.showMarginalia ? board.marginalia.map((n) => n.id) : []),
   ], [board, theme.showMarginalia]);
 
-  const arrange = useCallback((mode: 'tidy' | 'scatter' | 'reset') => {
+  const arrange = useCallback((mode: 'scatter' | 'reset') => {
     const apply = (next: LayoutMap) => { if (authedRef.current) commitLayout(next); else setSettings((s) => ({ ...s, 'board.layout': next })); };
     if (mode === 'reset') { apply({}); return; }
     const boardEl = boardRef.current;
     if (!boardEl) return;
     const next: LayoutMap = {};
-    if (mode === 'tidy') {
-      const colW = 640;
-      const gap = 40;
-      const cols = Math.max(1, Math.floor((board.size.width - 100) / colW));
-      const heights = new Array<number>(cols).fill(80);
-      for (const id of draggableIds) {
-        const node = boardEl.querySelector<HTMLElement>(`[data-card="${id}"]`);
-        if (!node) continue;
-        let k = 0;
-        for (let j = 1; j < cols; j += 1) if (heights[j] < heights[k]) k = j;
-        next[id] = { x: 80 + k * colW, y: heights[k], rot: 0 };
-        heights[k] += node.offsetHeight + gap;
-      }
-    } else {
-      for (const id of draggableIds) {
-        const node = boardEl.querySelector<HTMLElement>(`[data-card="${id}"]`);
-        if (!node) continue;
-        next[id] = {
-          x: 50 + Math.random() * Math.max(50, board.size.width - node.offsetWidth - 100),
-          y: 50 + Math.random() * Math.max(50, board.size.height - node.offsetHeight - 100),
-          rot: Number((Math.random() * 12 - 6).toFixed(2)),
-        };
-      }
+    for (const id of draggableIds) {
+      const node = boardEl.querySelector<HTMLElement>(`[data-card="${id}"]`);
+      if (!node) continue;
+      next[id] = {
+        x: 50 + Math.random() * Math.max(50, board.size.width - node.offsetWidth - 100),
+        y: 50 + Math.random() * Math.max(50, board.size.height - node.offsetHeight - 100),
+        rot: Number((Math.random() * 12 - 6).toFixed(2)),
+      };
     }
     apply(next);
   }, [board.size.height, board.size.width, commitLayout, draggableIds]);
@@ -532,17 +527,37 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                             </select>
                           </label>
                         ) : null}
+                        {card.type !== 'hero' && card.tone === 'custom' ? (
+                          <>
+                            <label>bg
+                              <input type="color" value={card.bg ?? '#fbf7ef'} onChange={(e) => editCard(card.id, { bg: e.target.value })} />
+                            </label>
+                            <label>ink
+                              <input type="color" value={card.ink ?? '#17150f'} onChange={(e) => editCard(card.id, { ink: e.target.value })} />
+                            </label>
+                          </>
+                        ) : null}
                         {card.type === 'drawer' ? (
                           <>
                             <label>list
-                              <select value={card.group ?? 'random'} onChange={(e) => editCard(card.id, { group: e.target.value })}>
-                                {GROUP_SEQUENCE.map((g) => <option key={g} value={g}>{g}</option>)}
+                              <select value={card.group ?? board.groups[0]?.id ?? ''} onChange={(e) => editCard(card.id, { group: e.target.value })}>
+                                {board.groups.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
                               </select>
                             </label>
                             <label>layout
                               <select value={card.layout ?? 'list'} onChange={(e) => editCard(card.id, { layout: e.target.value as BoardCard['layout'] })}>
                                 {DRAWER_LAYOUTS.map((l) => <option key={l} value={l}>{l}</option>)}
                               </select>
+                            </label>
+                            <label>max items
+                              <input
+                                type="number"
+                                min={1}
+                                max={99}
+                                value={card.maxItems ?? ''}
+                                placeholder="all"
+                                onChange={(e) => { const v = e.target.value; editCard(card.id, { maxItems: v ? Math.max(1, parseInt(v, 10)) : undefined }); }}
+                              />
                             </label>
                           </>
                         ) : null}
@@ -642,7 +657,6 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
             <div className="toolbar__inner">
               <span className="toolbar__label">the board</span>
               <button className="tbtn" type="button" onClick={() => fitAll()}>fit</button>
-              <button className="tbtn" type="button" onClick={() => arrange('tidy')}>tidy</button>
               <button className="tbtn" type="button" onClick={() => arrange('scatter')}>scatter</button>
               <button className="tbtn" type="button" onClick={() => arrange('reset')}>reset</button>
               <span className="toolbar__sep" />
@@ -694,12 +708,25 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       {inventoryOpen ? (
         <InventoryPanel
           entries={entries}
+          board={board}
           remoteDataEnabled={remoteDataEnabled}
           onClose={() => setInventoryOpen(false)}
           onCreated={(entry) => { setEntries((list) => [...list, entry]); }}
           onDeleted={(id) => { setEntries((list) => list.filter((e) => e.id !== id)); }}
           onRestored={(entry) => { setEntries((list) => (list.some((e) => e.id === entry.id) ? list : [...list, entry])); }}
+          onMoveEntry={moveEntryGroup}
+          onBoardChange={commitBoard}
           notify={flash}
+        />
+      ) : null}
+
+      {overflowGroup ? (
+        <GroupOverflowPanel
+          groupId={overflowGroup}
+          label={board.groups.find((g) => g.id === overflowGroup)?.label ?? overflowGroup}
+          entries={entries}
+          onOpen={setOpenSlug}
+          onClose={() => setOverflowGroup(null)}
         />
       ) : null}
 

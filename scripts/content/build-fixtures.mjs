@@ -6,7 +6,7 @@ import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ITEMS, ORDER } from '../../content/source/desk-data.mjs';
 import {
-  BOARD, THEME, GROUPS, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
+  BOARD, THEME, GROUPS, GROUP_LABELS, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
   CARDS, POLAROIDS, MARGINALIA,
 } from '../../content/source/board-spec.mjs';
 
@@ -75,9 +75,11 @@ const entries = ORDER.map((slug) => {
   };
 });
 
+const groups = Object.keys(GROUPS).map((id) => ({ id, label: GROUP_LABELS[id] ?? id }));
+
 const settings = [
   { key: 'theme', value: THEME, is_public: true },
-  { key: 'board', value: { size: BOARD, cards: CARDS, polaroids: POLAROIDS, marginalia: MARGINALIA }, is_public: true },
+  { key: 'board', value: { size: BOARD, groups, cards: CARDS, polaroids: POLAROIDS, marginalia: MARGINALIA }, is_public: true },
   { key: 'board.layout', value: {}, is_public: true },
 ];
 

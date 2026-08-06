@@ -5,6 +5,7 @@
       "boardStyle": "slate",
       "chaos": 1,
       "showMarginalia": true,
+      "cardRadius": 0,
       "fonts": {
         "display": "'Bricolage Grotesque', system-ui, sans-serif",
         "mono": "'IBM Plex Mono', ui-monospace, monospace",
@@ -35,6 +36,44 @@
         "width": 2540,
         "height": 2290
       },
+      "groups": [
+        {
+          "id": "work",
+          "label": "Paid work"
+        },
+        {
+          "id": "edu",
+          "label": "Schooling"
+        },
+        {
+          "id": "lab",
+          "label": "Lab bench"
+        },
+        {
+          "id": "vol",
+          "label": "Unpaid"
+        },
+        {
+          "id": "hack",
+          "label": "Hackathons & prizes"
+        },
+        {
+          "id": "repos",
+          "label": "The workshop"
+        },
+        {
+          "id": "travel",
+          "label": "Field log"
+        },
+        {
+          "id": "random",
+          "label": "The drawer"
+        },
+        {
+          "id": "contact",
+          "label": "Reachable"
+        }
+      ],
       "cards": [
         {
           "id": "hero",

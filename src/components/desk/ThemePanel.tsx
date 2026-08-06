@@ -1,12 +1,10 @@
-import type { BoardStyle, ThemeConfig } from '../../lib/board';
+import { BOARD_STYLE_IDS, type BoardStyle, type ThemeConfig } from '../../lib/board';
 
 type ThemePanelProps = {
   theme: ThemeConfig;
   onChange: (next: ThemeConfig) => void;
   onClose: () => void;
 };
-
-const BOARD_STYLES: BoardStyle[] = ['blueprint', 'cork', 'graphite', 'slate'];
 
 const COLOR_TOKENS: Array<[keyof ThemeConfig['colors'], string]> = [
   ['accent', 'Accent · rust'],
@@ -46,7 +44,7 @@ export function ThemePanel({ theme, onChange, onClose }: ThemePanelProps) {
             value={theme.boardStyle}
             onChange={(event) => onChange({ ...theme, boardStyle: event.target.value as BoardStyle })}
           >
-            {BOARD_STYLES.map((style) => <option key={style} value={style}>{style}</option>)}
+            {BOARD_STYLE_IDS.map((style) => <option key={style} value={style}>{style}</option>)}
           </select>
         </div>
         <div className="field-row">
@@ -59,6 +57,18 @@ export function ThemePanel({ theme, onChange, onClose }: ThemePanelProps) {
             step={0.1}
             value={theme.chaos}
             onChange={(event) => onChange({ ...theme, chaos: Number(event.target.value) })}
+          />
+        </div>
+        <div className="field-row">
+          <label htmlFor="theme-radius">Corner radius</label>
+          <input
+            id="theme-radius"
+            type="range"
+            min={0}
+            max={20}
+            step={1}
+            value={theme.cardRadius}
+            onChange={(event) => onChange({ ...theme, cardRadius: Number(event.target.value) })}
           />
         </div>
         <div className="field-row">

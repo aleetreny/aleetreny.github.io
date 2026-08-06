@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { BoardCard, TagChip } from '../../lib/board';
 import { entriesForGroup } from '../../lib/board';
 import type { PortfolioEntry } from '../../types/content';
@@ -34,19 +34,35 @@ function firstTag(entry: PortfolioEntry): string {
   return Array.isArray(tags) && typeof tags[0] === 'string' ? (tags[0] as string) : '';
 }
 
+/** The "+N more" row appended when a drawer's item count exceeds its
+ * owner-configured cap. Clicking it opens the full-list overflow panel
+ * (handled centrally in DeskBoard via the data-more attribute). */
+function MoreRow({ count, groupId }: { count: number; groupId: string }) {
+  return (
+    <div className="row row--more" data-more={groupId}>
+      <span className="row__title">+ {count} more</span>
+    </div>
+  );
+}
+
 function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntry[] }) {
   const items = entriesForGroup(entries, card.group ?? '');
   const layout = card.layout ?? 'list';
+  const cap = card.maxItems && card.maxItems > 0 ? card.maxItems : items.length;
+  const visible = items.slice(0, cap);
+  const overflow = items.length - visible.length;
+  const groupId = card.group ?? '';
 
   if (layout === 'grid') {
     return (
       <div className="rows rows--grid">
-        {items.map((entry) => (
+        {visible.map((entry) => (
           <div className="row row--stack" data-open={entry.slug} key={entry.id}>
             <span className="row__title" style={{ fontSize: 13.5 }}>{entry.title}</span>
             <span className="row__desc">{firstTag(entry) || metaLine(entry)}</span>
           </div>
         ))}
+        {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
       </div>
     );
   }
@@ -54,7 +70,7 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
   if (layout === 'atlas') {
     return (
       <div className="rows">
-        {items.map((entry) => (
+        {visible.map((entry) => (
           <div
             className="row"
             data-open={entry.slug}
@@ -66,6 +82,7 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
             <span className="row__meta">{typeof entry.metadata.when === 'string' ? entry.metadata.when : ''}</span>
           </div>
         ))}
+        {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
       </div>
     );
   }
@@ -73,12 +90,13 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
   if (layout === 'compact' || layout === 'notes') {
     return (
       <div className="rows">
-        {items.map((entry) => (
+        {visible.map((entry) => (
           <div className="row row--stack" data-open={entry.slug} key={entry.id}>
             <span className="row__title" style={{ fontSize: 14 }}>{entry.title}</span>
             <span className="row__desc">{layout === 'notes' ? entry.summary : (metaLine(entry) || firstTag(entry))}</span>
           </div>
         ))}
+        {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
       </div>
     );
   }
@@ -86,12 +104,13 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
   // list
   return (
     <div className="rows">
-      {items.map((entry) => (
+      {visible.map((entry) => (
         <div className="row" data-open={entry.slug} key={entry.id}>
           <span className="row__title">{entry.title}</span>
           <span className="row__meta">{metaLine(entry)}</span>
         </div>
       ))}
+      {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
     </div>
   );
 }
@@ -109,8 +128,52 @@ function TagChips({ tags }: { tags?: TagChip[] }) {
   );
 }
 
+/** The "tools" chip row under lab-style drawers — fully editable: add, edit
+ * and remove chips, or enable the row on a drawer that doesn't have one yet. */
+function ToolChips({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const tech = card.tech;
+  if (!tech) {
+    if (!editing) return null;
+    return (
+      <button
+        className="chips-add"
+        type="button"
+        data-nodrag
+        onClick={() => onCardEdit(card.id, { tech: ['tool'] })}
+      >
+        + tools row
+      </button>
+    );
+  }
+  if (!editing && tech.length === 0) return null;
+
+  const setChip = (index: number, value: string) => {
+    const next = [...tech];
+    next[index] = value;
+    onCardEdit(card.id, { tech: next });
+  };
+  const delChip = (index: number) => onCardEdit(card.id, { tech: tech.filter((_, i) => i !== index) });
+  const addChip = () => onCardEdit(card.id, { tech: [...tech, 'tool'] });
+
+  return (
+    <div className="chips" {...(editing ? { 'data-nodrag': '' } : {})}>
+      {tech.map((t, index) => (
+        <span className="chip" key={index}>
+          <span {...editableProps(editing, (value) => setChip(index, value))}>{t}</span>
+          {editing ? <button type="button" className="chip__x" onClick={() => delChip(index)} aria-label="Eliminar herramienta">×</button> : null}
+        </span>
+      ))}
+      {editing ? <button type="button" className="chip chip--add" onClick={addChip}>+ tech</button> : null}
+    </div>
+  );
+}
+
 function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
-  return <div className={`card__surface card__surface--${card.tone ?? 'paper'}`}>{children}</div>;
+  const tone = card.tone ?? 'paper';
+  const style: CSSProperties | undefined = tone === 'custom'
+    ? { background: card.bg ?? '#fbf7ef', color: card.ink ?? '#17150f' }
+    : undefined;
+  return <div className={`card__surface card__surface--${tone}`} style={style}>{children}</div>;
 }
 
 export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardViewProps) {
@@ -148,7 +211,6 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
   }
 
   if (card.type === 'spotlight') {
-    const count = entriesForGroup(entries, card.group ?? '').length;
     return (
       <Surface card={card}>
         {card.ruled ? <div className="spot--ruled" /> : null}
@@ -184,7 +246,6 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
           {card.barCaption ? <div className="k" style={{ marginTop: 6, opacity: 0.6 }}>{card.barCaption}</div> : null}
           {Array.isArray(card.footer) ? <div className="spot__foot">{card.footer.map((f, i) => <span key={i}>{f}</span>)}</div> : null}
         </div>
-        {count > 0 ? null : null}
       </Surface>
     );
   }
@@ -224,9 +285,7 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
           ))}
         </div>
       ) : null}
-      {card.tech ? (
-        <div className="chips">{card.tech.map((t, index) => <span key={index} className="chip">{t}</span>)}</div>
-      ) : null}
+      <ToolChips card={card} editing={editing} onCardEdit={onCardEdit} />
       {card.footerLink ? (
         <a className="card__footlink" href={card.footerLink[1]} target="_blank" rel="noreferrer" data-nodrag>{card.footerLink[0]}</a>
       ) : null}

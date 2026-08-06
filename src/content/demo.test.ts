@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { demoEntries, demoSettings } from './demo';
-import { GROUP_SEQUENCE } from '../lib/board';
+import { parseBoard } from '../lib/board';
 
 describe('demo content', () => {
   it('contains only published entries with ordered blocks', () => {
@@ -14,7 +14,7 @@ describe('demo content', () => {
   });
 
   it('assigns every entry to a documented drawer and keeps link URLs valid', () => {
-    const groups = new Set<string>(GROUP_SEQUENCE);
+    const groups = new Set<string>(parseBoard(demoSettings.board).groups.map((g) => g.id));
     for (const entry of demoEntries) {
       expect(groups.has(String(entry.metadata.group))).toBe(true);
       for (const block of entry.blocks) {

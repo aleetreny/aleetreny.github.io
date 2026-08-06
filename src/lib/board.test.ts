@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_BOARD,
   DEFAULT_THEME,
   dossierOrder,
   entriesForGroup,
@@ -39,7 +40,15 @@ describe('board settings parsing', () => {
 
   it('falls back to the default board on malformed input', () => {
     expect(parseBoard(null).cards.length).toBeGreaterThan(0);
+    expect(parseBoard(null).groups.length).toBeGreaterThan(0);
     expect(parseLayout('nope')).toEqual({});
+  });
+
+  it('accepts a custom list of groups and rejects malformed ones', () => {
+    const board = parseBoard({ cards: [], groups: [{ id: 'x', label: 'X' }, { id: 2, label: 'bad' }] });
+    expect(board.groups).toEqual([{ id: 'x', label: 'X' }]);
+    const fallback = parseBoard({ cards: [], groups: [] });
+    expect(fallback.groups).toEqual(DEFAULT_BOARD.groups);
   });
 
   it('exposes every colour as a CSS variable', () => {
@@ -57,6 +66,11 @@ describe('board derivations', () => {
   });
 
   it('builds a stable dossier order across drawers', () => {
-    expect(dossierOrder(entries)).toEqual(['a', 'b', 'c']);
+    expect(dossierOrder(entries, ['work', 'edu'])).toEqual(['a', 'b', 'c']);
+  });
+
+  it('appends entries whose group is missing from the given order', () => {
+    // entries not covered by groupIds keep their original relative order.
+    expect(dossierOrder(entries, ['edu'])).toEqual(['c', 'b', 'a']);
   });
 });
