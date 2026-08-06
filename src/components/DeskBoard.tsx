@@ -608,44 +608,54 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       {error ? <div className="board-error" role="alert">{error}</div> : null}
 
       <div className="stamp stamp--tl">A. Treny · working board</div>
-      <div className="stamp stamp--tr">click any line to open its page<br />drag the paper · scroll to zoom</div>
 
-      {authed ? (
-        <div className="ownerbar">
-          <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => !v)}>{editing ? 'editing · on' : 'edit mode'}</button>
-          {editing ? (
-            <>
-              <span className="ownerbar__add">add:</span>
-              <button className="tbtn" type="button" onClick={() => addCard('drawer')}>drawer</button>
-              <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>spotlight</button>
-              <button className="tbtn" type="button" onClick={addPolaroid}>photo</button>
-              <button className="tbtn" type="button" onClick={addNote}>note</button>
-            </>
-          ) : null}
-          <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
-          <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
-          {localEdit ? <span className="ownerbar__badge" title="Vista previa local — los cambios no se guardan">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
-        </div>
-      ) : (
-        <button className="signin" type="button" onClick={() => setLoginOpen(true)}>⌗ sign in</button>
-      )}
+      {/* Board-level chrome (owner bar, sign-in, top-right hint, bottom
+          toolbar) is hidden while a dossier is open: it floats above the
+          dossier plate (higher z-index than the modal) and would otherwise
+          overlap its own header/controls. The dossier has everything it
+          needs (close/prev/next, editing flag, inline block editor). */}
+      {!openEntry ? (
+        <>
+          <div className="stamp stamp--tr">click any line to open its page<br />drag the paper · scroll to zoom</div>
 
-      <div className="toolbar">
-        <div className="toolbar__inner">
-          <span className="toolbar__label">the board</span>
-          <button className="tbtn" type="button" onClick={() => fitAll()}>fit</button>
-          <button className="tbtn" type="button" onClick={() => arrange('tidy')}>tidy</button>
-          <button className="tbtn" type="button" onClick={() => arrange('scatter')}>scatter</button>
-          <button className="tbtn" type="button" onClick={() => arrange('reset')}>reset</button>
-          <span className="toolbar__sep" />
-          {JUMPS.map(([label, name]) => (
-            <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{label}</button>
-          ))}
-          <span className="toolbar__sep" />
-          <button className="tbtn tbtn--icon" type="button" aria-label="Alejar" onClick={() => zoomBy(0.8)}>−</button>
-          <button className="tbtn tbtn--icon" type="button" aria-label="Acercar" onClick={() => zoomBy(1.25)}>+</button>
-        </div>
-      </div>
+          {authed ? (
+            <div className="ownerbar">
+              <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => !v)}>{editing ? 'editing · on' : 'edit mode'}</button>
+              {editing ? (
+                <>
+                  <span className="ownerbar__add">add:</span>
+                  <button className="tbtn" type="button" onClick={() => addCard('drawer')}>drawer</button>
+                  <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>spotlight</button>
+                  <button className="tbtn" type="button" onClick={addPolaroid}>photo</button>
+                  <button className="tbtn" type="button" onClick={addNote}>note</button>
+                </>
+              ) : null}
+              <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
+              <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
+              {localEdit ? <span className="ownerbar__badge" title="Vista previa local — los cambios no se guardan">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
+            </div>
+          ) : (
+            <button className="signin" type="button" onClick={() => setLoginOpen(true)}>⌗ sign in</button>
+          )}
+
+          <div className="toolbar">
+            <div className="toolbar__inner">
+              <span className="toolbar__label">the board</span>
+              <button className="tbtn" type="button" onClick={() => fitAll()}>fit</button>
+              <button className="tbtn" type="button" onClick={() => arrange('tidy')}>tidy</button>
+              <button className="tbtn" type="button" onClick={() => arrange('scatter')}>scatter</button>
+              <button className="tbtn" type="button" onClick={() => arrange('reset')}>reset</button>
+              <span className="toolbar__sep" />
+              {JUMPS.map(([label, name]) => (
+                <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{label}</button>
+              ))}
+              <span className="toolbar__sep" />
+              <button className="tbtn tbtn--icon" type="button" aria-label="Alejar" onClick={() => zoomBy(0.8)}>−</button>
+              <button className="tbtn tbtn--icon" type="button" aria-label="Acercar" onClick={() => zoomBy(1.25)}>+</button>
+            </div>
+          </div>
+        </>
+      ) : null}
 
       {openEntry ? (
         <DossierPlate
