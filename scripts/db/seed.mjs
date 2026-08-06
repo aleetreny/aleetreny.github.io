@@ -10,8 +10,32 @@ const ownerId = process.env.OWNER_AUTH_USER_ID || 'public-demo-fixture';
 // recoverable trash — used to replace an older catalogue on first seed.
 const replace = process.env.SEED_REPLACE === 'true';
 
+const keepIds = entries.map((entry) => entry.id);
+
 try {
   await sql.begin(async (transaction) => {
+    if (replace) {
+      // Free any slug held by a previous catalogue (slug is globally unique) by
+      // renaming it and moving the row to the recoverable trash, so this run can
+      // insert the new dossiers cleanly. History is preserved, not destroyed.
+      await transaction`
+        update public.content_entries
+        set slug = slug || '-archived-' || replace(id::text, '-', ''),
+            deleted_at = now()
+        where deleted_at is null
+          and not (id = any(${keepIds}::uuid[]))
+      `;
+      await transaction`
+        update public.content_blocks b
+        set deleted_at = now()
+        where b.deleted_at is null
+          and exists (
+            select 1 from public.content_entries e
+            where e.id = b.entry_id and e.deleted_at is not null
+          )
+      `;
+    }
+
     for (const entry of entries) {
       await transaction`
         update public.content_blocks
@@ -68,24 +92,6 @@ try {
       `;
     }
 
-    if (replace) {
-      const keepIds = entries.map((entry) => entry.id);
-      await transaction`
-        update public.content_entries
-        set deleted_at = now()
-        where deleted_at is null
-          and id <> all(${keepIds}::uuid[])
-      `;
-      await transaction`
-        update public.content_blocks b
-        set deleted_at = now()
-        where b.deleted_at is null
-          and exists (
-            select 1 from public.content_entries e
-            where e.id = b.entry_id and e.deleted_at is not null
-          )
-      `;
-    }
   });
   console.log(`Seeded ${entries.length} entries and ${settings.length} settings documents${replace ? ' (catalogue replaced)' : ''}.`);
 } finally {
