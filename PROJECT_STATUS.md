@@ -1,6 +1,16 @@
 # Estado del proyecto
 
-Actualizado: 2026-08-05. Rama: `claude/portfolio-neon-editor-oyxees`.
+Actualizado: 2026-08-08. Rama: `claude/design-handoff-board-tour-ak4tp2`.
+
+## Recorrido guiado y fondo editable (2026-08)
+
+- La pizarra deja de ser el viewport y pasa a ser un **objeto finito colgado de una pared**: `.desk__plate` con marco, cuatro tornillos, grano de yeso y viñeta. Con `theme.backdrop.plate = false` vuelve exactamente al tablero anterior (la textura llena el viewport), así que nada se pierde.
+- **Recorrido guiado** en `src/components/DeskBoard.tsx` (fases `pre` → `tour` → `live`): la pizarra se estampa contra la pared y el visitante avanza parada a parada mientras cada pieza se clava encima. La lógica pura vive en `src/lib/tour.ts` (rutas, cámaras, revelados, curvas) y la barra en `src/components/desk/TourBar.tsx`.
+- Todo es editable en caliente desde el panel *tour* (`src/components/desk/TourPanel.tsx`), guardado en `site_settings['board.tour']`: nueve formas de recorrido, tres maneras de avanzar (manual, automático con dwell, rueda), ocho movimientos de cámara con nueve curvas, nueve aterrizajes de pieza con orden y escalonado, cinco llegadas de la pizarra, y la barra completa con sus textos. El editor de paradas permite crear, renombrar, reordenar, borrar y componer pieza a pieza.
+- El fondo se edita desde el panel *theme*: siete paredes (más una personalizada de dos colores), grano, viñeta, margen, marco, sombra, tornillos y el patrón de la pizarra (`plate`, `viewport` o ninguno) con su escala.
+- Correcciones que el recorrido dejó a la vista: topes de filas por cajón con `+ N more` (`work` 4, `edu` 4, `lab` 6, `vol` 4, `hack` 4, `repos` 5, `travel` 8, `random` 5) y tres posiciones (`travel`, `contact`, `note-1`) que eliminaban la colisión de tarjetas.
+- Accesibilidad: con `prefers-reduced-motion: reduce` no hay recorrido y el tablero aparece completo; la barra son botones reales navegables con Tab; `Escape` siempre sale; ninguna pieza depende del recorrido para ser accesible.
+- **Requiere reseed**: `board.tour` es una clave nueva de `site_settings` y `theme` gana `backdrop`. Ejecutar `seed-content.yml` en development y después en production con `production_confirmation=APPLY_PRODUCTION`.
 
 ## Rediseño "working board" (2026-08)
 

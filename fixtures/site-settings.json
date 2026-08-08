@@ -6,6 +6,22 @@
       "chaos": 1,
       "showMarginalia": true,
       "cardRadius": 0,
+      "backdrop": {
+        "wall": "plaster",
+        "wallColor": "#232629",
+        "wallColor2": "#0a0b0d",
+        "grain": 0.5,
+        "vignette": 0.55,
+        "plate": true,
+        "plateMargin": 58,
+        "frame": 10,
+        "plateShadow": 1,
+        "studs": true,
+        "studSize": 22,
+        "studInset": 34,
+        "grid": "plate",
+        "gridScale": 1
+      },
       "fonts": {
         "display": "'Bricolage Grotesque', system-ui, sans-serif",
         "mono": "'IBM Plex Mono', ui-monospace, monospace",
@@ -127,6 +143,7 @@
           "kicker": "drawer 01 — paid work",
           "title": "Where the numbers\nhad consequences",
           "layout": "list",
+          "maxItems": 4,
           "stats": [
             [
               "+7%",
@@ -159,6 +176,7 @@
           "kicker": "drawer 02 — schooling",
           "title": "Marks I keep\nbringing up",
           "layout": "list",
+          "maxItems": 4,
           "subtitle": "I spent years arguing that memorising a book is not learning. Then I went and finished top 10% of three degrees, so nobody could use that against the argument."
         },
         {
@@ -174,6 +192,7 @@
           "kicker": "drawer 03 — lab bench",
           "title": "Things I built because\nthe maths was pretty",
           "layout": "grid",
+          "maxItems": 6,
           "sweep": true,
           "tech": [
             "R",
@@ -198,7 +217,8 @@
           "tone": "paper",
           "kicker": "drawer 04 — unpaid",
           "title": "Rooms I helped\nfill up",
-          "layout": "compact"
+          "layout": "compact",
+          "maxItems": 4
         },
         {
           "id": "hack",
@@ -212,7 +232,8 @@
           "tone": "amber",
           "kicker": "drawer 05 — 48-hour habits",
           "title": "Hackathons\n& trophies",
-          "layout": "compact"
+          "layout": "compact",
+          "maxItems": 4
         },
         {
           "id": "pod",
@@ -247,6 +268,7 @@
           "kicker": "drawer 07 — the workshop",
           "title": "Built for fun,\nshipped anyway",
           "layout": "notes",
+          "maxItems": 5,
           "intro": "None of this is a job. It is what happens when a question refuses to leave me alone on a Tuesday night.",
           "footerLink": [
             "github.com/aleetreny →",
@@ -259,13 +281,14 @@
           "jump": "travel",
           "group": "travel",
           "x": 1250,
-          "y": 1000,
+          "y": 1100,
           "rot": -1.2,
           "w": 450,
           "tone": "paper",
           "kicker": "drawer 08 — field log",
           "title": "Places that\nrearranged me",
           "layout": "atlas",
+          "maxItems": 8,
           "intro": "I rate cities by picnic-ability, density of open notebooks and weekly re-enchantment. It is a real index. It lives in the Nordics."
         },
         {
@@ -273,8 +296,8 @@
           "type": "contact",
           "jump": "contact",
           "open": "contact",
-          "x": 1250,
-          "y": 1890,
+          "x": 1720,
+          "y": 1900,
           "rot": 1.4,
           "w": 450,
           "tone": "dark",
@@ -344,6 +367,7 @@
           "kicker": "drawer 11 — the drawer",
           "title": "Things with\nno CV line",
           "layout": "compact",
+          "maxItems": 5,
           "footer": "Also: sci-fi and fantasy (Douglas Adams is non-negotiable), board games, Asian food, and one cricket eaten at a TEDx. I do not eat avocado."
         }
       ],
@@ -394,8 +418,8 @@
       "marginalia": [
         {
           "id": "note-1",
-          "x": 1760,
-          "y": 1790,
+          "x": 1250,
+          "y": 1900,
           "rot": -3.4,
           "w": 250,
           "style": "amber",
@@ -426,6 +450,83 @@
   {
     "key": "board.layout",
     "value": {},
+    "is_public": true
+  },
+  {
+    "key": "board.tour",
+    "value": {
+      "route": "custom",
+      "stops": [
+        {
+          "id": "stop-1",
+          "label": "the person, first",
+          "items": [
+            "hero",
+            "now"
+          ]
+        },
+        {
+          "id": "stop-2",
+          "label": "what pays · what does not",
+          "items": [
+            "work",
+            "vol"
+          ]
+        },
+        {
+          "id": "stop-3",
+          "label": "marks and trophies",
+          "items": [
+            "edu",
+            "hack"
+          ]
+        },
+        {
+          "id": "stop-4",
+          "label": "the bench · on the air",
+          "items": [
+            "lab",
+            "pod"
+          ]
+        },
+        {
+          "id": "stop-5",
+          "label": "the workshop · the long diary",
+          "items": [
+            "repos",
+            "diary",
+            "pola-2"
+          ]
+        },
+        {
+          "id": "stop-6",
+          "label": "the drawer with no CV line",
+          "items": [
+            "random",
+            "pola-3",
+            "pola-4"
+          ]
+        },
+        {
+          "id": "stop-7",
+          "label": "the field log",
+          "items": [
+            "travel"
+          ]
+        },
+        {
+          "id": "stop-8",
+          "label": "reachable",
+          "items": [
+            "contact",
+            "pola-1",
+            "note-1",
+            "note-2",
+            "note-3"
+          ]
+        }
+      ]
+    },
     "is_public": true
   }
 ]

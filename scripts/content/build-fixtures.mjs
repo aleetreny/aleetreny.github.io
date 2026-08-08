@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { ITEMS, ORDER } from '../../content/source/desk-data.mjs';
 import {
   BOARD, THEME, GROUPS, GROUP_LABELS, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
-  CARDS, POLAROIDS, MARGINALIA,
+  CARDS, POLAROIDS, MARGINALIA, TOUR,
 } from '../../content/source/board-spec.mjs';
 
 const NAMESPACE = '2b6f0cc9-04a1-4b7e-9d2a-7a1d3e5f8c00';
@@ -81,6 +81,7 @@ const settings = [
   { key: 'theme', value: THEME, is_public: true },
   { key: 'board', value: { size: BOARD, groups, cards: CARDS, polaroids: POLAROIDS, marginalia: MARGINALIA }, is_public: true },
   { key: 'board.layout', value: {}, is_public: true },
+  { key: 'board.tour', value: TOUR, is_public: true },
 ];
 
 const root = resolve('.');

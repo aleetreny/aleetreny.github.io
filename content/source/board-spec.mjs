@@ -13,6 +13,24 @@ export const THEME = {
   chaos: 1, // 0..2 — how much the cards are rotated
   showMarginalia: true,
   cardRadius: 0, // px — corner rounding applied to every surface
+  // Everything behind the cards: the wall the slate hangs on, the slate itself
+  // and its hardware. All of it is editable from the owner theme panel.
+  backdrop: {
+    wall: 'plaster', // plaster | concrete | studio | ink | warm | moss | void | custom
+    wallColor: '#232629', // custom wall — centre
+    wallColor2: '#0a0b0d', // custom wall — edge
+    grain: 0.5, // 0..1 plaster grain
+    vignette: 0.55, // 0..1 corner darkening
+    plate: true, // false → the board texture fills the viewport (pre-slate look)
+    plateMargin: 58, // px the slate reaches beyond the board box
+    frame: 10, // px inset frame on the slate
+    plateShadow: 1, // 0..1.6 multiplier on the slate's drop shadow
+    studs: true,
+    studSize: 22,
+    studInset: 34, // px the studs sit outside the board box
+    grid: 'plate', // plate | viewport | off
+    gridScale: 1,
+  },
   fonts: {
     display: "'Bricolage Grotesque', system-ui, sans-serif",
     mono: "'IBM Plex Mono', ui-monospace, monospace",
@@ -103,26 +121,26 @@ export const CARDS = [
   },
   {
     id: 'work', type: 'drawer', jump: 'work', group: 'work', x: 110, y: 640, rot: -0.7, w: 620, tone: 'paper',
-    kicker: 'drawer 01 — paid work', title: 'Where the numbers\nhad consequences', layout: 'list',
+    kicker: 'drawer 01 — paid work', title: 'Where the numbers\nhad consequences', layout: 'list', maxItems: 4,
     stats: [['+7%', 'EBITDA, 8 months'], ['×2', 'audit throughput'], ['€90M', 'accounts reviewed'], ['12M kg', 'fruit modelled']],
   },
   {
     id: 'edu', type: 'drawer', jump: 'edu', group: 'edu', x: 110, y: 1090, rot: 0.6, w: 620, tone: 'dark',
-    kicker: 'drawer 02 — schooling', title: 'Marks I keep\nbringing up', layout: 'list',
+    kicker: 'drawer 02 — schooling', title: 'Marks I keep\nbringing up', layout: 'list', maxItems: 4,
     subtitle: 'I spent years arguing that memorising a book is not learning. Then I went and finished top 10% of three degrees, so nobody could use that against the argument.',
   },
   {
     id: 'lab', type: 'drawer', jump: 'lab', group: 'lab', x: 110, y: 1545, rot: -1, w: 620, tone: 'slate',
-    kicker: 'drawer 03 — lab bench', title: 'Things I built because\nthe maths was pretty', layout: 'grid', sweep: true,
+    kicker: 'drawer 03 — lab bench', title: 'Things I built because\nthe maths was pretty', layout: 'grid', maxItems: 6, sweep: true,
     tech: ['R', 'Python', 'SQL', 'PyTorch', 'XGBoost', 'Quarto', 'Power BI', 'Stochastic processes'],
   },
   {
     id: 'vol', type: 'drawer', jump: 'vol', group: 'vol', x: 790, y: 598, rot: -1.6, w: 400, tone: 'paper',
-    kicker: 'drawer 04 — unpaid', title: 'Rooms I helped\nfill up', layout: 'compact',
+    kicker: 'drawer 04 — unpaid', title: 'Rooms I helped\nfill up', layout: 'compact', maxItems: 4,
   },
   {
     id: 'hack', type: 'drawer', jump: 'hack', group: 'hack', x: 790, y: 1160, rot: 1.7, w: 400, tone: 'amber',
-    kicker: 'drawer 05 — 48-hour habits', title: 'Hackathons\n& trophies', layout: 'compact',
+    kicker: 'drawer 05 — 48-hour habits', title: 'Hackathons\n& trophies', layout: 'compact', maxItems: 4,
   },
   {
     id: 'pod', type: 'spotlight', jump: 'pod', open: 'podcast', x: 790, y: 1730, rot: -0.9, w: 400, tone: 'paperWarm',
@@ -132,17 +150,17 @@ export const CARDS = [
   },
   {
     id: 'repos', type: 'drawer', jump: 'repos', group: 'repos', x: 1250, y: 120, rot: 1, w: 450, tone: 'paper',
-    kicker: 'drawer 07 — the workshop', title: 'Built for fun,\nshipped anyway', layout: 'notes',
+    kicker: 'drawer 07 — the workshop', title: 'Built for fun,\nshipped anyway', layout: 'notes', maxItems: 5,
     intro: 'None of this is a job. It is what happens when a question refuses to leave me alone on a Tuesday night.',
     footerLink: ['github.com/aleetreny →', 'https://github.com/aleetreny'],
   },
   {
-    id: 'travel', type: 'drawer', jump: 'travel', group: 'travel', x: 1250, y: 1000, rot: -1.2, w: 450, tone: 'paper',
-    kicker: 'drawer 08 — field log', title: 'Places that\nrearranged me', layout: 'atlas',
+    id: 'travel', type: 'drawer', jump: 'travel', group: 'travel', x: 1250, y: 1100, rot: -1.2, w: 450, tone: 'paper',
+    kicker: 'drawer 08 — field log', title: 'Places that\nrearranged me', layout: 'atlas', maxItems: 8,
     intro: 'I rate cities by picnic-ability, density of open notebooks and weekly re-enchantment. It is a real index. It lives in the Nordics.',
   },
   {
-    id: 'contact', type: 'contact', jump: 'contact', open: 'contact', x: 1250, y: 1890, rot: 1.4, w: 450, tone: 'dark',
+    id: 'contact', type: 'contact', jump: 'contact', open: 'contact', x: 1720, y: 1900, rot: 1.4, w: 450, tone: 'dark',
     kicker: 'drawer 09 — reachable', title: 'Say something\nstrange',
     links: [
       ['alejandrotreny100@gmail.com', 'mailto:alejandrotreny100@gmail.com'],
@@ -160,7 +178,7 @@ export const CARDS = [
   },
   {
     id: 'random', type: 'drawer', jump: 'random', group: 'random', x: 1750, y: 620, rot: 1.6, w: 430, tone: 'slate',
-    kicker: 'drawer 11 — the drawer', title: 'Things with\nno CV line', layout: 'compact',
+    kicker: 'drawer 11 — the drawer', title: 'Things with\nno CV line', layout: 'compact', maxItems: 5,
     footer: 'Also: sci-fi and fantasy (Douglas Adams is non-negotiable), board games, Asian food, and one cricket eaten at a TEDx. I do not eat avocado.',
   },
 ];
@@ -175,7 +193,31 @@ export const POLAROIDS = [
 
 // Sticky marginalia — small notes, toggled by theme.showMarginalia.
 export const MARGINALIA = [
-  { id: 'note-1', x: 1760, y: 1790, rot: -3.4, w: 250, style: 'amber', text: 'Favourite word: fugaz. Nothing has value in eternity; everything has value because it ends.' },
+  { id: 'note-1', x: 1250, y: 1900, rot: -3.4, w: 250, style: 'amber', text: 'Favourite word: fugaz. Nothing has value in eternity; everything has value because it ends.' },
   { id: 'note-2', x: 2210, y: 1450, rot: 2.4, w: 270, style: 'amber', text: 'Second brain, my dad calls it the third brain. He is not wrong and it stings.' },
   { id: 'note-3', x: 2210, y: 1700, rot: -1.2, w: 270, style: 'paper-dashed', text: 'Working theory: depth feels like plenitude, breadth feels like appetite. I want both, so I never stop.' },
 ];
+
+// The guided tour — the slate slams onto the wall and the visitor walks the
+// board section by section, at their own pace, while each drawer, photo and
+// note is stuck onto the slate.
+//
+// Only the authored route lives here, because the route is content: which
+// pieces are shown together, in what order, under what heading. Every
+// behavioural default (speed, camera motion, reveal style, intro, bar labels)
+// comes from src/lib/tour.ts and is overridden per-field the moment the owner
+// touches the tour panel. Anything not listed in a stop is picked up by the
+// trailing "the rest" stop, so a card added later is never left invisible.
+export const TOUR = {
+  route: 'custom',
+  stops: [
+    { id: 'stop-1', label: 'the person, first', items: ['hero', 'now'] },
+    { id: 'stop-2', label: 'what pays · what does not', items: ['work', 'vol'] },
+    { id: 'stop-3', label: 'marks and trophies', items: ['edu', 'hack'] },
+    { id: 'stop-4', label: 'the bench · on the air', items: ['lab', 'pod'] },
+    { id: 'stop-5', label: 'the workshop · the long diary', items: ['repos', 'diary', 'pola-2'] },
+    { id: 'stop-6', label: 'the drawer with no CV line', items: ['random', 'pola-3', 'pola-4'] },
+    { id: 'stop-7', label: 'the field log', items: ['travel'] },
+    { id: 'stop-8', label: 'reachable', items: ['contact', 'pola-1', 'note-1', 'note-2', 'note-3'] },
+  ],
+};

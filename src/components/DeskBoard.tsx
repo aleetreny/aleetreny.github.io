@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PortfolioEntry } from '../types/content';
 import { demoEntries, demoSettings } from '../content/demo';
 import {
@@ -8,16 +8,33 @@ import {
   parseBoard,
   parseLayout,
   parseTheme,
+  scalePatternSize,
   themeVars,
+  wallBackground,
   type BoardCard,
   type BoardConfig,
   type CardTone,
+  type GridMode,
   type LayoutMap,
   type LayoutOverride,
   type Marginal,
   type Polaroid,
   type ThemeConfig,
 } from '../lib/board';
+import {
+  buildStops,
+  easingCss,
+  markTourSeen,
+  motionSample,
+  parseTour,
+  revealDirection,
+  revealKeyframes,
+  revealSequence,
+  tourAlreadySeen,
+  type TourConfig,
+  type TourItem,
+  type TourStop,
+} from '../lib/tour';
 import {
   hasOwnerSession,
   isCurrentUserOwner,
@@ -35,6 +52,8 @@ import { GroupOverflowPanel } from './desk/GroupOverflowPanel';
 import { ImageSlot } from './desk/ImageSlot';
 import { ThemePanel } from './desk/ThemePanel';
 import { InventoryPanel } from './desk/InventoryPanel';
+import { TourBar } from './desk/TourBar';
+import { TourPanel } from './desk/TourPanel';
 
 type DeskBoardProps = {
   remoteDataEnabled: boolean;
@@ -42,6 +61,25 @@ type DeskBoardProps = {
 };
 
 type Geom = { x: number; y: number; rot: number; w: number };
+type View = { x: number; y: number; s: number };
+type Rect = { x: number; y: number; w: number; h: number };
+
+/** `pre` — fitted but empty, nothing has happened yet.
+ *  `tour` — the guided run is playing, board chrome is replaced by the tour bar.
+ *  `live` — the board as it ships: pan, zoom, drag, dossiers, toolbar. */
+type Phase = 'pre' | 'tour' | 'live';
+
+/** What the visitor asked for while the run was parked at a stop. A number is
+ *  a direct jump to that stop index (the tour bar's dots). */
+type Advance = 'next' | 'back' | 'skip' | number;
+
+/** A short, human label for a board item — used by the tour's generated route
+ *  names and by the stop editor's piece picker. */
+function itemLabel(text: string | undefined, fallback: string): string {
+  const clean = (text ?? '').replace(/\s+/g, ' ').trim();
+  if (!clean) return fallback;
+  return clean.length > 34 ? `${clean.slice(0, 33)}…` : clean;
+}
 
 const JUMPS: Array<[string, string]> = [
   ['who', 'me'], ['work', 'work'], ['study', 'edu'], ['giving', 'vol'],
@@ -66,6 +104,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [editing, setEditing] = useState(localEdit);
   const [loginOpen, setLoginOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [cardMenu, setCardMenu] = useState<string | null>(null);
   const [overflowGroup, setOverflowGroup] = useState<string | null>(null);
@@ -76,11 +115,35 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const theme = useMemo<ThemeConfig>(() => parseTheme(settings.theme), [settings.theme]);
   const board = useMemo<BoardConfig>(() => parseBoard(settings.board), [settings.board]);
   const layout = useMemo<LayoutMap>(() => parseLayout(settings['board.layout']), [settings]);
+  const tour = useMemo<TourConfig>(() => parseTour(settings['board.tour']), [settings]);
+  const backdrop = theme.backdrop;
+
+  // Decided once, on the first render, so the board never paints fully
+  // populated before the tour has a chance to hide it. The editor must not
+  // fight an animation, and reduced motion means no tour at all.
+  const [phase, setPhase] = useState<Phase>(() => {
+    if (localEdit || ownerIntent) return 'live';
+    if (!tour.enabled) return 'live';
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return 'live';
+    if (tourAlreadySeen(tour.replay)) return 'live';
+    return 'pre';
+  });
+  // The staggered CSS drop is the intro for a board that is not being toured;
+  // when the tour runs it is the intro, so the drop must not also fire.
+  const [introDrop, setIntroDrop] = useState(() => phase === 'live');
+  const [tourStep, setTourStep] = useState(0);
+  const [tourTotal, setTourTotal] = useState(0);
+  const [tourLabel, setTourLabel] = useState('');
+  const [tourWaiting, setTourWaiting] = useState(false);
+  const [tourPaused, setTourPaused] = useState(false);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const view = useRef({ x: 0, y: 0, s: 1 });
+  const plateRef = useRef<HTMLDivElement>(null);
+  const shakeRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
+  const view = useRef<View>({ x: 0, y: 0, s: 1 });
   const didDrag = useRef(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
@@ -88,13 +151,31 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const openSlugRef = useRef<string | null>(null);
   const authedRef = useRef(false);
 
+  // ---- tour machinery -------------------------------------------------------
+  const phaseRef = useRef<Phase>(phase);
+  const tourRef = useRef<TourConfig>(tour);
+  const stopsRef = useRef<TourStop[]>([]);
+  const shownRef = useRef<Set<string>>(new Set());
+  const tokenRef = useRef(0);
+  const rafRef = useRef(0);
+  const timersRef = useRef<number[]>([]);
+  const pendingRef = useRef<Array<() => void>>([]);
+  const gateRef = useRef<((value: Advance) => void) | null>(null);
+  const manualRef = useRef(false);
+  const scrollAtRef = useRef(0);
+
   const texture = BOARD_TEXTURES[theme.boardStyle] ?? BOARD_TEXTURES.slate;
+  // Without a slate there is nothing for the plate pattern to sit on, so it
+  // falls back to the constant-density viewport grid.
+  const gridMode: GridMode = backdrop.grid === 'plate' && !backdrop.plate ? 'viewport' : backdrop.grid;
   const groupIds = useMemo(() => board.groups.map((g) => g.id), [board.groups]);
   const orderedSlugs = useMemo(() => dossierOrder(entries, groupIds), [entries, groupIds]);
   const openEntry = openSlug ? entries.find((entry) => entry.slug === openSlug) ?? null : null;
 
   useEffect(() => { openSlugRef.current = openSlug; }, [openSlug]);
   useEffect(() => { authedRef.current = authed; }, [authed]);
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
+  useEffect(() => { tourRef.current = tour; }, [tour]);
 
   const flash = useCallback((text: string, isError = false) => {
     setToast({ text, error: isError });
@@ -128,6 +209,38 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const polGeom = useCallback((p: Polaroid): Geom => geomFor(p.id, { x: p.x, y: p.y, rot: p.rot * theme.chaos, w: p.w }), [geomFor, theme.chaos]);
   const noteGeom = useCallback((n: Marginal): Geom => geomFor(n.id, { x: n.x, y: n.y, rot: n.rot * theme.chaos, w: n.w }), [geomFor, theme.chaos]);
 
+  /** Every draggable thing on the board, as the tour's route builders and the
+   *  stop editor see it. Marginalia only count when the theme shows them. */
+  const tourItems = useMemo<TourItem[]>(() => {
+    const labelOfGroup = (id?: string) => board.groups.find((g) => g.id === id)?.label;
+    const cards = board.cards.map((card) => {
+      const geom = cardGeom(card);
+      return {
+        id: card.id,
+        x: geom.x,
+        y: geom.y,
+        w: geom.w,
+        label: itemLabel(card.title ?? card.name ?? card.currentTitle ?? card.kicker ?? card.label, card.id),
+        group: card.group,
+        groupLabel: labelOfGroup(card.group),
+      };
+    });
+    const polaroids = board.polaroids.map((p) => {
+      const geom = polGeom(p);
+      return { id: p.id, x: geom.x, y: geom.y, w: geom.w, label: itemLabel(p.caption, p.id) };
+    });
+    const notes = theme.showMarginalia
+      ? board.marginalia.map((n) => {
+        const geom = noteGeom(n);
+        return { id: n.id, x: geom.x, y: geom.y, w: geom.w, label: itemLabel(n.text, n.id) };
+      })
+      : [];
+    return [...cards, ...polaroids, ...notes];
+  }, [board.cards, board.groups, board.marginalia, board.polaroids, cardGeom, noteGeom, polGeom, theme.showMarginalia]);
+
+  const itemsRef = useRef<TourItem[]>(tourItems);
+  useEffect(() => { itemsRef.current = tourItems; }, [tourItems]);
+
   // ---- imperative view ------------------------------------------------------
   const paint = useCallback((animate: boolean) => {
     const boardEl = boardRef.current;
@@ -140,13 +253,28 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     if (gridEl) {
       // Constant on-screen density: the grid keeps the same cell size no matter
       // the zoom (only its offset follows the pan), so zooming out never turns
-      // the dot pattern into grain. It reads as a calm fixed backdrop.
+      // the dot pattern into grain. It reads as a calm fixed backdrop. The
+      // slate's own pattern (grid mode `plate`) is static markup instead — it
+      // rides the board transform, so it scales with the zoom by design.
       const sizes = texture.size.split(',').map((piece) => piece.trim().split(' ').map((n) => parseFloat(n)));
       gridEl.style.backgroundImage = texture.img;
       gridEl.style.backgroundSize = sizes.map(([w, h]) => `${w}px ${h}px`).join(', ');
       gridEl.style.backgroundPosition = sizes.map(() => `${v.x}px ${v.y}px`).join(', ');
     }
   }, [texture]);
+
+  /** Frame a board-space rectangle inside the viewport. */
+  const fitRect = useCallback((rect: Rect, padX: number, padTop: number, padBottom: number, maxScale: number): View | null => {
+    const vp = viewportRef.current;
+    if (!vp) return null;
+    const box = vp.getBoundingClientRect();
+    const s = Math.min((box.width - padX * 2) / rect.w, (box.height - padTop - padBottom) / rect.h, maxScale);
+    return {
+      s,
+      x: box.width / 2 - (rect.x + rect.w / 2) * s,
+      y: padTop + (box.height - padTop - padBottom) / 2 - (rect.y + rect.h / 2) * s,
+    };
+  }, []);
 
   const fitAll = useCallback((instant = false) => {
     const vp = viewportRef.current;
@@ -194,10 +322,390 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   useEffect(() => { paint(false); }, [paint, layout]);
   useEffect(() => { fitAll(true); }, [fitAll]);
   useEffect(() => {
-    const onResize = () => fitAll(true);
+    // Re-fitting mid-tour would fight the camera; the run reframes itself.
+    const onResize = () => { if (phaseRef.current !== 'tour') fitAll(true); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [fitAll]);
+
+  // ---- the guided tour ------------------------------------------------------
+  // Items are hidden and revealed imperatively, never through React style
+  // props: React writes no `opacity` or `pointer-events` on these nodes, so its
+  // style diffing leaves the values alone and an unrelated re-render cannot
+  // undo the tour.
+  const boardItems = useCallback(
+    () => Array.from(boardRef.current?.querySelectorAll<HTMLElement>('[data-card]') ?? []),
+    [],
+  );
+  const studEls = useCallback(
+    () => Array.from(boardRef.current?.querySelectorAll<HTMLElement>('[data-stud]') ?? []),
+    [],
+  );
+
+  const clearTimers = useCallback(() => {
+    for (const id of timersRef.current) window.clearTimeout(id);
+    timersRef.current = [];
+    const pending = pendingRef.current;
+    pendingRef.current = [];
+    // Resolve rather than drop, so an awaiting run resumes, sees a stale token
+    // and returns instead of holding its closure open forever.
+    for (const resolve of pending) resolve();
+  }, []);
+
+  const wait = useCallback((ms: number) => new Promise<void>((resolve) => {
+    if (!(ms > 0)) { resolve(); return; }
+    pendingRef.current.push(resolve);
+    timersRef.current.push(window.setTimeout(() => { resolve(); }, ms));
+  }), []);
+
+  const hideAll = useCallback(() => {
+    shownRef.current.clear();
+    for (const el of boardItems()) {
+      // A finished CSS animation with `fill: both` outranks an inline opacity,
+      // so the intro drop has to go before anything can be hidden again.
+      el.style.animation = 'none';
+      el.style.opacity = '0';
+      el.style.pointerEvents = 'none';
+    }
+    setIntroDrop(false);
+    if (plateRef.current) plateRef.current.style.opacity = '0';
+    for (const stud of studEls()) stud.style.opacity = '0';
+  }, [boardItems, studEls]);
+
+  const revealAll = useCallback(() => {
+    for (const el of boardItems()) {
+      el.style.opacity = '1';
+      el.style.pointerEvents = '';
+      if (el.dataset.card) shownRef.current.add(el.dataset.card);
+    }
+    if (plateRef.current) plateRef.current.style.opacity = '1';
+    for (const stud of studEls()) stud.style.opacity = '1';
+  }, [boardItems, studEls]);
+
+  /** Camera flight between two framings, on the configured motion curve. */
+  const flyTo = useCallback((target: View, duration: number) => new Promise<void>((resolve) => {
+    const vp = viewportRef.current;
+    const cam = tourRef.current.camera;
+    if (!vp || !(duration > 0) || cam.motion === 'cut') {
+      view.current = { ...target };
+      paint(false);
+      void wait(Math.min(120, duration)).then(resolve);
+      return;
+    }
+    const box = vp.getBoundingClientRect();
+    // Interpolate the framed centre point rather than the raw offset, so a
+    // mid-flight zoom change (swoop, spring) keeps the same thing in frame.
+    const ax = box.width / 2;
+    const ay = cam.padTop + (box.height - cam.padTop - cam.padBottom) / 2;
+    const centre = (v: View) => ({ x: (ax - v.x) / v.s, y: (ay - v.y) / v.s });
+    const from = { ...view.current };
+    const c0 = centre(from);
+    const c1 = centre(target);
+    const t0 = performance.now();
+    // Cancelling a flight cancels the frame loop, so the promise is also parked
+    // with the pending resolvers — the run resumes, sees a stale token and
+    // returns instead of holding this closure open forever.
+    pendingRef.current.push(resolve);
+    const tick = (now: number) => {
+      const k = Math.min(1, (now - t0) / duration);
+      const m = motionSample(cam, k);
+      const s = Math.max(0.02, (from.s + (target.s - from.s) * m.zoom) * m.dip);
+      const cx = c0.x + (c1.x - c0.x) * m.pan;
+      const cy = c0.y + (c1.y - c0.y) * m.pan;
+      view.current = { s, x: ax - cx * s, y: ay - cy * s + m.lift };
+      paint(false);
+      if (k < 1) { rafRef.current = requestAnimationFrame(tick); return; }
+      view.current = { ...target };
+      paint(false);
+      resolve();
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }), [paint, wait]);
+
+  /** The framing for one stop: the union of its item boxes, inflated. */
+  const frameFor = useCallback((ids: string[]): View | null => {
+    const cam = tourRef.current.camera;
+    const boardEl = boardRef.current;
+    let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
+    for (const id of ids) {
+      const el = boardEl?.querySelector<HTMLElement>(`[data-card="${id}"]`);
+      if (!el) continue;
+      const x = parseFloat(el.style.left || '0');
+      const y = parseFloat(el.style.top || '0');
+      x0 = Math.min(x0, x);
+      y0 = Math.min(y0, y);
+      x1 = Math.max(x1, x + el.offsetWidth);
+      y1 = Math.max(y1, y + el.offsetHeight);
+    }
+    const m = cam.inflate;
+    const rect: Rect = x0 > x1
+      ? { x: -m, y: -m, w: board.size.width + m * 2, h: board.size.height + m * 2 }
+      : { x: x0 - m, y: y0 - m, w: x1 - x0 + m * 2, h: y1 - y0 + m * 2 };
+    return fitRect(rect, cam.padX, cam.padTop, cam.padBottom, cam.maxScale);
+  }, [board.size.height, board.size.width, fitRect]);
+
+  /** Land one item on the slate. */
+  const showItem = useCallback((id: string, index: number, animate: boolean) => {
+    const el = boardRef.current?.querySelector<HTMLElement>(`[data-card="${id}"]`);
+    if (!el) return;
+    shownRef.current.add(id);
+    el.style.opacity = '1';
+    el.style.pointerEvents = '';
+    const cfg = tourRef.current;
+    const speed = cfg.speed > 0 ? cfg.speed : 1;
+    if (!animate || cfg.reveal.style === 'none' || !(cfg.reveal.duration > 0)) return;
+    const rot = parseFloat(el.dataset.rot || '0');
+    // `fill: 'none'` on purpose: the element keeps its own inline rotation,
+    // which is what the drag code reads back when the visitor moves it.
+    el.animate(revealKeyframes(cfg.reveal, rot, revealDirection(id, index)), {
+      duration: cfg.reveal.duration / speed,
+      easing: easingCss(cfg.reveal.easing),
+      fill: 'none',
+    });
+  }, []);
+
+  /** Put every item of the stops before `index` on the board without ceremony —
+   *  used when a visitor jumps ahead from the tour bar's dots. */
+  const showThrough = useCallback((index: number) => {
+    for (let i = 0; i < index && i < stopsRef.current.length; i += 1) {
+      for (const id of stopsRef.current[i].items) {
+        if (!shownRef.current.has(id)) showItem(id, 0, false);
+      }
+    }
+  }, [showItem]);
+
+  const endTour = useCallback((mode: 'fit' | 'keep') => {
+    if (phaseRef.current === 'live') return;
+    tokenRef.current += 1;
+    gateRef.current = null;
+    cancelAnimationFrame(rafRef.current);
+    clearTimers();
+    revealAll();
+    markTourSeen(tourRef.current.replay);
+    phaseRef.current = 'live';
+    setPhase('live');
+    setTourWaiting(false);
+    setTourPaused(false);
+    if (mode === 'fit') fitAll(false);
+  }, [clearTimers, fitAll, revealAll]);
+
+  /** Parks the run until the visitor asks for the next (or previous) stop. */
+  const gate = useCallback(() => new Promise<Advance>((resolve) => { gateRef.current = resolve; }), []);
+
+  const advance = useCallback((direction: Advance) => {
+    const go = gateRef.current;
+    if (!go) return;
+    gateRef.current = null;
+    setTourWaiting(false);
+    go(direction);
+  }, []);
+
+  /** The slate arriving on the wall, once, at the very start. */
+  const playIntro = useCallback(async () => {
+    const cfg = tourRef.current.intro;
+    const speed = tourRef.current.speed > 0 ? tourRef.current.speed : 1;
+    const plate = plateRef.current;
+    const studs = studEls();
+    const duration = cfg.duration / speed;
+
+    if (plate) plate.style.opacity = '1';
+    if (!cfg.studs) for (const stud of studs) stud.style.opacity = '1';
+
+    if (plate && cfg.style !== 'none' && duration > 0) {
+      const frames: Record<Exclude<typeof cfg.style, 'none'>, Keyframe[]> = {
+        slam: [
+          { opacity: 0, transform: 'scale(1.5) translateY(-70px) rotate(-2.2deg)', filter: 'blur(6px)' },
+          { opacity: 1, offset: 0.42 },
+          { transform: 'scale(.988) rotate(.35deg)', filter: 'blur(0px)', offset: 0.72 },
+          { transform: 'none', filter: 'blur(0px)' },
+        ],
+        fade: [{ opacity: 0 }, { opacity: 1 }],
+        raise: [
+          { opacity: 0, transform: 'translateY(46px) scale(.985)' },
+          { opacity: 1, offset: 0.4 },
+          { transform: 'none' },
+        ],
+        sweep: [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
+      };
+      plate.animate(frames[cfg.style], { duration, easing: 'cubic-bezier(.16,.86,.22,1)' });
+    }
+
+    // The impact lands a little under halfway through the slate's arrival.
+    const impact = cfg.style === 'none' ? 0 : duration * (300 / 640);
+    const atImpact = () => {
+      if (cfg.dust && flashRef.current) {
+        flashRef.current.animate(
+          [{ opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 0 }],
+          { duration: 620 / speed, easing: 'ease-out' },
+        );
+      }
+      if (cfg.shake && shakeRef.current) {
+        shakeRef.current.animate([
+          { transform: 'translate(0,0)' }, { transform: 'translate(5px,-7px)' },
+          { transform: 'translate(-4px,4px)' }, { transform: 'translate(3px,2px)' },
+          { transform: 'translate(-1px,-1px)' }, { transform: 'translate(0,0)' },
+        ], { duration: 300 / speed, easing: 'ease-out' });
+      }
+      if (cfg.studs) {
+        studs.forEach((stud, index) => {
+          timersRef.current.push(window.setTimeout(() => {
+            stud.style.opacity = '1';
+            stud.animate(
+              [{ transform: 'scale(2.4)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }],
+              { duration: 240 / speed, easing: 'cubic-bezier(.2,1.4,.4,1)' },
+            );
+          }, (index * cfg.studStagger) / speed));
+        });
+      }
+    };
+
+    if (impact > 0) timersRef.current.push(window.setTimeout(atImpact, impact));
+    else atImpact();
+    await wait(duration);
+  }, [studEls, wait]);
+
+  const runTour = useCallback(async () => {
+    const token = (tokenRef.current += 1);
+    const alive = () => token === tokenRef.current;
+    const stops = buildStops(tourRef.current, itemsRef.current);
+    stopsRef.current = stops;
+    setTourTotal(stops.length);
+    if (stops.length === 0) { endTour('fit'); return; }
+
+    const startSpeed = tourRef.current.speed > 0 ? tourRef.current.speed : 1;
+    await wait(tourRef.current.intro.hold / startSpeed);
+    if (!alive()) return;
+    await playIntro();
+    if (!alive()) return;
+    await wait(tourRef.current.intro.settle / (tourRef.current.speed > 0 ? tourRef.current.speed : 1));
+    if (!alive()) return;
+
+    let i = 0;
+    while (i < stops.length) {
+      if (!alive()) return;
+      const stop = stops[i];
+      // Read the config fresh each stop, so an owner tweaking the panel mid-run
+      // sees it applied from the very next move.
+      const cfg = tourRef.current;
+      const speed = cfg.speed > 0 ? cfg.speed : 1;
+      setTourStep(i + 1);
+      setTourLabel(stop.label);
+      setTourWaiting(false);
+
+      const target = frameFor(stop.items);
+      if (target) await flyTo(target, (i === 0 ? cfg.camera.firstDuration : cfg.camera.duration) / speed);
+      if (!alive()) return;
+
+      if (stop.items.some((id) => !shownRef.current.has(id))) {
+        const order = revealSequence(stop.items.length, cfg.reveal.order);
+        const stagger = cfg.reveal.order === 'together' ? 0 : cfg.reveal.stagger / speed;
+        for (const index of order) {
+          if (!alive()) return;
+          showItem(stop.items[index], index, true);
+          await wait(stagger);
+        }
+        if (!alive()) return;
+      }
+
+      setTourWaiting(true);
+      const asked = await gate();
+      if (!alive()) return;
+      if (asked === 'skip') { endTour('fit'); return; }
+      if (typeof asked === 'number') {
+        const next = Math.max(0, Math.min(stops.length - 1, asked));
+        showThrough(next);
+        i = next;
+        continue;
+      }
+      i = asked === 'back' ? Math.max(0, i - 1) : i + 1;
+      if (i >= stops.length && tourRef.current.loop) i = 0;
+    }
+    if (!alive()) return;
+    endTour('fit');
+  }, [endTour, flyTo, frameFor, gate, playIntro, showItem, showThrough, wait]);
+
+  /** Re-hide everything and play the run from stop one. */
+  const replayTour = useCallback(() => {
+    manualRef.current = true;
+    tokenRef.current += 1;
+    gateRef.current = null;
+    cancelAnimationFrame(rafRef.current);
+    clearTimers();
+    setCardMenu(null);
+    hideAll();
+    fitAll(true);
+    setTourStep(0);
+    setTourLabel('');
+    setTourWaiting(false);
+    setTourPaused(false);
+    phaseRef.current = 'tour';
+    setPhase('tour');
+    void runTour();
+  }, [clearTimers, fitAll, hideAll, runTour]);
+
+  // Latest boot/teardown closures. Keeping them on a ref lets the mount effect
+  // below carry an empty dependency list — it must fire exactly once per mount
+  // and never restart a run in flight because some callback changed identity.
+  const bootRef = useRef({ boot: () => {}, stop: () => {} });
+  useLayoutEffect(() => {
+    bootRef.current = {
+      boot: () => {
+        if (phaseRef.current !== 'pre') return;
+        hideAll();
+        phaseRef.current = 'tour';
+        setPhase('tour');
+        void runTour();
+      },
+      stop: () => {
+        tokenRef.current += 1;
+        cancelAnimationFrame(rafRef.current);
+        clearTimers();
+        // React's development double-mount tears the tour down and mounts
+        // again; rewinding lets the second mount replay it instead of leaving
+        // the board hidden forever.
+        if (phaseRef.current === 'tour') phaseRef.current = 'pre';
+      },
+    };
+  });
+
+  // Runs after the first commit but before the browser paints, so a toured
+  // board is hidden without ever flashing fully populated.
+  useLayoutEffect(() => {
+    bootRef.current.boot();
+    return () => bootRef.current.stop();
+  }, []);
+
+  // Anything rendered while the run is in flight — remote data landing, a card
+  // the owner just added — starts hidden until its stop reaches it.
+  useLayoutEffect(() => {
+    if (phaseRef.current === 'live') return;
+    for (const el of boardItems()) {
+      const id = el.dataset.card ?? '';
+      if (shownRef.current.has(id)) continue;
+      el.style.opacity = '0';
+      el.style.pointerEvents = 'none';
+    }
+  });
+
+  // An owner session that resolves after the tour started still wins: the
+  // editor must not fight an animation. A preview the owner asked for does not
+  // count.
+  useEffect(() => {
+    if (authed && phaseRef.current !== 'live' && !manualRef.current) endTour('fit');
+  }, [authed, endTour]);
+
+  // Remote settings can disable the tour after the fixture copy started one.
+  useEffect(() => {
+    if (!tour.enabled && phaseRef.current !== 'live' && !manualRef.current) endTour('fit');
+  }, [tour.enabled, endTour]);
+
+  // Unattended mode: hold each stop for the dwell, then move on.
+  useEffect(() => {
+    if (phase !== 'tour' || !tourWaiting || tour.advance !== 'auto' || tourPaused) return undefined;
+    const speed = tour.speed > 0 ? tour.speed : 1;
+    const id = window.setTimeout(() => advance('next'), tour.dwell / speed);
+    return () => window.clearTimeout(id);
+  }, [advance, phase, tourWaiting, tourPaused, tourStep, tour.advance, tour.dwell, tour.speed]);
 
   // owner session recovery (owner intent without remote data opens the login
   // immediately via the initial loginOpen state, so no sync setState here).
@@ -224,6 +732,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const commitTheme = useCallback((next: ThemeConfig) => { setSettings((s) => ({ ...s, theme: next })); saveSetting('theme', next); }, [saveSetting]);
   const commitBoard = useCallback((next: BoardConfig) => { setSettings((s) => ({ ...s, board: next })); saveSetting('board', next); }, [saveSetting]);
   const commitLayout = useCallback((next: LayoutMap) => { setSettings((s) => ({ ...s, 'board.layout': next })); saveSetting('board.layout', next, 150); }, [saveSetting]);
+  const commitTour = useCallback((next: TourConfig) => { setSettings((s) => ({ ...s, 'board.tour': next })); saveSetting('board.tour', next); }, [saveSetting]);
 
   const savingRef = useRef(false);
   const pendingEntry = useRef<PortfolioEntry | null>(null);
@@ -326,6 +835,16 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const onWheel = (event: WheelEvent) => {
       if (openSlugRef.current) return;
       event.preventDefault();
+      // In scroll mode the wheel drives the run instead of the zoom. Every
+      // other mode keeps zooming, including mid-tour: exploring inside a stop
+      // is intended and never ends the run.
+      if (phaseRef.current === 'tour' && tourRef.current.advance === 'scroll') {
+        const now = performance.now();
+        if (now - scrollAtRef.current < 420 || Math.abs(event.deltaY) < 2) return;
+        scrollAtRef.current = now;
+        advance(event.deltaY > 0 ? 'next' : 'back');
+        return;
+      }
       const rect = vp.getBoundingClientRect();
       zoomAt(event.clientX - rect.left, event.clientY - rect.top, Math.exp(-event.deltaY * 0.0016), false);
     };
@@ -425,7 +944,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       vp.removeEventListener('click', onClick);
       vp.removeEventListener('dblclick', onDblClick);
     };
-  }, [zoomAt, paint, centerNode, fitAll, commitLayout, layout]);
+  }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, layout]);
 
   // ---- keyboard -------------------------------------------------------------
   useEffect(() => {
@@ -433,7 +952,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const target = event.target as HTMLElement | null;
       const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
       if (typing) { if (event.key === 'Escape') target?.blur(); return; }
-      if (loginOpen || themeOpen || inventoryOpen || overflowGroup) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setInventoryOpen(false); setOverflowGroup(null); } return; }
+      if (loginOpen || themeOpen || tourOpen || inventoryOpen || overflowGroup) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setTourOpen(false); setInventoryOpen(false); setOverflowGroup(null); } return; }
       const current = openSlugRef.current;
       if (current) {
         if (event.key === 'Escape') setOpenSlug(null);
@@ -441,12 +960,22 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         if (event.key === 'ArrowLeft') { const i = orderedSlugs.indexOf(current); if (i >= 0) setOpenSlug(orderedSlugs[(i - 1 + orderedSlugs.length) % orderedSlugs.length]); }
         return;
       }
+      // Tour keys, only while it is running and nothing is open above it.
+      if (phaseRef.current === 'tour') {
+        if (event.key === 'Escape') { endTour('fit'); return; }
+        if (event.key === ' ' || event.key === 'Enter' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          advance('next');
+          return;
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') { event.preventDefault(); advance('back'); return; }
+      }
       if (event.key === 'f') fitAll();
       if (event.key === 'E' && event.shiftKey && !authedRef.current) setLoginOpen(true);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [fitAll, orderedSlugs, loginOpen, themeOpen, inventoryOpen, overflowGroup]);
+  }, [advance, endTour, fitAll, orderedSlugs, loginOpen, themeOpen, tourOpen, inventoryOpen, overflowGroup]);
 
   // ---- arrange --------------------------------------------------------------
   const draggableIds = useMemo(() => [
@@ -497,13 +1026,74 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const openIndex = openSlug ? orderedSlugs.indexOf(openSlug) : -1;
   const prevEntry = openIndex >= 0 ? entries.find((e) => e.slug === orderedSlugs[(openIndex - 1 + orderedSlugs.length) % orderedSlugs.length]) : null;
   const nextEntry = openIndex >= 0 ? entries.find((e) => e.slug === orderedSlugs[(openIndex + 1) % orderedSlugs.length]) : null;
-  const viewportStyle = { ...themeVars(theme), background: texture.vp, '--board-ink': texture.ink } as React.CSSProperties;
+  const viewportStyle = {
+    ...themeVars(theme),
+    background: wallBackground(backdrop, texture),
+    '--board-ink': texture.ink,
+  } as React.CSSProperties;
+
+  const shadow = backdrop.plateShadow;
+  const plateStyle: React.CSSProperties = {
+    left: -backdrop.plateMargin,
+    top: -backdrop.plateMargin,
+    right: -backdrop.plateMargin,
+    bottom: -backdrop.plateMargin,
+    background: texture.vp,
+    boxShadow: [
+      `0 ${Math.round(70 * shadow)}px ${Math.round(120 * shadow)}px ${Math.round(-40 * shadow)}px rgba(0,0,0,${Math.min(0.95, 0.9 * shadow).toFixed(2)})`,
+      '0 0 0 1px rgba(0,0,0,.6)',
+      `inset 0 0 0 ${backdrop.frame}px rgba(20,24,23,.55)`,
+    ].join(', '),
+  };
+  const studStyle: React.CSSProperties = { width: backdrop.studSize, height: backdrop.studSize };
+  const studCorners: Array<[string, React.CSSProperties]> = [
+    ['tl', { left: -backdrop.studInset, top: -backdrop.studInset }],
+    ['tr', { right: -backdrop.studInset, top: -backdrop.studInset }],
+    ['bl', { left: -backdrop.studInset, bottom: -backdrop.studInset }],
+    ['br', { right: -backdrop.studInset, bottom: -backdrop.studInset }],
+  ];
 
   return (
     <>
       <div className="desk" ref={viewportRef} style={viewportStyle} aria-label="Working board — Alejandro Treny">
-        <div className="desk__grid" ref={gridRef} aria-hidden="true" />
-        <div className="desk__board" ref={boardRef} style={{ width: board.size.width, height: board.size.height }}>
+        {backdrop.plate && backdrop.grain > 0 ? (
+          <div className="desk__grain" aria-hidden="true" style={{ opacity: backdrop.grain }} />
+        ) : null}
+        {backdrop.plate && backdrop.vignette > 0 ? (
+          <div
+            className="desk__vignette"
+            aria-hidden="true"
+            style={{ background: `radial-gradient(80% 60% at 50% 42%, transparent 40%, rgba(0,0,0,${backdrop.vignette}) 100%)` }}
+          />
+        ) : null}
+        {gridMode === 'viewport' ? <div className="desk__grid" ref={gridRef} aria-hidden="true" /> : null}
+        <div className="desk__flash" ref={flashRef} aria-hidden="true" />
+
+        {/* The camera transform lives on .desk__board; the impact shake goes on
+            this wrapper so the two never fight over the same property. */}
+        <div className="desk__shake" ref={shakeRef}>
+          <div className="desk__board" ref={boardRef} style={{ width: board.size.width, height: board.size.height }}>
+            {backdrop.plate ? (
+              <>
+                <div className="desk__plate" ref={plateRef} aria-hidden="true" style={plateStyle}>
+                  {gridMode === 'plate' ? (
+                    <div
+                      className="desk__plate-grid"
+                      style={{
+                        backgroundImage: texture.plateImg,
+                        backgroundSize: scalePatternSize(texture.plateSize, backdrop.gridScale),
+                      }}
+                    />
+                  ) : null}
+                  <div className="desk__plate-shade" />
+                </div>
+                {backdrop.studs
+                  ? studCorners.map(([corner, position]) => (
+                    <div key={corner} className="desk__stud" data-stud={corner} aria-hidden="true" style={{ ...studStyle, ...position }} />
+                  ))
+                  : null}
+              </>
+            ) : null}
           {board.cards.map((card, index) => {
             const geom = cardGeom(card);
             return (
@@ -513,7 +1103,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 data-card={card.id}
                 data-jump={card.jump}
                 data-rot={geom.rot}
-                style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 10 + index, animation: 'drop .7s cubic-bezier(.2,.9,.2,1) both', animationDelay: `${0.02 + index * 0.05}s` }}
+                style={{
+                  left: geom.x,
+                  top: geom.y,
+                  width: geom.w,
+                  transform: `rotate(${geom.rot}deg)`,
+                  zIndex: 10 + index,
+                  ...(introDrop ? { animation: 'drop .7s cubic-bezier(.2,.9,.2,1) both', animationDelay: `${0.02 + index * 0.05}s` } : null),
+                }}
               >
                 {editing ? (
                   <div className="card-ctrl" data-nodrag>
@@ -617,6 +1214,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               </div>
             );
           })}
+          </div>
         </div>
       </div>
 
@@ -628,8 +1226,25 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           toolbar) is hidden while a dossier is open: it floats above the
           dossier plate (higher z-index than the modal) and would otherwise
           overlap its own header/controls. The dossier has everything it
-          needs (close/prev/next, editing flag, inline block editor). */}
-      {!openEntry ? (
+          needs (close/prev/next, editing flag, inline block editor).
+          It is hidden again while the tour runs — the tour bar replaces it. */}
+      {!openEntry && phase === 'tour' ? (
+        <TourBar
+          tour={tour}
+          step={tourStep}
+          total={tourTotal}
+          label={tourLabel}
+          waiting={tourWaiting}
+          paused={tourPaused}
+          onNext={() => advance('next')}
+          onBack={() => advance('back')}
+          onSkip={() => endTour('fit')}
+          onJump={(index) => advance(index)}
+          onTogglePause={() => setTourPaused((v) => !v)}
+        />
+      ) : null}
+
+      {!openEntry && phase === 'live' ? (
         <>
           <div className="stamp stamp--tr">click any line to open its page<br />drag the paper · scroll to zoom</div>
 
@@ -646,6 +1261,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 </>
               ) : null}
               <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
+              <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>tour</button>
               <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
               {localEdit ? <span className="ownerbar__badge" title="Vista previa local — los cambios no se guardan">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
             </div>
@@ -659,6 +1275,9 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               <button className="tbtn" type="button" onClick={() => fitAll()}>fit</button>
               <button className="tbtn" type="button" onClick={() => arrange('scatter')}>scatter</button>
               <button className="tbtn" type="button" onClick={() => arrange('reset')}>reset</button>
+              {tour.enabled || authed ? (
+                <button className="tbtn tbtn--on" type="button" onClick={replayTour} title="Ver el recorrido guiado">↻ tour</button>
+              ) : null}
               <span className="toolbar__sep" />
               {JUMPS.map(([label, name]) => (
                 <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{label}</button>
@@ -705,6 +1324,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       ) : null}
 
       {themeOpen ? <ThemePanel theme={theme} onChange={commitTheme} onClose={() => setThemeOpen(false)} /> : null}
+      {tourOpen ? (
+        <TourPanel
+          tour={tour}
+          items={tourItems}
+          onChange={commitTour}
+          onPreview={() => { setTourOpen(false); replayTour(); }}
+          onClose={() => setTourOpen(false)}
+        />
+      ) : null}
       {inventoryOpen ? (
         <InventoryPanel
           entries={entries}
