@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BOARD_STYLE_IDS,
+  BOARD_TEXTURES,
+  DEFAULT_BACKDROP,
   DEFAULT_BOARD,
   DEFAULT_THEME,
+  WALLS,
   dossierOrder,
   entriesForGroup,
   parseBoard,
   parseLayout,
   parseTheme,
+  scalePatternSize,
   themeVars,
+  wallBackground,
 } from './board';
 import type { PortfolioEntry } from '../types/content';
 
@@ -55,6 +61,47 @@ describe('board settings parsing', () => {
     const vars = themeVars(DEFAULT_THEME);
     expect(vars['--c-accent']).toBe(DEFAULT_THEME.colors.accent);
     expect(vars['--font-display']).toBe(DEFAULT_THEME.fonts.display);
+  });
+
+  it('completes a backdrop saved before the slate existed', () => {
+    const theme = parseTheme({ boardStyle: 'slate', backdrop: { wall: 'ink', studs: false } });
+    expect(theme.backdrop.wall).toBe('ink');
+    expect(theme.backdrop.studs).toBe(false);
+    expect(theme.backdrop.plate).toBe(DEFAULT_BACKDROP.plate);
+    expect(theme.backdrop.plateMargin).toBe(DEFAULT_BACKDROP.plateMargin);
+    // A theme document with no backdrop at all still resolves to a full one.
+    expect(parseTheme({ chaos: 0 }).backdrop).toEqual(DEFAULT_THEME.backdrop);
+  });
+});
+
+describe('backdrop rendering', () => {
+  it('hangs the slate on a wall, or lets the texture fill the viewport', () => {
+    const texture = BOARD_TEXTURES.slate;
+    const onWall = wallBackground({ ...DEFAULT_BACKDROP, wall: 'ink' }, texture);
+    expect(onWall).toBe(WALLS.ink);
+    // No slate means today's board: the texture is the viewport, edge to edge.
+    expect(wallBackground({ ...DEFAULT_BACKDROP, plate: false }, texture)).toBe(texture.vp);
+  });
+
+  it('builds a custom wall from the two backdrop colours', () => {
+    const wall = wallBackground({ ...DEFAULT_BACKDROP, wall: 'custom', wallColor: '#123456', wallColor2: '#000000' }, BOARD_TEXTURES.slate);
+    expect(wall).toContain('#123456');
+    expect(wall).toContain('#000000');
+  });
+
+  it('scales every length in a pattern size list', () => {
+    expect(scalePatternSize('42px 42px, 168px 168px', 1)).toBe('42px 42px, 168px 168px');
+    expect(scalePatternSize('42px 42px, 168px 168px', 2)).toBe('84px 84px, 336px 336px');
+    expect(scalePatternSize('20px 20px', 0.5)).toBe('10px 10px');
+  });
+
+  it('gives every texture a coarser pattern for the slate', () => {
+    for (const style of BOARD_STYLE_IDS) {
+      const texture = BOARD_TEXTURES[style];
+      // Layer count has to match, or background-size lines up with the wrong image.
+      expect(texture.plateImg.split('),').length, style).toBe(texture.plateSize.split(',').length);
+      expect(texture.img.split('),').length, style).toBe(texture.size.split(',').length);
+    }
   });
 });
 
