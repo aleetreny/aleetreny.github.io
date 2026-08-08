@@ -125,6 +125,8 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
   const set = <K extends keyof TourConfig>(key: K, value: TourConfig[K]) => onChange({ ...tour, [key]: value });
   const setCamera = <K extends keyof TourConfig['camera']>(key: K, value: TourConfig['camera'][K]) =>
     onChange({ ...tour, camera: { ...tour.camera, [key]: value } });
+  const setMobile = <K extends keyof TourConfig['mobile']>(key: K, value: TourConfig['mobile'][K]) =>
+    onChange({ ...tour, mobile: { ...tour.mobile, [key]: value } });
   const setReveal = <K extends keyof TourConfig['reveal']>(key: K, value: TourConfig['reveal'][K]) =>
     onChange({ ...tour, reveal: { ...tour.reveal, [key]: value } });
   const setIntro = <K extends keyof TourConfig['intro']>(key: K, value: TourConfig['intro'][K]) =>
@@ -329,6 +331,33 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
             <NumberRow id="tour-padx" label="Pad · sides" value={tour.camera.padX} min={0} max={400} suffix="px" onChange={(v) => setCamera('padX', v)} />
             <NumberRow id="tour-padtop" label="Pad · top" value={tour.camera.padTop} min={0} max={400} suffix="px" onChange={(v) => setCamera('padTop', v)} />
             <NumberRow id="tour-padbottom" label="Pad · bottom" value={tour.camera.padBottom} min={0} max={500} suffix="px" onChange={(v) => setCamera('padBottom', v)} />
+          </>
+        ))}
+
+        {group('mobile', `phones · ${tour.mobile.enabled ? `${tour.mobile.maxPerStop} per stop` : 'off'}`, (
+          <>
+            <CheckRow
+              id="tour-mobile"
+              label="Adapt on small screens"
+              value={tour.mobile.enabled}
+              onChange={(v) => setMobile('enabled', v)}
+            />
+            <div className="panel__note">
+              The board is 2540px wide, so a phone always sees a detail of it. Below the width
+              here the same route is walked a few pieces at a time, with padding a small screen
+              can afford — otherwise three cards at once are three cards nobody can read.
+            </div>
+            {tour.mobile.enabled ? (
+              <>
+                <NumberRow id="tour-mbreak" label="Applies below" value={tour.mobile.breakpoint} min={320} max={1400} step={10} suffix="px" onChange={(v) => setMobile('breakpoint', v)} />
+                <NumberRow id="tour-mmax" label="Pieces per stop" value={tour.mobile.maxPerStop} min={1} max={8} onChange={(v) => setMobile('maxPerStop', v)} />
+                <NumberRow id="tour-mscale" label="Zoom ceiling" value={tour.mobile.maxScale} min={0.2} max={2.4} step={0.05} suffix="×" onChange={(v) => setMobile('maxScale', v)} />
+                <NumberRow id="tour-minflate" label="Breathing room" value={tour.mobile.inflate} min={0} max={300} suffix="px" onChange={(v) => setMobile('inflate', v)} />
+                <NumberRow id="tour-mpadx" label="Pad · sides" value={tour.mobile.padX} min={0} max={200} suffix="px" onChange={(v) => setMobile('padX', v)} />
+                <NumberRow id="tour-mpadtop" label="Pad · top" value={tour.mobile.padTop} min={0} max={300} suffix="px" onChange={(v) => setMobile('padTop', v)} />
+                <NumberRow id="tour-mpadbottom" label="Pad · bottom" value={tour.mobile.padBottom} min={0} max={400} suffix="px" onChange={(v) => setMobile('padBottom', v)} />
+              </>
+            ) : null}
           </>
         ))}
 

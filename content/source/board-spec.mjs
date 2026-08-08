@@ -109,7 +109,7 @@ export const CARDS = [
     name: 'Alejandro\nTreny',
     tags: ['statistician', 'data scientist', { label: 'compulsive noticer', accent: true }],
     intro: 'I fit models for a living and I have kept a diary about it every week for five years. Málaga made me, Madrid pays me, London gets me next.',
-    hint: 'This board is the index, not the summary — I have a phobia of leaving things out. Click any line and it opens the full page. Drag the paper, scroll to zoom.',
+    hint: 'This board is the index, not the summary — I have a phobia of leaving things out. Tap any line and it opens the full page. Drag the paper, pinch or scroll to zoom.',
   },
   {
     id: 'now', type: 'now', jump: 'now', x: 790, y: 130, rot: 1.2, w: 400, tone: 'amber',

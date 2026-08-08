@@ -4,12 +4,15 @@ import {
   buildStops,
   easingCss,
   easingFn,
+  isNarrow,
   markTourSeen,
   motionSample,
   parseTour,
+  resolveCamera,
   revealDirection,
   revealKeyframes,
   revealSequence,
+  splitStops,
   tourAlreadySeen,
   type TourItem,
 } from './tour';
@@ -154,6 +157,45 @@ describe('route building', () => {
 
   it('returns nothing for an empty board', () => {
     expect(buildStops(DEFAULT_TOUR, [])).toEqual([]);
+  });
+});
+
+describe('narrow screens', () => {
+  it('only adapts at or below the breakpoint, and never when switched off', () => {
+    const tour = parseTour({ mobile: { breakpoint: 720 } });
+    expect(isNarrow(tour, 390)).toBe(true);
+    expect(isNarrow(tour, 720)).toBe(true);
+    expect(isNarrow(tour, 721)).toBe(false);
+    expect(isNarrow(parseTour({ mobile: { enabled: false } }), 320)).toBe(false);
+  });
+
+  it('swaps in the phone framing but keeps the chosen motion', () => {
+    const tour = parseTour({ camera: { motion: 'swoop', easing: 'outExpo' } });
+    const wide = resolveCamera(tour, false);
+    const narrow = resolveCamera(tour, true);
+    expect(wide).toBe(tour.camera);
+    expect(narrow.motion).toBe('swoop');
+    expect(narrow.easing).toBe('outExpo');
+    expect(narrow.duration).toBe(tour.camera.duration);
+    expect(narrow.padX).toBe(tour.mobile.padX);
+    expect(narrow.inflate).toBe(tour.mobile.inflate);
+    expect(narrow.padX).toBeLessThan(tour.camera.padX);
+  });
+
+  it('walks a long stop a few pieces at a time under the same heading', () => {
+    const stops = splitStops(DEFAULT_TOUR.stops, 1);
+    // Nothing is dropped and nothing is reordered.
+    expect(stops.flatMap((s) => s.items)).toEqual(DEFAULT_TOUR.stops.flatMap((s) => s.items));
+    expect(stops.every((s) => s.items.length === 1)).toBe(true);
+    expect(stops).toHaveLength(20);
+    expect(stops[0].label).toBe('the person, first');
+    expect(stops[1].label).toBe('the person, first');
+    expect(new Set(stops.map((s) => s.id)).size).toBe(stops.length);
+  });
+
+  it('leaves short stops and a nonsense cap alone', () => {
+    expect(splitStops(DEFAULT_TOUR.stops, 5).slice(0, 4)).toEqual(DEFAULT_TOUR.stops.slice(0, 4));
+    expect(splitStops(DEFAULT_TOUR.stops, 0)).toBe(DEFAULT_TOUR.stops);
   });
 });
 

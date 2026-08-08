@@ -102,6 +102,28 @@ export type TourBar = {
   skipLabel: string;
 };
 
+/** Overrides applied on a narrow screen.
+ *
+ *  The board is authored on a 2540px canvas, so framing three cards at once on
+ *  a phone leaves every one of them unreadable. On a narrow viewport the same
+ *  route is walked at a finer grain, with the padding a small screen can
+ *  actually afford. */
+export type TourMobile = {
+  enabled: boolean;
+  /** Viewport width at or below which these apply, in px. */
+  breakpoint: number;
+  /** Viewport height at or below which these apply too — a phone on its side
+   *  is just as cramped as one held upright, only in the other direction. */
+  shortSide: number;
+  /** Longest a stop may be before it is split into consecutive sub-stops. */
+  maxPerStop: number;
+  padX: number;
+  padTop: number;
+  padBottom: number;
+  inflate: number;
+  maxScale: number;
+};
+
 export type TourConfig = {
   enabled: boolean;
   route: TourRoute;
@@ -119,6 +141,7 @@ export type TourConfig = {
   /** The hand-authored route, used when `route === 'custom'`. */
   stops: TourStop[];
   camera: TourCamera;
+  mobile: TourMobile;
   reveal: TourReveal;
   intro: TourIntro;
   bar: TourBar;
@@ -149,6 +172,17 @@ const BASE_TOUR: TourConfig = {
     maxScale: 1.05,
     arc: 90,
     swoop: 0.28,
+  },
+  mobile: {
+    enabled: true,
+    breakpoint: 720,
+    shortSide: 460,
+    maxPerStop: 1,
+    padX: 14,
+    padTop: 54,
+    padBottom: 148,
+    inflate: 22,
+    maxScale: 1.05,
   },
   reveal: {
     style: 'stick',
@@ -227,6 +261,7 @@ function parseStops(value: unknown, fallback: TourStop[]): TourStop[] {
 export function parseTour(value: unknown, base: TourConfig = DEFAULT_TOUR): TourConfig {
   if (!isRecord(value)) return base;
   const camera = isRecord(value.camera) ? value.camera : {};
+  const mobile = isRecord(value.mobile) ? value.mobile : {};
   const reveal = isRecord(value.reveal) ? value.reveal : {};
   const intro = isRecord(value.intro) ? value.intro : {};
   const bar = isRecord(value.bar) ? value.bar : {};
@@ -253,6 +288,17 @@ export function parseTour(value: unknown, base: TourConfig = DEFAULT_TOUR): Tour
       maxScale: num(camera.maxScale, base.camera.maxScale, 0.2, 2.4),
       arc: num(camera.arc, base.camera.arc, 0, 400),
       swoop: num(camera.swoop, base.camera.swoop, 0, 0.7),
+    },
+    mobile: {
+      enabled: bool(mobile.enabled, base.mobile.enabled),
+      breakpoint: num(mobile.breakpoint, base.mobile.breakpoint, 320, 1400),
+      shortSide: num(mobile.shortSide, base.mobile.shortSide, 0, 1000),
+      maxPerStop: Math.round(num(mobile.maxPerStop, base.mobile.maxPerStop, 1, 8)),
+      padX: num(mobile.padX, base.mobile.padX, 0, 200),
+      padTop: num(mobile.padTop, base.mobile.padTop, 0, 300),
+      padBottom: num(mobile.padBottom, base.mobile.padBottom, 0, 400),
+      inflate: num(mobile.inflate, base.mobile.inflate, 0, 300),
+      maxScale: num(mobile.maxScale, base.mobile.maxScale, 0.2, 2.4),
     },
     reveal: {
       style: pickEnum(reveal.style, REVEAL_STYLES, base.reveal.style),
@@ -631,6 +677,34 @@ export function buildStops(tour: TourConfig, items: TourItem[], rand: () => numb
   }
 
   return stops;
+}
+
+/** Is this viewport cramped enough for the mobile overrides to apply? */
+export function isNarrow(tour: TourConfig, width: number, height = Infinity): boolean {
+  if (!tour.mobile.enabled) return false;
+  return width <= tour.mobile.breakpoint || height <= tour.mobile.shortSide;
+}
+
+/** The framing numbers in force for this viewport. */
+export function resolveCamera(tour: TourConfig, narrow: boolean): TourCamera {
+  if (!narrow) return tour.camera;
+  const { padX, padTop, padBottom, inflate, maxScale } = tour.mobile;
+  return { ...tour.camera, padX, padTop, padBottom, inflate, maxScale };
+}
+
+/** Re-chunk a route so no stop holds more than `max` pieces, keeping the order
+ *  and the heading. Three cards framed at once on a phone are three cards
+ *  nobody can read; the same walk simply takes a few more taps. */
+export function splitStops(stops: TourStop[], max: number): TourStop[] {
+  if (!(max >= 1)) return stops;
+  const out: TourStop[] = [];
+  for (const stop of stops) {
+    if (stop.items.length <= max) { out.push(stop); continue; }
+    chunk(stop.items, max).forEach((items, index) => {
+      out.push({ id: `${stop.id}-${index + 1}`, label: stop.label, items });
+    });
+  }
+  return out;
 }
 
 /** Remembers that this visitor has already been walked through the board. */

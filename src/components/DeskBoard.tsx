@@ -24,12 +24,15 @@ import {
 import {
   buildStops,
   easingCss,
+  isNarrow,
   markTourSeen,
   motionSample,
   parseTour,
+  resolveCamera,
   revealDirection,
   revealKeyframes,
   revealSequence,
+  splitStops,
   tourAlreadySeen,
   type TourConfig,
   type TourItem,
@@ -163,6 +166,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const gateRef = useRef<((value: Advance) => void) | null>(null);
   const manualRef = useRef(false);
   const scrollAtRef = useRef(0);
+  // Touch: live pointers, the pinch in progress, and the last tap for
+  // double-tap detection.
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>());
+  const pinchRef = useRef<{ dist: number; cx: number; cy: number; view: View } | null>(null);
+  /** True from the moment a second finger lands until just after the last one
+   *  lifts, so a pinch never lands as a click or a card move. */
+  const pinchedRef = useRef(false);
+  const tapRef = useRef({ at: 0, x: 0, y: 0 });
 
   const texture = BOARD_TEXTURES[theme.boardStyle] ?? BOARD_TEXTURES.slate;
   // Without a slate there is nothing for the plate pattern to sit on, so it
@@ -303,15 +314,21 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     zoomAt(rect.width / 2, rect.height / 2, k, true);
   }, [zoomAt]);
 
-  const centerNode = useCallback((node: HTMLElement) => {
+  const centerNode = useCallback((node: HTMLElement, animate = true) => {
     const vp = viewportRef.current;
     if (!vp) return;
     const rect = vp.getBoundingClientRect();
     const cx = parseFloat(node.style.left || '0') + node.offsetWidth / 2;
     const cy = parseFloat(node.style.top || '0') + node.offsetHeight / 2;
-    const s = Math.min(1, (rect.height - 150) / Math.max(node.offsetHeight, 1));
+    // Both axes matter: a 620px-wide card centred by height alone runs off the
+    // sides of a phone.
+    const s = Math.min(
+      1,
+      (rect.height - 150) / Math.max(node.offsetHeight, 1),
+      (rect.width - 28) / Math.max(node.offsetWidth, 1),
+    );
     view.current = { s, x: rect.width / 2 - cx * s, y: (rect.height - 60) / 2 - cy * s };
-    paint(true);
+    paint(animate);
   }, [paint]);
 
   const jump = useCallback((name: string) => {
@@ -319,14 +336,37 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     if (node) centerNode(node);
   }, [centerNode]);
 
+  /** Where the board comes to rest: on load and when the tour ends.
+   *
+   *  On a wide screen that is the whole board. On a phone the whole board fits
+   *  at about 0.12, where nothing is legible, so it rests on the first card
+   *  instead — the `fit` button still gives the overview on demand. */
+  const restView = useCallback((instant = false) => {
+    const vp = viewportRef.current;
+    const box = vp?.getBoundingClientRect();
+    if (box && isNarrow(tourRef.current, box.width, box.height)) {
+      const first = boardRef.current?.querySelector<HTMLElement>('[data-card]');
+      if (first) { centerNode(first, !instant); return; }
+    }
+    fitAll(instant);
+  }, [centerNode, fitAll]);
+
   useEffect(() => { paint(false); }, [paint, layout]);
-  useEffect(() => { fitAll(true); }, [fitAll]);
+  useEffect(() => { restView(true); }, [restView]);
   useEffect(() => {
     // Re-fitting mid-tour would fight the camera; the run reframes itself.
-    const onResize = () => { if (phaseRef.current !== 'tour') fitAll(true); };
+    // A phone rotating is a real resize; the on-screen keyboard is not, so
+    // only a width change or a big height change counts.
+    let last = { w: window.innerWidth, h: window.innerHeight };
+    const onResize = () => {
+      const next = { w: window.innerWidth, h: window.innerHeight };
+      const changed = next.w !== last.w || Math.abs(next.h - last.h) > 120;
+      last = next;
+      if (changed && phaseRef.current !== 'tour') restView(true);
+    };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [fitAll]);
+  }, [restView]);
 
   // ---- the guided tour ------------------------------------------------------
   // Items are hidden and revealed imperatively, never through React style
@@ -382,10 +422,18 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     for (const stud of studEls()) stud.style.opacity = '1';
   }, [boardItems, studEls]);
 
+  /** The framing numbers in force for the viewport as it is right now. */
+  const camera = useCallback(() => {
+    const box = viewportRef.current?.getBoundingClientRect();
+    const width = box?.width ?? window.innerWidth;
+    const height = box?.height ?? window.innerHeight;
+    return resolveCamera(tourRef.current, isNarrow(tourRef.current, width, height));
+  }, []);
+
   /** Camera flight between two framings, on the configured motion curve. */
   const flyTo = useCallback((target: View, duration: number) => new Promise<void>((resolve) => {
     const vp = viewportRef.current;
-    const cam = tourRef.current.camera;
+    const cam = camera();
     if (!vp || !(duration > 0) || cam.motion === 'cut') {
       view.current = { ...target };
       paint(false);
@@ -420,11 +468,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       resolve();
     };
     rafRef.current = requestAnimationFrame(tick);
-  }), [paint, wait]);
+  }), [camera, paint, wait]);
 
   /** The framing for one stop: the union of its item boxes, inflated. */
   const frameFor = useCallback((ids: string[]): View | null => {
-    const cam = tourRef.current.camera;
+    const cam = camera();
     const boardEl = boardRef.current;
     let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
     for (const id of ids) {
@@ -442,7 +490,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       ? { x: -m, y: -m, w: board.size.width + m * 2, h: board.size.height + m * 2 }
       : { x: x0 - m, y: y0 - m, w: x1 - x0 + m * 2, h: y1 - y0 + m * 2 };
     return fitRect(rect, cam.padX, cam.padTop, cam.padBottom, cam.maxScale);
-  }, [board.size.height, board.size.width, fitRect]);
+  }, [board.size.height, board.size.width, camera, fitRect]);
 
   /** Land one item on the slate. */
   const showItem = useCallback((id: string, index: number, animate: boolean) => {
@@ -486,8 +534,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     setPhase('live');
     setTourWaiting(false);
     setTourPaused(false);
-    if (mode === 'fit') fitAll(false);
-  }, [clearTimers, fitAll, revealAll]);
+    if (mode === 'fit') restView(false);
+  }, [clearTimers, restView, revealAll]);
 
   /** Parks the run until the visitor asks for the next (or previous) stop. */
   const gate = useCallback(() => new Promise<Advance>((resolve) => { gateRef.current = resolve; }), []);
@@ -567,7 +615,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const runTour = useCallback(async () => {
     const token = (tokenRef.current += 1);
     const alive = () => token === tokenRef.current;
-    const stops = buildStops(tourRef.current, itemsRef.current);
+    const box = viewportRef.current?.getBoundingClientRect();
+    const stops = isNarrow(tourRef.current, box?.width ?? window.innerWidth, box?.height ?? window.innerHeight)
+      ? splitStops(buildStops(tourRef.current, itemsRef.current), tourRef.current.mobile.maxPerStop)
+      : buildStops(tourRef.current, itemsRef.current);
     stopsRef.current = stops;
     setTourTotal(stops.length);
     if (stops.length === 0) { endTour('fit'); return; }
@@ -852,8 +903,73 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const isInteractive = (el: HTMLElement | null) =>
       !!el && !!el.closest('[data-nodrag], a, button, input, select, textarea');
 
+    // ---- touch: pinch to zoom, two fingers to pan, double tap to zoom -------
+    const live = pointersRef.current;
+    const points = () => Array.from(live.values());
+    const spread = () => {
+      const [a, b] = points();
+      return { dist: Math.hypot(a.x - b.x, a.y - b.y), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
+    };
+
+    const onPointerMoveGlobal = (event: PointerEvent) => {
+      if (!live.has(event.pointerId)) return;
+      const rect = vp.getBoundingClientRect();
+      live.set(event.pointerId, { x: event.clientX - rect.left, y: event.clientY - rect.top });
+      const pinch = pinchRef.current;
+      if (!pinch || live.size < 2) return;
+      const now = spread();
+      if (!(pinch.dist > 0)) return;
+      const s = Math.max(0.14, Math.min(2.4, pinch.view.s * (now.dist / pinch.dist)));
+      // The world point under the first midpoint stays under the current one,
+      // so the pinch zooms and pans in a single gesture.
+      const bx = (pinch.cx - pinch.view.x) / pinch.view.s;
+      const by = (pinch.cy - pinch.view.y) / pinch.view.s;
+      view.current = { s, x: now.cx - bx * s, y: now.cy - by * s };
+      paint(false);
+    };
+
+    const endPointer = (event: PointerEvent) => {
+      live.delete(event.pointerId);
+      if (live.size < 2) pinchRef.current = null;
+      if (live.size === 0 && pinchedRef.current) {
+        // Keep the drag flag up just past the click the browser synthesizes
+        // when the last finger lifts, or a pinch that ends over a drawer row
+        // would open its dossier.
+        window.setTimeout(() => { pinchedRef.current = false; didDrag.current = false; }, 60);
+      }
+    };
+
     const onPointerDown = (event: PointerEvent) => {
-      if (event.button !== 0 || openSlugRef.current) return;
+      if (openSlugRef.current) return;
+      const rect0 = vp.getBoundingClientRect();
+      if (event.pointerType === 'touch') {
+        // A primary pointer is the first finger of a new gesture, so anything
+        // still in the map is a pointer whose release was never delivered —
+        // a finger lifted over browser chrome, say. Start clean.
+        if (event.isPrimary) { live.clear(); pinchRef.current = null; pinchedRef.current = false; }
+        live.set(event.pointerId, { x: event.clientX - rect0.left, y: event.clientY - rect0.top });
+        if (live.size === 2) {
+          // A second finger turns whatever was happening into a camera
+          // gesture: never a card drag, never a click.
+          pinchedRef.current = true;
+          didDrag.current = true;
+          const start = spread();
+          pinchRef.current = { ...start, view: { ...view.current } };
+          return;
+        }
+        if (live.size > 2) return;
+
+        const tap = tapRef.current;
+        const now = performance.now();
+        if (now - tap.at < 320 && Math.hypot(event.clientX - tap.x, event.clientY - tap.y) < 34) {
+          tapRef.current = { at: 0, x: 0, y: 0 };
+          const card = (event.target as HTMLElement).closest<HTMLElement>('[data-card]');
+          if (card) centerNode(card); else fitAll();
+          return;
+        }
+        tapRef.current = { at: now, x: event.clientX, y: event.clientY };
+      }
+      if (event.button !== 0) return;
       const target = event.target as HTMLElement;
       if (isInteractive(target) || target.isContentEditable) return;
       didDrag.current = false;
@@ -868,6 +984,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         const oy = parseFloat(card.style.top || '0');
         card.style.transition = 'none';
         const move = (ev: PointerEvent) => {
+          // A second finger takes over as a pinch; the card stops following.
+          if (pinchRef.current) return;
           const dx = (ev.clientX - startX) / view.current.s;
           const dy = (ev.clientY - startY) / view.current.s;
           if (!didDrag.current && Math.hypot(ev.clientX - startX, ev.clientY - startY) > 4) {
@@ -886,7 +1004,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           card.classList.remove('is-dragging');
           card.style.filter = 'none';
           card.style.transform = `rotate(${rot}deg)`;
-          if (didDrag.current) {
+          // A gesture that turned into a pinch moved the camera, not the card.
+          if (didDrag.current && !pinchedRef.current) {
             const id = card.dataset.card as string;
             const geom: LayoutOverride = { x: parseFloat(card.style.left || '0'), y: parseFloat(card.style.top || '0'), rot };
             const w = parseFloat(card.style.width || '0');
@@ -904,6 +1023,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const v0 = { x: view.current.x, y: view.current.y };
       vp.classList.add('is-panning');
       const move = (ev: PointerEvent) => {
+        if (pinchRef.current) return; // the pinch handler owns the camera now
         if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > 4) didDrag.current = true;
         view.current = { ...view.current, x: v0.x + (ev.clientX - startX), y: v0.y + (ev.clientY - startY) };
         paint(false);
@@ -938,11 +1058,19 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     vp.addEventListener('pointerdown', onPointerDown);
     vp.addEventListener('click', onClick);
     vp.addEventListener('dblclick', onDblClick);
+    window.addEventListener('pointermove', onPointerMoveGlobal);
+    window.addEventListener('pointerup', endPointer);
+    window.addEventListener('pointercancel', endPointer);
     return () => {
       vp.removeEventListener('wheel', onWheel);
       vp.removeEventListener('pointerdown', onPointerDown);
       vp.removeEventListener('click', onClick);
       vp.removeEventListener('dblclick', onDblClick);
+      window.removeEventListener('pointermove', onPointerMoveGlobal);
+      window.removeEventListener('pointerup', endPointer);
+      window.removeEventListener('pointercancel', endPointer);
+      live.clear();
+      pinchRef.current = null;
     };
   }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, layout]);
 

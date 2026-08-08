@@ -10,6 +10,13 @@ Actualizado: 2026-08-08. Rama: `claude/design-handoff-board-tour-ak4tp2`.
 - El fondo se edita desde el panel *theme*: siete paredes (más una personalizada de dos colores), grano, viñeta, margen, marco, sombra, tornillos y el patrón de la pizarra (`plate`, `viewport` o ninguno) con su escala.
 - Correcciones que el recorrido dejó a la vista: topes de filas por cajón con `+ N more` (`work` 4, `edu` 4, `lab` 6, `vol` 4, `hack` 4, `repos` 5, `travel` 8, `random` 5) y tres posiciones (`travel`, `contact`, `note-1`) que eliminaban la colisión de tarjetas.
 - Accesibilidad: con `prefers-reduced-motion: reduce` no hay recorrido y el tablero aparece completo; la barra son botones reales navegables con Tab; `Escape` siempre sale; ninguna pieza depende del recorrido para ser accesible.
+- **Móvil**. El tablero se dibuja sobre un lienzo de 2540px, así que un teléfono siempre mira un detalle. Lo que se hizo:
+  - gestos táctiles que antes no existían: pellizco para zoom (anclado al punto entre los dedos), dos dedos para desplazar y doble toque para encuadrar una tarjeta o volver a la vista general. Un pellizco nunca abre un dossier ni mueve una tarjeta;
+  - el recorrido se adapta por debajo de 720px de ancho **o** 460px de alto (un móvil tumbado está igual de apretado): una pieza por parada y márgenes de teléfono, lo que multiplica por 2,5 la escala de cada parada (0,22 → 0,55 en un iPhone de 390px);
+  - la vista de reposo (al cargar y al terminar el recorrido) encuadra la primera tarjeta en vez de un tablero completo ilegible al 12%; el botón `fit` sigue dando la vista general;
+  - `centerNode` ya encuadra por ancho además de por alto — una tarjeta de 620px se salía de la pantalla;
+  - la barra de herramientas pasa de cuatro filas (133px, 16% de la pantalla) a una sola fila deslizable de 48px con degradado de borde; la barra de propietario ya no se sale de la pantalla; la barra del recorrido reparte título y controles en dos filas con objetivos táctiles de 40px;
+  - todo lo del móvil es editable en el panel *tour* (grupo `phones`): activarlo, los dos umbrales, piezas por parada, techo de zoom y los cuatro márgenes.
 - **Requiere reseed**: `board.tour` es una clave nueva de `site_settings` y `theme` gana `backdrop`. Ejecutar `seed-content.yml` en development y después en production con `production_confirmation=APPLY_PRODUCTION`.
 
 ## Rediseño "working board" (2026-08)

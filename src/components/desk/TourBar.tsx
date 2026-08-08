@@ -31,9 +31,13 @@ export function TourBar({
   return (
     <div className={`tourbar tourbar--${tour.bar.position}`}>
       <div className="tourbar__inner">
-        <div className="tourbar__row">
+        {/* Two rows on a phone: the heading needs the full width, and the
+            controls need tap targets rather than what is left over. */}
+        <div className="tourbar__head">
           {tour.bar.counter ? <span className="tourbar__step">stop {shown} / {total}</span> : null}
           {tour.bar.label ? <span className="tourbar__label">{label}</span> : null}
+        </div>
+        <div className="tourbar__row">
           {tour.advance === 'auto' ? (
             <button
               className="tbtn tbtn--icon"
