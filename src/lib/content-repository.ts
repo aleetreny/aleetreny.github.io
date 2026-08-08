@@ -180,7 +180,7 @@ export async function signUpOwner(name: string, email: string, password: string)
   const result = await neonClient.auth.signUp.email({ name, email, password });
   if (result.error) throw new Error(result.error.message);
   const userId = result.data?.user.id;
-  if (!userId) throw new Error('Neon creó la cuenta, pero no devolvió su identificador.');
+  if (!userId) throw new Error('Neon created the account but returned no identifier.');
   return userId;
 }
 
@@ -228,7 +228,7 @@ async function getAuthorizedOwnerClient() {
   const neonClient = await getNeonClient();
   if (!neonClient) throw new Error('Neon is not configured in this environment.');
   if (!(await isCurrentUserOwner())) {
-    throw new Error('La sesión editorial ha caducado. Vuelve a iniciar sesión.');
+    throw new Error('The editing session has expired. Sign in again.');
   }
   return neonClient;
 }
@@ -245,7 +245,7 @@ export async function saveContentEntry(entry: PortfolioEntry, reason = 'editor s
     p_reason: reason,
   });
   if (error) {
-    const prefix = error.code === '40001' ? 'Conflicto de edición: recarga antes de guardar. ' : '';
+    const prefix = error.code === '40001' ? 'Edit conflict: reload before saving. ' : '';
     throw new Error(`${prefix}${error.message}`);
   }
   return portfolioEntrySchema.parse(data);
@@ -314,14 +314,14 @@ async function getOwnerToken(): Promise<string> {
   const neonClient = await getAuthorizedOwnerClient();
   const result = await neonClient.auth.getSession();
   if (result.error || !result.data?.session.token) {
-    throw new Error('La sesión ha caducado. Vuelve a iniciar sesión.');
+    throw new Error('The session has expired. Sign in again.');
   }
   return result.data.session.token;
 }
 
 export async function uploadImage(file: File, altText: string): Promise<StoredAsset> {
   if (!runtimeConfig.storageFunctionUrl) {
-    throw new Error('VITE_STORAGE_FUNCTION_URL no está configurada.');
+    throw new Error('VITE_STORAGE_FUNCTION_URL is not configured.');
   }
 
   const token = await getOwnerToken();
@@ -344,7 +344,7 @@ export async function uploadImage(file: File, altText: string): Promise<StoredAs
     headers: { 'Content-Type': file.type },
     body: file,
   });
-  if (!uploadResponse.ok) throw new Error('El almacenamiento rechazó la subida.');
+  if (!uploadResponse.ok) throw new Error('Storage rejected the upload.');
 
   const neonClient = await getNeonClient();
   if (!neonClient) throw new Error('Neon is not configured in this environment.');

@@ -37,7 +37,7 @@ function NumberRow({ id, label, value, min, max, step = 1, suffix, onChange }: {
     <div className="field-row">
       <label htmlFor={id}>{label}</label>
       <span className="field-pair">
-        <input type="range" min={min} max={max} step={step} value={value} aria-label={`${label} deslizador`} onChange={(event) => onChange(Number(event.target.value))} />
+        <input type="range" min={min} max={max} step={step} value={value} aria-label={`${label} slider`} onChange={(event) => onChange(Number(event.target.value))} />
         <input
           id={id}
           className="field-num"
@@ -69,7 +69,7 @@ export function ThemePanel({ theme, onChange, onClose }: ThemePanelProps) {
   return (
     <div className="overlay" role="presentation">
       <div className="overlay__scrim" onClick={onClose} />
-      <div className="panel panel--theme" role="dialog" aria-modal="true" aria-label="Editar apariencia">
+      <div className="panel panel--theme" role="dialog" aria-modal="true" aria-label="Edit the appearance">
         <div className="panel__eyebrow">appearance</div>
         <div className="panel__title">Theme &amp; typography</div>
         <p className="panel__hint">Every change previews instantly. Press save to publish it for everyone.</p>

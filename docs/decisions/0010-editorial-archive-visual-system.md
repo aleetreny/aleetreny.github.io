@@ -1,41 +1,61 @@
-# ADR 0010: archivo editorial adulto y sistema visual compartido
+# ADR 0010: The working-board visual system
 
-- Estado: aceptado
-- Fecha: 2026-08-05
+- Status: accepted
+- Date: 2026-08-05, extended 2026-08-08
 
-## Contexto
+## Context
 
-El tablero de corcho era una metáfora adecuada, pero las notas pastel, el redondeo y la baja densidad transmitían una estética infantil y ocultaban la amplitud real del trabajo. Además, el modo propietario parecía una aplicación distinta.
+The pinboard was a good metaphor, but pastel notes, rounding and low density read
+as a childish aesthetic and hid the real breadth of the work. Owner mode also
+looked like a different application.
 
-## Opciones consideradas
+## Options considered
 
-1. Abandonar el corcho y usar un portfolio editorial convencional.
-2. Mantener los post-its y limitar el cambio a colores y tipografía.
-3. Reinterpretar el corcho como archivo de investigación y aplicar el mismo sistema al frontend y al editor.
+1. Abandon the board and use a conventional editorial portfolio.
+2. Keep the sticky notes and limit the change to colour and typography.
+3. Reinterpret the board as a working surface and apply the same system to the
+   frontend and the editor.
 
-## Decisión
+## Decision
 
-Se adopta la tercera opción. El lienzo infinito se conserva, pero su vocabulario pasa a dossiers, fichas, cuadrícula, coordenadas, sellos y recortes. La paleta es corcho ahumado, negro, hueso, óxido y amarillo señal. Los radios grandes y sombras suaves dejan de ser recursos base. El editor usa los mismos tokens, materiales y jerarquías.
+The third option. The infinite canvas stays, but its vocabulary becomes dossiers,
+drawers, a grid, stamps and cuts. The palette is ink, bone, rust and signal
+amber. Large radii and soft shadows stop being base resources. The editor uses
+the same tokens, materials and hierarchies.
 
-El contenido se organiza en nueve archivos temáticos más contacto. `metadata.section` mantiene la relación entre entrada y archivo sin crear una nueva tabla ni cerrar el modelo de contenido.
+Content is organised into owner-editable **lists**: `metadata.group` relates an
+entry to a list without a new table and without closing the content model.
 
-## Razones
+### 2026-08-08 extension
 
-- mantiene la interacción distintiva que ya funcionaba;
-- expresa mejor investigación, método y amplitud profesional;
-- hace navegable un catálogo mayor mediante índice fijo;
-- evita una segunda identidad visual para administración;
-- sigue siendo una SPA estática compatible con GitHub Pages;
-- toda la textura se reproduce con CSS versionado.
+The board became a **finite slate on a wall** rather than an edge-to-edge
+texture, which gave the guided tour something to arrive at. Both the slate and
+the wall are theme settings, and turning the slate off restores the previous
+look exactly — the change is additive, not a replacement.
 
-## Consecuencias
+## Reasons
 
-- la composición usa posiciones explícitas y debe revisarse al añadir secciones;
-- los títulos bilingües forman parte deliberada de la voz visual;
-- el alto contraste requiere comprobar tamaños pequeños al alejar;
-- una entrada sin `metadata.section` usa un fallback por tipo;
-- el editor debe evolucionar junto con los metadatos públicos.
+- it keeps the distinctive interaction that already worked;
+- it expresses research, method and professional breadth better;
+- a fixed jump index makes a larger catalogue navigable;
+- it avoids a second visual identity for administration;
+- it remains a static SPA compatible with GitHub Pages;
+- every texture is reproduced with versioned CSS and no assets.
 
-## Cómo cambiarlo
+## Consequences
 
-Crear un ADR que sustituya este documento, migrar o mapear `metadata.section`, actualizar `sectionBlueprints`, `docs/design-direction.md`, fixtures y tests. Si se abandona el lienzo, conservar pan/zoom solo cuando siga aportando y mantener rutas/URLs de contenido compatibles.
+- the composition uses explicit positions and must be reviewed when cards are
+  added;
+- high contrast means checking small sizes when zoomed out;
+- an entry with no `metadata.group` falls back to a default list;
+- the editor must evolve alongside the public metadata;
+- because the slate is finite, the wall behind it is now part of the design and
+  carries its own settings.
+
+## How to change it
+
+Create an ADR that supersedes this one, migrate or map `metadata.group`, and
+update [`docs/design-direction.md`](../design-direction.md),
+[`docs/handbook.md`](../handbook.md), the fixtures and the tests. If the canvas
+is abandoned, keep pan/zoom only where it still earns its place and keep content
+routes and URLs compatible.

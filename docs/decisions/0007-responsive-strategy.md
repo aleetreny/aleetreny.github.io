@@ -1,27 +1,34 @@
-# ADR 0007: Responsive mobile-first
+# ADR 0007: Mobile-first responsive
 
-- Estado: aceptada
-- Fecha: 2026-08-04
+- Status: accepted
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-Portfolio público y editor deben funcionar desde móvil hasta escritorio, con preferencias de accesibilidad.
+The public portfolio and the editor must work from a phone to a desktop, and
+respect accessibility preferences.
 
-## Opciones consideradas
+## Options considered
 
-- breakpoints desktop-first;
-- framework utility CSS;
+- desktop-first breakpoints;
+- a utility CSS framework;
 - CSS-in-JS;
-- CSS nativo mobile-first con fluid type/grid y media/container queries cuando aporten valor.
+- native mobile-first CSS with fluid type and grid, plus media and container
+  queries where they earn their place.
 
-## Decisión y razones
+## Decision and reasons
 
-CSS nativo, tokens en `:root`, `clamp`, grid flexible, breakpoint mínimo y `prefers-reduced-motion`. Reduce dependencia y produce build portable.
+Native CSS, tokens on `:root`, `clamp`, a flexible grid, few breakpoints and
+`prefers-reduced-motion`. Fewer dependencies and a portable build.
 
-## Consecuencias
+## Consequences
 
-Se requiere disciplina de componentes/clases y pruebas visuales. El editor podrá añadir container queries sin cambiar stack.
+It needs discipline with components and class names, and visual testing. Because
+the board is a transformed canvas, the phone strategy is not only CSS: framing,
+gesture handling and chrome density are decided in
+[`docs/handbook.md`](../handbook.md) and are editable at runtime.
 
-## Cómo cambiar
+## How to change it
 
-Introducir design system o utilities tras inventariar tokens; migrar progresivamente y verificar regresión visual.
+Introduce a design system or utilities after inventorying the tokens; migrate
+progressively and check for visual regressions.

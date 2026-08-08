@@ -1,7 +1,12 @@
-# Atribuciones
+# Attributions
 
-- Tipografías **DM Sans** y **Manrope**, servidas por Google Fonts y sujetas a sus licencias SIL Open Font License.
-- React, Vite, Neon SDK, Hono, Zod, Jose, AWS SDK y demás dependencias mantienen sus licencias originales; el lockfile identifica las versiones exactas.
-- El portfolio terminal anterior se conserva como obra propia en `legacy/terminal-portfolio/`.
+- The **Bricolage Grotesque** and **IBM Plex Mono** typefaces, served by Google
+  Fonts and subject to their SIL Open Font License terms.
+- React, Vite, the Neon SDK, Hono, Zod, Jose, the AWS SDK and every other
+  dependency keep their original licences; the lockfile identifies the exact
+  versions.
+- The previous terminal portfolio is preserved as original work in
+  `legacy/terminal-portfolio/`.
 
-Los assets añadidos en el futuro deben incluir licencia, autor y fuente en este archivo o en sus metadatos de `assets.metadata`.
+Assets added in future must record their licence, author and source here or in
+their `assets.metadata`.

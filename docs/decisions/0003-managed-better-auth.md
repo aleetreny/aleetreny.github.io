@@ -1,27 +1,31 @@
 # ADR 0003: Managed Better Auth + allowlist
 
-- Estado: aceptada
-- Fecha: 2026-08-04
+- Status: accepted
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-El portfolio tiene un único propietario, pero el proveedor permite signup general por defecto. Autenticación por sí sola no concede administración.
+The portfolio has a single owner, but the provider allows general signup by
+default. Authentication alone must not grant administration.
 
-## Opciones consideradas
+## Options considered
 
-- contraseña embebida/client-only (insegura);
-- OAuth externo;
-- Better Auth autoalojado;
-- Managed Better Auth con allowlist Postgres.
+- an embedded/client-only password (insecure);
+- external OAuth;
+- self-hosted Better Auth;
+- Managed Better Auth with a Postgres allowlist.
 
-## Decisión y razones
+## Decision and reasons
 
-Managed Better Auth emite sesión/JWT y `app_private.owner_accounts` decide autorización. RLS consulta `auth.user_id()`.
+Managed Better Auth issues the session/JWT and `app_private.owner_accounts`
+decides authorisation. RLS consults `auth.user_id()`.
 
-## Consecuencias
+## Consequences
 
-Hay que provisionar Auth antes de migrar y verificar cookies cross-origin. Cuentas no allowlisted solo leen público.
+Auth must be provisioned before migrating, and cross-origin cookies need
+verifying. Non-allowlisted accounts read public content and nothing more.
 
-## Cómo cambiar
+## How to change it
 
-Configurar un IdP externo en Data API y adaptar verificación JWKS/claim `sub`; mantener la allowlist como frontera estable.
+Configure an external IdP in the Data API and adapt the JWKS/`sub` verification;
+keep the allowlist as the stable boundary.

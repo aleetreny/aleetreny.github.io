@@ -1,37 +1,43 @@
-# Modelo de datos
+# Data model
 
-## Tablas
+## Tables
 
 ### `app_private.owner_accounts`
 
-Allowlist no expuesta por Data API. `auth_user_id` referencia lógicamente `neon_auth.user.id`; no hay FK entre esquemas administrados para evitar acoplar migraciones a internals de Auth. `enabled` permite revocar sin borrar historial.
+The allowlist, not exposed by the Data API. `auth_user_id` logically references
+`neon_auth.user.id`; there is no FK across managed schemas, so migrations stay
+decoupled from Auth internals. `enabled` allows revoking without deleting
+history.
 
 ### `content_entries`
 
-Unidad editorial principal. Incluye `slug`, título, resumen, tipo, estado, asset de portada, metadatos JSONB, versión y fechas. Estados válidos:
+The main editorial unit: `slug`, title, summary, type, status, cover asset, JSONB
+metadata, version and dates. Valid statuses:
 
-- `draft`: solo propietario;
-- `published`: visible públicamente y exige `published_at`;
-- `archived`: solo propietario hasta que se restaure o elimine lógicamente.
+- `draft`: owner only;
+- `published`: publicly visible, and requires `published_at`;
+- `archived`: owner only until restored or soft-deleted.
 
-Tipos iniciales: `project`, `case-study`, `experience`, `education`, `note`, `custom`. Son `text` con `CHECK`, más fácil de migrar que un enum Postgres.
+Types: `project`, `case-study`, `experience`, `education`, `note`, `custom`.
+They are `text` with a `CHECK`, which is easier to migrate than a Postgres enum.
 
-El renderer de archivo usa estas claves JSONB documentadas, todas opcionales y editables desde el modo propietario:
+The board renderer uses these documented JSONB keys, all optional and all
+editable from owner mode:
 
-- `section`: `research`, `ai`, `civic`, `products`, `experiments`, `career`, `education`, `community` o `profile`;
-- `organization` y `period`: procedencia y marco temporal;
-- `signal`: dato breve mostrado como sello visual;
-- `topics`: lista de etiquetas;
-- `projectUrl` y `repositoryUrl`: enlaces públicos externos;
-- `featured`: reserva editorial para futuras vistas destacadas.
+- `group`: which list the entry belongs to, matching an id in `board.groups`;
+- `order`: its position within that list;
+- `kicker`: the small line above the dossier title;
+- `when` and `where`: the period and place, shown in drawer rows and breadcrumbs;
+- `code`: the short code an `atlas` drawer shows in its first column;
+- `tags`: a list of keywords.
 
-Una entrada antigua sin `section` recibe un destino compatible por tipo; el seed actual asigna sección explícita a las 24 entradas públicas.
+An entry with no `group` falls back to a default list, so nothing disappears.
 
 ### `content_blocks`
 
-Bloques ordenados por `position` dentro de una entrada. `block_type` discrimina el renderizador; `props` contiene contenido específico y `layout` decisiones visuales. Ambos deben ser objetos JSONB. El índice parcial impide dos bloques activos en la misma posición.
-
-Ejemplos:
+Blocks ordered by `position` within an entry. `block_type` selects the renderer;
+`props` holds the content and `layout` the visual decisions. Both must be JSONB
+objects. A partial index prevents two active blocks sharing a position.
 
 ```json
 {
@@ -44,57 +50,78 @@ Ejemplos:
 ```json
 {
   "block_type": "image",
-  "props": { "assetId": "...", "caption": "..." },
-  "layout": { "aspect": "16:9", "bleed": false }
+  "props": { "url": "...", "alt": "...", "caption": "..." },
+  "layout": {}
 }
 ```
 
 ### `assets`
 
-Metadatos de cada objeto: proveedor, bucket, key, URL pública, MIME, bytes, dimensiones, texto alternativo, JSONB e indicador público. Los bytes no viven en Postgres.
+Metadata for each object: provider, bucket, key, public URL, MIME, bytes,
+dimensions, alt text, JSONB and a public flag. The bytes do not live in Postgres.
 
 ### `entry_versions`
 
-Snapshots JSONB inmutables por `(entry_id, version)`, con motivo y autor. `save_content_entry`, `soft_delete_content_entry`, `restore_content_entry_version` y `restore_deleted_content_entry` conservan una versión completa antes de abandonar cada estado. La restauración desde papelera recupera entrada y bloques de la última instantánea de borrado y avanza la versión optimista.
+Immutable JSONB snapshots keyed by `(entry_id, version)`, with a reason and an
+author. `save_content_entry`, `soft_delete_content_entry`,
+`restore_content_entry_version` and `restore_deleted_content_entry` each keep a
+complete version before leaving a state. Restoring from the trash recovers the
+entry and its blocks from the last deletion snapshot and advances the optimistic
+version.
 
 ### `site_settings`
 
-Configuración clave/JSONB. Solo filas con `is_public` son legibles por visitantes; el resto queda para propietario.
+Key/JSONB configuration. Only rows with `is_public` are readable by visitors; the
+rest are owner-only. The four documents this project uses are `theme`, `board`,
+`board.layout` and `board.tour` — every field is catalogued in
+[`handbook.md`](handbook.md).
 
-## Relaciones
+## Relationships
 
-- una entrada tiene cero o muchos bloques;
-- una entrada puede referenciar un asset de portada;
-- una entrada tiene cero o muchas versiones;
-- assets y entradas guardan `owner_id` para trazabilidad, aunque la política actual es de propietario único.
+- an entry has zero or many blocks;
+- an entry may reference a cover asset;
+- an entry has zero or many versions;
+- assets and entries store `owner_id` for traceability, even though the current
+  policy is single-owner.
 
-## Borrado lógico
+## Soft deletion
 
-`content_entries`, `content_blocks` y `assets` usan `deleted_at`. Las políticas públicas excluyen filas borradas. El borrado físico solo debe ejecutarse durante mantenimiento/retención y después de comprobar referencias y backups.
+`content_entries`, `content_blocks` and `assets` use `deleted_at`. Public
+policies exclude deleted rows. Physical deletion should only run during
+maintenance/retention, after checking references and backups.
 
-## Índices
+## Indexes
 
-- feed público por `published_at desc`;
-- inventario propietario por `(owner_id, status, updated_at)`;
-- bloques activos por `(entry_id, position)`;
-- posición única parcial de bloque;
-- assets públicos y por propietario;
-- versiones por entrada/version descendente.
+- public feed by `published_at desc`;
+- owner inventory by `(owner_id, status, updated_at)`;
+- active blocks by `(entry_id, position)`;
+- a partial unique block position;
+- public and per-owner assets;
+- versions by entry/version descending.
 
-## Versionado
+## Versioning
 
-`version` empieza en 1; el editor usa 0 únicamente para una entrada nueva aún no persistida. La operación de guardado:
+`version` starts at 1; the editor uses 0 only for a new entry that has not been
+persisted. The save operation:
 
-1. leer versión actual;
-2. insertar snapshot anterior en `entry_versions`;
-3. bloquea la fila y compara la versión esperada;
-4. incrementar versión;
-5. devuelve un documento canónico; los conflictos se muestran en UI y nunca sobrescriben silenciosamente.
+1. reads the current version;
+2. inserts the previous snapshot into `entry_versions`;
+3. locks the row and compares the expected version;
+4. increments the version;
+5. returns a canonical document. Conflicts surface in the UI and never silently
+   overwrite.
 
 ## RLS
 
-Las políticas están en `0002_data_api_permissions.sql`. Son permisivas por operación: lectura pública limitada y política `owner_all` para autenticados allowlisted. El esquema `app_private` no concede uso a roles API.
+The policies live in `0002_data_api_permissions.sql`. They are permissive per
+operation: limited public reads, and an `owner_all` policy for allowlisted
+authenticated users. The `app_private` schema grants no usage to API roles.
 
-## Tipos TypeScript
+## TypeScript types
 
-`src/types/database.ts` refleja el contrato que consume la app. El 2026-08-04 se cotejaron sus cinco tablas y seis funciones contra `information_schema` de producción. La Neon CLI actual no genera tipos de Data API, por lo que el contrato se mantiene manualmente: después de cada migración hay que volver a cotejarlo y revisar el diff; nunca aceptar cambios que relajen `status`, RLS o nulabilidad sin ADR/migración.
+`src/types/database.ts` mirrors the contract the app consumes. On 2026-08-04 its
+five tables and six functions were reconciled against production's
+`information_schema`. The current Neon CLI does not generate Data API types, so
+the contract is maintained by hand: after every migration, reconcile it again and
+review the diff. Never accept a change that relaxes `status`, RLS or nullability
+without an ADR or a migration.

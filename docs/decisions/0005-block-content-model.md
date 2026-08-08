@@ -1,27 +1,31 @@
-# ADR 0005: Modelo flexible de bloques
+# ADR 0005: A flexible block model
 
-- Estado: aceptada
-- Fecha: 2026-08-04
+- Status: accepted
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-Proyectos, experiencia y casos requieren composiciones distintas sin migrar columnas por cada variante.
+Projects, experience and case studies need different compositions without
+migrating columns for every variant.
 
-## Opciones consideradas
+## Options considered
 
-- HTML completo por entrada;
-- una tabla por tipo de contenido;
-- documento JSONB único;
-- entrada relacional + bloques ordenados con JSONB tipado.
+- full HTML per entry;
+- one table per content type;
+- a single JSONB document;
+- a relational entry plus ordered blocks with typed JSONB.
 
-## Decisión y razones
+## Decision and reasons
 
-Separar `content_entries` y `content_blocks`; identidad/orden/estado relacionales, propiedades/layout extensibles en JSONB.
+Separate `content_entries` and `content_blocks`: identity, order and state stay
+relational, while properties and layout stay extensible in JSONB.
 
-## Consecuencias
+## Consequences
 
-El frontend necesita registry/validación por tipo. JSONB no debe convertirse en almacén sin esquema; versiones capturan snapshots.
+The frontend needs a registry and per-type validation. JSONB must not become a
+schemaless store; versions capture snapshots.
 
-## Cómo cambiar
+## How to change it
 
-Añadir columnas para campos consultados frecuentemente o migrar tipos concretos con scripts que transformen `props`; mantener fallback de lectura durante transición.
+Add columns for frequently queried fields, or migrate specific types with scripts
+that transform `props`; keep a read fallback during the transition.

@@ -1,100 +1,152 @@
-# Estado del proyecto
+# Project status
 
-Actualizado: 2026-08-08. Rama: `claude/design-handoff-board-tour-ak4tp2`.
+Updated: 2026-08-08. Branch: `main`.
 
-## Recorrido guiado y fondo editable (2026-08)
+## The board as a template (2026-08)
 
-- La pizarra deja de ser el viewport y pasa a ser un **objeto finito colgado de una pared**: `.desk__plate` con marco, cuatro tornillos, grano de yeso y viñeta. Con `theme.backdrop.plate = false` vuelve exactamente al tablero anterior (la textura llena el viewport), así que nada se pierde.
-- **Recorrido guiado** en `src/components/DeskBoard.tsx` (fases `pre` → `tour` → `live`): la pizarra se estampa contra la pared y el visitante avanza parada a parada mientras cada pieza se clava encima. La lógica pura vive en `src/lib/tour.ts` (rutas, cámaras, revelados, curvas) y la barra en `src/components/desk/TourBar.tsx`.
-- Todo es editable en caliente desde el panel *tour* (`src/components/desk/TourPanel.tsx`), guardado en `site_settings['board.tour']`: nueve formas de recorrido, tres maneras de avanzar (manual, automático con dwell, rueda), ocho movimientos de cámara con nueve curvas, nueve aterrizajes de pieza con orden y escalonado, cinco llegadas de la pizarra, y la barra completa con sus textos. El editor de paradas permite crear, renombrar, reordenar, borrar y componer pieza a pieza.
-- El fondo se edita desde el panel *theme*: siete paredes (más una personalizada de dos colores), grano, viñeta, margen, marco, sombra, tornillos y el patrón de la pizarra (`plate`, `viewport` o ninguno) con su escala.
-- Correcciones que el recorrido dejó a la vista: topes de filas por cajón con `+ N more` (`work` 4, `edu` 4, `lab` 6, `vol` 4, `hack` 4, `repos` 5, `travel` 8, `random` 5) y tres posiciones (`travel`, `contact`, `note-1`) que eliminaban la colisión de tarjetas.
-- Accesibilidad: con `prefers-reduced-motion: reduce` no hay recorrido y el tablero aparece completo; la barra son botones reales navegables con Tab; `Escape` siempre sale; ninguna pieza depende del recorrido para ser accesible.
-- **Móvil**. El tablero se dibuja sobre un lienzo de 2540px, así que un teléfono siempre mira un detalle. Lo que se hizo:
-  - gestos táctiles que antes no existían: pellizco para zoom (anclado al punto entre los dedos), dos dedos para desplazar y doble toque para encuadrar una tarjeta o volver a la vista general. Un pellizco nunca abre un dossier ni mueve una tarjeta;
-  - el recorrido se adapta por debajo de 720px de ancho **o** 460px de alto (un móvil tumbado está igual de apretado): una pieza por parada y márgenes de teléfono, lo que multiplica por 2,5 la escala de cada parada (0,22 → 0,55 en un iPhone de 390px);
-  - la vista de reposo (al cargar y al terminar el recorrido) encuadra la primera tarjeta en vez de un tablero completo ilegible al 12%; el botón `fit` sigue dando la vista general;
-  - `centerNode` ya encuadra por ancho además de por alto — una tarjeta de 620px se salía de la pantalla;
-  - la barra de herramientas pasa de cuatro filas (133px, 16% de la pantalla) a una sola fila deslizable de 48px con degradado de borde; la barra de propietario ya no se sale de la pantalla; la barra del recorrido reparte título y controles en dos filas con objetivos táctiles de 40px;
-  - todo lo del móvil es editable en el panel *tour* (grupo `phones`): activarlo, los dos umbrales, piezas por parada, techo de zoom y los cuatro márgenes.
-- **Requiere reseed**: `board.tour` es una clave nueva de `site_settings` y `theme` gana `backdrop`. Ejecutar `seed-content.yml` en development y después en production con `production_confirmation=APPLY_PRODUCTION`.
+The repository is now usable as a template: fork it, replace
+`content/source/*.mjs`, and it is your portfolio. The published site is the
+worked example. [`docs/handbook.md`](docs/handbook.md) documents every feature
+and every editable setting.
 
-## Rediseño "working board" (2026-08)
+## Guided tour and editable backdrop (2026-08)
 
-- Se reemplazó la estética de archivo de corcho por el **working board** de la pizarra: `src/components/DeskBoard.tsx` + `src/components/desk/*` + `src/styles/global.css` (Bricolage Grotesque + IBM Plex Mono, acentos oklch óxido/ámbar/azul, cuatro texturas de fondo).
-- Contenido real (los dossiers de trabajo, estudios, laboratorio, voluntariado, hackathones, código, viajes, obsesiones y contacto) versionado en `content/source/` y compilado a `fixtures/demo-content.json` + `fixtures/site-settings.json` con `pnpm content:build`.
-- Edición total desde la web sin tocar código: texto en línea, posición (drag/tidy/scatter/reset), colores y tipografías (panel *theme*), fotos (Neon Object Storage) y alta/baja de dossiers. Persistencia en `content_entries`/`content_blocks` (RPC) y `site_settings` (tema y layout, ya con RLS de propietario existente).
-- Nuevo workflow `seed-content.yml` para cargar el catálogo y los ajustes en Neon desde GitHub Actions.
+- The board stopped being the viewport and became a **finite slate hanging on a
+  wall**: `.desk__plate` with a frame, four corner studs, plaster grain and a
+  vignette. With `theme.backdrop.plate = false` it returns exactly to the
+  previous edge-to-edge board, so nothing was lost.
+- A **guided tour** in `src/components/DeskBoard.tsx` (phases `pre` → `tour` →
+  `live`): the slate slams onto the wall and the visitor walks it stop by stop
+  while each piece is stuck on. The pure logic lives in `src/lib/tour.ts`
+  (routes, cameras, reveals, easing curves) and the bar in
+  `src/components/desk/TourBar.tsx`.
+- Everything is editable live from the tour panel
+  (`src/components/desk/TourPanel.tsx`), stored in `site_settings['board.tour']`:
+  nine route shapes, three ways to advance, eight camera motions over nine
+  curves, nine landing animations with order and stagger, five slate arrivals,
+  and the whole bar with its labels. The stop editor creates, renames, reorders,
+  deletes and composes stops piece by piece.
+- The backdrop is edited from the theme panel: seven walls plus a two-colour
+  custom one, grain, vignette, margin, frame, shadow, studs, and the slate's
+  pattern (`plate`, `viewport` or none) with its scale.
+- Fixes the tour exposed: drawer row caps with `+ N more` (`work` 4, `edu` 4,
+  `lab` 6, `vol` 4, `hack` 4, `repos` 5, `travel` 8, `random` 5) and three
+  positions (`travel`, `contact`, `note-1`) that removed a card collision.
+- Accessibility: `prefers-reduced-motion: reduce` means no tour and a complete
+  board; the bar is real Tab-reachable buttons; `Escape` always exits; nothing
+  depends on the tour to be reachable.
 
-Lo que sigue documenta la arquitectura reproducible, que se mantiene.
+## Mobile (2026-08)
 
-## Terminado y verificado
+The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
 
-- archivo público sobre corcho a pantalla completa con pan, zoom, pellizco, teclado, controles visibles, índice de diez archivos y centrado por sección;
-- dirección visual adulta documentada: corcho ahumado, dossiers rectos, sombras duras, tipografía editorial, coordenadas y amarillo señal;
-- 24 entradas públicas verificables agrupadas en investigación, IA, inteligencia cívica, productos, experimentos, carrera, educación, comunidad y perfil;
-- dossiers expandidos con organización, periodo, señal, bloques, temas y enlaces públicos a proyecto/código;
-- modo propietario con la misma identidad visual, recuperación de sesión, inventario, alta, edición, estados, papelera e historial;
-- editor de metadatos de archivo: sección, señal, organización, periodo, temas, URL pública y repositorio;
-- bloques `text`, `heading`, `list`, `metric`, `quote` e `image`, drag and drop accesible y botones alternativos;
-- guardado transaccional, bloqueo optimista, snapshots, restauración y borrado lógico;
-- Neon Auth, Data API, Postgres, RLS, Object Storage y Function desplegados en `production` y `codex-integration`;
-- cuenta propietaria real creada y habilitada en `app_private.owner_accounts` sin compartir contraseña;
-- catálogo sincronizado en ambas ramas Neon: 24 entradas, 9 valores de sección y 16 bloques activos;
-- GitHub Environments `development` y `production` con `DATABASE_URL`, `NEON_API_KEY` y cuatro Variables públicas;
-- workflow de provisión corregido para ejecutar el CLI local con `pnpm exec neon`;
-- planes de Neon exitosos en GitHub Actions: development `#2` (`31030803954`) y production `#3` (`31031757861`);
-- GitHub Pages configurado con GitHub Actions y rollback conservado en `backup/static-terminal-2025`;
-- rediseño publicado en `https://aleetreny.github.io/` y servido con el catálogo vivo de Neon;
-- auditoría online de escritorio: diez fichas, diez dossiers, perfil, índice, zoom, teclado, Escape, retorno de foco, cierre por fondo, scroll interno y contacto;
-- auditoría online móvil a `390 × 844`: composición, navegación inferior, dossier, scroll y contacto sin errores de consola o de página;
-- 21 enlaces únicos inspeccionados; se corrigió la capitalización de `/Cabicity/` y todos los destinos HTTP públicos responden correctamente;
-- modo propietario online verificado con usuario desechable: alta, allowlist, login, inventario, papelera vacía, creación, seis tipos de bloque, edición, orden, borrado de bloque, guardado y snapshot de versión; usuario y datos QA eliminados al terminar;
-- la captura de gestos del lienzo ya no bloquea el cierre ni el scroll de los dossiers;
-- comprobación local del rediseño: scan de repositorio, lint, tipos, 15 tests y build;
-- `pnpm portability:verify` completado desde un clon limpio con 15 tests y build;
-- documentación de arquitectura, datos, autenticación, editor, storage, despliegue, seguridad, recuperación, handoff y ADRs.
+- Touch gestures that did not exist before: pinch to zoom (anchored between the
+  fingers), two fingers to pan, double-tap to frame a card or return to the
+  overview. A pinch never opens a dossier and never moves a card.
+- The tour adapts below 720px wide **or** 460px tall (a phone on its side is just
+  as cramped): one piece per stop with phone padding, which multiplies each
+  stop's scale by about 2.5× (0.22 → 0.55 on a 390px iPhone).
+- The resting view (on load and when the tour ends) frames the first card instead
+  of a whole board illegible at 12%; `fit` still gives the overview.
+- `centerNode` now fits by width as well as height — a 620px card ran off the
+  sides of a phone.
+- The toolbar drops from four rows (133px, 16% of the screen) to a single
+  scrolling row of 48px with a faded edge; the owner bar no longer sits
+  off-screen; the tour bar splits its heading and controls across two rows with
+  40px tap targets.
+- All of it is editable from the tour panel's `phones` group.
 
-## Parcialmente implementado
+## Contrast, controls and framing (2026-08)
 
-| Elemento | Estado | Archivos | Dependencia | Criterio de finalización |
+- Native controls on the dark panels declare `color-scheme: dark` and carry an
+  opaque ground, so a `<select>` popup is no longer white-on-white. Every
+  `<option>` is coloured explicitly for engines that style the popup from the
+  control.
+- Every control and every piece of chrome text was audited against WCAG AA in a
+  real browser. Findings fixed: the `×` delete marks on dark panels (2.9:1), the
+  tour bar hint (3.2:1), the photo-slot placeholder (3.2:1), the dossier position
+  counter (4:1) and its photo captions (4.3:1). A 16px delete target in the
+  dossier grew to 22px, and 26px on a coarse pointer.
+- The owner's per-card controls counter-scale with the zoom, so a gear that
+  rendered 6px tall at a fitted board is 24px again.
+- Tour stops are framed closer: a smaller inflation and a higher zoom ceiling
+  take stop one from 0.82× to 1.17× on a desktop, and from 0.55× to 0.57–0.87×
+  on a phone.
+- Every visible string, `aria-label` and error message is in English.
+
+## Done and verified
+
+- a full-screen public board with pan, zoom, pinch, keyboard, visible controls, a
+  jump index and per-section centring;
+- a documented adult visual direction: a slate on a wall, straight dossiers, hard
+  shadows, editorial typography and signal amber;
+- verifiable public entries grouped into nine owner-editable lists;
+- expanded dossiers with organisation, period, blocks, topics and public links;
+- owner mode with the same visual identity, session recovery, inventory,
+  creation, editing, states, trash and history;
+- ten block types, accessible reordering and alternative buttons;
+- transactional saving, optimistic locking, snapshots, restore and soft delete;
+- Neon Auth, Data API, Postgres, RLS, Object Storage and Function deployed on
+  `production` and `codex-integration`;
+- the real owner account created and enabled in `app_private.owner_accounts`
+  without sharing a password;
+- the catalogue synchronised on both Neon branches;
+- GitHub Environments `development` and `production` with `DATABASE_URL`,
+  `NEON_API_KEY` and four public Variables;
+- GitHub Pages configured with GitHub Actions and the rollback preserved in
+  `backup/static-terminal-2025`;
+- desktop and mobile audits driven in a real browser: the tour walked with
+  keyboard and touch, back/jump/skip/loop/auto/scroll, every touch gesture, and a
+  regression pass over dossiers, drag, `+ N more`, jumps, scatter/reset and
+  reduced motion, with no console errors;
+- local checks: repository scan, lint, types, 65 tests and build;
+- documentation for the handbook, architecture, data, authentication, editor,
+  storage, deployment, security, recovery and handoff.
+
+## Partially implemented
+
+| Item | State | Files | Dependency | Completion criterion |
 | --- | --- | --- | --- | --- |
-| Contenido público | 24 entradas sembradas en Neon | `fixtures/demo-content.json`, `scripts/db/seed.mjs` | revisión subjetiva posterior del propietario | textos y enlaces aprobados o ajustados desde el editor |
+| Public content | Seeded in Neon | `fixtures/demo-content.json`, `scripts/db/seed.mjs` | the owner's later subjective review | text and links approved or adjusted from the editor |
 
-## Pendiente
+## Pending
 
-No quedan tareas obligatorias de implementación, despliegue, portabilidad o QA para esta fase. La aprobación subjetiva de textos se mantiene como revisión editorial, no como bloqueo técnico.
+No mandatory implementation, deployment, portability or QA work remains for this
+phase. Subjective approval of the wording is an editorial review, not a technical
+blocker.
 
-## Bloqueado
+## Blocked
 
-No hay bloqueos externos ni técnicos activos.
+No active external or technical blockers.
 
-## Opcional
+## Optional
 
-- dominio personalizado;
-- OAuth Google/GitHub;
-- analytics respetuosa con privacidad;
-- previews por PR con ramas Neon TTL;
-- CSP/reporting y rate limiting avanzado;
-- reconciliación automática de objetos huérfanos.
+- a custom domain;
+- Google/GitHub OAuth;
+- privacy-respecting analytics;
+- per-PR previews with TTL Neon branches;
+- CSP/reporting and advanced rate limiting;
+- automatic reconciliation of orphaned objects.
 
-## Deuda técnica
+## Technical debt
 
-- `@neondatabase/neon-js`, Auth, Data API, Storage y Functions siguen en beta;
-- `src/types/database.ts` es manual y debe cotejarse tras migraciones;
-- no existe política automática de retención de `entry_versions`;
-- el plan Neon no permite proteger la rama productiva y se compensa con environment limitado a `main` más `APPLY_PRODUCTION`;
-- el plan GitHub del repositorio privado no ofrece revisores obligatorios de environment;
-- el layout del tablero usa posiciones explícitas: una undécima sección requiere diseño y prueba responsive.
+- `@neondatabase/neon-js`, Auth, Data API, Storage and Functions are still beta;
+- `src/types/database.ts` is manual and must be reconciled after migrations;
+- there is no automatic retention policy for `entry_versions`;
+- the Neon plan cannot protect the production branch, compensated by an
+  environment limited to `main` plus `APPLY_PRODUCTION`;
+- the repository's GitHub plan offers no required environment reviewers;
+- board layout uses explicit positions: a new card needs design and a responsive
+  check.
 
-## No romper
+## Do not break
 
-- GitHub Pages no puede recibir secretos;
-- autenticado no equivale a propietario;
-- RLS permanece forzada en todas las tablas expuestas;
-- `app_private` nunca se expone al Data API;
-- las URLs de subida caducan y solo la Function conoce credenciales S3;
-- migraciones aplicadas son inmutables;
-- `backup/static-terminal-2025` conserva la vuelta atrás;
-- Notion permanece solo lectura y fuera del runtime/repositorio;
-- los repositorios privados no se describen en el portfolio público.
+- GitHub Pages must never receive secrets;
+- authenticated is not the owner;
+- RLS stays forced on every exposed table;
+- `app_private` is never exposed to the Data API;
+- upload URLs expire and only the Function knows the S3 credentials;
+- applied migrations are immutable;
+- `backup/static-terminal-2025` preserves the way back;
+- Notion stays read-only and outside the runtime and the repository;
+- private repositories are not described in the public portfolio.

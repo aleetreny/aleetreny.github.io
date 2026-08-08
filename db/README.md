@@ -1,13 +1,17 @@
-# Base de datos
+# Database
 
-`db/migrations/` es la fuente de verdad ordenada. `db/schema.sql` permite restaurar el esquema con `psql`; los scripts de `scripts/db/` aplican y registran migraciones sin depender de `psql`.
+`db/migrations/` is the ordered source of truth. `db/schema.sql` restores the
+schema with `psql`; the scripts in `scripts/db/` apply and record migrations
+without needing `psql`.
 
-Orden obligatorio:
+The required order:
 
-1. desplegar `neon.ts` para crear Auth, Data API y los roles `anonymous`/`authenticated`;
-2. ejecutar `pnpm db:migrate` con `DATABASE_URL` privada;
-3. crear el usuario en Neon Auth y ejecutar `pnpm db:owner -- --user-id <uuid> --email <correo>`;
-4. opcionalmente ejecutar `pnpm db:seed`;
-5. ejecutar `pnpm db:verify` y refrescar la caché del Data API.
+1. deploy `neon.ts` to create Auth, the Data API and the `anonymous` /
+   `authenticated` roles;
+2. run `pnpm db:migrate` with a private `DATABASE_URL`;
+3. create the user in Neon Auth and run
+   `pnpm db:owner -- --user-id <uuid> --email <address>`;
+4. optionally run `pnpm db:seed`;
+5. run `pnpm db:verify` and refresh the Data API's schema cache.
 
-Las migraciones no contienen IDs de proyecto, credenciales ni datos personales.
+The migrations contain no project IDs, credentials or personal data.

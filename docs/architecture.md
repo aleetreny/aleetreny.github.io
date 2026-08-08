@@ -1,13 +1,15 @@
-# Arquitectura
+# Architecture
 
-## Objetivo
+## Goal
 
-Mantener un portfolio público rápido y estático, con una zona de propietario capaz de editar contenido sin alojar secretos en GitHub Pages. GitHub contiene todo lo reproducible; Neon conserva datos y archivos reales.
+Keep the public portfolio fast and static, with an owner area able to edit
+content without hosting secrets on GitHub Pages. GitHub holds everything
+reproducible; Neon holds the real data and files.
 
 ```mermaid
 flowchart LR
-  V["Visitante"] --> P["GitHub Pages\nReact + Vite"]
-  O["Propietario"] --> P
+  V["Visitor"] --> P["GitHub Pages\nReact + Vite"]
+  O["Owner"] --> P
   P --> A["Neon Managed Better Auth"]
   P --> D["Neon Data API"]
   D --> R["Neon Postgres\nGRANT + RLS"]
@@ -25,44 +27,65 @@ flowchart LR
   N --> S
 ```
 
-## Responsabilidades
+## Responsibilities
 
-- **GitHub Pages:** entrega únicamente `dist/`; no ejecuta backend ni guarda secretos.
-- **Frontend:** presenta el contenido en un tablero de corcho con pan/zoom y secciones expandibles; muestra fixtures cuando no hay backend y, con Neon, consulta contenido y gestiona sesión.
-- **Auth:** crea sesiones/JWT. Autenticarse no equivale a ser propietario.
-- **Data API:** convierte consultas del SDK en operaciones Postgres y selecciona rol por JWT.
-- **Postgres:** es la autoridad de permisos mediante roles, allowlist y RLS.
-- **Storage broker:** verifica JWT EdDSA/JWKS y allowlist, limita formatos/tamaño y firma operaciones S3 breves.
-- **Object Storage:** guarda bytes; `assets` guarda identidad, rutas y metadatos.
-- **Actions:** valida cada cambio, despliega Pages y ofrece provisión Neon controlada.
+- **GitHub Pages:** serves `dist/` and nothing else; it runs no backend and
+  stores no secrets.
+- **Frontend:** presents the content as a pan/zoom board with expandable
+  dossiers; renders fixtures when there is no backend and, with Neon, queries
+  content and manages the session.
+- **Auth:** creates sessions/JWTs. Being authenticated is not being the owner.
+- **Data API:** turns SDK queries into Postgres operations and picks the role
+  from the JWT.
+- **Postgres:** is the authority on permissions, through roles, the allowlist
+  and RLS.
+- **Storage broker:** verifies the EdDSA/JWKS JWT and the allowlist, limits
+  formats and size, and signs short-lived S3 operations.
+- **Object Storage:** holds the bytes; `assets` holds identity, paths and
+  metadata.
+- **Actions:** validates every change, deploys Pages and offers controlled Neon
+  provisioning.
 
-## Flujos
+## Flows
 
-### Lectura pública
+### Public read
 
-El cliente anónimo obtiene un token anónimo de Neon; Data API usa el rol `anonymous`. Las políticas exponen entradas `published` no borradas, sus bloques y settings públicos. Las URLs de imágenes publicadas viajan en los bloques; la tabla `assets` no se expone al visitante.
+The anonymous client gets an anonymous token from Neon; the Data API uses the
+`anonymous` role. Policies expose `published`, non-deleted entries, their blocks
+and public settings. Published image URLs travel inside the blocks; the `assets`
+table is not exposed to visitors.
 
-### Propietario
+### Owner
 
-Better Auth crea la sesión. `public.is_owner()` cruza `auth.user_id()` con `app_private.owner_accounts`. Solo entonces RLS permite CRUD. Una cuenta registrada fuera de la allowlist no puede escribir.
+Better Auth creates the session. `public.is_owner()` matches `auth.user_id()`
+against `app_private.owner_accounts`. Only then does RLS allow CRUD. An account
+registered outside the allowlist cannot write.
 
-### Imágenes
+### Images
 
-Las credenciales S3 existen solo en la Neon Function. El navegador recibe una URL PUT limitada a un objeto, Content-Type y cinco minutos. La lectura es pública porque el portfolio es público; una migración a bucket privado requeriría URLs GET firmadas.
+S3 credentials exist only inside the Neon Function. The browser receives a PUT
+URL scoped to one object, one Content-Type and five minutes. Reads are public
+because the portfolio is public; moving to a private bucket would require signed
+GET URLs.
 
-## Compatibilidad con GitHub Pages
+## GitHub Pages compatibility
 
-No se usan rutas de servidor ni SSR. El modo propietario es `/?owner=1`, de modo que una recarga no depende de un fallback 404. Vite usa base `/` porque el repositorio es una User Page (`aleetreny.github.io`).
+No server routes and no SSR. Owner mode is `/?owner=1`, so a reload does not
+depend on a 404 fallback. Vite uses base `/` because the repository is a User
+Page (`aleetreny.github.io`).
 
-## Degradación
+## Degradation
 
-Si Neon no está configurado, la build sigue siendo válida y usa `fixtures/demo-content.json`; el modo propietario explica qué falta. Si Neon falla en producción, la UI muestra un error y no sustituye silenciosamente los datos reales por fixtures.
+If Neon is not configured the build is still valid and uses
+`fixtures/demo-content.json`; owner mode explains what is missing. If Neon fails
+in production the UI shows an error and does not silently swap real data for
+fixtures.
 
-## Fuentes de verdad
+## Sources of truth
 
-- código/configuración: GitHub;
-- esquema: `db/migrations/`;
-- infraestructura Neon: `neon.ts` + variables seguras;
-- datos reales: Neon Postgres;
+- code/configuration: GitHub;
+- schema: `db/migrations/`;
+- Neon infrastructure: `neon.ts` + secure variables;
+- real data: Neon Postgres;
 - bytes: Neon Object Storage;
-- estado del proyecto: `PROJECT_STATUS.md` y `docs/handoff.md`.
+- project state: `PROJECT_STATUS.md` and `docs/handoff.md`.

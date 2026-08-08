@@ -1,27 +1,32 @@
-# ADR 0004: Neon Object Storage y broker
+# ADR 0004: Neon Object Storage and a broker
 
-- Estado: aceptada con riesgo beta
-- Fecha: 2026-08-04
+- Status: accepted, with beta risk
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-GitHub Pages no puede firmar subidas ni guardar credenciales. Los assets deben ser públicos y recuperables.
+GitHub Pages cannot sign uploads or hold credentials. Assets must be public and
+recoverable.
 
-## Opciones consideradas
+## Options considered
 
-- Cloudflare R2 + Worker;
+- Cloudflare R2 + a Worker;
 - Cloudinary;
-- assets siempre en Git;
-- Neon Object Storage + Neon Function.
+- assets always in Git;
+- Neon Object Storage + a Neon Function.
 
-## Decisión y razones
+## Decision and reasons
 
-Usar Storage/Function de Neon: backend declarativo único, ramas coherentes con DB y S3 estándar. El broker valida JWT/owner y firma PUT.
+Use Neon's Storage and Function: one declarative backend, branches coherent with
+the database, and standard S3. The broker validates the JWT and the owner, then
+signs the PUT.
 
-## Consecuencias
+## Consequences
 
-Beta y `aws-us-east-2`; lectura pública por URL; operaciones/backup usan credenciales server-side. Se necesita reconciliar objetos huérfanos.
+Beta, and `aws-us-east-2`; public read by URL; operations and backups use
+server-side credentials. Orphaned objects still need reconciling.
 
-## Cómo cambiar
+## How to change it
 
-Conservar tabla `assets` y contrato del broker. Implementar endpoints equivalentes sobre R2/S3, copiar objetos, actualizar provider/URLs y abrir ADR de migración.
+Keep the `assets` table and the broker's contract. Implement equivalent endpoints
+over R2/S3, copy the objects, update provider and URLs, and open a migration ADR.

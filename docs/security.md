@@ -1,48 +1,62 @@
-# Seguridad
+# Security
 
-## Modelo de amenazas
+## Threat model
 
-Activos principales: cuenta del propietario, contenido no publicado, datos Postgres, credenciales administrativas, objetos y workflows. La web pública y sus variables Vite se consideran observables por cualquiera.
+The main assets are the owner account, unpublished content, the Postgres data,
+administrative credentials, the stored objects and the workflows. The public site
+and its Vite variables are treated as observable by anyone.
 
-## Controles
+## Controls
 
-- RLS y `GRANT` en Postgres, no confianza en ocultar botones;
-- allowlist privada separada de Auth;
-- schema privado sin grants a roles API;
-- JWT EdDSA validado con JWKS/issuer/audience/expiración;
-- storage secrets solo en función/CI/local;
-- URLs firmadas breves y por objeto;
-- CORS de origen exacto;
-- Content-Type y tamaño limitados;
-- borrado lógico e historial preparado;
-- Actions con permisos mínimos;
-- environments para aprobación de producción;
-- `.gitignore`, `.env.example` sin valores y escáner básico `validate:repo`.
+- RLS and `GRANT` in Postgres — never trusting a hidden button;
+- a private allowlist, separate from Auth;
+- a private schema with no grants to the API roles;
+- EdDSA JWTs validated against JWKS, issuer, audience and expiry;
+- storage secrets only in the function, CI or locally;
+- short, per-object signed URLs;
+- exact-origin CORS;
+- limited Content-Type and size;
+- soft deletion and a prepared history;
+- Actions with minimum permissions;
+- environments for production approval;
+- `.gitignore`, a valueless `.env.example` and the basic `validate:repo` scanner.
 
-## Secretos
+## Secrets
 
-Privados: `DATABASE_URL`, `NEON_API_KEY`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`. Deben vivir en `.env.local`, Neon-injected env o GitHub Secrets. Los endpoints `VITE_*`, project ID y branch name son configuración pública.
+Private: `DATABASE_URL`, `NEON_API_KEY`, `AWS_ACCESS_KEY_ID`,
+`AWS_SECRET_ACCESS_KEY`. They belong in `.env.local`, Neon-injected env or GitHub
+Secrets. The `VITE_*` endpoints, project ID and branch name are public
+configuration.
 
-No imprimir variables completas. En errores, redactar hosts si la URL contiene credenciales. Los backups no son secretos técnicos, pero pueden contener datos personales y necesitan cifrado.
+Do not print full variables. In errors, redact hosts when the URL contains
+credentials. Backups are not technical secrets, but they can hold personal data
+and need encrypting.
 
-## Contenido
+## Content
 
-No renderizar HTML arbitrario desde JSONB. Validar blocks con Zod y escapar texto por React. SVG no está permitido como subida por riesgo de contenido activo. Imágenes informativas requieren alt text.
+Do not render arbitrary HTML from JSONB. Validate blocks with Zod and let React
+escape text. SVG is not an accepted upload, because of active content. Meaningful
+images require alt text.
 
 ## Supply chain
 
-Lockfile obligatorio, Dependabot semanal, `pnpm install --frozen-lockfile` en CI y revisión manual de upgrades beta. Una actualización de Neon JS/Auth/Data API exige test RLS end-to-end.
+The lockfile is mandatory, Dependabot runs weekly, CI uses
+`pnpm install --frozen-lockfile`, and beta upgrades are reviewed by hand. A Neon
+JS/Auth/Data API upgrade requires an end-to-end RLS test.
 
-## Respuesta a incidente
+## Incident response
 
-1. revocar secreto/sesión afectado;
-2. deshabilitar owner si procede;
-3. preservar logs sin copiar tokens;
-4. rotar y actualizar stores;
-5. revisar accesos y objetos;
-6. corregir, probar y documentar;
-7. si un secreto entró en Git, asumirlo comprometido aunque se borre del último commit.
+1. revoke the affected secret/session;
+2. disable the owner if appropriate;
+3. preserve logs without copying tokens;
+4. rotate and update the stores;
+5. review access and objects;
+6. fix, test and document;
+7. if a secret entered Git, treat it as compromised even after removing it from
+   the last commit.
 
-## Comprobaciones pendientes de producción
+## Production checks still pending
 
-Pen-test ligero de Data API, prueba de usuario no owner, cookies cross-origin/Safari, rate limiting del broker, protección contra objetos huérfanos y cabeceras CSP en Pages.
+A light pen-test of the Data API, a non-owner user test, cross-origin/Safari
+cookies, rate limiting on the broker, protection against orphaned objects, and
+CSP headers on Pages.

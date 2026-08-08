@@ -1,33 +1,40 @@
-# Handoff entre ordenadores
+# Handoff between machines
 
-Actualizado: 2026-08-05 (Atlantic/Canary).
+Updated: 2026-08-08 (Atlantic/Canary).
 
-## Punto estable y ramas
+## Stable point and branches
 
-- repositorio: `aleetreny/aleetreny.github.io`;
-- rama principal de despliegue: `main`;
-- rama de trabajo: `codex/portable-architecture`;
-- backup remoto de la web anterior: `backup/static-terminal-2025`;
-- commit original de rollback: `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`;
-- último commit remoto anterior al rediseño: `c5b48c82bb57f2133f5678391359924f62bf253c`;
-- commit de frontend auditado online: `95b1cc84e43deee856449cf31f929559df363e83`;
-- versión estable de esta fase: tag `portfolio-v0.2.0` sobre `main`.
+- repository: `aleetreny/aleetreny.github.io`;
+- deployment branch: `main`;
+- remote backup of the previous site: `backup/static-terminal-2025`;
+- original rollback commit: `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`;
+- last remote commit before the redesign: `c5b48c82bb57f2133f5678391359924f62bf253c`;
+- stable tag from the earlier phase: `portfolio-v0.2.0`.
 
-GitHub Pages debe conservar **Settings > Pages > Source: GitHub Actions**. El tag es el punto de recuperación estable; el SHA auditado identifica específicamente el arreglo de interacción del frontend y los commits posteriores cierran fixtures y documentación.
+GitHub Pages must keep **Settings > Pages > Source: GitHub Actions**.
 
-## Estado funcional actual
+## Current functional state
 
-El frontend es un archivo de investigación sobre corcho, no una cuadrícula convencional. Tiene diez zonas, índice fijo, pan/zoom/pellizco/teclado, coordenadas, dossiers expandibles y 24 entradas públicas. La identidad visual usa tinta, hueso, óxido y amarillo señal, sin post-its pastel ni grandes radios. `docs/design-direction.md` contiene la lista de mejoras ya implementadas.
+The frontend is a **working board**: a finite slate hanging on a wall, with paper
+cards pinned to it, pan/zoom/pinch/keyboard, dossiers, and a guided tour that
+walks a first-time visitor through it stop by stop.
+[`docs/handbook.md`](handbook.md) is the complete feature and settings reference;
+[`docs/design-direction.md`](design-direction.md) holds the visual rules.
 
-El modo propietario en `/?owner=1` usa la misma estética. Incluye signup/login, allowlist independiente, inventario, CRUD, nueve destinos editoriales, señales, enlaces, seis bloques, reordenación accesible, imágenes, historial y papelera recuperable.
+Owner mode at `/?owner=1` uses the same aesthetic and edits everything in place:
+inline text on every card and dossier, drag positioning, per-card settings, the
+theme and backdrop panel, the guided tour panel, photo uploads, the inventory
+with dynamic lists, and a recoverable trash.
 
-La cuenta real existe y está habilitada como propietaria. No se versionó ni documentó su contraseña, correo o sesión. Los Secrets de provisión existen en los environments cifrados de GitHub. Los planes development `#2` y production `#3` terminaron correctamente después de corregir la invocación del CLI local.
+The real owner account exists and is allowlisted. Its password, email and session
+were never committed or documented. The provisioning Secrets live in GitHub's
+encrypted environments.
 
-El catálogo está en fixtures y en ambas ramas Neon: 24 entradas publicadas, 9 secciones de contenido y 16 bloques activos. El seed desactiva primero los bloques anteriores del fixture y actualiza `entry_id` durante el upsert, por lo que es idempotente incluso cuando cambia la composición.
+The catalogue lives in the fixtures and in both Neon branches. The seed first
+deactivates the fixture's previous blocks and updates `entry_id` during the
+upsert, so it is idempotent even when the composition changes.
 
-La auditoría final se hizo contra la URL publicada, no solo contra el servidor local. En escritorio se recorrieron las diez secciones, el perfil, diez destinos del índice, controles de zoom, teclado, Escape, foco, fondo del modal y scroll. En móvil se inspeccionaron tablero y dossier a `390 × 844`. Se extrajeron 21 enlaces únicos y se corrigió el único destino roto: la ruta de Pages de Cabicity requiere `/Cabicity/`. No quedaron errores de consola o de página. El modo propietario se probó con cuentas desechables, que se eliminaron junto con su allowlist, entradas y versiones; producción quedó de nuevo con 24 entradas y solo la cuenta real habilitada.
-
-## Primeros comandos en otra máquina
+## First commands on another machine
 
 ```bash
 git clone git@github.com:aleetreny/aleetreny.github.io.git
@@ -40,57 +47,77 @@ pnpm build
 pnpm dev
 ```
 
-Para continuar una rama publicada distinta de `main`, ejecutar `git switch <rama>` después del clon. No recuperar archivos de este ordenador.
+To continue a published branch other than `main`, run `git switch <branch>` after
+cloning. Do not recover files from the previous machine.
 
-## Neon disponible
+## Neon
 
-- proyecto: `divine-queen-66854519`, región `aws-us-east-2`, base `neondb`;
-- producción: `production` / `br-blue-dawn-ay0e37ed`;
-- integración: `codex-integration` / `br-tiny-art-ayb43loi`;
-- Auth, Data API, migraciones 0001–0004, Storage, Function y bucket `portfolio-assets` activos en ambas;
-- matriz RLS y ciclo completo de Storage verificados previamente;
-- catálogo ampliado sincronizado en ambas ramas el 2026-08-05;
-- producción usa `NEON_PROTECT_DEFAULT_BRANCH=false` por limitación del plan; el workflow restringe producción a `main` y exige `APPLY_PRODUCTION` para aplicar.
+- project: `divine-queen-66854519`, region `aws-us-east-2`, database `neondb`;
+- production: `production` / `br-blue-dawn-ay0e37ed`;
+- integration: `codex-integration` / `br-tiny-art-ayb43loi`;
+- Auth, Data API, migrations 0001–0004, Storage, Function and the
+  `portfolio-assets` bucket are live on both;
+- the RLS matrix and the full Storage cycle were verified previously;
+- production uses `NEON_PROTECT_DEFAULT_BRANCH=false` because of a plan
+  limitation; the workflow restricts production to `main` and requires
+  `APPLY_PRODUCTION` to apply.
 
-En otra máquina hay que repetir `pnpm exec neon auth`; nunca copiar tokens, cadenas de conexión, contraseñas o sesiones al chat o al repositorio.
+On another machine, repeat `pnpm exec neon auth`. Never copy tokens, connection
+strings, passwords or sessions into chat or into the repository.
 
 ## GitHub Actions
 
 Environments:
 
-- `development`: Secrets `NEON_API_KEY`, `DATABASE_URL`; Variables `NEON_PROJECT_ID`, `NEON_BRANCH`, `NEON_PROTECT_DEFAULT_BRANCH`, `ALLOWED_ORIGINS`;
-- `production`: los mismos nombres, restringido a `main`.
+- `development`: Secrets `NEON_API_KEY`, `DATABASE_URL`; Variables
+  `NEON_PROJECT_ID`, `NEON_BRANCH`, `NEON_PROTECT_DEFAULT_BRANCH`,
+  `ALLOWED_ORIGINS`;
+- `production`: the same names, restricted to `main`.
 
-`.github/workflows/provision-neon.yml` usa `pnpm exec neon`. Ejecutar primero `plan`; `apply` en producción requiere la confirmación literal documentada. `.github/workflows/deploy-pages.yml` construye y publica sin depender de este ordenador.
+`provision-neon.yml` uses `pnpm exec neon`. Run `plan` first; `apply` on
+production requires the documented literal confirmation. `deploy-pages.yml`
+builds and publishes without depending on any particular machine.
+`seed-content.yml` loads the catalogue and settings into a chosen environment.
 
-## Próximos pasos concretos
+## Concrete next steps
 
-La fase técnica está cerrada. Para continuar:
+1. clone `main` and run the commands above;
+2. review the text, order and emphasis subjectively from `/?owner=1` with the
+   real account;
+3. create a branch for any new change, and use an isolated Neon branch before
+   touching the schema;
+4. run `pnpm check`, `pnpm build` and `pnpm portability:verify` before publishing
+   again;
+5. repeat the public and administrative audit if interaction, linked content or
+   authentication changes;
+6. run `seed-content.yml` (development, then production) after any change that
+   alters the **shape** of the fixtures.
 
-1. clonar el tag `portfolio-v0.2.0` o la rama `main` y ejecutar los comandos anteriores;
-2. revisar subjetivamente textos, orden y énfasis desde `/?owner=1` con la cuenta real;
-3. crear una rama `codex/<tema>` para cualquier cambio nuevo y usar una rama Neon aislada antes de tocar esquema;
-4. ejecutar `pnpm check`, `pnpm build` y `pnpm portability:verify` antes de volver a publicar;
-5. repetir la auditoría pública y administrativa si cambia interacción, contenido enlazado o autenticación.
+## Known errors and limitations
 
-## Errores y limitaciones conocidas
+- Neon JS/Auth/Data API/Storage/Functions are in beta.
+- Storage/Functions require `aws-us-east-2` in this architecture.
+- A successful PUT followed by a SQL failure can leave an orphaned object.
+- Pages can be switched back to a branch source by manual configuration; check
+  that the public `index.html` references `/assets/index-*.js`, never
+  `/src/main.tsx`.
+- Card positions are deliberately explicit; adding to the board means checking
+  the composition and mobile again.
+- The public catalogue was written from public sources; the owner should review
+  any professional nuance they would phrase differently.
 
-- Neon JS/Auth/Data API/Storage/Functions están en beta.
-- Storage/Functions requieren `aws-us-east-2` en esta arquitectura.
-- Un PUT correcto seguido de fallo SQL puede dejar un objeto huérfano.
-- Git local de este ordenador temporal no tiene credencial GitHub; la publicación usa el conector autorizado.
-- Pages puede volver a una fuente de rama mediante configuración manual; comprobar que `index.html` público referencia `/assets/index-*.js`, nunca `/src/main.tsx`.
-- Las posiciones de sección son deliberadamente explícitas; ampliar el índice requiere revisar composición y móvil.
-- El catálogo público se redactó a partir de fuentes públicas; el propietario debe revisar cualquier matiz profesional que quiera expresar de otra forma.
+## Decisions still open
 
-## Decisiones aún cambiables
+- final wording and catalogue order;
+- the storage provider, if Neon beta/region stops fitting;
+- a domain and an OAuth provider;
+- the retention/versioning policy;
+- a future filterable view alongside the canvas, as long as it does not remove
+  the board's identity.
 
-- textos finales y orden del catálogo;
-- proveedor de storage si Neon beta/región deja de encajar;
-- dominio y proveedor OAuth;
-- política de retención/versiones;
-- una futura vista filtrable adicional al lienzo, siempre que no elimine la identidad del archivo.
+## Sensitive points
 
-## Puntos delicados
-
-No mover secretos a `VITE_*`; no conceder escritura por autenticación simple; no exponer `app_private`; no desactivar RLS; no borrar el backup terminal; no editar migraciones aplicadas; no hacer públicos detalles de repositorios privados; no promover producción sin plan y confirmación.
+Do not move secrets into `VITE_*`; do not grant writes on authentication alone;
+do not expose `app_private`; do not disable RLS; do not delete the terminal
+backup; do not edit applied migrations; do not make private repository details
+public; do not promote to production without a plan and a confirmation.

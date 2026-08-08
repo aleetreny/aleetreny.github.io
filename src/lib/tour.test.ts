@@ -42,18 +42,28 @@ describe('tour config parsing', () => {
     expect(DEFAULT_TOUR.stops[7].items).toContain('note-3');
   });
 
-  it('keeps the handoff motion numbers as defaults', () => {
+  it('keeps the handoff timings as defaults', () => {
     expect(DEFAULT_TOUR.camera.firstDuration).toBe(950);
     expect(DEFAULT_TOUR.camera.duration).toBe(760);
-    expect(DEFAULT_TOUR.camera.padBottom).toBe(168);
-    expect(DEFAULT_TOUR.camera.inflate).toBe(70);
-    expect(DEFAULT_TOUR.camera.maxScale).toBe(1.05);
     expect(DEFAULT_TOUR.reveal.duration).toBe(560);
     expect(DEFAULT_TOUR.reveal.stagger).toBe(150);
     expect(DEFAULT_TOUR.intro.hold).toBe(340);
     expect(DEFAULT_TOUR.intro.duration).toBe(640);
     expect(DEFAULT_TOUR.intro.settle).toBe(420);
     expect(DEFAULT_TOUR.intro.studStagger).toBe(55);
+  });
+
+  it('frames a stop closer than the handoff did, on both screen sizes', () => {
+    // The handoff's 70px inflate and 1.05 ceiling left cards small enough to
+    // squint at; these are the numbers that opened them up.
+    expect(DEFAULT_TOUR.camera.inflate).toBeLessThan(70);
+    expect(DEFAULT_TOUR.camera.maxScale).toBeGreaterThan(1.05);
+    expect(DEFAULT_TOUR.camera.padX).toBeLessThanOrEqual(60);
+    expect(DEFAULT_TOUR.mobile.inflate).toBeLessThan(DEFAULT_TOUR.camera.inflate);
+    expect(DEFAULT_TOUR.mobile.padX).toBeLessThan(DEFAULT_TOUR.camera.padX);
+    // Bottom padding still has to clear the tour bar on each.
+    expect(DEFAULT_TOUR.camera.padBottom).toBeGreaterThan(120);
+    expect(DEFAULT_TOUR.mobile.padBottom).toBeGreaterThan(120);
   });
 
   it('merges a partial document over the defaults', () => {

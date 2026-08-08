@@ -1,27 +1,31 @@
-# ADR 0006: dnd-kit para drag and drop
+# ADR 0006: dnd-kit for drag and drop
 
-- Estado: aceptada e implementada
-- Fecha: 2026-08-04
+- Status: accepted and implemented
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-El editor necesita reordenar bloques con ratón, táctil y teclado sin romper accesibilidad.
+The editor needs to reorder blocks with mouse, touch and keyboard without
+breaking accessibility.
 
-## Opciones consideradas
+## Options considered
 
-- HTML5 Drag and Drop nativo;
-- react-beautiful-dnd/forks;
+- native HTML5 drag and drop;
+- react-beautiful-dnd and its forks;
 - dnd-kit;
-- botones únicamente.
+- buttons only.
 
-## Decisión y razones
+## Decision and reasons
 
-Usar dnd-kit sortable con sensores de puntero/teclado, más botones subir/bajar. API componible y soporte de accesibilidad superior al DnD nativo.
+Use dnd-kit's sortable with pointer and keyboard sensors, plus up/down buttons.
+A composable API and better accessibility support than native DnD.
 
-## Consecuencias
+## Consequences
 
-Añade dependencia y lógica de estado optimista. El editor la carga de forma diferida únicamente en modo propietario, por lo que no penaliza el bundle inicial público.
+It adds a dependency and optimistic state logic. The editor loads it lazily in
+owner mode only, so it does not weigh on the public bundle.
 
-## Cómo cambiar
+## How to change it
 
-La normalización del orden está aislada en `src/lib/editor.ts`; se puede sustituir la librería conservando esa función, los botones y los tests.
+Order normalisation is isolated in `src/lib/editor.ts`; the library can be
+replaced while keeping that function, the buttons and the tests.

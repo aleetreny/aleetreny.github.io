@@ -1,13 +1,17 @@
 # Security policy
 
-No publiques vulnerabilidades ni credenciales en issues. Contacta al propietario mediante el correo público del portfolio y elimina cualquier secreto expuesto antes de compartir contexto.
+Do not publish vulnerabilities or credentials in issues. Contact the owner
+through the portfolio's public email address, and remove any exposed secret
+before sharing context.
 
-Si un secreto llega al historial:
+If a secret reaches the history:
 
-1. revócalo inmediatamente en el proveedor;
-2. crea una credencial nueva con el alcance mínimo;
-3. actualiza GitHub Secrets/Variables o Neon;
-4. revisa logs y uso;
-5. limpia el historial solo después de coordinarlo, porque reescribirlo afecta a todos los clones.
+1. revoke it immediately at the provider;
+2. create a new credential with the minimum scope;
+3. update GitHub Secrets/Variables or Neon;
+4. review logs and usage;
+5. clean the history only after coordinating it, because rewriting affects every
+   clone.
 
-El script `pnpm validate:repo` detecta patrones evidentes, pero no sustituye una revisión manual ni un escáner especializado.
+`pnpm validate:repo` catches obvious patterns, but it does not replace a manual
+review or a dedicated scanner.
