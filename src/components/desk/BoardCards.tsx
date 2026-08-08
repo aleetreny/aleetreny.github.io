@@ -160,7 +160,7 @@ function ToolChips({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
       {tech.map((t, index) => (
         <span className="chip" key={index}>
           <span {...editableProps(editing, (value) => setChip(index, value))}>{t}</span>
-          {editing ? <button type="button" className="chip__x" onClick={() => delChip(index)} aria-label="Eliminar herramienta">×</button> : null}
+          {editing ? <button type="button" className="chip__x" onClick={() => delChip(index)} aria-label="Remove tool">×</button> : null}
         </span>
       ))}
       {editing ? <button type="button" className="chip chip--add" onClick={addChip}>+ tech</button> : null}

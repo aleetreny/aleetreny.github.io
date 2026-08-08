@@ -1,27 +1,31 @@
-# Contexto temporal de Notion (solo lectura)
+# Temporary Notion context (read-only)
 
-## Propósito
+## Purpose
 
-Notion puede consultarse únicamente para entender contexto previo de diseño, organización o contenidos que ayude a construir el portfolio. No es una base de datos, CMS, backup ni dependencia del runtime.
+Notion may be consulted only to understand prior design, organisation or content
+context that helps build the portfolio. It is not a database, a CMS, a backup or
+a runtime dependency.
 
-## Operaciones permitidas
+## Permitted operations
 
-- búsqueda semántica o por título;
-- lectura de páginas estrictamente relevantes;
-- extracción mental de requisitos/decisiones no sensibles;
-- contraste con lo ya documentado en GitHub.
+- semantic or title search;
+- reading strictly relevant pages;
+- taking away requirements and decisions that are not sensitive;
+- comparing against what is already documented in GitHub.
 
-## Límites
+## Limits
 
-- no crear, editar, comentar, mover ni borrar páginas;
-- no exportar ni copiar el diario;
-- no guardar fragmentos personales en Git, logs, fixtures o backups;
-- no ampliar la búsqueda más allá de lo necesario;
-- resumir decisiones técnicas sin reproducir contenido privado;
-- tratar la conexión como temporal y revocable.
+- do not create, edit, comment on, move or delete pages;
+- do not export or copy the diary;
+- do not store personal fragments in Git, logs, fixtures or backups;
+- do not widen the search beyond what is needed;
+- summarise technical decisions without reproducing private content;
+- treat the connection as temporary and revocable.
 
-## Registro de esta fase
+## Record for this phase
 
-Durante la creación de esta base reproducible no se consultó Notion. No se leyó ni guardó contenido del diario y no se modificó ninguna página.
+Notion was not consulted while building this reproducible base. No diary content
+was read or stored, and no page was modified.
 
-Si una fase futura usa Notion, debe actualizar solo este registro con fecha, propósito y tipos de operación de lectura, sin incluir fragmentos del contenido.
+If a future phase uses Notion, it must update only this record with the date,
+purpose and kinds of read operation — never fragments of the content itself.

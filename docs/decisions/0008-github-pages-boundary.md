@@ -1,27 +1,33 @@
-# ADR 0008: GitHub Pages como frontera estática
+# ADR 0008: GitHub Pages as a static boundary
 
-- Estado: aceptada
-- Fecha: 2026-08-04
+- Status: accepted
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-El dominio/repo de User Pages debe ser fuente de despliegue y el ordenador local es temporal.
+The User Pages domain and repository must be the deployment source, and the local
+machine is temporary.
 
-## Opciones consideradas
+## Options considered
 
-- deploy manual de archivos;
-- Vercel/Netlify como hosting principal;
-- Pages desde rama `gh-pages`;
-- Pages con artefacto de GitHub Actions.
+- deploying files by hand;
+- Vercel/Netlify as the primary host;
+- Pages from a `gh-pages` branch;
+- Pages with a GitHub Actions artifact.
 
-## Decisión y razones
+## Decision and reasons
 
-Actions construye y publica `dist` en Pages al hacer push a `main`, con ejecución manual disponible. No se versiona build.
+Actions builds and publishes `dist` to Pages on a push to `main`, with a manual
+run available. The build is never committed.
 
-## Consecuencias
+## Consequences
 
-Nada server-side puede vivir en el mismo origen; Auth/API/Storage son externos. Variables Vite son públicas. Se evitan rutas SPA profundas usando query de owner.
+Nothing server-side can live on the same origin; Auth, API and Storage are
+external. Vite variables are public. Deep SPA routes are avoided by using an
+owner query parameter.
 
-## Cómo cambiar
+## How to change it
 
-Otro hosting puede consumir la misma build. Si se adopta SSR, crear backend/hosting separado, conservar Pages como fallback o documentar retirada y DNS.
+Another host can consume the same build. If SSR is adopted, create a separate
+backend and host, keep Pages as a fallback, or document the retirement and the
+DNS change.

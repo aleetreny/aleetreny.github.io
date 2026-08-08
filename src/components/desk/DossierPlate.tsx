@@ -89,7 +89,7 @@ export function DossierPlate({
             {items.map((item, index) => (
               <li key={index}>
                 <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setItem(index, readText(e)) } : {})}>{item}</span>
-                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Eliminar">×</button> : null}
+                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button> : null}
               </li>
             ))}
             {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, 'New point'] })}>+ point</button> : null}
@@ -105,7 +105,7 @@ export function DossierPlate({
               <div className="db-metric" key={index}>
                 <b {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setPair(index, 0, readText(e)) } : {})}>{pair[0]}</b>
                 <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setPair(index, 1, readText(e)) } : {})}>{pair[1]}</span>
-                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Eliminar">×</button> : null}
+                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button> : null}
               </div>
             ))}
             {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, ['0', 'label']] })}>+ number</button> : null}
@@ -121,7 +121,7 @@ export function DossierPlate({
               <div className="db-link-edit" key={index}>
                 <input className="db-input" value={pair[0]} placeholder="label" onChange={(e) => setPair(index, 0, e.target.value)} data-nodrag />
                 <input className="db-input" value={pair[1]} placeholder="https://" onChange={(e) => setPair(index, 1, e.target.value)} data-nodrag />
-                <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Eliminar">×</button>
+                <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button>
               </div>
             ) : (
               <a key={index} href={pair[1]} target="_blank" rel="noreferrer" data-nodrag>{pair[0]} →</a>
@@ -139,7 +139,7 @@ export function DossierPlate({
             {items.map((item, index) => (
               <span className="db-tag" key={index}>
                 <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setItem(index, readText(e)) } : {})}>{item}</span>
-                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Eliminar">×</button> : null}
+                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button> : null}
               </span>
             ))}
             {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, 'tag'] })}>+ tag</button> : null}
@@ -171,8 +171,8 @@ export function DossierPlate({
           </div>
           <div className="dossier__bar-actions">
             {editing ? <span className="dossier__editflag">editing — click any text</span> : null}
-            <button className="pbtn" onClick={onPrev} type="button" aria-label="Anterior">←</button>
-            <button className="pbtn" onClick={onNext} type="button" aria-label="Siguiente">→</button>
+            <button className="pbtn" onClick={onPrev} type="button" aria-label="Previous">←</button>
+            <button className="pbtn" onClick={onNext} type="button" aria-label="Next">→</button>
             <button ref={closeRef} className="pbtn pbtn--close" onClick={onClose} type="button">close · esc</button>
           </div>
         </div>
@@ -193,9 +193,9 @@ export function DossierPlate({
                 <div className={`db-block db-block--${block.type}`} key={block.id}>
                   {editing ? (
                     <div className="db-block__ctrl" data-nodrag>
-                      <button type="button" onClick={() => moveBlock(block.id, -1)} disabled={index === 0} aria-label="Subir">↑</button>
-                      <button type="button" onClick={() => moveBlock(block.id, 1)} disabled={index === blocks.length - 1} aria-label="Bajar">↓</button>
-                      <button type="button" onClick={() => removeBlock(block.id)} aria-label="Eliminar bloque">✕</button>
+                      <button type="button" onClick={() => moveBlock(block.id, -1)} disabled={index === 0} aria-label="Move up">↑</button>
+                      <button type="button" onClick={() => moveBlock(block.id, 1)} disabled={index === blocks.length - 1} aria-label="Move down">↓</button>
+                      <button type="button" onClick={() => removeBlock(block.id)} aria-label="Delete block">✕</button>
                     </div>
                   ) : null}
                   {renderBlockBody(block)}

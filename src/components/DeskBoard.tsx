@@ -151,6 +151,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const emailRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
   const zTop = useRef(50);
+  const ctrlScaleRef = useRef(0);
   const openSlugRef = useRef<string | null>(null);
   const authedRef = useRef(false);
 
@@ -260,6 +261,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     if (boardEl) {
       boardEl.style.transition = animate ? 'transform .6s cubic-bezier(.22,.9,.2,1)' : 'none';
       boardEl.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.s})`;
+      // The owner's per-item controls ride the board, so at a fitted zoom a
+      // 24px gear renders 6px tall. Counter-scale them back towards their real
+      // size, capped so they never swell into the card they belong to.
+      const ctrl = Math.min(3.2, Math.max(1, 1 / v.s));
+      if (ctrl !== ctrlScaleRef.current) {
+        ctrlScaleRef.current = ctrl;
+        boardEl.style.setProperty('--ctrl-scale', ctrl.toFixed(3));
+      }
     }
     if (gridEl) {
       // Constant on-screen density: the grid keeps the same cell size no matter
@@ -776,7 +785,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     if (!remoteDataEnabled) return; // local preview: keep edits in session only
     window.clearTimeout(settingTimers.current[key]);
     settingTimers.current[key] = window.setTimeout(() => {
-      saveSiteSetting(key, value).catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'No se pudo guardar.', true));
+      saveSiteSetting(key, value).catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'Could not save.', true));
     }, delay);
   }, [flash, remoteDataEnabled]);
 
@@ -797,7 +806,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     savingRef.current = true;
     saveContentEntry(entry, 'inline edit')
       .then((saved) => { setEntries((list) => list.map((item) => (item.id === saved.id ? { ...item, version: saved.version } : item))); })
-      .catch((reason: unknown) => { flash(reason instanceof Error ? reason.message : 'No se pudo guardar el texto.', true); })
+      .catch((reason: unknown) => { flash(reason instanceof Error ? reason.message : 'Could not save the text.', true); })
       .finally(() => { savingRef.current = false; if (pendingEntry.current) entryTimer.current = window.setTimeout(() => flushRef.current(), 60); });
   }, [flash, remoteDataEnabled]);
   useEffect(() => { flushRef.current = flushEntry; }, [flushEntry]);
@@ -825,7 +834,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(new Error('No se pudo leer la imagen.'));
+        reader.onerror = () => reject(new Error('Could not read the image.'));
         reader.readAsDataURL(file);
       });
     }
@@ -837,7 +846,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     setPolBusy(polaroidId);
     uploadPhoto(file)
       .then((url) => { commitBoard({ ...board, polaroids: board.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: url } : p)) }); })
-      .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'No se pudo subir la foto.', true))
+      .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'Could not upload the photo.', true))
       .finally(() => setPolBusy(null));
   }, [board, commitBoard, flash, uploadPhoto]);
 
@@ -1138,12 +1147,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     signInOwner(email, password)
       .then(() => isCurrentUserOwner())
       .then((owner) => {
-        if (!owner) { setLoginError('Cuenta válida, pero no es la propietaria.'); return; }
+        if (!owner) { setLoginError('Valid account, but not the owner.'); return; }
         setAuthed(true);
         setEditing(true);
         setLoginOpen(false);
       })
-      .catch((reason: unknown) => setLoginError(reason instanceof Error ? reason.message : 'No se pudo iniciar sesión.'));
+      .catch((reason: unknown) => setLoginError(reason instanceof Error ? reason.message : 'Could not sign in.'));
   }, []);
 
   const doLogout = useCallback(() => {
@@ -1183,7 +1192,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
   return (
     <>
-      <div className="desk" ref={viewportRef} style={viewportStyle} aria-label="Working board — Alejandro Treny">
+      <div className="desk" ref={viewportRef} style={viewportStyle} aria-label="Working board">
         {backdrop.plate && backdrop.grain > 0 ? (
           <div className="desk__grain" aria-hidden="true" style={{ opacity: backdrop.grain }} />
         ) : null}
@@ -1242,7 +1251,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               >
                 {editing ? (
                   <div className="card-ctrl" data-nodrag>
-                    <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label="Ajustes de tarjeta">⚙</button>
+                    <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label="Card settings">⚙</button>
                     {cardMenu === card.id ? (
                       <div className="card-ctrl__menu">
                         {card.type !== 'hero' ? (
@@ -1309,7 +1318,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
             return (
               <div key={p.id} className="polaroid" data-card={p.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 40 + index }}>
                 {editing ? <span className="item-grip" aria-hidden="true">⠿ drag</span> : null}
-                {editing ? <button className="item-del" type="button" data-nodrag onClick={() => removePolaroid(p.id)} aria-label="Eliminar polaroid">✕</button> : null}
+                {editing ? <button className="item-del" type="button" data-nodrag onClick={() => removePolaroid(p.id)} aria-label="Delete photo">✕</button> : null}
                 <div className="polaroid__frame">
                   {p.tape ? <div className="polaroid__tape" /> : null}
                   <div style={{ position: 'relative', width: '100%', height: p.h }}>
@@ -1331,8 +1340,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 {editing ? <span className="item-grip" aria-hidden="true">⠿ drag</span> : null}
                 {editing ? (
                   <div className="note-ctrl" data-nodrag>
-                    <button className="note-ctrl__style" type="button" onClick={() => editNote(n.id, { style: n.style === 'amber' ? 'paper-dashed' : 'amber' })} aria-label="Cambiar estilo">◑</button>
-                    <button className="item-del item-del--inline" type="button" onClick={() => removeNote(n.id)} aria-label="Eliminar nota">✕</button>
+                    <button className="note-ctrl__style" type="button" onClick={() => editNote(n.id, { style: n.style === 'amber' ? 'paper-dashed' : 'amber' })} aria-label="Change note style">◑</button>
+                    <button className="item-del item-del--inline" type="button" onClick={() => removeNote(n.id)} aria-label="Delete note">✕</button>
                   </div>
                 ) : null}
                 <div
@@ -1391,7 +1400,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
               <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>tour</button>
               <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
-              {localEdit ? <span className="ownerbar__badge" title="Vista previa local — los cambios no se guardan">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
+              {localEdit ? <span className="ownerbar__badge" title="Local preview — changes are not saved">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
             </div>
           ) : (
             <button className="signin" type="button" onClick={() => setLoginOpen(true)}>⌗ sign in</button>
@@ -1404,15 +1413,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               <button className="tbtn" type="button" onClick={() => arrange('scatter')}>scatter</button>
               <button className="tbtn" type="button" onClick={() => arrange('reset')}>reset</button>
               {tour.enabled || authed ? (
-                <button className="tbtn tbtn--on" type="button" onClick={replayTour} title="Ver el recorrido guiado">↻ tour</button>
+                <button className="tbtn tbtn--on" type="button" onClick={replayTour} title="Replay the guided tour">↻ tour</button>
               ) : null}
               <span className="toolbar__sep" />
               {JUMPS.map(([label, name]) => (
                 <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{label}</button>
               ))}
               <span className="toolbar__sep" />
-              <button className="tbtn tbtn--icon" type="button" aria-label="Alejar" onClick={() => zoomBy(0.8)}>−</button>
-              <button className="tbtn tbtn--icon" type="button" aria-label="Acercar" onClick={() => zoomBy(1.25)}>+</button>
+              <button className="tbtn tbtn--icon" type="button" aria-label="Zoom out" onClick={() => zoomBy(0.8)}>−</button>
+              <button className="tbtn tbtn--icon" type="button" aria-label="Zoom in" onClick={() => zoomBy(1.25)}>+</button>
             </div>
           </div>
         </>
@@ -1436,7 +1445,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       {loginOpen ? (
         <div className="overlay" role="presentation">
           <div className="overlay__scrim" onClick={() => setLoginOpen(false)} />
-          <div className="panel panel--login" role="dialog" aria-modal="true" aria-label="Acceso propietario">
+          <div className="panel panel--login" role="dialog" aria-modal="true" aria-label="Owner access">
             <div className="panel__eyebrow">owner access</div>
             <div className="panel__title">Sign in to edit<br />the board</div>
             <p className="panel__hint">Unlocks inline editing of every card and page, plus draggable layout, colours, fonts and photos — all saved to your Neon database.</p>

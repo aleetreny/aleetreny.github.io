@@ -1,34 +1,56 @@
-# Dirección visual: archivo de investigación
+# Visual direction: the working board
 
-## Objetivo
+## Goal
 
-Conservar la idea memorable del tablero de corcho sin parecer una colección infantil de post-its. La identidad se plantea como un archivo vivo de investigación: dossiers, fichas técnicas, coordenadas, sellos, marcas de registro y materiales de estudio. El contraste entre negro, hueso, óxido y amarillo señal sustituye los pasteles; las aristas, recortes y sombras duras sustituyen las cápsulas y esquinas suaves.
+Keep the memorable idea of a pinboard without looking like a childish collection
+of sticky notes. The identity is a living working board: dossiers, technical
+sheets, coordinates, stamps and study materials. A contrast of ink, bone, rust
+and signal amber replaces pastels; edges, cuts and hard shadows replace capsules
+and soft corners.
 
-La interfaz pública y `?owner=1` son dos estados del mismo lugar. El público explora el archivo; la persona propietaria trabaja dentro del estudio editorial.
+The public interface and `?owner=1` are two states of the same place. The public
+explores the board; the owner works inside it.
 
-## Mejoras propuestas e implementadas
+## Principles, as implemented
 
-1. **Jerarquía más adulta.** Tipografía condensada de alto contraste, serif para lectura y monoespaciada para datos de archivo.
-2. **Menos redondeo.** Paneles rectos, esquinas recortadas, bordes visibles y sombras desplazadas.
-3. **Una paleta propia.** Corcho ahumado, tinta, papel hueso, óxido y amarillo señal; no se usan tarjetas pastel.
-4. **Un tablero con sistema.** Rejilla, ejes, coordenadas, registros y un índice fijo convierten el lienzo infinito en un espacio navegable.
-5. **Composición asimétrica.** Diez archivos distribuidos en tres bandas, con rotaciones mínimas y densidad controlada.
-6. **Más profundidad profesional.** El contenido pasa de cinco categorías genéricas a investigación, IA, inteligencia cívica, productos, experimentos, carrera, educación, comunidad, perfil y contacto.
-7. **Pruebas, no eslóganes.** Cada ficha puede mostrar una señal breve, periodo, organización, tecnologías y enlaces directos al proyecto o al código.
-8. **Expansión coherente.** Los modales son subtableros de archivo con cabecera registral, dossiers numerados y los mismos materiales.
-9. **Administrador integrado.** Login, inventario, formularios, bloques, versiones y confirmaciones comparten textura, tipografía, paleta y geometría con el portfolio.
-10. **Movimiento funcional.** Pan, zoom, pellizco, teclado, enfoque de sección desde el índice y retorno de foco; la animación no es decorativa.
-11. **Accesibilidad visible.** Foco amarillo de alto contraste, diálogo con trampa de foco, Escape, alternativas a drag and drop y reducción de movimiento.
-12. **Dependencias mínimas.** La textura y los recortes se generan con CSS; no dependen de una imagen local ni de fuentes remotas para funcionar.
+1. **Grown-up hierarchy.** A high-contrast display face for headlines and a
+   monospace for board data.
+2. **Less rounding.** Straight surfaces, visible borders and offset shadows.
+   Corner radius is a theme setting and defaults to zero.
+3. **Its own palette.** Ink, bone paper, rust and signal amber; no pastel cards.
+4. **A board with a system.** A finite slate on a wall, a texture pattern, corner
+   studs and a fixed jump index turn an infinite canvas into a navigable place.
+5. **Asymmetric composition.** Cards distributed across columns with small
+   rotations and controlled density.
+6. **Depth over slogans.** Every drawer row can carry a period, a place and a
+   short signal, and opens a full dossier with evidence.
+7. **Coherent expansion.** A dossier is the same material at full size: a
+   registry header, numbered blocks, the same paper.
+8. **An integrated editor.** Login, inventory, panels, blocks, versions and
+   confirmations share the texture, type, palette and geometry of the portfolio.
+9. **Functional motion.** Pan, zoom, pinch, keyboard, the guided tour and section
+   focus from the index; the animation is navigation, not decoration.
+10. **Visible accessibility.** A high-contrast amber focus ring, dialogs with
+    `aria-modal`, `Escape` everywhere, alternatives to drag and drop, and a real
+    reduced-motion path.
+11. **Minimal dependencies.** The wall, the slate, the grain, the studs and the
+    dust flash are all CSS gradients. No local image and no remote font is
+    required for the board to work.
 
-## Contenido y privacidad
+## Content and privacy
 
-El catálogo se derivó del LinkedIn público y de repositorios públicos del perfil `aleetreny`. Los repositorios privados no se describen ni enlazan. No se copió contenido privado de Notion. Toda afirmación pública debe mantener una fuente pública verificable o ser revisada explícitamente por el propietario.
+The catalogue was derived from a public LinkedIn profile and the public
+repositories of `aleetreny`. Private repositories are neither described nor
+linked. No private Notion content was copied. Every public claim must keep a
+verifiable public source or be reviewed explicitly by the owner.
 
-## Reglas para ampliar el sistema
+## Rules for extending the system
 
-- una nueva sección necesita una ficha de índice, una posición de tablero y un valor estable de `metadata.section`;
-- una entrada destacada debe ofrecer contexto o evidencia, no solo una lista de tecnologías;
-- no introducir sombras difusas, gradientes brillantes, grandes radios ni cápsulas salvo que una función lo justifique;
-- el editor debe recibir cualquier nuevo metadato que el frontend haga visible;
-- comprobar siempre el lienzo general, el dossier expandido y `?owner=1` en escritorio y móvil.
+- a new list needs a drawer card, a board position and a stable group id;
+- a featured entry should offer context or evidence, not just a list of
+  technologies;
+- do not introduce diffuse shadows, bright gradients, large radii or capsules
+  unless a function justifies it;
+- the editor must gain any new metadata the frontend makes visible;
+- always check the whole canvas, an expanded dossier and `?owner=1` on both
+  desktop and mobile.

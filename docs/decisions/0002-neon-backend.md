@@ -1,27 +1,31 @@
-# ADR 0002: Neon como backend de datos
+# ADR 0002: Neon as the data backend
 
-- Estado: aceptada
-- Fecha: 2026-08-04
+- Status: accepted
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-Se necesita Postgres reproducible, ramas aisladas, Auth/Data API y migraciones versionadas sin servidor propio en Pages.
+We need reproducible Postgres, isolated branches, Auth/Data API and versioned
+migrations, with no server of our own on Pages.
 
-## Opciones consideradas
+## Options considered
 
-- Supabase completo;
-- Postgres gestionado + API propia;
-- contenido solo en Git;
+- full Supabase;
+- managed Postgres plus an API of our own;
+- content in Git only;
 - Neon Postgres + Data API.
 
-## Decisión y razones
+## Decision and reasons
 
-Usar Neon: requisito del proyecto, Postgres estándar, branching copy-on-write, Auth y Data API integrables desde SPA.
+Use Neon: a project requirement, standard Postgres, copy-on-write branching, and
+Auth and a Data API that integrate from a SPA.
 
-## Consecuencias
+## Consequences
 
-Data API/Auth están en beta; RLS/GRANT son críticos. Los datos reales no quedan en Git, solo schema/scripts/fixtures.
+The Data API and Auth are in beta; RLS and `GRANT` are critical. Real data does
+not live in Git — only the schema, scripts and fixtures.
 
-## Cómo cambiar
+## How to change it
 
-Postgres y SQL son portables. Sustituir cliente Data API por una API propia y migrar identidad/claims conservando RLS equivalente.
+Postgres and SQL are portable. Replace the Data API client with an API of our own
+and migrate identity/claims while keeping equivalent RLS.

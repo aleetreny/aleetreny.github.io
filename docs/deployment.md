@@ -1,29 +1,32 @@
-# Despliegue
+# Deployment
 
 ## GitHub Pages
 
 Workflow: `.github/workflows/deploy-pages.yml`.
 
-- trigger automático: push a `main`;
-- trigger manual: Actions > Deploy GitHub Pages > Run workflow;
-- build: `pnpm check` y `pnpm build`;
-- artefacto: `dist/` mediante `upload-pages-artifact`;
-- despliegue: environment `github-pages` con `pages:write` e identidad OIDC.
+- automatic trigger: a push to `main`;
+- manual trigger: Actions > Deploy GitHub Pages > Run workflow;
+- build: `pnpm check` and `pnpm build`;
+- artifact: `dist/` through `upload-pages-artifact`;
+- deploy: the `github-pages` environment with `pages:write` and OIDC identity.
 
-En Settings > Pages debe seleccionarse GitHub Actions. No se sube `dist/` al repositorio.
+Settings > Pages must have GitHub Actions selected. `dist/` is never committed.
 
-La selección manual inicial en Settings es obligatoria porque cambiar un sitio existente desde la fuente legacy requiere permiso administrativo. Comprueba el resultado con:
+That initial manual selection is required, because switching an existing site
+away from the legacy source needs administrative permission. Check the result
+with:
 
 ```bash
 curl -fsSL -H 'Cache-Control: no-cache' https://aleetreny.github.io/index.html \
   | grep -E 'assets/index|src/main'
 ```
 
-El resultado correcto contiene `/assets/index-*.js`. Si aparece `/src/main.tsx`, Pages está sirviendo el repositorio sin compilar y hay que corregir la fuente antes de continuar.
+A correct result contains `/assets/index-*.js`. If `/src/main.tsx` appears, Pages
+is serving the repository uncompiled and the source has to be fixed first.
 
-## Variables de Pages
+## Pages variables
 
-Todas son públicas porque se incorporan al bundle:
+All of them are public, because they are bundled:
 
 - `VITE_ENABLE_REMOTE_DATA=true`
 - `VITE_NEON_AUTH_URL`
@@ -31,45 +34,74 @@ Todas son públicas porque se incorporan al bundle:
 - `VITE_STORAGE_FUNCTION_URL`
 - `VITE_STORAGE_PUBLIC_BASE_URL`
 
-El workflow incluye como fallback los endpoints públicos de producción ya verificados y activa el contenido remoto aunque se pierdan las Variables del repositorio. Las Variables siguen teniendo prioridad y permiten migrar de proyecto sin editar el workflow. Si Neon falla en ejecución, el frontend muestra automáticamente los fixtures versionados; para una recuperación deliberadamente aislada, define `VITE_ENABLE_REMOTE_DATA=false`.
+The workflow carries the already-verified public production endpoints as a
+fallback and enables remote content even if the repository Variables are lost.
+The Variables still take priority, so a project migration needs no workflow edit.
+If Neon fails at runtime the frontend shows the versioned fixtures automatically;
+for a deliberately isolated recovery, set `VITE_ENABLE_REMOTE_DATA=false`.
 
-No crear una variable `VITE_DATABASE_URL`, `VITE_NEON_API_KEY` ni `VITE_AWS_SECRET_ACCESS_KEY`.
+Never create a `VITE_DATABASE_URL`, `VITE_NEON_API_KEY` or
+`VITE_AWS_SECRET_ACCESS_KEY` variable.
 
-## Backend Neon
+## Neon backend
 
-Workflow manual: `.github/workflows/provision-neon.yml`.
+Manual workflow: `.github/workflows/provision-neon.yml`.
 
-GitHub Environments recomendados:
+Recommended GitHub Environments:
 
-| Entorno | Secrets | Variables | Protección |
+| Environment | Secrets | Variables | Protection |
 | --- | --- | --- | --- |
-| development | `NEON_API_KEY`, `DATABASE_URL` de rama dev | `NEON_PROJECT_ID`, `NEON_BRANCH`, `ALLOWED_ORIGINS` | opcional |
-| production | `NEON_API_KEY`, `DATABASE_URL` producción | mismas y `NEON_PROTECT_DEFAULT_BRANCH` | solo `main` + confirmación `APPLY_PRODUCTION` |
+| development | `NEON_API_KEY`, dev branch `DATABASE_URL` | `NEON_PROJECT_ID`, `NEON_BRANCH`, `ALLOWED_ORIGINS` | optional |
+| production | `NEON_API_KEY`, production `DATABASE_URL` | the same plus `NEON_PROTECT_DEFAULT_BRANCH` | `main` only + `APPLY_PRODUCTION` |
 
-Ejecuta `plan` antes de `apply`. `apply` despliega `neon.ts`, migra y verifica. No apunta automáticamente a producción en cada push.
+Run `plan` before `apply`. `apply` deploys `neon.ts`, migrates and verifies. It
+does not point at production automatically on every push.
 
-La política protege la rama predeterminada salvo que el plan admita cero ramas protegidas. En ese caso usa `NEON_PROTECT_DEFAULT_BRANCH=false`, limita el environment `production` a la rama `main` y exige `production_confirmation=APPLY_PRODUCTION` para `apply`; vuelve a `true` en cuanto el plan lo permita. El plan GitHub actual del repositorio privado no ofrece revisores obligatorios, por lo que esta compensación queda documentada y no debe presentarse como aprobación humana.
+The policy protects the default branch unless the plan allows zero protected
+branches. In that case use `NEON_PROTECT_DEFAULT_BRANCH=false`, restrict the
+`production` environment to `main`, and require
+`production_confirmation=APPLY_PRODUCTION` for `apply`; go back to `true` as soon
+as the plan permits. The repository's current GitHub plan offers no required
+reviewers, so this compensation is documented and must not be presented as human
+approval.
 
-## Dominio
+## Seeding content
 
-Dominio actual previsto: `aleetreny.github.io`. No hay `CNAME`. Para añadir dominio:
+Manual workflow: `.github/workflows/seed-content.yml`. It applies migrations,
+seeds the versioned catalogue and board settings into the chosen environment's
+`DATABASE_URL`, and verifies. With `replace_catalogue=true` it moves any entry
+outside the catalogue to the recoverable trash. `production` requires
+`production_confirmation=APPLY_PRODUCTION`.
 
-1. configura DNS y Settings > Pages;
-2. verifica HTTPS;
-3. añade origen y callbacks a Neon Auth;
-4. actualiza `ALLOWED_ORIGINS`;
-5. actualiza URLs canónicas/metadata;
-6. documenta el rollback DNS.
+Run `pnpm content:build` before seeding if anything under `content/source/`
+changed. A reseed is required whenever the fixtures change shape — a new settings
+key, a renamed list, a new card field. Edits made from the site itself never need
+one.
 
-## Recuperación de un despliegue fallido
+## Domain
 
-1. inspecciona el job exacto y conserva URL/log relevante;
-2. reproduce desde clon limpio con `pnpm install --frozen-lockfile && pnpm check && pnpm build`;
-3. corrige en rama y no desactives verificaciones;
-4. relanza manualmente si el commit ya contiene la corrección;
-5. para rollback, revierte el commit en Git y vuelve a desplegar;
-6. para emergencia visual, usa `backup/static-terminal-2025` según `docs/recovery.md`.
+The current domain is `aleetreny.github.io`. There is no `CNAME`. To add a
+domain:
+
+1. configure DNS and Settings > Pages;
+2. verify HTTPS;
+3. add the origin and callbacks to Neon Auth;
+4. update `ALLOWED_ORIGINS`;
+5. update canonical URLs and metadata;
+6. document the DNS rollback.
+
+## Recovering a failed deploy
+
+1. inspect the exact job and keep the relevant URL/log;
+2. reproduce from a clean clone with
+   `pnpm install --frozen-lockfile && pnpm check && pnpm build`;
+3. fix it on a branch, and do not disable checks;
+4. re-dispatch manually if the commit already carries the fix;
+5. to roll back, revert the commit in Git and deploy again;
+6. for a visual emergency, use `backup/static-terminal-2025` as described in
+   `docs/recovery.md`.
 
 ## Release
 
-Solo etiqueta una versión estable cuando CI, Pages, Auth, RLS, Storage y clon limpio estén verificados. Formato propuesto: `portfolio-v0.1.0`.
+Only tag a stable version once CI, Pages, Auth, RLS, Storage and a clean clone
+are all verified. Proposed format: `portfolio-v0.1.0`.

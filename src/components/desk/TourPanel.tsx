@@ -71,7 +71,7 @@ function NumberRow({ id, label, value, min, max, step = 1, suffix, onChange }: {
           step={step}
           value={value}
           onChange={(event) => onChange(Number(event.target.value))}
-          aria-label={`${label} deslizador`}
+          aria-label={`${label} slider`}
         />
         <input
           id={id}
@@ -168,7 +168,7 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
   return (
     <div className="overlay" role="presentation">
       <div className="overlay__scrim" onClick={onClose} />
-      <div className="panel panel--theme" role="dialog" aria-modal="true" aria-label="Editar el recorrido">
+      <div className="panel panel--theme" role="dialog" aria-modal="true" aria-label="Edit the guided tour">
         <div className="panel__eyebrow">guided tour</div>
         <div className="panel__title">The board tour</div>
         <p className="panel__hint">
@@ -238,11 +238,11 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                           value={stop.label}
                           placeholder="stop label"
                           onChange={(event) => patchStop(index, { label: event.target.value })}
-                          aria-label={`Título de la parada ${index + 1}`}
+                          aria-label={`Stop ${index + 1} heading`}
                         />
-                        <button className="editdel" type="button" onClick={() => moveStop(index, -1)} aria-label="Subir">↑</button>
-                        <button className="editdel" type="button" onClick={() => moveStop(index, 1)} aria-label="Bajar">↓</button>
-                        <button className="editdel" type="button" onClick={() => setStops(tour.stops.filter((_, i) => i !== index))} aria-label="Borrar parada">×</button>
+                        <button className="editdel" type="button" onClick={() => moveStop(index, -1)} aria-label="Move up">↑</button>
+                        <button className="editdel" type="button" onClick={() => moveStop(index, 1)} aria-label="Move down">↓</button>
+                        <button className="editdel" type="button" onClick={() => setStops(tour.stops.filter((_, i) => i !== index))} aria-label="Delete stop">×</button>
                       </div>
                       <div className="stopeditor__items">
                         {stop.items.map((id) => (
@@ -252,7 +252,7 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                               type="button"
                               className="chip__x"
                               onClick={() => patchStop(index, { items: stop.items.filter((other) => other !== id) })}
-                              aria-label={`Quitar ${id}`}
+                              aria-label={`Remove ${id}`}
                             >×</button>
                           </span>
                         ))}
@@ -263,7 +263,7 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                             if (!event.target.value) return;
                             patchStop(index, { items: [...stop.items, event.target.value] });
                           }}
-                          aria-label={`Añadir una pieza a la parada ${index + 1}`}
+                          aria-label={`Add a piece to stop ${index + 1}`}
                         >
                           <option value="">+ piece</option>
                           {items.filter((item) => !stop.items.includes(item.id)).map((item) => (

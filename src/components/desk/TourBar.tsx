@@ -43,7 +43,7 @@ export function TourBar({
               className="tbtn tbtn--icon"
               type="button"
               onClick={onTogglePause}
-              aria-label={paused ? 'Reanudar el recorrido' : 'Pausar el recorrido'}
+              aria-label={paused ? 'Resume the tour' : 'Pause the tour'}
             >
               {paused ? '▶' : '❚❚'}
             </button>
@@ -67,7 +67,7 @@ export function TourBar({
                     type="button"
                     className={`tourbar__dot ${index < step ? 'is-done' : ''} ${index === step - 1 ? 'is-here' : ''}`}
                     onClick={() => onJump(index)}
-                    aria-label={`Ir a la parada ${index + 1}`}
+                    aria-label={`Go to stop ${index + 1}`}
                     aria-current={index === step - 1 ? 'step' : undefined}
                   />
                 ))}

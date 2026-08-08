@@ -1,53 +1,64 @@
-# Recuperación
+# Recovery
 
-## Reconstrucción total
+## Full rebuild
 
-1. clona GitHub y selecciona la rama/tag estable;
-2. instala Node/pnpm y `pnpm install --frozen-lockfile`;
-3. copia `.env.example` a `.env.local`;
-4. crea/enlaza proyecto Neon compatible;
-5. crea una rama aislada;
-6. ejecuta `neon config plan` y `neon deploy`;
-7. configura `DATABASE_URL` y `pnpm db:migrate`;
-8. crea/allowlist propietario;
-9. importa DB pública y objetos si existen backups;
+1. clone GitHub and select the stable branch/tag;
+2. install Node/pnpm and run `pnpm install --frozen-lockfile`;
+3. copy `.env.example` to `.env.local`;
+4. create/link a compatible Neon project;
+5. create an isolated branch;
+6. run `neon config plan` and `neon deploy`;
+7. configure `DATABASE_URL` and run `pnpm db:migrate`;
+8. create and allowlist the owner;
+9. import the public DB and objects if backups exist;
 10. `pnpm db:verify`, `pnpm check`, `pnpm build`;
-11. configura GitHub Variables/Secrets y Pages;
-12. verifica login, RLS, subida y página pública antes de producción.
+11. configure GitHub Variables/Secrets and Pages;
+12. verify login, RLS, upload and the public page before production.
 
-## Restaurar esquema sin historial de migraciones
+## Restore the schema without a migration history
 
 ```bash
 psql "$DATABASE_URL" -f db/schema.sql
 ```
 
-Después registra/contrasta `app_private.schema_migrations` usando una base nueva preferentemente; no marques migraciones manualmente en una base existente sin verificar checksums.
+Afterwards register/reconcile `app_private.schema_migrations`, preferably on a
+fresh database. Do not mark migrations by hand on an existing database without
+verifying checksums.
 
-## Recuperar datos
+## Recover data
 
-- error reciente en Neon: crea rama desde un punto anterior/instant restore dentro de la ventana del plan;
-- export lógico: `pnpm db:import` con owner de destino;
-- objetos: `pnpm storage:import` y después reconciliar `assets.public_url`;
-- datos personales: usa backup privado aprobado, nunca fixtures Git.
+- a recent mistake in Neon: branch from an earlier point, or instant-restore
+  within the plan's window;
+- logical export: `pnpm db:import` with the target owner;
+- objects: `pnpm storage:import`, then reconcile `assets.public_url`;
+- personal data: use an approved private backup, never the Git fixtures.
 
-## Volver a la web anterior
+## Go back to the previous site
 
-La versión terminal está preservada en:
+The terminal version is preserved in:
 
-- rama remota `backup/static-terminal-2025`;
-- snapshot `legacy/terminal-portfolio/index.html`;
-- commit original `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
+- the remote branch `backup/static-terminal-2025`;
+- the snapshot `legacy/terminal-portfolio/index.html`;
+- the original commit `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`.
 
-Rollback seguro: crea una rama desde el backup, abre/revisa el cambio hacia `main` o cambia temporalmente la fuente de Pages. No borres historial. Valida que el backup no dependa de assets locales (usa CDNs externos como antes).
+Safe rollback: branch from the backup, open and review the change towards `main`,
+or temporarily switch the Pages source. Do not delete history. Check that the
+backup does not depend on local assets (it used external CDNs, as before).
 
-## Fallo de Auth/Data API
+## Auth / Data API failure
 
-Desactiva temporalmente `VITE_ENABLE_REMOTE_DATA` y despliega fixtures solo si se acepta mostrar contenido demo; esto no recupera borradores ni habilita edición. Investiga URLs de rama, trusted origins, roles, caché de esquema y RLS.
+Temporarily turn off `VITE_ENABLE_REMOTE_DATA` and deploy the fixtures only if
+showing the safe copy is acceptable; this recovers no drafts and enables no
+editing. Investigate branch URLs, trusted origins, roles, schema cache and RLS.
 
-## Fallo de Storage
+## Storage failure
 
-El contenido textual sigue funcionando si las URLs de imagen no son esenciales. No expongas credenciales como atajo. Restaura en rama, verifica objetos y luego cambia URLs/configuración.
+Text content keeps working if image URLs are not essential. Do not expose
+credentials as a shortcut. Restore on a branch, verify the objects, then change
+URLs and configuration.
 
-## Evidencia de recuperación
+## Recovery evidence
 
-Registra fecha, commit, rama Neon, backup utilizado, comandos y verificaciones en un issue/documento operativo sin secretos; actualiza `docs/handoff.md`.
+Record the date, commit, Neon branch, backup used, commands and verifications in
+an issue or operational document with no secrets in it, and update
+`docs/handoff.md`.

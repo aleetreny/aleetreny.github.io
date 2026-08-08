@@ -1,27 +1,34 @@
-# ADR 0001: Vite, React y TypeScript
+# ADR 0001: Vite, React and TypeScript
 
-- Estado: aceptada
-- Fecha: 2026-08-04
+- Status: accepted
+- Date: 2026-08-04
 
-## Contexto
+## Context
 
-GitHub Pages exige salida estática. El portfolio necesita UI interactiva y un futuro editor, pero no SSR obligatorio.
+GitHub Pages requires static output. The portfolio needs an interactive UI and a
+future editor, but no mandatory SSR.
 
-## Opciones consideradas
+## Options considered
 
-- HTML/JS sin framework: mínimo, pero editor y estado escalarían mal.
-- Next.js: ecosistema amplio, pero Pages obliga export estático y muchas capacidades server quedan inutilizadas.
-- Astro: gran contenido estático, más complejidad al convertir casi todo el editor en islas.
+- HTML/JS with no framework: minimal, but the editor and its state would scale
+  badly.
+- Next.js: a wide ecosystem, but Pages forces a static export and most server
+  capabilities go unused.
+- Astro: excellent for static content, more complexity once nearly all of the
+  editor becomes islands.
 - Vite + React + TypeScript.
 
-## Decisión y razones
+## Decision and reasons
 
-Usar Vite/React/TypeScript: build estática directa, tipado compartido, testing simple y compatibilidad natural con SDK browser de Neon.
+Use Vite/React/TypeScript: a direct static build, shared typing, simple testing
+and natural compatibility with Neon's browser SDK.
 
-## Consecuencias
+## Consequences
 
-No hay SSR ni rutas API. SEO depende de HTML base/metadatos y contenido renderizado cliente; el backend debe vivir fuera de Pages.
+There is no SSR and there are no API routes. SEO depends on the base HTML and
+metadata plus client-rendered content; the backend must live outside Pages.
 
-## Cómo cambiar
+## How to change it
 
-Mantener `types`, fixtures y repositorio de contenido desacoplados; migrar render a Astro/otro generador conservando contratos y Data API.
+Keep `types`, fixtures and the content repository decoupled; move the rendering
+to Astro or another generator while keeping the contracts and the Data API.
