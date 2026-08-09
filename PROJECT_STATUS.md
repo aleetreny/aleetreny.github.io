@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-08-08. Branch: `main`.
+Updated: 2026-08-09. Branch: `main`.
 
 ## The board as a template (2026-08)
 
@@ -122,7 +122,9 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
   `production` and `codex-integration`;
 - the real owner account created and enabled in `app_private.owner_accounts`
   without sharing a password;
-- the catalogue synchronised on both Neon branches;
+- the catalogue synchronised on both Neon branches, reseeded on `development` and
+  then `production` after the looks and language work so that `site.i18n` exists,
+  `theme` carries `cards` and `dossier`, and the seeded prose is language-tagged;
 - GitHub Environments `development` and `production` with `DATABASE_URL`,
   `NEON_API_KEY` and four public Variables;
 - GitHub Pages configured with GitHub Actions and the rollback preserved in
@@ -131,7 +133,7 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
   keyboard and touch, back/jump/skip/loop/auto/scroll, every touch gesture, and a
   regression pass over dossiers, drag, `+ N more`, jumps, scatter/reset and
   reduced motion, with no console errors;
-- local checks: repository scan, lint, types, 65 tests and build;
+- local checks: repository scan, lint, types, 88 tests and build;
 - documentation for the handbook, architecture, data, authentication, editor,
   storage, deployment, security, recovery and handoff.
 
