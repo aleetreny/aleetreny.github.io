@@ -76,10 +76,26 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
 
 ## Looks, article design and two languages (2026-08)
 
-- **Eight complete looks** in the theme panel — Working slate, Newsprint,
-  Blueprint studio, Cork room, Brutalist, Night lab, Sun-bleached, Late sunset.
-  Each fully owns backdrop, cards and article, so applying one is deterministic;
-  none of them touch content, positions or the tour.
+- **Twelve complete looks** in the theme panel — Working slate, Solarized Light,
+  Nord, Gruvbox, Dracula, Catppuccin Latte, Tokyo Night, Rosé Pine Dawn,
+  Everforest, Monokai, Newsprint and Brutalist. Ten are built on the published
+  colour schemes they are named after, using their real values, and four are
+  light boards. Each fully owns backdrop, cards, article and palette, so applying
+  one is deterministic; none of them touch content, positions or the tour.
+- The slate stopped being a fixed texture: `backdrop.slate`/`slate2`/`slateInk`
+  colour it, and `pattern` draws one of nine patterns in an ink that follows the
+  slate's brightness, so a grid survives on cream as well as on charcoal. Leaving
+  the fields empty keeps the board style's own painting, so nothing shipped moved.
+- Fixed with the light boards: the hero block hardcoded a cream, so its opening
+  paragraph and hint were invisible on any pale slate. Everything painted on the
+  slate now mixes towards `--board-ink`; text on the slate clears WCAG AA in all
+  twelve looks.
+- Fixed: `content_entries.title`/`.summary` are text columns, so the bilingual
+  language maps were being stringified into them — every dossier on the public
+  board was titled `[object Object]`. The languages now travel in `metadata.i18n`
+  (jsonb, which already round-trips through `save_content_entry`) and the column
+  keeps a plain projection. `src/lib/entry-storage.ts` is the only place the
+  stored and app shapes meet.
 - **Cards** gained an edge (six kinds), shadow, paper grain, padding, a fastener
   (tape, pin, clip, staple) and a hover behaviour (raise, straighten, tilt,
   glow), plus row tint and rule thickness.
@@ -133,7 +149,7 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
   keyboard and touch, back/jump/skip/loop/auto/scroll, every touch gesture, and a
   regression pass over dossiers, drag, `+ N more`, jumps, scatter/reset and
   reduced motion, with no console errors;
-- local checks: repository scan, lint, types, 88 tests and build;
+- local checks: repository scan, lint, types, 110 tests and build;
 - documentation for the handbook, architecture, data, authentication, editor,
   storage, deployment, security, recovery and handoff.
 
