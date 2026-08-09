@@ -876,11 +876,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const entry = pendingEntry.current;
     pendingEntry.current = null;
     savingRef.current = true;
-    saveContentEntry(entry, 'inline edit')
+    saveContentEntry(entry, 'inline edit', i18n.primary)
       .then((saved) => { setEntries((list) => list.map((item) => (item.id === saved.id ? { ...item, version: saved.version } : item))); })
       .catch((reason: unknown) => { flash(reason instanceof Error ? reason.message : 'Could not save the text.', true); })
       .finally(() => { savingRef.current = false; if (pendingEntry.current) entryTimer.current = window.setTimeout(() => flushRef.current(), 60); });
-  }, [flash, remoteDataEnabled]);
+  }, [flash, remoteDataEnabled, i18n.primary]);
   useEffect(() => { flushRef.current = flushEntry; }, [flushEntry]);
 
   const changeEntry = useCallback((next: PortfolioEntry) => {
