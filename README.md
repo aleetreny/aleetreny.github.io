@@ -9,6 +9,8 @@ opens a full-page dossier. Drag the paper, scroll or pinch to zoom.
 Treny's actual portfolio, and the worked example of this template. Fork it, empty
 it, and it becomes yours.
 
+![The board](docs/images/board-01-live.jpg)
+
 Two things make it worth forking:
 
 - **Everything is editable from the site itself.** Sign in on your own copy and
@@ -18,7 +20,35 @@ Two things make it worth forking:
   provision, migrate, seed and deploy without recovering anything from a laptop.
 
 > **New here? Read [docs/handbook.md](docs/handbook.md).** It walks the whole
-> thing feature by feature and documents every editable setting.
+> thing feature by feature, with screenshots, and documents every editable
+> setting: what it does, what it accepts, and how to change it.
+
+## Eight looks, one click
+
+The theme panel ships with complete looks — texture, wall, cards, article and
+palette together. A look never touches your text, your positions or your tour,
+so trying one on costs nothing.
+
+| | | | |
+| --- | --- | --- | --- |
+| ![Working slate](docs/images/look-working-slate.jpg) | ![Newsprint](docs/images/look-newsprint.jpg) | ![Blueprint studio](docs/images/look-blueprint-studio.jpg) | ![Cork room](docs/images/look-cork-room.jpg) |
+| Working slate | Newsprint | Blueprint studio | Cork room |
+| ![Brutalist](docs/images/look-brutalist.jpg) | ![Night lab](docs/images/look-night-lab.jpg) | ![Sun-bleached](docs/images/look-sun-bleached.jpg) | ![Late sunset](docs/images/look-late-sunset.jpg) |
+| Brutalist | Night lab | Sun-bleached | Late sunset |
+
+Underneath them, everything is a control of its own: card edge, shadow, grain,
+padding, what fastens a card to the slate and what it does on hover; and for the
+article, its width, measure, body face and size, leading, title size, weight,
+case and tracking, opening-line style, drop cap, block numbering, gap, entrance
+animation and scrim.
+
+## Two languages, written in one
+
+Write in the language you think in; the other is filled in for you and stored
+next to it. Visitors get a switcher and a remembered choice. Machine translation
+runs **while you edit, never while a visitor reads**, so the published site has
+no runtime dependency on any service — and it is free, with no key needed to
+start.
 
 ## The first visit
 
@@ -46,7 +76,7 @@ editable.
 The public site is a static SPA. The versioned catalogue
 (`fixtures/demo-content.json`, generated with `pnpm content:build`) holds the
 dossiers, and `fixtures/site-settings.json` holds the board configuration:
-`theme`, `board`, `board.layout` and `board.tour`.
+`theme`, `board`, `board.layout`, `board.tour` and `site.i18n`.
 
 With `VITE_ENABLE_REMOTE_DATA=false` it runs entirely from those fixtures, with
 no database at all. With Neon configured it reads published content and settings,
@@ -259,6 +289,7 @@ Repository or `github-pages` environment variables (all public):
 - `VITE_NEON_DATA_API_URL`
 - `VITE_STORAGE_FUNCTION_URL`
 - `VITE_STORAGE_PUBLIC_BASE_URL`
+- `VITE_TRANSLATE_FUNCTION_URL` (optional; only for a self-hosted translator)
 
 The public Auth/Data API/Storage endpoints and `VITE_ENABLE_REMOTE_DATA=true`
 have recovery defaults committed in the workflow; the Variables override them.

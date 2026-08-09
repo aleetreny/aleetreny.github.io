@@ -31,10 +31,43 @@ export const THEME = {
     grid: 'plate', // plate | viewport | off
     gridScale: 1,
   },
+  // How a card is built as an object.
+  cards: {
+    edge: 'hairline', // hairline | none | heavy | double | dashed | inked
+    shadow: 1, // 0..2.5 multiplier on the drop shadow
+    grain: 0, // 0..1 paper grain over the surface
+    padding: 22, // px inside a card
+    fastener: 'none', // none | tape | pin | clip | staple
+    lift: 'none', // none | raise | straighten | tilt | glow — on hover
+    rowContrast: 0.5, // 0..1 how strongly a drawer row is tinted
+    rowRule: 3, // px accent rule down the left of a row
+  },
+  // The full-page article a card opens into.
+  dossier: {
+    width: 860, // px plate width
+    measure: 60, // ch reading measure
+    bodyFace: 'display', // display | mono
+    bodySize: 16.5,
+    bodyLeading: 1.66,
+    titleSize: 46,
+    titleWeight: 800,
+    titleCase: 'none', // none | upper | lower
+    titleTracking: -0.03, // em
+    lede: 'italic', // italic | plain | large | kicker
+    dropCap: false,
+    numbered: false,
+    blockGap: 18, // px between blocks
+    enter: 'plate', // plate | fade | rise | sheet | none
+    scrim: 0.78, // 0..1 darkness behind the plate
+    scrimBlur: 5, // px
+    centred: false,
+  },
   fonts: {
     display: "'Bricolage Grotesque', system-ui, sans-serif",
     mono: "'IBM Plex Mono', ui-monospace, monospace",
     scale: 1,
+    displayWeight: 700,
+    tracking: 0, // em, added to every display letter-spacing
   },
   colors: {
     accent: 'oklch(0.5 0.13 45)', // rust — links, work accents
@@ -197,6 +230,22 @@ export const MARGINALIA = [
   { id: 'note-2', x: 2210, y: 1450, rot: 2.4, w: 270, style: 'amber', text: 'Second brain, my dad calls it the third brain. He is not wrong and it stings.' },
   { id: 'note-3', x: 2210, y: 1700, rot: -1.2, w: 270, style: 'paper-dashed', text: 'Working theory: depth feels like plenitude, breadth feels like appetite. I want both, so I never stop.' },
 ];
+
+// Languages. Off by default: a fork with one language behaves exactly as it
+// did before this existed. Turn it on and the board gains a switcher, the owner
+// writes in `primary`, and the translate action in the owner bar fills the rest.
+export const I18N = {
+  enabled: true,
+  primary: 'es',
+  languages: [
+    { code: 'es', label: 'Español' },
+    { code: 'en', label: 'English' },
+  ],
+  auto: true, // translate a field when the owner leaves it
+  provider: 'mymemory', // mymemory (keyless) | function (your own key) | off
+  remember: true, // keep the visitor's choice
+  followBrowser: true, // otherwise guess from Accept-Language
+};
 
 // The guided tour — the slate slams onto the wall and the visitor walks the
 // board section by section, at their own pace, while each drawer, photo and

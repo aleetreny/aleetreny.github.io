@@ -8,6 +8,7 @@ import {
   type EntryType,
   type EntryVersionSummary,
   type PortfolioEntry,
+  type StoredPortfolioEntry,
   type StoredAsset,
 } from '../types/content';
 import type { Json } from '../types/database';
@@ -41,7 +42,7 @@ function jsonObject(value: Json): Record<string, unknown> {
     : {};
 }
 
-function assembleEntries(entries: EntryRow[], blocks: BlockRow[]): PortfolioEntry[] {
+function assembleEntries(entries: EntryRow[], blocks: BlockRow[]): StoredPortfolioEntry[] {
   const blocksByEntry = new Map<string, ContentBlock[]>();
 
   for (const block of blocks) {
@@ -70,7 +71,7 @@ function assembleEntries(entries: EntryRow[], blocks: BlockRow[]): PortfolioEntr
   }));
 }
 
-async function fetchEntries(ownerView: boolean): Promise<PortfolioEntry[]> {
+async function fetchEntries(ownerView: boolean): Promise<StoredPortfolioEntry[]> {
   const neonClient = await getNeonClient();
   if (!neonClient) return demoEntries;
 
@@ -107,7 +108,7 @@ async function fetchEntries(ownerView: boolean): Promise<PortfolioEntry[]> {
   return assembleEntries(entries, (blockData ?? []) as BlockRow[]);
 }
 
-export function listPublishedEntries(): Promise<PortfolioEntry[]> {
+export function listPublishedEntries(): Promise<StoredPortfolioEntry[]> {
   return fetchEntries(false);
 }
 
@@ -143,7 +144,7 @@ export async function saveSiteSetting(key: string, value: unknown, isPublic = tr
   if (error) throw new Error(error.message);
 }
 
-export function listOwnerEntries(): Promise<PortfolioEntry[]> {
+export function listOwnerEntries(): Promise<StoredPortfolioEntry[]> {
   return fetchEntries(true);
 }
 
@@ -233,7 +234,7 @@ async function getAuthorizedOwnerClient() {
   return neonClient;
 }
 
-export async function saveContentEntry(entry: PortfolioEntry, reason = 'editor save'): Promise<PortfolioEntry> {
+export async function saveContentEntry(entry: StoredPortfolioEntry, reason = 'editor save'): Promise<StoredPortfolioEntry> {
   const neonClient = await getAuthorizedOwnerClient();
 
   const { blocks, ...entryFields } = entry;
@@ -262,7 +263,7 @@ export async function deleteContentEntry(entry: Pick<PortfolioEntry, 'id' | 'ver
 
 export async function restoreDeletedContentEntry(
   entry: Pick<DeletedEntrySummary, 'id' | 'version'>,
-): Promise<PortfolioEntry> {
+): Promise<StoredPortfolioEntry> {
   const neonClient = await getAuthorizedOwnerClient();
   const { data, error } = await neonClient.rpc('restore_deleted_content_entry', {
     p_entry_id: entry.id,
@@ -292,7 +293,7 @@ export async function restoreEntryVersion(
   entryId: string,
   version: number,
   expectedVersion: number,
-): Promise<PortfolioEntry> {
+): Promise<StoredPortfolioEntry> {
   const neonClient = await getAuthorizedOwnerClient();
   const { data, error } = await neonClient.rpc('restore_content_entry_version', {
     p_entry_id: entryId,

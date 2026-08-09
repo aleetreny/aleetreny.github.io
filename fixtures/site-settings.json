@@ -22,10 +22,41 @@
         "grid": "plate",
         "gridScale": 1
       },
+      "cards": {
+        "edge": "hairline",
+        "shadow": 1,
+        "grain": 0,
+        "padding": 22,
+        "fastener": "none",
+        "lift": "none",
+        "rowContrast": 0.5,
+        "rowRule": 3
+      },
+      "dossier": {
+        "width": 860,
+        "measure": 60,
+        "bodyFace": "display",
+        "bodySize": 16.5,
+        "bodyLeading": 1.66,
+        "titleSize": 46,
+        "titleWeight": 800,
+        "titleCase": "none",
+        "titleTracking": -0.03,
+        "lede": "italic",
+        "dropCap": false,
+        "numbered": false,
+        "blockGap": 18,
+        "enter": "plate",
+        "scrim": 0.78,
+        "scrimBlur": 5,
+        "centred": false
+      },
       "fonts": {
         "display": "'Bricolage Grotesque', system-ui, sans-serif",
         "mono": "'IBM Plex Mono', ui-monospace, monospace",
-        "scale": 1
+        "scale": 1,
+        "displayWeight": 700,
+        "tracking": 0
       },
       "colors": {
         "accent": "oklch(0.5 0.13 45)",
@@ -55,39 +86,57 @@
       "groups": [
         {
           "id": "work",
-          "label": "Paid work"
+          "label": {
+            "en": "Paid work"
+          }
         },
         {
           "id": "edu",
-          "label": "Schooling"
+          "label": {
+            "en": "Schooling"
+          }
         },
         {
           "id": "lab",
-          "label": "Lab bench"
+          "label": {
+            "en": "Lab bench"
+          }
         },
         {
           "id": "vol",
-          "label": "Unpaid"
+          "label": {
+            "en": "Unpaid"
+          }
         },
         {
           "id": "hack",
-          "label": "Hackathons & prizes"
+          "label": {
+            "en": "Hackathons & prizes"
+          }
         },
         {
           "id": "repos",
-          "label": "The workshop"
+          "label": {
+            "en": "The workshop"
+          }
         },
         {
           "id": "travel",
-          "label": "Field log"
+          "label": {
+            "en": "Field log"
+          }
         },
         {
           "id": "random",
-          "label": "The drawer"
+          "label": {
+            "en": "The drawer"
+          }
         },
         {
           "id": "contact",
-          "label": "Reachable"
+          "label": {
+            "en": "Reachable"
+          }
         }
       ],
       "cards": [
@@ -99,8 +148,12 @@
           "y": 110,
           "rot": 0,
           "w": 620,
-          "kicker": "the working board · everything, on purpose",
-          "name": "Alejandro\nTreny",
+          "kicker": {
+            "en": "the working board · everything, on purpose"
+          },
+          "name": {
+            "en": "Alejandro\nTreny"
+          },
           "tags": [
             "statistician",
             "data scientist",
@@ -109,8 +162,12 @@
               "accent": true
             }
           ],
-          "intro": "I fit models for a living and I have kept a diary about it every week for five years. Málaga made me, Madrid pays me, London gets me next.",
-          "hint": "This board is the index, not the summary — I have a phobia of leaving things out. Tap any line and it opens the full page. Drag the paper, pinch or scroll to zoom."
+          "intro": {
+            "en": "I fit models for a living and I have kept a diary about it every week for five years. Málaga made me, Madrid pays me, London gets me next."
+          },
+          "hint": {
+            "en": "This board is the index, not the summary — I have a phobia of leaving things out. Tap any line and it opens the full page. Drag the paper, pinch or scroll to zoom."
+          }
         },
         {
           "id": "now",
@@ -121,14 +178,26 @@
           "rot": 1.2,
           "w": 400,
           "tone": "amber",
-          "label": "currently",
+          "label": {
+            "en": "currently"
+          },
           "current": "siemens",
-          "nextLabel": "next",
+          "nextLabel": {
+            "en": "next"
+          },
           "next": "ucl",
-          "currentTitle": "Data Scientist\n@ Siemens Energy",
-          "currentSub": "Cash-flow forecasting for the Spanish HQ. GAMs against XGBoost, then squashed into a dashboard a director reads in eight seconds. Also my MSc thesis.",
-          "nextTitle": "MSc Data Science & ML, UCL",
-          "nextSub": "Oct 2026 · Kareema Excellence Grant, €45k"
+          "currentTitle": {
+            "en": "Data Scientist\n@ Siemens Energy"
+          },
+          "currentSub": {
+            "en": "Cash-flow forecasting for the Spanish HQ. GAMs against XGBoost, then squashed into a dashboard a director reads in eight seconds. Also my MSc thesis."
+          },
+          "nextTitle": {
+            "en": "MSc Data Science & ML, UCL"
+          },
+          "nextSub": {
+            "en": "Oct 2026 · Kareema Excellence Grant, €45k"
+          }
         },
         {
           "id": "work",
@@ -140,8 +209,12 @@
           "rot": -0.7,
           "w": 620,
           "tone": "paper",
-          "kicker": "drawer 01 — paid work",
-          "title": "Where the numbers\nhad consequences",
+          "kicker": {
+            "en": "drawer 01 — paid work"
+          },
+          "title": {
+            "en": "Where the numbers\nhad consequences"
+          },
           "layout": "list",
           "maxItems": 4,
           "stats": [
@@ -173,11 +246,17 @@
           "rot": 0.6,
           "w": 620,
           "tone": "dark",
-          "kicker": "drawer 02 — schooling",
-          "title": "Marks I keep\nbringing up",
+          "kicker": {
+            "en": "drawer 02 — schooling"
+          },
+          "title": {
+            "en": "Marks I keep\nbringing up"
+          },
           "layout": "list",
           "maxItems": 4,
-          "subtitle": "I spent years arguing that memorising a book is not learning. Then I went and finished top 10% of three degrees, so nobody could use that against the argument."
+          "subtitle": {
+            "en": "I spent years arguing that memorising a book is not learning. Then I went and finished top 10% of three degrees, so nobody could use that against the argument."
+          }
         },
         {
           "id": "lab",
@@ -189,8 +268,12 @@
           "rot": -1,
           "w": 620,
           "tone": "slate",
-          "kicker": "drawer 03 — lab bench",
-          "title": "Things I built because\nthe maths was pretty",
+          "kicker": {
+            "en": "drawer 03 — lab bench"
+          },
+          "title": {
+            "en": "Things I built because\nthe maths was pretty"
+          },
           "layout": "grid",
           "maxItems": 6,
           "sweep": true,
@@ -215,8 +298,12 @@
           "rot": -1.6,
           "w": 400,
           "tone": "paper",
-          "kicker": "drawer 04 — unpaid",
-          "title": "Rooms I helped\nfill up",
+          "kicker": {
+            "en": "drawer 04 — unpaid"
+          },
+          "title": {
+            "en": "Rooms I helped\nfill up"
+          },
           "layout": "compact",
           "maxItems": 4
         },
@@ -230,8 +317,12 @@
           "rot": 1.7,
           "w": 400,
           "tone": "amber",
-          "kicker": "drawer 05 — 48-hour habits",
-          "title": "Hackathons\n& trophies",
+          "kicker": {
+            "en": "drawer 05 — 48-hour habits"
+          },
+          "title": {
+            "en": "Hackathons\n& trophies"
+          },
           "layout": "compact",
           "maxItems": 4
         },
@@ -245,9 +336,15 @@
           "rot": -0.9,
           "w": 400,
           "tone": "paperWarm",
-          "kicker": "drawer 06 — on the air",
-          "title": "Un Poco\nAbsurdo",
-          "blurb": "Tech and philosophy, named accurately. 200+ listeners an episode, five stars, three months in.",
+          "kicker": {
+            "en": "drawer 06 — on the air"
+          },
+          "title": {
+            "en": "Un Poco\nAbsurdo"
+          },
+          "blurb": {
+            "en": "Tech and philosophy, named accurately. 200+ listeners an episode, five stars, three months in."
+          },
           "waveform": true,
           "footer": [
             "200+ / ep",
@@ -265,11 +362,17 @@
           "rot": 1,
           "w": 450,
           "tone": "paper",
-          "kicker": "drawer 07 — the workshop",
-          "title": "Built for fun,\nshipped anyway",
+          "kicker": {
+            "en": "drawer 07 — the workshop"
+          },
+          "title": {
+            "en": "Built for fun,\nshipped anyway"
+          },
           "layout": "notes",
           "maxItems": 5,
-          "intro": "None of this is a job. It is what happens when a question refuses to leave me alone on a Tuesday night.",
+          "intro": {
+            "en": "None of this is a job. It is what happens when a question refuses to leave me alone on a Tuesday night."
+          },
           "footerLink": [
             "github.com/aleetreny →",
             "https://github.com/aleetreny"
@@ -285,11 +388,17 @@
           "rot": -1.2,
           "w": 450,
           "tone": "paper",
-          "kicker": "drawer 08 — field log",
-          "title": "Places that\nrearranged me",
+          "kicker": {
+            "en": "drawer 08 — field log"
+          },
+          "title": {
+            "en": "Places that\nrearranged me"
+          },
           "layout": "atlas",
           "maxItems": 8,
-          "intro": "I rate cities by picnic-ability, density of open notebooks and weekly re-enchantment. It is a real index. It lives in the Nordics."
+          "intro": {
+            "en": "I rate cities by picnic-ability, density of open notebooks and weekly re-enchantment. It is a real index. It lives in the Nordics."
+          }
         },
         {
           "id": "contact",
@@ -301,8 +410,12 @@
           "rot": 1.4,
           "w": 450,
           "tone": "dark",
-          "kicker": "drawer 09 — reachable",
-          "title": "Say something\nstrange",
+          "kicker": {
+            "en": "drawer 09 — reachable"
+          },
+          "title": {
+            "en": "Say something\nstrange"
+          },
           "links": [
             [
               "alejandrotreny100@gmail.com",
@@ -317,7 +430,9 @@
               "https://linkedin.com/in/aleetreny"
             ]
           ],
-          "note": "Spanish, French, English. Fastest reply if your message contains a question nobody has asked me before."
+          "note": {
+            "en": "Spanish, French, English. Fastest reply if your message contains a question nobody has asked me before."
+          }
         },
         {
           "id": "diary",
@@ -329,9 +444,15 @@
           "rot": -1.8,
           "w": 430,
           "tone": "paperCream",
-          "kicker": "drawer 10 — the long project",
-          "title": "Five years of a\nweekly diary",
-          "blurb": "Around 480 entries, each dated and star-rated, unbroken since April 2021. The longest-running dataset I own, and the reason this board sounds like me. Not published — it is the source, not the product.",
+          "kicker": {
+            "en": "drawer 10 — the long project"
+          },
+          "title": {
+            "en": "Five years of a\nweekly diary"
+          },
+          "blurb": {
+            "en": "Around 480 entries, each dated and star-rated, unbroken since April 2021. The longest-running dataset I own, and the reason this board sounds like me. Not published — it is the source, not the product."
+          },
           "grid": [
             [
               "~480",
@@ -352,7 +473,9 @@
           ],
           "ruled": true,
           "bars": true,
-          "barCaption": "mean weekly rating, by month · read more →"
+          "barCaption": {
+            "en": "mean weekly rating, by month · read more →"
+          }
         },
         {
           "id": "random",
@@ -364,8 +487,12 @@
           "rot": 1.6,
           "w": 430,
           "tone": "slate",
-          "kicker": "drawer 11 — the drawer",
-          "title": "Things with\nno CV line",
+          "kicker": {
+            "en": "drawer 11 — the drawer"
+          },
+          "title": {
+            "en": "Things with\nno CV line"
+          },
           "layout": "compact",
           "maxItems": 5,
           "footer": "Also: sci-fi and fantasy (Douglas Adams is non-negotiable), board games, Asian food, and one cricket eaten at a TEDx. I do not eat avocado."
@@ -379,10 +506,14 @@
           "rot": 2.6,
           "w": 280,
           "h": 240,
-          "caption": "Asunción",
+          "caption": {
+            "en": "Asunción"
+          },
           "hint": "drop a photo",
           "tape": true,
-          "placeholder": "Paraguay · volunteering"
+          "placeholder": {
+            "en": "Paraguay · volunteering"
+          }
         },
         {
           "id": "pola-2",
@@ -391,8 +522,12 @@
           "rot": -2.8,
           "w": 280,
           "h": 240,
-          "caption": "Norway, above the line",
-          "placeholder": "fjords / aurora / snowboard"
+          "caption": {
+            "en": "Norway, above the line"
+          },
+          "placeholder": {
+            "en": "fjords / aurora / snowboard"
+          }
         },
         {
           "id": "pola-3",
@@ -401,8 +536,12 @@
           "rot": 1.8,
           "w": 280,
           "h": 200,
-          "caption": "Ten thousand Europeans",
-          "placeholder": "EYE2025 / Strasbourg"
+          "caption": {
+            "en": "Ten thousand Europeans"
+          },
+          "placeholder": {
+            "en": "EYE2025 / Strasbourg"
+          }
         },
         {
           "id": "pola-4",
@@ -411,8 +550,12 @@
           "rot": -1.6,
           "w": 280,
           "h": 200,
-          "caption": "Almayate, harvest",
-          "placeholder": "the vegetable patch"
+          "caption": {
+            "en": "Almayate, harvest"
+          },
+          "placeholder": {
+            "en": "the vegetable patch"
+          }
         }
       ],
       "marginalia": [
@@ -423,7 +566,9 @@
           "rot": -3.4,
           "w": 250,
           "style": "amber",
-          "text": "Favourite word: fugaz. Nothing has value in eternity; everything has value because it ends."
+          "text": {
+            "en": "Favourite word: fugaz. Nothing has value in eternity; everything has value because it ends."
+          }
         },
         {
           "id": "note-2",
@@ -432,7 +577,9 @@
           "rot": 2.4,
           "w": 270,
           "style": "amber",
-          "text": "Second brain, my dad calls it the third brain. He is not wrong and it stings."
+          "text": {
+            "en": "Second brain, my dad calls it the third brain. He is not wrong and it stings."
+          }
         },
         {
           "id": "note-3",
@@ -441,7 +588,9 @@
           "rot": -1.2,
           "w": 270,
           "style": "paper-dashed",
-          "text": "Working theory: depth feels like plenitude, breadth feels like appetite. I want both, so I never stop."
+          "text": {
+            "en": "Working theory: depth feels like plenitude, breadth feels like appetite. I want both, so I never stop."
+          }
         }
       ]
     },
@@ -526,6 +675,28 @@
           ]
         }
       ]
+    },
+    "is_public": true
+  },
+  {
+    "key": "site.i18n",
+    "value": {
+      "enabled": true,
+      "primary": "es",
+      "languages": [
+        {
+          "code": "es",
+          "label": "Español"
+        },
+        {
+          "code": "en",
+          "label": "English"
+        }
+      ],
+      "auto": true,
+      "provider": "mymemory",
+      "remember": true,
+      "followBrowser": true
     },
     "is_public": true
   }

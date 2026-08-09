@@ -1,8 +1,9 @@
 import demoContent from '../../fixtures/demo-content.json';
 import demoSettingsRaw from '../../fixtures/site-settings.json';
-import { portfolioEntriesSchema } from '../types/content';
+import { portfolioEntriesSchema, type StoredPortfolioEntry } from '../types/content';
 
-export const demoEntries = portfolioEntriesSchema.parse(demoContent);
+/** The safe copy, exactly as stored: prose here may be a language map. */
+export const demoEntries: StoredPortfolioEntry[] = portfolioEntriesSchema.parse(demoContent);
 
 export const demoSettings: Record<string, unknown> = Object.fromEntries(
   (demoSettingsRaw as Array<{ key: string; value: unknown }>).map((row) => [row.key, row.value]),

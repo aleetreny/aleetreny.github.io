@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
 import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, type DossierBlockType } from '../../lib/blocks';
+import type { DossierConfig } from '../../lib/board';
 import { ImageSlot } from './ImageSlot';
 
 type DossierPlateProps = {
@@ -14,6 +15,8 @@ type DossierPlateProps = {
   onNext: () => void;
   onChange: (next: PortfolioEntry) => void;
   uploadPhoto: (file: File) => Promise<string>;
+  /** Article design: measure, title, lede, drop cap, numbering, entrance. */
+  dossier: DossierConfig;
 };
 
 function readText(event: { currentTarget: HTMLElement }): string {
@@ -26,7 +29,7 @@ function metaString(entry: PortfolioEntry, key: string): string {
 }
 
 export function DossierPlate({
-  entry, posLabel, prevTitle, nextTitle, editing, onClose, onPrev, onNext, onChange, uploadPhoto,
+  entry, posLabel, prevTitle, nextTitle, editing, onClose, onPrev, onNext, onChange, uploadPhoto, dossier,
 }: DossierPlateProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -161,7 +164,17 @@ export function DossierPlate({
   }
 
   return (
-    <div className="dossier" role="presentation">
+    // The theme drives the article's shape through data attributes rather than
+    // inline styles, so one stylesheet holds every variant.
+    <div
+      className="dossier"
+      role="presentation"
+      data-enter={dossier.enter}
+      data-lede={dossier.lede}
+      data-numbered={dossier.numbered ? 'true' : 'false'}
+      data-dropcap={dossier.dropCap ? 'true' : 'false'}
+      data-centred={dossier.centred ? 'true' : 'false'}
+    >
       <div className="dossier__scrim" onClick={onClose} />
       <div className="dossier__plate" role="dialog" aria-modal="true" aria-label={entry.title}>
         <div className="dossier__bar">

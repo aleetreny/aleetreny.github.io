@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { ITEMS, ORDER } from '../../content/source/desk-data.mjs';
 import {
   BOARD, THEME, GROUPS, GROUP_LABELS, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
-  CARDS, POLAROIDS, MARGINALIA, TOUR,
+  CARDS, POLAROIDS, MARGINALIA, TOUR, I18N,
 } from '../../content/source/board-spec.mjs';
 
 const NAMESPACE = '2b6f0cc9-04a1-4b7e-9d2a-7a1d3e5f8c00';
@@ -77,15 +77,73 @@ const entries = ORDER.map((slug) => {
 
 const groups = Object.keys(GROUPS).map((id) => ({ id, label: GROUP_LABELS[id] ?? id }));
 
+// ---------------------------------------------------------------- languages
+//
+// The authored content in content/source is written in one language. When the
+// board ships bilingual, every prose field is tagged with the language it was
+// actually written in, so the owner writing the other language adds to it
+// instead of overwriting it. Untagged text would be read as the primary
+// language and the original would be lost on the first edit.
+//
+// The field lists mirror the allowlists in src/lib/i18n.ts. They are duplicated
+// because this is a plain script that cannot import TypeScript; if you add a
+// prose field to a card or a block, add it in both places.
+const CARD_TEXT = [
+  'kicker', 'title', 'subtitle', 'intro', 'name', 'hint', 'blurb', 'note',
+  'label', 'nextLabel', 'currentTitle', 'currentSub', 'nextTitle', 'nextSub', 'barCaption',
+];
+const BLOCK_TEXT = ['text', 'caption', 'alt', 'cite', 'label', 'title'];
+
+/** Written in `AUTHORED_IN`; tagged only when the board is bilingual. */
+const AUTHORED_IN = 'en';
+const tag = (value) => (typeof value === 'string' && value.trim() ? { [AUTHORED_IN]: value } : value);
+
+function tagFields(item, fields) {
+  const out = { ...item };
+  for (const field of fields) if (field in out) out[field] = tag(out[field]);
+  return out;
+}
+
+function tagBoard(board) {
+  return {
+    ...board,
+    groups: board.groups.map((group) => ({ ...group, label: tag(group.label) })),
+    cards: board.cards.map((card) => tagFields(card, CARD_TEXT)),
+    polaroids: board.polaroids.map((p) => tagFields(p, ['caption', 'placeholder'])),
+    marginalia: board.marginalia.map((n) => tagFields(n, ['text'])),
+  };
+}
+
+function tagEntry(entry) {
+  return {
+    ...entry,
+    title: tag(entry.title),
+    summary: tag(entry.summary),
+    metadata: tagFields(entry.metadata, ['kicker', 'when', 'where']),
+    blocks: entry.blocks.map((block) => {
+      const props = tagFields(block.props, BLOCK_TEXT);
+      if (Array.isArray(block.props.items) && block.props.items.every((x) => typeof x === 'string')) {
+        props.items = block.props.items.map(tag);
+      }
+      return { ...block, props };
+    }),
+  };
+}
+
+const bilingual = I18N.enabled === true;
+const boardValue = { size: BOARD, groups, cards: CARDS, polaroids: POLAROIDS, marginalia: MARGINALIA };
+const publicEntries = bilingual ? entries.map(tagEntry) : entries;
+
 const settings = [
   { key: 'theme', value: THEME, is_public: true },
-  { key: 'board', value: { size: BOARD, groups, cards: CARDS, polaroids: POLAROIDS, marginalia: MARGINALIA }, is_public: true },
+  { key: 'board', value: bilingual ? tagBoard(boardValue) : boardValue, is_public: true },
   { key: 'board.layout', value: {}, is_public: true },
   { key: 'board.tour', value: TOUR, is_public: true },
+  { key: 'site.i18n', value: I18N, is_public: true },
 ];
 
 const root = resolve('.');
-await writeFile(resolve(root, 'fixtures/demo-content.json'), `${JSON.stringify(entries, null, 2)}\n`, 'utf8');
+await writeFile(resolve(root, 'fixtures/demo-content.json'), `${JSON.stringify(publicEntries, null, 2)}\n`, 'utf8');
 await writeFile(resolve(root, 'fixtures/site-settings.json'), `${JSON.stringify(settings, null, 2)}\n`, 'utf8');
 
-console.log(`Wrote ${entries.length} entries and ${settings.length} settings documents.`);
+console.log(`Wrote ${entries.length} entries and ${settings.length} settings documents${bilingual ? ` (prose tagged as "${AUTHORED_IN}")` : ''}.`);
