@@ -74,6 +74,38 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
   on a phone.
 - Every visible string, `aria-label` and error message is in English.
 
+## Looks, article design and two languages (2026-08)
+
+- **Eight complete looks** in the theme panel — Working slate, Newsprint,
+  Blueprint studio, Cork room, Brutalist, Night lab, Sun-bleached, Late sunset.
+  Each fully owns backdrop, cards and article, so applying one is deterministic;
+  none of them touch content, positions or the tour.
+- **Cards** gained an edge (six kinds), shadow, paper grain, padding, a fastener
+  (tape, pin, clip, staple) and a hover behaviour (raise, straighten, tilt,
+  glow), plus row tint and rule thickness.
+- **Articles** gained width, measure, body face, size and leading, title size,
+  weight, case and tracking, four opening-line styles, a drop cap, block
+  numbering, a centred column, block gap, five entrance animations, and scrim
+  darkness and blur.
+- Display type gained a weight and a tracking control.
+- Theme variables moved to the document element, so the dossier, the panels and
+  the toolbars all follow the theme — previously only the board did.
+- **Two languages** (`site.i18n`): prose becomes a per-language map in the same
+  document, resolved once before render so no component knows a second language
+  exists. Visitors get a remembered switcher that follows their browser on a
+  first visit; the owner picks the language they are writing in and each one
+  keeps its own text. Empty slots fall back rather than blanking.
+- **Free machine translation at authoring time**, keyless by default
+  (MyMemory, straight from the browser) with an optional Neon Function proxy for
+  a server-side key. It fills in either direction, so a board written in English
+  seeds the Spanish and Spanish drives the English from then on. Nothing about
+  the published site depends on a translation service.
+- The seeded content is tagged as English at build time, so writing Spanish over
+  it adds a language instead of destroying the original.
+- The content schema now accepts a language map for prose; `StoredPortfolioEntry`
+  and `PortfolioEntry` name the two shapes and the localise step is the single
+  place they meet.
+
 ## Done and verified
 
 - a full-screen public board with pan, zoom, pinch, keyboard, visible controls, a

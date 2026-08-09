@@ -40,13 +40,87 @@ export type BackdropConfig = {
   gridScale: number;
 };
 
+/** How a card is built as an object: its edge, its weight, its fastening. */
+export const CARD_EDGES = ['hairline', 'none', 'heavy', 'double', 'dashed', 'inked'] as const;
+export type CardEdge = (typeof CARD_EDGES)[number];
+
+export const CARD_FASTENERS = ['none', 'tape', 'pin', 'clip', 'staple'] as const;
+export type CardFastener = (typeof CARD_FASTENERS)[number];
+
+export const CARD_LIFTS = ['none', 'raise', 'straighten', 'tilt', 'glow'] as const;
+export type CardLift = (typeof CARD_LIFTS)[number];
+
+export type CardsConfig = {
+  edge: CardEdge;
+  /** 0 – 2.5 × on the drop shadow under every surface. */
+  shadow: number;
+  /** 0 – 1 paper grain over paper-toned surfaces. */
+  grain: number;
+  /** Padding inside a card surface, in px. */
+  padding: number;
+  /** What holds the card to the slate. */
+  fastener: CardFastener;
+  /** What a card does under the pointer. */
+  lift: CardLift;
+  /** 0 – 1 how strongly a drawer row is tinted against its card. */
+  rowContrast: number;
+  /** Thickness of the accent rule down the left of a drawer row, in px. */
+  rowRule: number;
+};
+
+/** The dossier: the full-page article a card opens into. */
+export const DOSSIER_ENTERS = ['plate', 'fade', 'rise', 'sheet', 'none'] as const;
+export type DossierEnter = (typeof DOSSIER_ENTERS)[number];
+
+export const DOSSIER_TITLE_CASES = ['none', 'upper', 'lower'] as const;
+export type TitleCase = (typeof DOSSIER_TITLE_CASES)[number];
+
+export const DOSSIER_LEDES = ['italic', 'plain', 'large', 'kicker'] as const;
+export type DossierLede = (typeof DOSSIER_LEDES)[number];
+
+export const BODY_FACES = ['display', 'mono'] as const;
+export type BodyFace = (typeof BODY_FACES)[number];
+
+export type DossierConfig = {
+  /** Plate width in px. */
+  width: number;
+  /** Reading measure in ch — the real lever on how an article feels. */
+  measure: number;
+  /** Body copy family. */
+  bodyFace: BodyFace;
+  bodySize: number;
+  bodyLeading: number;
+  /** Title. */
+  titleSize: number;
+  titleWeight: number;
+  titleCase: TitleCase;
+  titleTracking: number;
+  /** The opening line under the title. */
+  lede: DossierLede;
+  /** A raised initial on the first paragraph. */
+  dropCap: boolean;
+  /** Number every block in the margin. */
+  numbered: boolean;
+  /** Gap between blocks, in px. */
+  blockGap: number;
+  /** How the plate arrives. */
+  enter: DossierEnter;
+  /** 0 – 1 darkness of the scrim behind it, and its blur in px. */
+  scrim: number;
+  scrimBlur: number;
+  /** Centre the column instead of running it flush left. */
+  centred: boolean;
+};
+
 export type ThemeConfig = {
   boardStyle: BoardStyle;
   chaos: number;
   showMarginalia: boolean;
   cardRadius: number;
   backdrop: BackdropConfig;
-  fonts: { display: string; mono: string; scale: number };
+  cards: CardsConfig;
+  dossier: DossierConfig;
+  fonts: { display: string; mono: string; scale: number; displayWeight: number; tracking: number };
   colors: {
     accent: string;
     accent2: string;
@@ -174,11 +248,53 @@ export const DEFAULT_BACKDROP: BackdropConfig = {
   gridScale: 1,
 };
 
+export const DEFAULT_CARDS: CardsConfig = {
+  edge: 'hairline',
+  shadow: 1,
+  grain: 0,
+  padding: 22,
+  fastener: 'none',
+  lift: 'none',
+  rowContrast: 0.5,
+  rowRule: 3,
+};
+
+export const DEFAULT_DOSSIER: DossierConfig = {
+  width: 860,
+  measure: 60,
+  bodyFace: 'display',
+  bodySize: 16.5,
+  bodyLeading: 1.66,
+  titleSize: 46,
+  titleWeight: 800,
+  titleCase: 'none',
+  titleTracking: -0.03,
+  lede: 'italic',
+  dropCap: false,
+  numbered: false,
+  blockGap: 18,
+  enter: 'plate',
+  scrim: 0.78,
+  scrimBlur: 5,
+  centred: false,
+};
+
+const DEFAULT_FONTS = {
+  display: "'Bricolage Grotesque', system-ui, sans-serif",
+  mono: "'IBM Plex Mono', ui-monospace, monospace",
+  scale: 1,
+  displayWeight: 700,
+  tracking: 0,
+};
+
 const fixtureTheme = fixtureByKey.theme as Partial<ThemeConfig> | undefined;
 
 export const DEFAULT_THEME = {
   ...(fixtureTheme as ThemeConfig),
   backdrop: { ...DEFAULT_BACKDROP, ...(fixtureTheme?.backdrop ?? {}) },
+  cards: { ...DEFAULT_CARDS, ...(fixtureTheme?.cards ?? {}) },
+  dossier: { ...DEFAULT_DOSSIER, ...(fixtureTheme?.dossier ?? {}) },
+  fonts: { ...DEFAULT_FONTS, ...(fixtureTheme?.fonts ?? {}) },
 } as ThemeConfig;
 export const DEFAULT_BOARD = fixtureByKey.board as BoardConfig;
 export const DEFAULT_LAYOUT = (fixtureByKey['board.layout'] ?? {}) as LayoutMap;
@@ -193,6 +309,8 @@ export function parseTheme(value: unknown): ThemeConfig {
   const fonts = isRecord(value.fonts) ? value.fonts : {};
   const colors = isRecord(value.colors) ? value.colors : {};
   const backdrop = isRecord(value.backdrop) ? value.backdrop : {};
+  const cards = isRecord(value.cards) ? value.cards : {};
+  const dossier = isRecord(value.dossier) ? value.dossier : {};
   return {
     boardStyle: (BOARD_STYLE_IDS as readonly string[]).includes(value.boardStyle as string)
       ? (value.boardStyle as BoardStyle)
@@ -201,10 +319,145 @@ export function parseTheme(value: unknown): ThemeConfig {
     showMarginalia: typeof value.showMarginalia === 'boolean' ? value.showMarginalia : DEFAULT_THEME.showMarginalia,
     cardRadius: typeof value.cardRadius === 'number' ? value.cardRadius : DEFAULT_THEME.cardRadius,
     backdrop: { ...DEFAULT_THEME.backdrop, ...(backdrop as Partial<BackdropConfig>) },
+    cards: { ...DEFAULT_THEME.cards, ...(cards as Partial<CardsConfig>) },
+    dossier: { ...DEFAULT_THEME.dossier, ...(dossier as Partial<DossierConfig>) },
     fonts: { ...DEFAULT_THEME.fonts, ...(fonts as Partial<ThemeConfig['fonts']>) },
     colors: { ...DEFAULT_THEME.colors, ...(colors as Partial<ThemeConfig['colors']>) },
   };
 }
+
+/** One-click looks.
+ *
+ *  A preset never touches content, positions or the tour, so trying one on and
+ *  going back costs nothing. It does fully own the three surfaces it describes
+ *  — backdrop, cards and article — building each from the defaults rather than
+ *  from whatever the last look left behind, so applying a look twice, or after
+ *  another one, always lands in the same place. Fonts stay as the owner set
+ *  them, and colours are merged, because those are personal choices. */
+export type ThemePreset = {
+  id: string;
+  label: string;
+  hint: string;
+  patch: (theme: ThemeConfig) => ThemeConfig;
+};
+
+const withColors = (theme: ThemeConfig, colors: Partial<ThemeConfig['colors']>): ThemeConfig =>
+  ({ ...theme, colors: { ...theme.colors, ...colors } });
+
+export const THEME_PRESETS: ThemePreset[] = [
+  {
+    id: 'slate',
+    label: 'Working slate',
+    hint: 'the original: a dark slate on a plaster wall, straight paper, hard shadows',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'slate',
+      cardRadius: 0,
+      chaos: 1,
+      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'plaster', grain: 0.5, vignette: 0.55, frame: 10, studs: true, grid: 'plate' },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1, grain: 0, fastener: 'none', lift: 'none', rowRule: 3 },
+      dossier: { ...DEFAULT_DOSSIER, width: 860, measure: 60, lede: 'italic', dropCap: false, numbered: false, enter: 'plate', titleWeight: 800 },
+    }, { accent: 'oklch(0.5 0.13 45)', signal: 'oklch(0.78 0.14 66)' }),
+  },
+  {
+    id: 'newsprint',
+    label: 'Newsprint',
+    hint: 'bone paper wall to wall, no slate, ink rules, numbered blocks, a drop cap',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'paper',
+      cardRadius: 0,
+      chaos: 0.3,
+      backdrop: { ...DEFAULT_BACKDROP, plate: false, grid: 'viewport', gridScale: 1 },
+      cards: { ...DEFAULT_CARDS, edge: 'inked', shadow: 0.25, grain: 0.35, fastener: 'none', lift: 'none', rowContrast: 0.3, rowRule: 0 },
+      dossier: { ...DEFAULT_DOSSIER, width: 780, measure: 66, bodyFace: 'display', titleWeight: 800, titleCase: 'upper', titleTracking: -0.01, lede: 'plain', dropCap: true, numbered: true, enter: 'sheet', scrim: 0.9, scrimBlur: 0 },
+    }, { accent: 'oklch(0.42 0.14 30)', accent2: 'oklch(0.45 0.1 250)', signal: 'oklch(0.72 0.15 70)', ink: '#151310' }),
+  },
+  {
+    id: 'blueprint',
+    label: 'Blueprint studio',
+    hint: 'a drafting table: cyan grid, thin edges, a technical, quiet article',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'blueprint',
+      cardRadius: 0,
+      chaos: 0.4,
+      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'ink', grain: 0.3, vignette: 0.45, frame: 6, studs: true, studSize: 16, grid: 'plate', gridScale: 0.8 },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 0.6, grain: 0, fastener: 'clip', lift: 'raise', rowRule: 2 },
+      dossier: { ...DEFAULT_DOSSIER, width: 820, measure: 64, bodyFace: 'mono', bodySize: 14.5, bodyLeading: 1.75, titleWeight: 600, titleCase: 'upper', titleTracking: 0.02, lede: 'kicker', numbered: true, enter: 'rise' },
+    }, { accent: 'oklch(0.62 0.13 240)', accent2: 'oklch(0.7 0.13 200)', signal: 'oklch(0.8 0.12 200)', lab: 'oklch(0.78 0.11 210)' }),
+  },
+  {
+    id: 'corkroom',
+    label: 'Cork room',
+    hint: 'warm cork, pinned paper, tilted cards, a soft article',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'cork',
+      cardRadius: 3,
+      chaos: 1.6,
+      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'warm', grain: 0.65, vignette: 0.6, frame: 14, plateShadow: 1.2, studs: true, grid: 'plate' },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1.4, grain: 0.5, fastener: 'pin', lift: 'straighten', rowRule: 3 },
+      dossier: { ...DEFAULT_DOSSIER, width: 800, measure: 58, lede: 'large', dropCap: true, enter: 'plate', scrim: 0.7, scrimBlur: 8 },
+    }, { accent: 'oklch(0.5 0.14 50)', signal: 'oklch(0.8 0.14 75)' }),
+  },
+  {
+    id: 'brutalist',
+    label: 'Brutalist',
+    hint: 'no shadow, heavy black edges, upper-case titles, everything flat and loud',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'graphite',
+      cardRadius: 0,
+      chaos: 0,
+      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'void', grain: 0, vignette: 0.2, frame: 0, plateShadow: 0, studs: false, grid: 'plate', gridScale: 1.4 },
+      cards: { ...DEFAULT_CARDS, edge: 'heavy', shadow: 0, grain: 0, padding: 26, fastener: 'none', lift: 'tilt', rowContrast: 0.85, rowRule: 6 },
+      dossier: { ...DEFAULT_DOSSIER, width: 900, measure: 72, bodyFace: 'mono', bodySize: 15, titleSize: 58, titleWeight: 800, titleCase: 'upper', titleTracking: -0.04, lede: 'plain', numbered: true, blockGap: 26, enter: 'none', scrim: 0.95, scrimBlur: 0 },
+    }, { accent: 'oklch(0.62 0.24 28)', accent2: 'oklch(0.7 0.2 250)', signal: 'oklch(0.85 0.2 95)' }),
+  },
+  {
+    id: 'nightlab',
+    label: 'Night lab',
+    hint: 'near-black, cool instrument light, a glow on hover, a long calm measure',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'midnight',
+      cardRadius: 2,
+      chaos: 0.6,
+      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'ink', grain: 0.25, vignette: 0.75, frame: 8, plateShadow: 1.3, studs: true, studSize: 14, grid: 'plate', gridScale: 1.2 },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1.6, grain: 0, fastener: 'none', lift: 'glow', rowContrast: 0.6, rowRule: 2 },
+      dossier: { ...DEFAULT_DOSSIER, width: 840, measure: 64, bodySize: 16, bodyLeading: 1.8, titleWeight: 700, lede: 'italic', enter: 'fade', scrim: 0.88, scrimBlur: 10 },
+    }, { accent: 'oklch(0.72 0.13 200)', accent2: 'oklch(0.68 0.16 280)', signal: 'oklch(0.82 0.14 190)', lab: 'oklch(0.8 0.12 195)' }),
+  },
+  {
+    id: 'sunbleached',
+    label: 'Sun-bleached',
+    hint: 'a bright studio wall, warm paper, taped photos, a generous article',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'paper',
+      cardRadius: 6,
+      chaos: 1.2,
+      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'studio', grain: 0.4, vignette: 0.25, frame: 4, plateShadow: 0.7, studs: false, grid: 'plate', gridScale: 1.2 },
+      cards: { ...DEFAULT_CARDS, edge: 'none', shadow: 0.8, grain: 0.4, padding: 24, fastener: 'tape', lift: 'raise', rowContrast: 0.35, rowRule: 0 },
+      dossier: { ...DEFAULT_DOSSIER, width: 760, measure: 56, bodySize: 17.5, bodyLeading: 1.72, titleSize: 42, titleWeight: 700, lede: 'large', dropCap: true, blockGap: 22, enter: 'rise', scrim: 0.6, scrimBlur: 6, centred: true },
+    }, { accent: 'oklch(0.55 0.15 40)', accent2: 'oklch(0.6 0.14 230)', signal: 'oklch(0.82 0.15 80)' }),
+  },
+  {
+    id: 'sunset',
+    label: 'Late sunset',
+    hint: 'plum and ember, staples, a headline that shouts and a body that does not',
+    patch: (t) => withColors({
+      ...t,
+      boardStyle: 'sunset',
+      cardRadius: 0,
+      chaos: 1.1,
+      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'warm', grain: 0.45, vignette: 0.7, frame: 12, studs: true, grid: 'plate' },
+      cards: { ...DEFAULT_CARDS, edge: 'double', shadow: 1.2, grain: 0.2, fastener: 'staple', lift: 'raise', rowRule: 4 },
+      dossier: { ...DEFAULT_DOSSIER, width: 820, measure: 60, titleSize: 52, titleWeight: 800, titleTracking: -0.045, lede: 'italic', enter: 'plate' },
+    }, { accent: 'oklch(0.58 0.17 30)', accent2: 'oklch(0.65 0.16 330)', signal: 'oklch(0.8 0.16 60)' }),
+  },
+];
 
 function isBoardGroup(value: unknown): value is BoardGroup {
   return isRecord(value) && typeof value.id === 'string' && typeof value.label === 'string';
@@ -363,14 +616,38 @@ export function scalePatternSize(size: string, factor: number): string {
     .join(', ');
 }
 
-/** CSS custom properties derived from a theme, applied on the viewport. */
+/** CSS custom properties derived from a theme, applied on the viewport.
+ *
+ *  Everything the stylesheet needs to know about the theme arrives this way, so
+ *  a setting change repaints without a re-render of the board. */
 export function themeVars(theme: ThemeConfig): Record<string, string> {
   const c = theme.colors;
+  const cards = theme.cards;
+  const d = theme.dossier;
   return {
     '--font-display': theme.fonts.display,
     '--font-mono': theme.fonts.mono,
     '--font-scale': String(theme.fonts.scale),
+    '--font-display-weight': String(theme.fonts.displayWeight),
+    '--font-tracking': `${theme.fonts.tracking}em`,
     '--card-radius': `${theme.cardRadius}px`,
+    '--card-pad': `${cards.padding}px`,
+    '--card-shadow': String(cards.shadow),
+    '--card-grain': String(cards.grain),
+    '--row-contrast': String(cards.rowContrast),
+    '--row-rule': `${cards.rowRule}px`,
+    '--dossier-width': `${d.width}px`,
+    '--dossier-measure': `${d.measure}ch`,
+    '--dossier-body': d.bodyFace === 'mono' ? 'var(--font-mono)' : 'var(--font-display)',
+    '--dossier-body-size': `${d.bodySize}px`,
+    '--dossier-leading': String(d.bodyLeading),
+    '--dossier-title-size': `${d.titleSize}px`,
+    '--dossier-title-weight': String(d.titleWeight),
+    '--dossier-title-case': d.titleCase === 'none' ? 'none' : d.titleCase === 'upper' ? 'uppercase' : 'lowercase',
+    '--dossier-title-tracking': `${d.titleTracking}em`,
+    '--dossier-gap': `${d.blockGap}px`,
+    '--dossier-scrim': `rgba(8, 16, 22, ${d.scrim})`,
+    '--dossier-blur': `${d.scrimBlur}px`,
     '--c-accent': c.accent,
     '--c-accent2': c.accent2,
     '--c-signal': c.signal,

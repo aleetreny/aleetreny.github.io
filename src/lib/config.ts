@@ -8,6 +8,10 @@ const runtimeSchema = z.object({
   VITE_NEON_DATA_API_URL: optionalUrl,
   VITE_STORAGE_FUNCTION_URL: optionalUrl,
   VITE_STORAGE_PUBLIC_BASE_URL: optionalUrl,
+  // Optional: a Neon Function that holds a translation provider key
+  // server-side. Without it the owner's translate action uses the keyless
+  // provider straight from the browser.
+  VITE_TRANSLATE_FUNCTION_URL: optionalUrl,
 });
 
 export type RuntimeConfig = {
@@ -16,6 +20,7 @@ export type RuntimeConfig = {
   neonDataApiUrl: string;
   storageFunctionUrl: string;
   storagePublicBaseUrl: string;
+  translateFunctionUrl: string;
 };
 
 export function parseRuntimeConfig(input: Record<string, unknown>): RuntimeConfig {
@@ -34,6 +39,7 @@ export function parseRuntimeConfig(input: Record<string, unknown>): RuntimeConfi
     neonDataApiUrl: parsed.VITE_NEON_DATA_API_URL,
     storageFunctionUrl: parsed.VITE_STORAGE_FUNCTION_URL,
     storagePublicBaseUrl: parsed.VITE_STORAGE_PUBLIC_BASE_URL,
+    translateFunctionUrl: parsed.VITE_TRANSLATE_FUNCTION_URL,
   };
 }
 

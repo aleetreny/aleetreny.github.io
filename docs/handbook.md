@@ -14,13 +14,15 @@ becomes yours.
 2. [The visitor's board](#2-the-visitors-board)
 3. [The guided tour](#3-the-guided-tour)
 4. [Owner mode](#4-owner-mode)
-5. [Settings encyclopedia](#5-settings-encyclopedia)
-   · [theme](#51-theme) · [board](#52-board) · [board.layout](#53-boardlayout) · [board.tour](#54-boardtour)
-6. [Dossiers and blocks](#6-dossiers-and-blocks)
-7. [Where everything lives](#7-where-everything-lives)
-8. [Making it yours](#8-making-it-yours)
-9. [Keyboard, pointer and touch reference](#9-keyboard-pointer-and-touch-reference)
-10. [Accessibility](#10-accessibility)
+5. [Looks: changing everything at once](#5-looks-changing-everything-at-once)
+6. [Two languages, one board](#6-two-languages-one-board)
+7. [Settings encyclopedia](#7-settings-encyclopedia)
+   · [theme](#71-theme) · [board](#72-board) · [board.layout](#73-boardlayout) · [board.tour](#74-boardtour) · [site.i18n](#75-sitei18n)
+8. [Dossiers and blocks](#8-dossiers-and-blocks)
+9. [Where everything lives](#9-where-everything-lives)
+10. [Making it yours](#10-making-it-yours)
+11. [Keyboard, pointer and touch reference](#11-keyboard-pointer-and-touch-reference)
+12. [Accessibility](#12-accessibility)
 
 ---
 
@@ -58,6 +60,8 @@ no database at all. That is the offline safe copy, and it is also how you develo
 ---
 
 ## 2 · The visitor's board
+
+![The board, live](images/board-01-live.jpg)
 
 ### The surface
 
@@ -123,6 +127,13 @@ page through every dossier on the board in list order; `Escape` closes.
 A first-time visitor does not get the whole board at once. The slate slams onto
 the wall, and then they walk it stop by stop at their own pace while each piece
 is stuck on. When the run ends the board is exactly the board that ships.
+
+| | |
+| --- | --- |
+| ![An empty wall](images/tour-01-empty-wall.jpg) | ![The slate has landed](images/tour-02-slate-landed.jpg) |
+| **1.** An empty wall, for a third of a second. | **2.** The slate slams on; the studs pop in. |
+| ![The first stop](images/tour-03-first-stop.jpg) | ![Mid-run](images/tour-04-mid-run.jpg) |
+| **3.** The camera flies to the first stop and the pieces are stuck on. | **4.** Every stop adds to what is already there. |
 
 **The visitor is always in control.** `next` / `space` / `→` advances, `back` /
 `←` steps back, `skip` / `Escape` leaves at any point. Panning and zooming inside
@@ -207,6 +218,10 @@ have any of them.
 
 ### On phones
 
+| | | |
+| --- | --- | --- |
+| ![The tour on a phone](images/phone-01-tour.jpg) | ![The board on a phone](images/phone-02-board.jpg) | ![An article on a phone](images/phone-03-article.jpg) |
+
 The board is 2540px wide, so a phone is always looking at a detail of it.
 Below 720px wide **or** 460px tall — a phone on its side is just as cramped, only
 in the other direction — the tour walks the same route a few pieces at a time,
@@ -216,6 +231,8 @@ with padding a small screen can afford. That takes a stop from about 0.22× to
 ---
 
 ## 4 · Owner mode
+
+![The owner bar](images/owner-01-bar.jpg)
 
 ### Getting in
 
@@ -248,6 +265,8 @@ With edit mode on:
 - **Position.** Drag any piece. The position, tilt and width are stored as an
   override in `board.layout`, leaving the authored values intact — `reset` drops
   the overrides.
+![The per-card menu](images/owner-02-card-menu.jpg)
+
 - **Per-card settings.** The `⚙` on each card opens its menu: tone, custom
   background and ink, which list a drawer shows, its row layout, its row cap,
   which dossier a spotlight opens, and delete. The menu counter-scales with the
@@ -258,6 +277,8 @@ With edit mode on:
   or add the row to a drawer that has none.
 
 ### Inventory
+
+![The inventory panel](images/panel-06-inventory.jpg)
 
 The `entries` panel is the one place that is not on the board:
 
@@ -272,18 +293,175 @@ and every save snapshots the previous version into `entry_versions`.
 
 ---
 
-## 5 · Settings encyclopedia
+## 5 · Looks: changing everything at once
 
-Four documents in the `site_settings` table hold everything. They are plain
+**Where:** owner bar → `theme` → the row of buttons at the top.
+
+One click sets the texture, the wall, the cards, the article and the palette
+together. A look patches the theme — it never touches your text, your card
+positions or your tour — so trying one on and going back costs nothing. Each
+look fully owns the three surfaces it describes, so applying it twice, or after
+another one, always lands in exactly the same place. Your fonts stay as you set
+them.
+
+| | |
+| --- | --- |
+| ![Working slate](images/look-working-slate.jpg) | ![Newsprint](images/look-newsprint.jpg) |
+| **Working slate** — the original: a dark slate on a plaster wall, straight paper, hard shadows. | **Newsprint** — bone paper wall to wall, no slate, inked rules, numbered blocks, a drop cap. |
+| ![Blueprint studio](images/look-blueprint-studio.jpg) | ![Cork room](images/look-cork-room.jpg) |
+| **Blueprint studio** — a drafting table: cyan grid, clipped cards, a technical, quiet article. | **Cork room** — warm cork, pinned paper, tilted cards that straighten under the pointer. |
+| ![Brutalist](images/look-brutalist.jpg) | ![Night lab](images/look-night-lab.jpg) |
+| **Brutalist** — no shadow, heavy black edges, upper-case titles, everything flat and loud. | **Night lab** — near-black, cool instrument light, a glow on hover, a long calm measure. |
+| ![Sun-bleached](images/look-sun-bleached.jpg) | ![Late sunset](images/look-late-sunset.jpg) |
+| **Sun-bleached** — a bright studio wall, warm paper, taped photos, a generous centred article. | **Late sunset** — plum and ember, stapled paper, a headline that shouts and a body that does not. |
+
+A look is a starting point, not a cage. Apply the closest one and then change
+whatever you like underneath — every field it set is a field you can set.
+
+### The same article, three looks
+
+The dossier follows the look too. This is one entry, unchanged, under three:
+
+| | | |
+| --- | --- | --- |
+| ![Default article](images/article-01-default.jpg) | ![Newsprint article](images/article-02-newsprint.jpg) | ![Brutalist article](images/article-03-brutalist.jpg) |
+| **Working slate** — a display face, an italic opening line, a 60-character measure. | **Newsprint** — upper-case title, a drop cap, numbered blocks, no scrim blur. | **Brutalist** — a 58px title, monospace body, a hard cut instead of an animation. |
+
+### Building your own look
+
+Everything a preset sets is in [`theme`](#71-theme). To design one from scratch:
+
+1. **Start with the room.** `backdrop` → wall, and whether there is a slate at
+   all. This is the single biggest decision; a board with no slate reads
+   completely differently from one with a framed one.
+2. **Then the paper.** `cards` → edge, shadow, grain, fastener. A borderless
+   card with a soft shadow and a piece of tape is a photograph; a heavy-edged
+   card with no shadow is a poster.
+3. **Then the article.** `dossier` → measure and body size first, because those
+   decide how it reads, then the title.
+4. **Colour last.** The palette sits on top of a structure that already works.
+
+![Cards and articles in the theme panel](images/panel-02-cards-and-articles.jpg)
+
+---
+
+## 6 · Two languages, one board
+
+**Where:** owner bar → `theme` → **languages**, then the `ES` / `EN` buttons and
+`⇄ translate` that appear in the owner bar.
+
+Write in the language you think in. The other one is filled in for you, stored
+next to it, and served as a static string like everything else.
+
+![Languages in the theme panel](images/panel-03-languages.jpg)
+
+### How it works
+
+Any editable text becomes either a plain string or a small map — `{"es": "…",
+"en": "…"}` — in the same document it always lived in. There is no second table
+and no second site.
+
+- **Visitors** get a switcher in the toolbar. Their choice is remembered, and a
+  first-time visitor is offered the language their browser asks for.
+- **You** get the same switcher in the owner bar, marking which language you are
+  *writing*. Type in `ES` and only the Spanish changes; the English is untouched.
+- **Empty is never blank.** A field with no translation yet falls back to the
+  language that has one, so a half-translated board always reads.
+
+| | |
+| --- | --- |
+| ![The owner's language switch](images/lang-01-owner-switch.jpg) | ![The visitor's language switch](images/lang-02-visitor-switch.jpg) |
+| Writing in Spanish, with `⇄ translate` alongside. | What a visitor gets, bottom right of the toolbar. |
+
+### Translating
+
+Press **`⇄ translate`** and every empty slot is filled from whichever language
+has the text — in either direction. It works both ways on purpose: a board
+already written in English can be seeded into Spanish, and from then on your
+Spanish drives the English.
+
+With **translate as I write** on, the same thing happens by itself a moment
+after you stop typing in a dossier.
+
+**Translation happens while you edit, never while a visitor reads.** The result
+is stored, so the published site has no runtime dependency on any service. If a
+translation service is down it costs you a button press, not your site.
+
+### Choosing a translator
+
+| Provider | What it needs | When to use it |
+| --- | --- | --- |
+| `mymemory` | Nothing at all | The default. Free, keyless, called from your browser while you edit. Anonymous use is rate-limited per day, which one person editing one portfolio will not reach. |
+| `function` | A Neon Function and a provider key | Better prose or higher volume. See below. |
+| `off` | — | You want to type both languages yourself. |
+
+Both are free. The keyless one is enough to start; nothing needs configuring.
+
+#### Wiring up your own translator
+
+The keyless route is good, not great. For DeepL's free tier (500k characters a
+month) or a self-hosted LibreTranslate, the key must stay server-side — so it
+goes in a Neon Function beside the storage broker, which already validates the
+owner's JWT.
+
+1. Add a `POST /translate` route to the project's Function that accepts
+   `{ texts: string[], from: string, to: string }` and answers
+   `{ texts: string[] }`, in the same order and length.
+2. Have it validate the `Authorization: Bearer <JWT>` exactly the way the upload
+   route does, so only you can spend the quota.
+3. Keep the provider key in the Function's environment, never in a `VITE_*`
+   variable.
+4. Set `VITE_TRANSLATE_FUNCTION_URL` to the Function's base URL.
+5. Switch the translator to `function` in the theme panel.
+
+### What is translated, and what is not
+
+Translated: every card's kicker, title, subtitle, intro, name, hint, blurb and
+note; drawer list names; photo captions and placeholders; sticky notes; a
+dossier's title, opening line, kicker, date and place; and every prose block —
+paragraphs, headings, quotes, list items, captions and alt text.
+
+Not translated, deliberately: ids, tone and layout names, list keys, URLs,
+dates you typed as numbers, and the paired arrays — a card's `stats`, `links`,
+`grid` and tool chips. Those hold structure as often as prose, and guessing
+wrong would break the board rather than mistranslate it. Write those in whichever
+language you prefer, or leave them as figures.
+
+### Turning it off
+
+A fork that wants one language switches **two languages** off in the theme
+panel. The switcher disappears, nothing localises, and the board behaves exactly
+as it does without the feature.
+
+---
+
+## 7 · Settings encyclopedia
+
+Five documents in the `site_settings` table hold everything. They are plain
 JSONB, public to read, owner-only to write. Every field below is editable from
 the site; the seeded values come from `content/source/board-spec.mjs`.
 
 A stored document is always **merged over the defaults**, field by field, so a
 partial or older document keeps working and never blanks the board.
 
-### 5.1 · `theme`
+**Three ways to change any of them**, in the order you will actually use them:
 
-Appearance. Edited from the **theme** panel.
+1. **From the site.** Sign in, open the panel named under each section below,
+   change the control. It previews instantly and saves itself. This is the
+   normal way, and it needs no reseed.
+2. **From the source, before you seed.** Edit `content/source/board-spec.mjs`,
+   run `pnpm content:build`, then run the `seed-content.yml` workflow. Use this
+   for a fresh fork or to reset a live board to a known state — it overwrites
+   what is in the database.
+3. **Straight in the database.** `update site_settings set value = … where key =
+   …`. The escape hatch; nothing validates it but the app's own parser, which
+   will drop anything it does not recognise rather than break.
+
+### 7.1 · `theme`
+
+Appearance. **Panel:** owner bar → `theme`.
+
+![The theme panel](images/panel-01-theme.jpg)
 
 #### Board
 
@@ -317,16 +495,69 @@ Everything behind the cards.
 With `plate: false` the wall, grain, vignette and studs stop rendering, and
 `grid: plate` falls back to `viewport` — there is no slate to paint on.
 
+#### Cards
+
+How a card is built as an object.
+
+| Field | Values | Default | What it does |
+| --- | --- | --- | --- |
+| `edge` | `hairline` `none` `heavy` `double` `dashed` `inked` | `hairline` | The border on every card surface. `inked` picks up the card's own ink colour. |
+| `shadow` | 0 – 2.5 × | 1 | Multiplier on the drop shadow. 0 flattens the board completely. |
+| `grain` | 0 – 1 | 0 | Paper grain over the surface. |
+| `padding` | 8 – 48 px | 22 | Space inside a card. |
+| `fastener` | `none` `tape` `pin` `clip` `staple` | `none` | What holds the card to the slate. Drawn in CSS, never on the hero. |
+| `lift` | `none` `raise` `straighten` `tilt` `glow` | `none` | What a card does under the pointer. `straighten` rotates a tilted card upright. |
+| `rowContrast` | 0 – 1 | 0.5 | How strongly a drawer row is tinted against its card. |
+| `rowRule` | 0 – 10 px | 3 | The accent rule down the left of a row. 0 removes it. |
+
+**To make the board feel like pinned photographs:** `edge: none`,
+`shadow: 0.8`, `grain: 0.4`, `fastener: tape`, `lift: raise`.
+**To make it feel like a printed page:** `edge: inked`, `shadow: 0.25`,
+`fastener: none`, `rowRule: 0`.
+
+#### Articles
+
+The full-page dossier a card opens into. Measure and body size decide how it
+reads; change those before anything else.
+
+| Field | Values | Default | What it does |
+| --- | --- | --- | --- |
+| `width` | 520 – 1400 px | 860 | The plate's width. |
+| `measure` | 32 – 110 ch | 60 | Reading measure. Around 60–70 is comfortable; below 45 feels like a poem. |
+| `bodyFace` | `display` `mono` | `display` | Body copy family. `mono` reads as technical. |
+| `bodySize` | 12 – 26 px | 16.5 | Body size, before `fonts.scale`. |
+| `bodyLeading` | 1.2 – 2.2 | 1.66 | Line height. |
+| `titleSize` | 22 – 90 px | 46 | Title size ceiling; it still shrinks on a narrow screen. |
+| `titleWeight` | 300 – 900 | 800 | Title weight. |
+| `titleCase` | `none` `upper` `lower` | `none` | Forces the case of titles and headings. |
+| `titleTracking` | -0.08 – 0.2 em | -0.03 | Title letter-spacing. Negative tightens. |
+| `lede` | `italic` `plain` `large` `kicker` | `italic` | The opening line. `kicker` turns it into small uppercase mono. |
+| `dropCap` | bool | false | A raised initial on the first paragraph. |
+| `numbered` | bool | false | An ordinal in the margin of every prose block. |
+| `centred` | bool | false | Centres the column instead of running it flush left. |
+| `blockGap` | 4 – 56 px | 18 | Space between blocks. |
+| `enter` | `plate` `fade` `rise` `sheet` `none` | `plate` | How the plate arrives. `sheet` wipes down like paper being laid out. |
+| `scrim` | 0 – 1 | 0.78 | How dark the board goes behind it. |
+| `scrimBlur` | 0 – 24 px | 5 | Blur on the board behind it. 0 keeps it sharp. |
+
+**For a long read:** `measure: 66`, `bodySize: 17.5`, `bodyLeading: 1.75`,
+`dropCap: true`, `lede: large`.
+**For a technical note:** `bodyFace: mono`, `bodySize: 14.5`, `numbered: true`,
+`lede: kicker`, `enter: rise`.
+
 #### Typography
 
-| Field | Default | What it does |
-| --- | --- | --- |
-| `fonts.display` | Bricolage Grotesque | Headline family. Any CSS font stack. |
-| `fonts.mono` | IBM Plex Mono | Body and UI family. |
-| `fonts.scale` | 0.85 – 1.3 | Multiplies body copy across board and dossiers. |
+| Field | Values | Default | What it does |
+| --- | --- | --- | --- |
+| `fonts.display` | any CSS stack | Bricolage Grotesque | Headline family. |
+| `fonts.mono` | any CSS stack | IBM Plex Mono | Body and UI family. |
+| `fonts.scale` | 0.85 – 1.3 | 1 | Multiplies body copy across board and dossiers. |
+| `fonts.displayWeight` | 300 – 900 | 700 | Weight of every display headline on the board. |
+| `fonts.tracking` | -0.05 – 0.3 em | 0 | Added to every display letter-spacing. Positive opens headlines right up. |
 
-Both families are plain CSS font stacks, so swapping in a webfont is one string
-plus a `<link>` in `index.html`.
+**To use a different typeface:** add its `<link>` to `index.html`, then put its
+family name at the front of the stack — `"'Playfair Display', Georgia, serif"`.
+Keep a real fallback at the end so the board never waits on a network font.
 
 #### Colours
 
@@ -345,9 +576,9 @@ on the viewport, so changing one restyles every surface that uses it.
 | `dark` / `darkInk` | The dark card surface and its text |
 | `slate` / `slateInk` | The slate card surface and its text |
 
-### 5.2 · `board`
+### 7.2 · `board`
 
-Structure and content of the cover. Edited on the board itself, plus the
+Structure and content of the cover. **Edited:** on the board itself, plus the
 inventory panel for lists.
 
 | Field | What it is |
@@ -410,17 +641,19 @@ Drawer row layouts:
 
 `id`, `x`, `y`, `rot`, `w`, `style` (`amber` or `paper-dashed`), `text`.
 
-### 5.3 · `board.layout`
+### 7.3 · `board.layout`
 
 Position overrides, written every time you drag something:
 `{ [id]: { x, y, rot, w? } }`. The authored `x/y/rot/w` in `board` stay
 untouched, so `reset` in the toolbar restores them by clearing this document.
 
-### 5.4 · `board.tour`
+### 7.4 · `board.tour`
 
-The guided run. Edited from the **tour** panel. Only the authored route is
+The guided run. **Panel:** owner bar → `tour`. Only the authored route is
 seeded; every behavioural default lives in `src/lib/tour.ts`, so a document that
 carries just the stops still resolves to a complete configuration.
+
+![The tour panel](images/panel-04-tour.jpg)
 
 #### Run
 
@@ -445,6 +678,8 @@ carries just the stops still resolves to a complete configuration.
 The stop editor creates, renames, reorders and deletes stops, and composes each
 one piece by piece. Any generated route can be frozen into `custom` with **copy
 into custom**, and then hand-edited.
+
+![The tour panel's camera group](images/panel-05-tour-camera.jpg)
 
 #### Camera
 
@@ -514,9 +749,28 @@ Lower `inflate` and `padX`, or raise `maxScale`, to frame stops closer.
 | `hint` | `space / → next · drag & zoom anytime` | The hint line. Free text. |
 | `nextLabel` `finishLabel` `backLabel` `skipLabel` | `next →`, `open the board →`, `← back`, `skip` | Every button's text. Free text. |
 
+### 7.5 · `site.i18n`
+
+Languages. **Panel:** owner bar → `theme` → **languages**. See
+[chapter 6](#6-two-languages-one-board) for how it behaves.
+
+| Field | Values | Default | What it does |
+| --- | --- | --- | --- |
+| `enabled` | bool | true | Off means one language and no switcher, exactly as the board behaves without this. |
+| `primary` | a language code | `es` | The language you author in. Everything falls back to it. |
+| `languages` | `[{ code, label }]` | Español, English | Every language offered, in switcher order. Add or remove rows in the panel. |
+| `auto` | bool | true | Translate a dossier's empty languages shortly after you stop typing. |
+| `provider` | `mymemory` `function` `off` | `mymemory` | Where translations come from. |
+| `remember` | bool | true | Keep the visitor's choice in their browser. |
+| `followBrowser` | bool | true | Offer the language their browser asks for on a first visit. |
+
+**To add a third language:** open the panel, press `+ language`, set its code
+(`fr`) and name (`Français`), then press `⇄ translate`. Nothing else changes —
+the switcher, the fallbacks and the translator all work off this list.
+
 ---
 
-## 6 · Dossiers and blocks
+## 8 · Dossiers and blocks
 
 A dossier is one `content_entries` row plus its ordered `content_blocks`.
 
@@ -557,7 +811,7 @@ concurrent edit is rejected rather than silently overwriting.
 
 ---
 
-## 7 · Where everything lives
+## 9 · Where everything lives
 
 ```
 content/source/          the authored board: theme, cards, lists, dossiers, tour route
@@ -584,7 +838,7 @@ site edits itself, and `content/source/` only matters for a clean re-seed.
 
 ---
 
-## 8 · Making it yours
+## 10 · Making it yours
 
 ### Run it locally, with no database
 
@@ -634,7 +888,7 @@ variables are lost.
 
 ---
 
-## 9 · Keyboard, pointer and touch reference
+## 11 · Keyboard, pointer and touch reference
 
 ### On the board
 
@@ -676,7 +930,7 @@ over both.
 
 ---
 
-## 10 · Accessibility
+## 12 · Accessibility
 
 - **Reduced motion.** `prefers-reduced-motion: reduce` skips the tour entirely —
   the board appears complete and still — and quiets the board's decorative loops.

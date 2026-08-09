@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { EntryType, PortfolioEntry, DeletedEntrySummary } from '../../types/content';
+import type { EntryType, PortfolioEntry, StoredPortfolioEntry, DeletedEntrySummary } from '../../types/content';
 import { createEntry, slugify } from '../../lib/editor';
 import { entriesForGroup, type BoardConfig } from '../../lib/board';
 import {
@@ -14,9 +14,9 @@ type InventoryPanelProps = {
   board: BoardConfig;
   remoteDataEnabled: boolean;
   onClose: () => void;
-  onCreated: (entry: PortfolioEntry) => void;
+  onCreated: (entry: StoredPortfolioEntry) => void;
   onDeleted: (id: string) => void;
-  onRestored: (entry: PortfolioEntry) => void;
+  onRestored: (entry: StoredPortfolioEntry) => void;
   onMoveEntry: (entry: PortfolioEntry, group: string) => void;
   onBoardChange: (next: BoardConfig) => void;
   notify: (message: string, isError?: boolean) => void;

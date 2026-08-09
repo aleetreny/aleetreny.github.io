@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { PortfolioEntry } from '../types/content';
+import type { PortfolioEntry, StoredPortfolioEntry } from '../types/content';
 import { demoEntries, demoSettings } from '../content/demo';
 import {
   BOARD_TEXTURES,
@@ -21,6 +21,23 @@ import {
   type Polaroid,
   type ThemeConfig,
 } from '../lib/board';
+import {
+  DEFAULT_I18N,
+  boardTextSlots,
+  entryTextSlots,
+  initialLanguage,
+  localise,
+  mergeEdit,
+  readAt,
+  missingAt,
+  parseI18n,
+  putText,
+  rememberLanguage,
+  setAt,
+  type I18nConfig,
+} from '../lib/i18n';
+import { TranslateError, translateTexts, translatorAvailable } from '../lib/translate';
+import { runtimeConfig } from '../lib/config';
 import {
   buildStops,
   easingCss,
@@ -91,10 +108,29 @@ const JUMPS: Array<[string, string]> = [
 ];
 
 const TONES: CardTone[] = ['paper', 'paperWarm', 'paperCream', 'dark', 'slate', 'amber', 'custom'];
+
+/** Which fields on each board item carry prose, and so belong to a language.
+ *  Everything else — tones, layouts, group keys — is structure. */
+const CARD_TEXT_FIELDS = [
+  'kicker', 'title', 'subtitle', 'intro', 'name', 'hint', 'blurb', 'note',
+  'label', 'nextLabel', 'currentTitle', 'currentSub', 'nextTitle', 'nextSub', 'barCaption',
+];
+const POLAROID_TEXT_FIELDS = ['caption', 'placeholder'];
+
+/** One provider call per source language, so a mixed board still batches. */
+function groupByFrom<T extends { from: string }>(jobs: T[]): Array<[string, T[]]> {
+  const map = new Map<string, T[]>();
+  for (const job of jobs) {
+    const list = map.get(job.from);
+    if (list) list.push(job); else map.set(job.from, [job]);
+  }
+  return [...map];
+}
+const NOTE_TEXT_FIELDS = ['text'];
 const DRAWER_LAYOUTS = ['list', 'compact', 'grid', 'notes', 'atlas'] as const;
 
 export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
-  const [entries, setEntries] = useState<PortfolioEntry[]>(demoEntries);
+  const [rawEntries, setEntries] = useState<StoredPortfolioEntry[]>(demoEntries);
   const [settings, setSettings] = useState<Record<string, unknown>>(demoSettings);
   const [error, setError] = useState('');
 
@@ -116,9 +152,28 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [polBusy, setPolBusy] = useState<string | null>(null);
 
   const theme = useMemo<ThemeConfig>(() => parseTheme(settings.theme), [settings.theme]);
-  const board = useMemo<BoardConfig>(() => parseBoard(settings.board), [settings.board]);
   const layout = useMemo<LayoutMap>(() => parseLayout(settings['board.layout']), [settings]);
-  const tour = useMemo<TourConfig>(() => parseTour(settings['board.tour']), [settings]);
+  const i18n = useMemo<I18nConfig>(() => parseI18n(settings['site.i18n'] ?? DEFAULT_I18N), [settings]);
+  const [lang, setLang] = useState<string>(() => initialLanguage(parseI18n(demoSettings['site.i18n'] ?? DEFAULT_I18N)));
+  const activeLang = i18n.enabled && i18n.languages.some((l) => l.code === lang) ? lang : i18n.primary;
+
+  // The raw documents keep every language; the localised copies are what the
+  // board renders, so no component below here knows a second language exists.
+  const rawBoard = useMemo<BoardConfig>(() => parseBoard(settings.board), [settings.board]);
+  const board = useMemo<BoardConfig>(
+    () => (i18n.enabled ? localise(rawBoard, activeLang, i18n.primary) : rawBoard),
+    [rawBoard, i18n.enabled, i18n.primary, activeLang],
+  );
+  const tour = useMemo<TourConfig>(() => {
+    const parsed = parseTour(settings['board.tour']);
+    return i18n.enabled ? localise(parsed, activeLang, i18n.primary) : parsed;
+  }, [settings, i18n.enabled, i18n.primary, activeLang]);
+  // The one place the stored and rendered shapes meet: after this, prose is a
+  // plain string and nothing below knows a second language exists.
+  const entries = useMemo<PortfolioEntry[]>(
+    () => rawEntries.map((entry) => (i18n.enabled ? localise(entry, activeLang, i18n.primary) : entry) as PortfolioEntry),
+    [rawEntries, i18n.enabled, i18n.primary, activeLang],
+  );
   const backdrop = theme.backdrop;
 
   // Decided once, on the first render, so the board never paints fully
@@ -152,6 +207,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const passRef = useRef<HTMLInputElement>(null);
   const zTop = useRef(50);
   const ctrlScaleRef = useRef(0);
+  const autoTimer = useRef(0);
   const openSlugRef = useRef<string | null>(null);
   const authedRef = useRef(false);
 
@@ -791,11 +847,27 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
   const commitTheme = useCallback((next: ThemeConfig) => { setSettings((s) => ({ ...s, theme: next })); saveSetting('theme', next); }, [saveSetting]);
   const commitBoard = useCallback((next: BoardConfig) => { setSettings((s) => ({ ...s, board: next })); saveSetting('board', next); }, [saveSetting]);
+  const commitI18n = useCallback((next: I18nConfig) => { setSettings((s) => ({ ...s, 'site.i18n': next })); saveSetting('site.i18n', next); }, [saveSetting]);
+
+  /** Apply a patch to a raw item, routing prose into the active language slot
+   *  and everything else — tones, layouts, ids — straight through. */
+  const patchText = useCallback(<T extends Record<string, unknown>>(raw: T, patch: Partial<T>, fields: readonly string[]): T => {
+    const next: Record<string, unknown> = { ...raw };
+    for (const [key, value] of Object.entries(patch)) {
+      next[key] = i18n.enabled && typeof value === 'string' && fields.includes(key)
+        ? putText(raw[key], activeLang, value, i18n.primary)
+        : value;
+    }
+    return next as T;
+  }, [i18n.enabled, i18n.primary, activeLang]);
   const commitLayout = useCallback((next: LayoutMap) => { setSettings((s) => ({ ...s, 'board.layout': next })); saveSetting('board.layout', next, 150); }, [saveSetting]);
   const commitTour = useCallback((next: TourConfig) => { setSettings((s) => ({ ...s, 'board.tour': next })); saveSetting('board.tour', next); }, [saveSetting]);
 
+  // A ref, because the translate action is declared after the edit path that
+  // triggers it and neither should force the other to re-create.
+  const autoTranslateRef = useRef<() => void>(() => {});
   const savingRef = useRef(false);
-  const pendingEntry = useRef<PortfolioEntry | null>(null);
+  const pendingEntry = useRef<StoredPortfolioEntry | null>(null);
   const entryTimer = useRef<number>(0);
   const flushRef = useRef<() => void>(() => {});
   const flushEntry = useCallback(() => {
@@ -812,15 +884,25 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   useEffect(() => { flushRef.current = flushEntry; }, [flushEntry]);
 
   const changeEntry = useCallback((next: PortfolioEntry) => {
-    setEntries((list) => list.map((item) => (item.id === next.id ? next : item)));
-    pendingEntry.current = next;
+    // `next` came from the localised view: it carries the structure, the raw
+    // entry carries the languages.
+    const raw = rawEntries.find((item) => item.id === next.id);
+    const merged = i18n.enabled && raw
+      ? mergeEdit(raw, next, entryTextSlots(next), activeLang, i18n.primary)
+      : next;
+    setEntries((list) => list.map((item) => (item.id === merged.id ? merged : item)));
+    pendingEntry.current = merged;
     window.clearTimeout(entryTimer.current);
     entryTimer.current = window.setTimeout(flushEntry, 500);
-  }, [flushEntry]);
+    autoTranslateRef.current();
+  }, [flushEntry, rawEntries, i18n.enabled, i18n.primary, activeLang]);
 
   const editCard = useCallback((cardId: string, patch: Partial<BoardCard>) => {
-    commitBoard({ ...board, cards: board.cards.map((card) => (card.id === cardId ? { ...card, ...patch } : card)) });
-  }, [board, commitBoard]);
+    commitBoard({
+      ...rawBoard,
+      cards: rawBoard.cards.map((card) => (card.id === cardId ? patchText(card as unknown as Record<string, unknown>, patch as Record<string, unknown>, CARD_TEXT_FIELDS) as unknown as BoardCard : card)),
+    });
+  }, [rawBoard, commitBoard, patchText]);
 
   const moveEntryGroup = useCallback((entry: PortfolioEntry, group: string) => {
     const order = entriesForGroup(entries, group).length;
@@ -845,10 +927,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const pickPolaroidPhoto = useCallback((polaroidId: string, file: File) => {
     setPolBusy(polaroidId);
     uploadPhoto(file)
-      .then((url) => { commitBoard({ ...board, polaroids: board.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: url } : p)) }); })
+      .then((url) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: url } : p)) }); })
       .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'Could not upload the photo.', true))
       .finally(() => setPolBusy(null));
-  }, [board, commitBoard, flash, uploadPhoto]);
+  }, [rawBoard, commitBoard, flash, uploadPhoto]);
 
   // ---- board card management ------------------------------------------------
   const viewCenterWorld = useCallback(() => {
@@ -865,27 +947,27 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const card: BoardCard = type === 'drawer'
       ? { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: 'new drawer', title: 'New drawer', group: 'random', layout: 'compact' }
       : { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: 'spotlight', title: 'New\nspotlight', blurb: 'Say what this is.', open: entries[0]?.slug };
-    commitBoard({ ...board, cards: [...board.cards, card] });
+    commitBoard({ ...rawBoard, cards: [...rawBoard.cards, card] });
     setCardMenu(id);
-  }, [board, commitBoard, entries, viewCenterWorld]);
+  }, [rawBoard, commitBoard, entries, viewCenterWorld]);
 
   const addPolaroid = useCallback(() => {
     const at = viewCenterWorld();
     const polaroid: Polaroid = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 280, h: 220, caption: 'Caption', placeholder: 'drop a photo' };
-    commitBoard({ ...board, polaroids: [...board.polaroids, polaroid] });
-  }, [board, commitBoard, viewCenterWorld]);
+    commitBoard({ ...rawBoard, polaroids: [...rawBoard.polaroids, polaroid] });
+  }, [rawBoard, commitBoard, viewCenterWorld]);
 
   const addNote = useCallback(() => {
     const at = viewCenterWorld();
     const note: Marginal = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 250, style: 'amber', text: 'A new note.' };
-    commitBoard({ ...board, marginalia: [...board.marginalia, note] });
-  }, [board, commitBoard, viewCenterWorld]);
+    commitBoard({ ...rawBoard, marginalia: [...rawBoard.marginalia, note] });
+  }, [rawBoard, commitBoard, viewCenterWorld]);
 
-  const removeCard = useCallback((id: string) => { commitBoard({ ...board, cards: board.cards.filter((c) => c.id !== id) }); setCardMenu(null); }, [board, commitBoard]);
-  const removePolaroid = useCallback((id: string) => { commitBoard({ ...board, polaroids: board.polaroids.filter((p) => p.id !== id) }); }, [board, commitBoard]);
-  const removeNote = useCallback((id: string) => { commitBoard({ ...board, marginalia: board.marginalia.filter((n) => n.id !== id) }); }, [board, commitBoard]);
-  const editPolaroid = useCallback((id: string, patch: Partial<Polaroid>) => { commitBoard({ ...board, polaroids: board.polaroids.map((p) => (p.id === id ? { ...p, ...patch } : p)) }); }, [board, commitBoard]);
-  const editNote = useCallback((id: string, patch: Partial<Marginal>) => { commitBoard({ ...board, marginalia: board.marginalia.map((n) => (n.id === id ? { ...n, ...patch } : n)) }); }, [board, commitBoard]);
+  const removeCard = useCallback((id: string) => { commitBoard({ ...rawBoard, cards: rawBoard.cards.filter((c) => c.id !== id) }); setCardMenu(null); }, [rawBoard, commitBoard]);
+  const removePolaroid = useCallback((id: string) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.filter((p) => p.id !== id) }); }, [rawBoard, commitBoard]);
+  const removeNote = useCallback((id: string) => { commitBoard({ ...rawBoard, marginalia: rawBoard.marginalia.filter((n) => n.id !== id) }); }, [rawBoard, commitBoard]);
+  const editPolaroid = useCallback((id: string, patch: Partial<Polaroid>) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === id ? patchText(p as unknown as Record<string, unknown>, patch as Record<string, unknown>, POLAROID_TEXT_FIELDS) as unknown as Polaroid : p)) }); }, [rawBoard, commitBoard, patchText]);
+  const editNote = useCallback((id: string, patch: Partial<Marginal>) => { commitBoard({ ...rawBoard, marginalia: rawBoard.marginalia.map((n) => (n.id === id ? patchText(n as unknown as Record<string, unknown>, patch as Record<string, unknown>, NOTE_TEXT_FIELDS) as unknown as Marginal : n)) }); }, [rawBoard, commitBoard, patchText]);
 
   // ---- pointer / wheel ------------------------------------------------------
   useEffect(() => {
@@ -1139,6 +1221,80 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     apply(next);
   }, [board.size.height, board.size.width, commitLayout, draggableIds]);
 
+  // ---- translation ----------------------------------------------------------
+  // Authoring-time only: the result is stored next to the source, so a visitor
+  // never waits on a translation service and an outage cannot blank the site.
+  const [translating, setTranslating] = useState(false);
+  const canTranslate = i18n.enabled
+    && translatorAvailable({ provider: i18n.provider, endpoint: runtimeConfig.translateFunctionUrl })
+    && i18n.languages.length > 1;
+
+  const runTranslate = useCallback(async (target?: string) => {
+    if (!canTranslate || translating) return;
+    // Every language is a target, the primary included: a board authored in
+    // one language can be seeded into the other from whichever side has text.
+    const codes = i18n.languages.map((l) => l.code);
+    const targets = target ? [target] : codes;
+    setTranslating(true);
+    try {
+      let filled = 0;
+      let nextBoard = rawBoard;
+      let nextEntries = rawEntries;
+      for (const to of targets) {
+        const boardJobs = missingAt(nextBoard, boardTextSlots(nextBoard), codes, to, i18n.primary);
+        for (const [from, jobs] of groupByFrom(boardJobs)) {
+          const done = await translateTexts({ texts: jobs.map((j) => j.text), from, to }, { provider: i18n.provider });
+          jobs.forEach((job, index) => {
+            const text = done[index];
+            if (!text) return;
+            nextBoard = setAt(nextBoard, job.path, putText(readAt(nextBoard, job.path), to, text, i18n.primary));
+            filled += 1;
+          });
+        }
+        for (let e = 0; e < nextEntries.length; e += 1) {
+          const entry = nextEntries[e];
+          const jobs = missingAt(entry, entryTextSlots(entry), codes, to, i18n.primary);
+          if (jobs.length === 0) continue;
+          let merged = entry;
+          for (const [from, group] of groupByFrom(jobs)) {
+            const done = await translateTexts({ texts: group.map((j) => j.text), from, to }, { provider: i18n.provider });
+            group.forEach((job, index) => {
+              const text = done[index];
+              if (!text) return;
+              merged = setAt(merged, job.path, putText(readAt(merged, job.path), to, text, i18n.primary));
+              filled += 1;
+            });
+          }
+          nextEntries = nextEntries.map((item, i) => (i === e ? merged : item));
+        }
+      }
+      if (nextBoard !== rawBoard) commitBoard(nextBoard);
+      if (nextEntries !== rawEntries) {
+        setEntries(nextEntries);
+        for (const entry of nextEntries) {
+          if (rawEntries.find((item) => item.id === entry.id) !== entry) {
+            pendingEntry.current = entry;
+            flushEntry();
+          }
+        }
+      }
+      flash(filled > 0 ? `Translated ${filled} field${filled === 1 ? '' : 's'}.` : 'Nothing left to translate.');
+    } catch (error) {
+      flash(error instanceof TranslateError ? error.message : 'The translator could not be reached.', true);
+    } finally {
+      setTranslating(false);
+    }
+  }, [canTranslate, translating, i18n.languages, i18n.primary, i18n.provider, rawBoard, rawEntries, commitBoard, flash, flushEntry]);
+
+  /** Fill the other languages shortly after the owner stops typing. */
+  const autoTranslateEntry = useCallback(() => {
+    if (!canTranslate || !i18n.auto || activeLang !== i18n.primary) return;
+    window.clearTimeout(autoTimer.current);
+    autoTimer.current = window.setTimeout(() => { void runTranslate(); }, 1400);
+  }, [canTranslate, i18n.auto, activeLang, i18n.primary, runTranslate]);
+
+  useEffect(() => { autoTranslateRef.current = autoTranslateEntry; }, [autoTranslateEntry]);
+
   // ---- auth -----------------------------------------------------------------
   const doLogin = useCallback(() => {
     setLoginError('');
@@ -1163,11 +1319,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const openIndex = openSlug ? orderedSlugs.indexOf(openSlug) : -1;
   const prevEntry = openIndex >= 0 ? entries.find((e) => e.slug === orderedSlugs[(openIndex - 1 + orderedSlugs.length) % orderedSlugs.length]) : null;
   const nextEntry = openIndex >= 0 ? entries.find((e) => e.slug === orderedSlugs[(openIndex + 1) % orderedSlugs.length]) : null;
-  const viewportStyle = {
-    ...themeVars(theme),
-    background: wallBackground(backdrop, texture),
-    '--board-ink': texture.ink,
-  } as React.CSSProperties;
+  // Published on the document element, not on .desk: the dossier, the panels
+  // and the toolbars are siblings of the board, and they all need the theme.
+  const cssVars = useMemo(() => ({ ...themeVars(theme), '--board-ink': texture.ink }), [theme, texture.ink]);
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    for (const [key, value] of Object.entries(cssVars)) root.style.setProperty(key, value);
+    return () => { for (const key of Object.keys(cssVars)) root.style.removeProperty(key); };
+  }, [cssVars]);
+  const viewportStyle = { background: wallBackground(backdrop, texture) } as React.CSSProperties;
 
   const shadow = backdrop.plateShadow;
   const plateStyle: React.CSSProperties = {
@@ -1192,7 +1352,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
   return (
     <>
-      <div className="desk" ref={viewportRef} style={viewportStyle} aria-label="Working board">
+      <div
+        className="desk"
+        ref={viewportRef}
+        style={viewportStyle}
+        aria-label="Working board"
+        data-edge={theme.cards.edge}
+        data-lift={theme.cards.lift}
+      >
         {backdrop.plate && backdrop.grain > 0 ? (
           <div className="desk__grain" aria-hidden="true" style={{ opacity: backdrop.grain }} />
         ) : null}
@@ -1249,6 +1416,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                   ...(introDrop ? { animation: 'drop .7s cubic-bezier(.2,.9,.2,1) both', animationDelay: `${0.02 + index * 0.05}s` } : null),
                 }}
               >
+                {/* The hero has no paper surface, so nothing fastens it. */}
+                {theme.cards.fastener !== 'none' && card.type !== 'hero' ? (
+                  <span className={`card__fastener card__fastener--${theme.cards.fastener}`} aria-hidden="true" />
+                ) : null}
                 {editing ? (
                   <div className="card-ctrl" data-nodrag>
                     <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label="Card settings">⚙</button>
@@ -1397,6 +1568,34 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                   <button className="tbtn" type="button" onClick={addNote}>note</button>
                 </>
               ) : null}
+              {i18n.enabled && i18n.languages.length > 1 ? (
+                <>
+                  <span className="ownerbar__add">writing:</span>
+                  {i18n.languages.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      className={`tbtn ${option.code === activeLang ? 'tbtn--on' : ''}`}
+                      aria-pressed={option.code === activeLang}
+                      title={option.code === i18n.primary ? `${option.label} — the language you author in` : option.label}
+                      onClick={() => { setLang(option.code); rememberLanguage(i18n, option.code); }}
+                    >
+                      {option.code.toUpperCase()}
+                    </button>
+                  ))}
+                  {canTranslate ? (
+                    <button
+                      className="tbtn"
+                      type="button"
+                      disabled={translating}
+                      title={`Fill every empty translation from ${i18n.primary.toUpperCase()}`}
+                      onClick={() => { void runTranslate(); }}
+                    >
+                      {translating ? 'translating…' : '⇄ translate'}
+                    </button>
+                  ) : null}
+                </>
+              ) : null}
               <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
               <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>tour</button>
               <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
@@ -1419,6 +1618,24 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               {JUMPS.map(([label, name]) => (
                 <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{label}</button>
               ))}
+              {i18n.enabled && i18n.languages.length > 1 ? (
+                <>
+                  <span className="toolbar__sep" />
+                  <div className="langpick" role="group" aria-label="Language">
+                    {i18n.languages.map((option) => (
+                      <button
+                        key={option.code}
+                        type="button"
+                        className={`tbtn tbtn--ghost ${option.code === activeLang ? 'is-on' : ''}`}
+                        aria-pressed={option.code === activeLang}
+                        onClick={() => { setLang(option.code); rememberLanguage(i18n, option.code); }}
+                      >
+                        {option.code.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
               <span className="toolbar__sep" />
               <button className="tbtn tbtn--icon" type="button" aria-label="Zoom out" onClick={() => zoomBy(0.8)}>−</button>
               <button className="tbtn tbtn--icon" type="button" aria-label="Zoom in" onClick={() => zoomBy(1.25)}>+</button>
@@ -1439,6 +1656,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}
           onChange={changeEntry}
           uploadPhoto={uploadPhoto}
+          dossier={theme.dossier}
         />
       ) : null}
 
@@ -1460,7 +1678,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         </div>
       ) : null}
 
-      {themeOpen ? <ThemePanel theme={theme} onChange={commitTheme} onClose={() => setThemeOpen(false)} /> : null}
+      {themeOpen ? (
+        <ThemePanel
+          theme={theme}
+          onChange={commitTheme}
+          i18n={i18n}
+          onI18nChange={commitI18n}
+          onClose={() => setThemeOpen(false)}
+        />
+      ) : null}
       {tourOpen ? (
         <TourPanel
           tour={tour}
