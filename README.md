@@ -23,20 +23,24 @@ Two things make it worth forking:
 > thing feature by feature, with screenshots, and documents every editable
 > setting: what it does, what it accepts, and how to change it.
 
-## Eight looks, one click
+## Twelve looks, one click
 
-The theme panel ships with complete looks — texture, wall, cards, article and
-palette together. A look never touches your text, your positions or your tour,
-so trying one on costs nothing.
+The theme panel ships with complete looks — slate, wall, cards, article and the
+whole palette together. Ten of them are built on published colour schemes, using
+their real values; four are light boards. A look never touches your text, your
+positions or your tour, so trying one on costs nothing.
 
 | | | | |
 | --- | --- | --- | --- |
-| ![Working slate](docs/images/look-working-slate.jpg) | ![Newsprint](docs/images/look-newsprint.jpg) | ![Blueprint studio](docs/images/look-blueprint-studio.jpg) | ![Cork room](docs/images/look-cork-room.jpg) |
-| Working slate | Newsprint | Blueprint studio | Cork room |
-| ![Brutalist](docs/images/look-brutalist.jpg) | ![Night lab](docs/images/look-night-lab.jpg) | ![Sun-bleached](docs/images/look-sun-bleached.jpg) | ![Late sunset](docs/images/look-late-sunset.jpg) |
-| Brutalist | Night lab | Sun-bleached | Late sunset |
+| ![Working slate](docs/images/look-working-slate.jpg) | ![Solarized Light](docs/images/look-solarized-light.jpg) | ![Nord](docs/images/look-nord.jpg) | ![Gruvbox](docs/images/look-gruvbox.jpg) |
+| Working slate | Solarized Light ☀ | Nord | Gruvbox |
+| ![Dracula](docs/images/look-dracula.jpg) | ![Catppuccin Latte](docs/images/look-catppuccin-latte.jpg) | ![Tokyo Night](docs/images/look-tokyo-night.jpg) | ![Rosé Pine Dawn](docs/images/look-ros-pine-dawn.jpg) |
+| Dracula | Catppuccin Latte ☀ | Tokyo Night | Rosé Pine Dawn ☀ |
+| ![Everforest](docs/images/look-everforest.jpg) | ![Monokai](docs/images/look-monokai.jpg) | ![Newsprint](docs/images/look-newsprint.jpg) | ![Brutalist](docs/images/look-brutalist.jpg) |
+| Everforest | Monokai | Newsprint ☀ | Brutalist |
 
-Underneath them, everything is a control of its own: card edge, shadow, grain,
+Underneath them, everything is a control of its own: the slate's own colour and
+ink, nine drawn patterns with their ink and strength; card edge, shadow, grain,
 padding, what fastens a card to the slate and what it does on hover; and for the
 article, its width, measure, body face and size, leading, title size, weight,
 case and tracking, opening-line style, drop cap, block numbering, gap, entrance

@@ -150,7 +150,8 @@ export function localise<T>(document: T, lang: string, primary: string): T {
 /** A language map is an object whose every value is a string and whose every
  *  key looks like a language code. That is narrow enough that ordinary content
  *  objects — `{ url, alt, caption }` — are never mistaken for one. */
-function isLanguageMap(value: Record<string, unknown>): boolean {
+export function isLanguageMap(value: unknown): value is Record<string, string> {
+  if (!isRecord(value)) return false;
   const keys = Object.keys(value);
   if (keys.length === 0) return false;
   return keys.every((key) => /^[a-z]{2}(-[a-zA-Z0-9]{2,8})?$/.test(key) && typeof value[key] === 'string');

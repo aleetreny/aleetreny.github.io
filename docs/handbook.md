@@ -297,26 +297,55 @@ and every save snapshots the previous version into `entry_versions`.
 
 **Where:** owner bar → `theme` → the row of buttons at the top.
 
-One click sets the texture, the wall, the cards, the article and the palette
-together. A look patches the theme — it never touches your text, your card
-positions or your tour — so trying one on and going back costs nothing. Each
-look fully owns the three surfaces it describes, so applying it twice, or after
-another one, always lands in exactly the same place. Your fonts stay as you set
-them.
+One click sets the slate, the wall, the cards, the article **and the whole
+palette** together. A look patches the theme — it never touches your text, your
+card positions or your tour — so trying one on and going back costs nothing.
+Each look fully owns every surface it describes, so applying it twice, or after
+another one, always lands in exactly the same place. Only your fonts survive,
+because a typeface is a personal choice.
+
+Ten of the twelve are built on published colour schemes you may already know
+from your editor, using their real values. Four are light boards.
 
 | | |
 | --- | --- |
-| ![Working slate](images/look-working-slate.jpg) | ![Newsprint](images/look-newsprint.jpg) |
-| **Working slate** — the original: a dark slate on a plaster wall, straight paper, hard shadows. | **Newsprint** — bone paper wall to wall, no slate, inked rules, numbered blocks, a drop cap. |
-| ![Blueprint studio](images/look-blueprint-studio.jpg) | ![Cork room](images/look-cork-room.jpg) |
-| **Blueprint studio** — a drafting table: cyan grid, clipped cards, a technical, quiet article. | **Cork room** — warm cork, pinned paper, tilted cards that straighten under the pointer. |
-| ![Brutalist](images/look-brutalist.jpg) | ![Night lab](images/look-night-lab.jpg) |
-| **Brutalist** — no shadow, heavy black edges, upper-case titles, everything flat and loud. | **Night lab** — near-black, cool instrument light, a glow on hover, a long calm measure. |
-| ![Sun-bleached](images/look-sun-bleached.jpg) | ![Late sunset](images/look-late-sunset.jpg) |
-| **Sun-bleached** — a bright studio wall, warm paper, taped photos, a generous centred article. | **Late sunset** — plum and ember, stapled paper, a headline that shouts and a body that does not. |
+| ![Working slate](images/look-working-slate.jpg) | ![Solarized Light](images/look-solarized-light.jpg) |
+| **Working slate** — the original: a green-grey slate on a plaster wall, straight paper, hard shadows. | **Solarized Light** ☀ — Ethan Schoonover's daylight palette: base3 paper, cyan-blue ink, a calm serif article. |
+| ![Nord](images/look-nord.jpg) | ![Gruvbox](images/look-gruvbox.jpg) |
+| **Nord** — the arctic palette: polar-night slate, frost blues, snow-storm paper, a technical mono article. | **Gruvbox** — retro groove: charcoal slate, cream paper, burnt orange, taped photos and a drop cap. |
+| ![Dracula](images/look-dracula.jpg) | ![Catppuccin Latte](images/look-catppuccin-latte.jpg) |
+| **Dracula** — the purple classic: near-black slate, violet and pink, rounded cards that glow. | **Catppuccin Latte** ☀ — the soft light one: pale lavender-grey, rounded paper, a centred article, no rules. |
+| ![Tokyo Night](images/look-tokyo-night.jpg) | ![Rosé Pine Dawn](images/look-ros-pine-dawn.jpg) |
+| **Tokyo Night** — deep indigo, neon blue and violet, a starfield slate, numbered mono blocks. | **Rosé Pine Dawn** ☀ — the light rosé: blush paper, muted plum ink, pinned photos and a drop cap. |
+| ![Everforest](images/look-everforest.jpg) | ![Monokai](images/look-monokai.jpg) |
+| **Everforest** — soft forest greens on warm cream, a woven slate, stapled paper, a plain calm article. | **Monokai** — the editor classic: olive-black slate, hot pink and lime, heavy edges, upper-case titles. |
+| ![Newsprint](images/look-newsprint.jpg) | ![Brutalist](images/look-brutalist.jpg) |
+| **Newsprint** ☀ — bone paper wall to wall, no slate at all, inked rules, numbered blocks, a drop cap. | **Brutalist** — no shadow, heavy black edges, a red accent, everything flat and loud. |
+
+☀ = a light board.
 
 A look is a starting point, not a cage. Apply the closest one and then change
 whatever you like underneath — every field it set is a field you can set.
+
+### Why a light board is possible at all
+
+The slate used to be one of seven fixed textures with its colour baked in, so
+every look was some shade of dark. Two things changed that, and both are yours
+to edit:
+
+- **The slate is a colour.** `backdrop.slate` / `slate2` / `slateInk` — leave
+  them empty and the board style paints the slate as it always did; set them and
+  the slate is whatever you want. The ink picks itself by contrast unless you
+  choose one.
+- **The pattern is drawn, not baked.** `backdrop.pattern` gives you `dots`,
+  `grid`, `graph`, `rules`, `weave`, `stars` and `diagonal` on top of `texture`
+  (the board style's own) and `none`. It is drawn in `patternInk`, which follows
+  the slate's brightness by default — so a grid stays visible on cream as well
+  as on charcoal — at whatever strength `patternFade` says.
+
+Both live in the theme panel, under **slate colour**:
+
+![The slate colour controls](images/panel-07-slate-colour.jpg)
 
 ### The same article, four looks
 
@@ -326,8 +355,8 @@ these shots:
 
 | | | | |
 | --- | --- | --- | --- |
-| ![Default article](images/article-01-default.jpg) | ![Newsprint article](images/article-02-newsprint.jpg) | ![Brutalist article](images/article-03-brutalist.jpg) | ![Sun-bleached article](images/article-04-sunbleached.jpg) |
-| **Working slate** — a display face, an italic opening line, a 60-character measure. | **Newsprint** — upper-case title, a drop cap, numbered blocks, no scrim blur. | **Brutalist** — a 58px title, monospace body, a hard cut instead of an animation. | **Sun-bleached** — centred column, a large plain-text lede, warm paper, no rules. |
+| ![Default article](images/article-01-default.jpg) | ![Newsprint article](images/article-02-newsprint.jpg) | ![Brutalist article](images/article-03-brutalist.jpg) | ![Catppuccin Latte article](images/article-04-sunbleached.jpg) |
+| **Working slate** — a display face, an italic opening line, a 60-character measure. | **Newsprint** — upper-case title, a drop cap, numbered blocks, no scrim blur. | **Brutalist** — a 58px title, monospace body, a hard cut instead of an animation. | **Catppuccin Latte** — a centred column on white, a large plain lede, a soft scrim. |
 
 ### Building your own look
 
@@ -491,11 +520,22 @@ Everything behind the cards.
 | `studs` | bool | true | The four corner studs. |
 | `studSize` | 6 – 60 px | 22 | Stud size. |
 | `studInset` | 0 – 140 px | 34 | How far outside the board box they sit. |
-| `grid` | `plate` `viewport` `off` | `plate` | Where the texture pattern is painted. `plate` scales with the zoom; `viewport` keeps a constant on-screen density; `off` is bare. |
-| `gridScale` | 0.4 – 3 × | 1 | Multiplies the pattern size on the slate. |
+| `grid` | `plate` `viewport` `off` | `plate` | Where the pattern is painted. `plate` scales with the zoom; `viewport` keeps a constant on-screen density; `off` is bare. |
+| `gridScale` | 0.4 – 3 × | 1 | Multiplies the pattern size. |
+| `slate` / `slate2` | hex or empty | empty | The slate's own colour, centre and edge. Empty means the board style paints it, exactly as before these existed. |
+| `slateInk` | hex or empty | empty | What is written on the slate. Empty picks near-black or near-white by contrast. |
+| `pattern` | `texture` `none` `dots` `grid` `graph` `rules` `weave` `stars` `diagonal` | `texture` | What is drawn on the slate. `texture` keeps the board style's own pattern; the rest are drawn in the pattern ink. |
+| `patternInk` | `auto` `light` `dark` | `auto` | Light or dark pattern lines. `auto` follows the slate's brightness, which is what keeps a grid visible on a cream board. |
+| `patternFade` | 0 – 2 × | 1 | How strongly the pattern reads. 0 is invisible. |
 
 With `plate: false` the wall, grain, vignette and studs stop rendering, and
 `grid: plate` falls back to `viewport` — there is no slate to paint on.
+
+**To make a light board by hand:** set `slate` to something pale (say
+`#fdf6e3`), leave `slateInk` empty so the writing turns dark by itself, pick a
+`wall` that is not darker than the slate, and drop `vignette` to about `0.2`.
+The slate's inner shadow lightens automatically once the slate is pale, so it
+does not come out grey at the edges.
 
 #### Cards
 

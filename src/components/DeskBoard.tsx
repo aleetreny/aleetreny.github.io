@@ -8,7 +8,10 @@ import {
   parseBoard,
   parseLayout,
   parseTheme,
-  scalePatternSize,
+  patternLayers,
+  slateBackground,
+  slateInk,
+  tintLuminance,
   themeVars,
   wallBackground,
   type BoardCard,
@@ -332,12 +335,13 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       // the dot pattern into grain. It reads as a calm fixed backdrop. The
       // slate's own pattern (grid mode `plate`) is static markup instead — it
       // rides the board transform, so it scales with the zoom by design.
-      const sizes = texture.size.split(',').map((piece) => piece.trim().split(' ').map((n) => parseFloat(n)));
-      gridEl.style.backgroundImage = texture.img;
-      gridEl.style.backgroundSize = sizes.map(([w, h]) => `${w}px ${h}px`).join(', ');
+      const layers = patternLayers(backdrop, texture, false);
+      const sizes = layers.size.split(',').map((piece) => piece.trim());
+      gridEl.style.backgroundImage = layers.image;
+      gridEl.style.backgroundSize = layers.size;
       gridEl.style.backgroundPosition = sizes.map(() => `${v.x}px ${v.y}px`).join(', ');
     }
-  }, [texture]);
+  }, [texture, backdrop]);
 
   /** Frame a board-space rectangle inside the viewport. */
   const fitRect = useCallback((rect: Rect, padX: number, padTop: number, padBottom: number, maxScale: number): View | null => {
@@ -876,11 +880,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const entry = pendingEntry.current;
     pendingEntry.current = null;
     savingRef.current = true;
-    saveContentEntry(entry, 'inline edit')
+    saveContentEntry(entry, 'inline edit', i18n.primary)
       .then((saved) => { setEntries((list) => list.map((item) => (item.id === saved.id ? { ...item, version: saved.version } : item))); })
       .catch((reason: unknown) => { flash(reason instanceof Error ? reason.message : 'Could not save the text.', true); })
       .finally(() => { savingRef.current = false; if (pendingEntry.current) entryTimer.current = window.setTimeout(() => flushRef.current(), 60); });
-  }, [flash, remoteDataEnabled]);
+  }, [flash, remoteDataEnabled, i18n.primary]);
   useEffect(() => { flushRef.current = flushEntry; }, [flushEntry]);
 
   const changeEntry = useCallback((next: PortfolioEntry) => {
@@ -1321,7 +1325,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const nextEntry = openIndex >= 0 ? entries.find((e) => e.slug === orderedSlugs[(openIndex + 1) % orderedSlugs.length]) : null;
   // Published on the document element, not on .desk: the dossier, the panels
   // and the toolbars are siblings of the board, and they all need the theme.
-  const cssVars = useMemo(() => ({ ...themeVars(theme), '--board-ink': texture.ink }), [theme, texture.ink]);
+  const cssVars = useMemo(() => {
+    // A pale slate takes a light touch: the same inner shadow that gives a dark
+    // board its depth turns a bone-white one grey at the edges.
+    const pale = Boolean(theme.backdrop.slate) && tintLuminance(theme.backdrop.slate) > 0.55;
+    return {
+      ...themeVars(theme),
+      '--board-ink': slateInk(theme.backdrop, texture),
+      '--plate-shade': pale ? '0.14' : '0.55',
+      '--plate-gloss': pale ? '0.5' : '0.06',
+    };
+  }, [theme, texture]);
   useLayoutEffect(() => {
     const root = document.documentElement;
     for (const [key, value] of Object.entries(cssVars)) root.style.setProperty(key, value);
@@ -1330,18 +1344,21 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const viewportStyle = { background: wallBackground(backdrop, texture) } as React.CSSProperties;
 
   const shadow = backdrop.plateShadow;
+  const paleSlate = Boolean(backdrop.slate) && tintLuminance(backdrop.slate) > 0.55;
   const plateStyle: React.CSSProperties = {
     left: -backdrop.plateMargin,
     top: -backdrop.plateMargin,
     right: -backdrop.plateMargin,
     bottom: -backdrop.plateMargin,
-    background: texture.vp,
+    background: slateBackground(backdrop, texture),
     boxShadow: [
       `0 ${Math.round(70 * shadow)}px ${Math.round(120 * shadow)}px ${Math.round(-40 * shadow)}px rgba(0,0,0,${Math.min(0.95, 0.9 * shadow).toFixed(2)})`,
-      '0 0 0 1px rgba(0,0,0,.6)',
-      `inset 0 0 0 ${backdrop.frame}px rgba(20,24,23,.55)`,
+      `0 0 0 1px rgba(0,0,0,${paleSlate ? '.25' : '.6'})`,
+      // The mount around a pale slate is a light card, not a black border.
+      `inset 0 0 0 ${backdrop.frame}px ${paleSlate ? 'rgba(255,255,255,.5)' : 'rgba(20,24,23,.55)'}`,
     ].join(', '),
   };
+  const platePattern = patternLayers(backdrop, texture, true);
   const studStyle: React.CSSProperties = { width: backdrop.studSize, height: backdrop.studSize };
   const studCorners: Array<[string, React.CSSProperties]> = [
     ['tl', { left: -backdrop.studInset, top: -backdrop.studInset }],
@@ -1383,10 +1400,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                   {gridMode === 'plate' ? (
                     <div
                       className="desk__plate-grid"
-                      style={{
-                        backgroundImage: texture.plateImg,
-                        backgroundSize: scalePatternSize(texture.plateSize, backdrop.gridScale),
-                      }}
+                      style={{ backgroundImage: platePattern.image, backgroundSize: platePattern.size }}
                     />
                   ) : null}
                   <div className="desk__plate-shade" />

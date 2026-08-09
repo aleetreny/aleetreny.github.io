@@ -3,12 +3,8 @@
     "id": "9879f539-3b3e-584c-8c91-8d8aac8537d1",
     "version": 1,
     "slug": "siemens",
-    "title": {
-      "en": "Data Scientist at Siemens Energy"
-    },
-    "summary": {
-      "en": "Predicting cash flow for the Spanish HQ. Half of the job is the model, the other half is making a director trust it in eight seconds."
-    },
+    "title": "Data Scientist at Siemens Energy",
+    "summary": "Predicting cash flow for the Spanish HQ. Half of the job is the model, the other half is making a director trust it in eight seconds.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -23,7 +19,15 @@
         "en": "Madrid"
       },
       "group": "work",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "Data Scientist at Siemens Energy"
+        },
+        "summary": {
+          "en": "Predicting cash flow for the Spanish HQ. Half of the job is the model, the other half is making a director trust it in eight seconds."
+        }
+      }
     },
     "blocks": [
       {
@@ -153,12 +157,8 @@
     "id": "6efbceb2-517f-5bf6-874b-c66cbe82dc03",
     "version": 1,
     "slug": "accenture",
-    "title": {
-      "en": "Data Science & AI at Accenture"
-    },
-    "summary": {
-      "en": "Multi-agent systems for Spanish banks, back when \"agent\" still needed explaining in every meeting."
-    },
+    "title": "Data Science & AI at Accenture",
+    "summary": "Multi-agent systems for Spanish banks, back when \"agent\" still needed explaining in every meeting.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -173,7 +173,15 @@
         "en": "Madrid"
       },
       "group": "work",
-      "order": 1
+      "order": 1,
+      "i18n": {
+        "title": {
+          "en": "Data Science & AI at Accenture"
+        },
+        "summary": {
+          "en": "Multi-agent systems for Spanish banks, back when \"agent\" still needed explaining in every meeting."
+        }
+      }
     },
     "blocks": [
       {
@@ -303,12 +311,8 @@
     "id": "4223cad4-2da1-5b4d-a98e-f5eb06d5ce7b",
     "version": 1,
     "slug": "tropical",
-    "title": {
-      "en": "Data Analyst at Tropical Millenium"
-    },
-    "summary": {
-      "en": "Fruit. Twelve million kilos of it, €44M a year, and a price that moves every single week."
-    },
+    "title": "Data Analyst at Tropical Millenium",
+    "summary": "Fruit. Twelve million kilos of it, €44M a year, and a price that moves every single week.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -323,7 +327,15 @@
         "en": "Málaga"
       },
       "group": "work",
-      "order": 2
+      "order": 2,
+      "i18n": {
+        "title": {
+          "en": "Data Analyst at Tropical Millenium"
+        },
+        "summary": {
+          "en": "Fruit. Twelve million kilos of it, €44M a year, and a price that moves every single week."
+        }
+      }
     },
     "blocks": [
       {
@@ -450,12 +462,8 @@
     "id": "a640d547-5211-566f-8158-88b4817bafab",
     "version": 1,
     "slug": "ey",
-    "title": {
-      "en": "Data Analyst at EY, contracted to ING"
-    },
-    "summary": {
-      "en": "Chasing irregularities through corporate accounts worth up to €90M, one reconciliation at a time."
-    },
+    "title": "Data Analyst at EY, contracted to ING",
+    "summary": "Chasing irregularities through corporate accounts worth up to €90M, one reconciliation at a time.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -470,7 +478,15 @@
         "en": "Málaga"
       },
       "group": "work",
-      "order": 3
+      "order": 3,
+      "i18n": {
+        "title": {
+          "en": "Data Analyst at EY, contracted to ING"
+        },
+        "summary": {
+          "en": "Chasing irregularities through corporate accounts worth up to €90M, one reconciliation at a time."
+        }
+      }
     },
     "blocks": [
       {
@@ -571,12 +587,8 @@
     "id": "909485fd-0059-5e21-9c55-b588f6f4e892",
     "version": 1,
     "slug": "frulogy",
-    "title": {
-      "en": "Frulogy — an online fruit business, at 19"
-    },
-    "summary": {
-      "en": "My first company, built partly out of envy that other teenagers were building things. It worked technically and failed emotionally, which turned out to be the useful version."
-    },
+    "title": "Frulogy — an online fruit business, at 19",
+    "summary": "My first company, built partly out of envy that other teenagers were building things. It worked technically and failed emotionally, which turned out to be the useful version.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -591,7 +603,15 @@
         "en": "Málaga / online"
       },
       "group": "work",
-      "order": 4
+      "order": 4,
+      "i18n": {
+        "title": {
+          "en": "Frulogy — an online fruit business, at 19"
+        },
+        "summary": {
+          "en": "My first company, built partly out of envy that other teenagers were building things. It worked technically and failed emotionally, which turned out to be the useful version."
+        }
+      }
     },
     "blocks": [
       {
@@ -718,12 +738,8 @@
     "id": "71efc249-15a1-5691-8435-af45db7fe091",
     "version": 1,
     "slug": "ucl",
-    "title": {
-      "en": "MSc Data Science & Machine Learning, UCL"
-    },
-    "summary": {
-      "en": "Next chapter, funded. Fundación Kareema Excellence Grant, €45k."
-    },
+    "title": "MSc Data Science & Machine Learning, UCL",
+    "summary": "Next chapter, funded. Fundación Kareema Excellence Grant, €45k.",
     "entryType": "education",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -738,7 +754,15 @@
         "en": "London"
       },
       "group": "edu",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "MSc Data Science & Machine Learning, UCL"
+        },
+        "summary": {
+          "en": "Next chapter, funded. Fundación Kareema Excellence Grant, €45k."
+        }
+      }
     },
     "blocks": [
       {
@@ -851,12 +875,8 @@
     "id": "7bf7bb34-2aec-5319-b7a5-47ddfb15c781",
     "version": 1,
     "slug": "uc3m",
-    "title": {
-      "en": "MSc Statistics for Data Science, UC3M"
-    },
-    "summary": {
-      "en": "The year the maths got serious and I stopped pretending intuition scales."
-    },
+    "title": "MSc Statistics for Data Science, UC3M",
+    "summary": "The year the maths got serious and I stopped pretending intuition scales.",
     "entryType": "education",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -871,7 +891,15 @@
         "en": "Madrid"
       },
       "group": "edu",
-      "order": 1
+      "order": 1,
+      "i18n": {
+        "title": {
+          "en": "MSc Statistics for Data Science, UC3M"
+        },
+        "summary": {
+          "en": "The year the maths got serious and I stopped pretending intuition scales."
+        }
+      }
     },
     "blocks": [
       {
@@ -972,12 +1000,8 @@
     "id": "76f50f47-fac5-5a0d-9e3c-74927b6f77a6",
     "version": 1,
     "slug": "uma",
-    "title": {
-      "en": "Double BSc Economics + Business Administration"
-    },
-    "summary": {
-      "en": "Five years, two degrees, and a running argument with the education system that I decided to win from the inside."
-    },
+    "title": "Double BSc Economics + Business Administration",
+    "summary": "Five years, two degrees, and a running argument with the education system that I decided to win from the inside.",
     "entryType": "education",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -992,7 +1016,15 @@
         "en": "Málaga"
       },
       "group": "edu",
-      "order": 2
+      "order": 2,
+      "i18n": {
+        "title": {
+          "en": "Double BSc Economics + Business Administration"
+        },
+        "summary": {
+          "en": "Five years, two degrees, and a running argument with the education system that I decided to win from the inside."
+        }
+      }
     },
     "blocks": [
       {
@@ -1105,12 +1137,8 @@
     "id": "b245ddb2-0907-5f81-9e6d-0effec23477d",
     "version": 1,
     "slug": "erasmus-sk",
-    "title": {
-      "en": "Erasmus year at Comenius University"
-    },
-    "summary": {
-      "en": "A whole year abroad, which I had wanted since I first read the word Erasmus, and which I chased by finally studying properly."
-    },
+    "title": "Erasmus year at Comenius University",
+    "summary": "A whole year abroad, which I had wanted since I first read the word Erasmus, and which I chased by finally studying properly.",
     "entryType": "education",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -1125,7 +1153,15 @@
         "en": "Bratislava, Slovakia"
       },
       "group": "edu",
-      "order": 3
+      "order": 3,
+      "i18n": {
+        "title": {
+          "en": "Erasmus year at Comenius University"
+        },
+        "summary": {
+          "en": "A whole year abroad, which I had wanted since I first read the word Erasmus, and which I chased by finally studying properly."
+        }
+      }
     },
     "blocks": [
       {
@@ -1253,12 +1289,8 @@
     "id": "39091b01-c9f8-52b4-ac61-ee111b640c27",
     "version": 1,
     "slug": "languages",
-    "title": {
-      "en": "Three languages, one accent problem"
-    },
-    "summary": {
-      "en": "Spanish native, French native, English C1 Cambridge (187) — and a permanent project to sound less Andalusian in all three."
-    },
+    "title": "Three languages, one accent problem",
+    "summary": "Spanish native, French native, English C1 Cambridge (187) — and a permanent project to sound less Andalusian in all three.",
     "entryType": "education",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -1273,7 +1305,15 @@
         "en": "everywhere"
       },
       "group": "edu",
-      "order": 4
+      "order": 4,
+      "i18n": {
+        "title": {
+          "en": "Three languages, one accent problem"
+        },
+        "summary": {
+          "en": "Spanish native, French native, English C1 Cambridge (187) — and a permanent project to sound less Andalusian in all three."
+        }
+      }
     },
     "blocks": [
       {
@@ -1374,12 +1414,8 @@
     "id": "1da868fd-8f6f-5c34-84ab-7b21bf487106",
     "version": 1,
     "slug": "alda",
-    "title": {
-      "en": "Fundación Alda — three months in Paraguay"
-    },
-    "summary": {
-      "en": "The longest and least comfortable thing on this board, and the one that changed the most."
-    },
+    "title": "Fundación Alda — three months in Paraguay",
+    "summary": "The longest and least comfortable thing on this board, and the one that changed the most.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -1394,7 +1430,15 @@
         "en": "Asunción, Paraguay"
       },
       "group": "vol",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "Fundación Alda — three months in Paraguay"
+        },
+        "summary": {
+          "en": "The longest and least comfortable thing on this board, and the one that changed the most."
+        }
+      }
     },
     "blocks": [
       {
@@ -1547,12 +1591,8 @@
     "id": "690a13c9-4d1e-57c4-b70d-245210f0c3e3",
     "version": 1,
     "slug": "eye2025",
-    "title": {
-      "en": "European Parliament — EYE2025 coordinator"
-    },
-    "summary": {
-      "en": "Ten thousand young Europeans, one hemicycle, a schedule that could not slip."
-    },
+    "title": "European Parliament — EYE2025 coordinator",
+    "summary": "Ten thousand young Europeans, one hemicycle, a schedule that could not slip.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -1567,7 +1607,15 @@
         "en": "Strasbourg / Brussels"
       },
       "group": "vol",
-      "order": 1
+      "order": 1,
+      "i18n": {
+        "title": {
+          "en": "European Parliament — EYE2025 coordinator"
+        },
+        "summary": {
+          "en": "Ten thousand young Europeans, one hemicycle, a schedule that could not slip."
+        }
+      }
     },
     "blocks": [
       {
@@ -1695,12 +1743,8 @@
     "id": "dc9186f1-1102-5cce-9096-6eb5a05c1e00",
     "version": 1,
     "slug": "tedx",
-    "title": {
-      "en": "TEDx — from fan in the audience to the team"
-    },
-    "summary": {
-      "en": "I had watched TED talks obsessively for years. Then I went to a TEDx in Cádiz, ate a cricket, and signed up as a volunteer for the Málaga one."
-    },
+    "title": "TEDx — from fan in the audience to the team",
+    "summary": "I had watched TED talks obsessively for years. Then I went to a TEDx in Cádiz, ate a cricket, and signed up as a volunteer for the Málaga one.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -1715,7 +1759,15 @@
         "en": "Málaga / Cádiz"
       },
       "group": "vol",
-      "order": 2
+      "order": 2,
+      "i18n": {
+        "title": {
+          "en": "TEDx — from fan in the audience to the team"
+        },
+        "summary": {
+          "en": "I had watched TED talks obsessively for years. Then I went to a TEDx in Cádiz, ate a cricket, and signed up as a volunteer for the Málaga one."
+        }
+      }
     },
     "blocks": [
       {
@@ -1828,12 +1880,8 @@
     "id": "49908bfe-0e24-59ff-8a6a-29727bccc53e",
     "version": 1,
     "slug": "startup-summit",
-    "title": {
-      "en": "EU Start-up Summit — organising team"
-    },
-    "summary": {
-      "en": "On the other side of the badge for once: building the event instead of networking through it."
-    },
+    "title": "EU Start-up Summit — organising team",
+    "summary": "On the other side of the badge for once: building the event instead of networking through it.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -1848,7 +1896,15 @@
         "en": "Málaga"
       },
       "group": "vol",
-      "order": 3
+      "order": 3,
+      "i18n": {
+        "title": {
+          "en": "EU Start-up Summit — organising team"
+        },
+        "summary": {
+          "en": "On the other side of the badge for once: building the event instead of networking through it."
+        }
+      }
     },
     "blocks": [
       {
@@ -1961,12 +2017,8 @@
     "id": "66c21385-afdc-523f-811b-d321dae51361",
     "version": 1,
     "slug": "erasmus-lt",
-    "title": {
-      "en": "Erasmus+ youth exchange, Lithuania"
-    },
-    "summary": {
-      "en": "A week of structured cultural collision with people from six countries, in a place I could not have found on a map at 18."
-    },
+    "title": "Erasmus+ youth exchange, Lithuania",
+    "summary": "A week of structured cultural collision with people from six countries, in a place I could not have found on a map at 18.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -1981,7 +2033,15 @@
         "en": "Lithuania"
       },
       "group": "vol",
-      "order": 4
+      "order": 4,
+      "i18n": {
+        "title": {
+          "en": "Erasmus+ youth exchange, Lithuania"
+        },
+        "summary": {
+          "en": "A week of structured cultural collision with people from six countries, in a place I could not have found on a map at 18."
+        }
+      }
     },
     "blocks": [
       {
@@ -2094,12 +2154,8 @@
     "id": "2df1ed0b-276d-57e5-9610-c1179de031e4",
     "version": 1,
     "slug": "erasmus-bg",
-    "title": {
-      "en": "Erasmus+ youth exchange, Bulgaria"
-    },
-    "summary": {
-      "en": "Sofia, sangria that should not have been sangria, and a fortnight of arguing about Europe in a second language."
-    },
+    "title": "Erasmus+ youth exchange, Bulgaria",
+    "summary": "Sofia, sangria that should not have been sangria, and a fortnight of arguing about Europe in a second language.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -2114,7 +2170,15 @@
         "en": "Bulgaria"
       },
       "group": "vol",
-      "order": 5
+      "order": 5,
+      "i18n": {
+        "title": {
+          "en": "Erasmus+ youth exchange, Bulgaria"
+        },
+        "summary": {
+          "en": "Sofia, sangria that should not have been sangria, and a fortnight of arguing about Europe in a second language."
+        }
+      }
     },
     "blocks": [
       {
@@ -2224,12 +2288,8 @@
     "id": "c1a8c250-4ccf-5319-8440-a698a14a9072",
     "version": 1,
     "slug": "small-vol",
-    "title": {
-      "en": "The unglamorous volunteering"
-    },
-    "summary": {
-      "en": "The ones that never make a CV: 7:15am starts, pedestrian crossings, university open days, film festivals."
-    },
+    "title": "The unglamorous volunteering",
+    "summary": "The ones that never make a CV: 7:15am starts, pedestrian crossings, university open days, film festivals.",
     "entryType": "experience",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -2244,7 +2304,15 @@
         "en": "Málaga"
       },
       "group": "vol",
-      "order": 6
+      "order": 6,
+      "i18n": {
+        "title": {
+          "en": "The unglamorous volunteering"
+        },
+        "summary": {
+          "en": "The ones that never make a CV: 7:15am starts, pedestrian crossings, university open days, film festivals."
+        }
+      }
     },
     "blocks": [
       {
@@ -2368,12 +2436,8 @@
     "id": "62bcd397-3573-5991-add0-798b3ea2aa39",
     "version": 1,
     "slug": "hack-malaga",
-    "title": {
-      "en": "Málaga City Council data challenge — won it"
-    },
-    "summary": {
-      "en": "Open municipal data, a weekend, and a jury that had to be convinced twice."
-    },
+    "title": "Málaga City Council data challenge — won it",
+    "summary": "Open municipal data, a weekend, and a jury that had to be convinced twice.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -2388,7 +2452,15 @@
         "en": "Málaga"
       },
       "group": "hack",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "Málaga City Council data challenge — won it"
+        },
+        "summary": {
+          "en": "Open municipal data, a weekend, and a jury that had to be convinced twice."
+        }
+      }
     },
     "blocks": [
       {
@@ -2501,12 +2573,8 @@
     "id": "4283aa4f-f904-5592-b9d7-623c2648c323",
     "version": 1,
     "slug": "hack-diputacion",
-    "title": {
-      "en": "Diputación hackathon — came back with a Mac"
-    },
-    "summary": {
-      "en": "Took a train down on a Sunday during exam week because the prize was per person, not per team. Correct decision."
-    },
+    "title": "Diputación hackathon — came back with a Mac",
+    "summary": "Took a train down on a Sunday during exam week because the prize was per person, not per team. Correct decision.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -2521,7 +2589,15 @@
         "en": "Málaga"
       },
       "group": "hack",
-      "order": 1
+      "order": 1,
+      "i18n": {
+        "title": {
+          "en": "Diputación hackathon — came back with a Mac"
+        },
+        "summary": {
+          "en": "Took a train down on a Sunday during exam week because the prize was per person, not per team. Correct decision."
+        }
+      }
     },
     "blocks": [
       {
@@ -2634,12 +2710,8 @@
     "id": "70c53fa4-576b-50bb-9a2a-80b9ea6f3463",
     "version": 1,
     "slug": "hack-accenture",
-    "title": {
-      "en": "Accenture hackathon — the shopping chatbot"
-    },
-    "summary": {
-      "en": "One of 100 selected. They waited for the hundredth person to arrive before starting, which tells you everything about the energy in the room."
-    },
+    "title": "Accenture hackathon — the shopping chatbot",
+    "summary": "One of 100 selected. They waited for the hundredth person to arrive before starting, which tells you everything about the energy in the room.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -2654,7 +2726,15 @@
         "en": "Madrid"
       },
       "group": "hack",
-      "order": 3
+      "order": 3,
+      "i18n": {
+        "title": {
+          "en": "Accenture hackathon — the shopping chatbot"
+        },
+        "summary": {
+          "en": "One of 100 selected. They waited for the hundredth person to arrive before starting, which tells you everything about the energy in the room."
+        }
+      }
     },
     "blocks": [
       {
@@ -2752,12 +2832,8 @@
     "id": "ad58fc15-84ee-52e1-aa9f-b52e347647b5",
     "version": 1,
     "slug": "hack-madrid",
-    "title": {
-      "en": "Madrid open-data competition & Localízate"
-    },
-    "summary": {
-      "en": "The city publishes the data; almost nobody uses it. I built the tool I wished existed and entered it."
-    },
+    "title": "Madrid open-data competition & Localízate",
+    "summary": "The city publishes the data; almost nobody uses it. I built the tool I wished existed and entered it.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -2772,7 +2848,15 @@
         "en": "Madrid"
       },
       "group": "hack",
-      "order": 2
+      "order": 2,
+      "i18n": {
+        "title": {
+          "en": "Madrid open-data competition & Localízate"
+        },
+        "summary": {
+          "en": "The city publishes the data; almost nobody uses it. I built the tool I wished existed and entered it."
+        }
+      }
     },
     "blocks": [
       {
@@ -2899,12 +2983,8 @@
     "id": "6aab898c-4646-511b-a46d-30cd2c8bab64",
     "version": 1,
     "slug": "mvp-hidro",
-    "title": {
-      "en": "Rooftop hydroponics MVP"
-    },
-    "summary": {
-      "en": "Every city has thousands of square metres of empty roof. We built the business around filling them with food."
-    },
+    "title": "Rooftop hydroponics MVP",
+    "summary": "Every city has thousands of square metres of empty roof. We built the business around filling them with food.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -2919,7 +2999,15 @@
         "en": "Málaga"
       },
       "group": "hack",
-      "order": 5
+      "order": 5,
+      "i18n": {
+        "title": {
+          "en": "Rooftop hydroponics MVP"
+        },
+        "summary": {
+          "en": "Every city has thousands of square metres of empty roof. We built the business around filling them with food."
+        }
+      }
     },
     "blocks": [
       {
@@ -3017,12 +3105,8 @@
     "id": "2fb3c406-b259-5e41-b895-03e63b9cd5ce",
     "version": 1,
     "slug": "mvp-recycling",
-    "title": {
-      "en": "Recycling startup MVP"
-    },
-    "summary": {
-      "en": "Second MVP of the same era: making recycling behaviour legible enough to reward."
-    },
+    "title": "Recycling startup MVP",
+    "summary": "Second MVP of the same era: making recycling behaviour legible enough to reward.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -3037,7 +3121,15 @@
         "en": "Málaga"
       },
       "group": "hack",
-      "order": 6
+      "order": 6,
+      "i18n": {
+        "title": {
+          "en": "Recycling startup MVP"
+        },
+        "summary": {
+          "en": "Second MVP of the same era: making recycling behaviour legible enough to reward."
+        }
+      }
     },
     "blocks": [
       {
@@ -3135,12 +3227,8 @@
     "id": "8c84dccf-0ba2-53b5-adcd-f3c6ababdd2a",
     "version": 1,
     "slug": "photo-prize",
-    "title": {
-      "en": "International cooperation photo contest — 2nd and 3rd"
-    },
-    "summary": {
-      "en": "I brought photos back from Paraguay. Friends entered one of them for me. I won two categories and a very small bottle."
-    },
+    "title": "International cooperation photo contest — 2nd and 3rd",
+    "summary": "I brought photos back from Paraguay. Friends entered one of them for me. I won two categories and a very small bottle.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -3155,7 +3243,15 @@
         "en": "Málaga"
       },
       "group": "hack",
-      "order": 4
+      "order": 4,
+      "i18n": {
+        "title": {
+          "en": "International cooperation photo contest — 2nd and 3rd"
+        },
+        "summary": {
+          "en": "I brought photos back from Paraguay. Friends entered one of them for me. I won two categories and a very small bottle."
+        }
+      }
     },
     "blocks": [
       {
@@ -3283,12 +3379,8 @@
     "id": "dee7042b-1d1f-5cab-a90d-b74fc7da9927",
     "version": 1,
     "slug": "localizate",
-    "title": {
-      "en": "Localízate"
-    },
-    "summary": {
-      "en": "Open data plus machine learning to predict whether a new business will survive its street."
-    },
+    "title": "Localízate",
+    "summary": "Open data plus machine learning to predict whether a new business will survive its street.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -3303,7 +3395,15 @@
         "en": "Madrid"
       },
       "group": "repos",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "Localízate"
+        },
+        "summary": {
+          "en": "Open data plus machine learning to predict whether a new business will survive its street."
+        }
+      }
     },
     "blocks": [
       {
@@ -3430,12 +3530,8 @@
     "id": "3c27af8d-c4d6-5011-a1cc-9864db3ce032",
     "version": 1,
     "slug": "vexillology",
-    "title": {
-      "en": "Computational Vexillology"
-    },
-    "summary": {
-      "en": "250 sovereign flags converted into mathematical fingerprints, then asked whether flag design remembers colonial history, geography and economics."
-    },
+    "title": "Computational Vexillology",
+    "summary": "250 sovereign flags converted into mathematical fingerprints, then asked whether flag design remembers colonial history, geography and economics.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -3450,7 +3546,15 @@
         "en": "the sofa"
       },
       "group": "repos",
-      "order": 2
+      "order": 2,
+      "i18n": {
+        "title": {
+          "en": "Computational Vexillology"
+        },
+        "summary": {
+          "en": "250 sovereign flags converted into mathematical fingerprints, then asked whether flag design remembers colonial history, geography and economics."
+        }
+      }
     },
     "blocks": [
       {
@@ -3577,12 +3681,8 @@
     "id": "4339eddf-208b-5edf-a06d-700019dc03c8",
     "version": 1,
     "slug": "mapping-science",
-    "title": {
-      "en": "Mapping Science"
-    },
-    "summary": {
-      "en": "The shape of science itself: how research fields form, drift and collide over time."
-    },
+    "title": "Mapping Science",
+    "summary": "The shape of science itself: how research fields form, drift and collide over time.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -3597,7 +3697,15 @@
         "en": "Madrid"
       },
       "group": "repos",
-      "order": 3
+      "order": 3,
+      "i18n": {
+        "title": {
+          "en": "Mapping Science"
+        },
+        "summary": {
+          "en": "The shape of science itself: how research fields form, drift and collide over time."
+        }
+      }
     },
     "blocks": [
       {
@@ -3724,12 +3832,8 @@
     "id": "d595c82c-0661-5edf-8122-a9916b5abd5a",
     "version": 1,
     "slug": "hollywood",
-    "title": {
-      "en": "Hollywood Mirror"
-    },
-    "summary": {
-      "en": "How much do film scripts copy each other? Embeddings say: quite a lot, and predictably so."
-    },
+    "title": "Hollywood Mirror",
+    "summary": "How much do film scripts copy each other? Embeddings say: quite a lot, and predictably so.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -3744,7 +3848,15 @@
         "en": "the sofa"
       },
       "group": "repos",
-      "order": 5
+      "order": 5,
+      "i18n": {
+        "title": {
+          "en": "Hollywood Mirror"
+        },
+        "summary": {
+          "en": "How much do film scripts copy each other? Embeddings say: quite a lot, and predictably so."
+        }
+      }
     },
     "blocks": [
       {
@@ -3871,12 +3983,8 @@
     "id": "8c7c235d-403d-5a07-a058-b2537a39cc62",
     "version": 1,
     "slug": "scholar-pulse",
-    "title": {
-      "en": "Scholar Pulse"
-    },
-    "summary": {
-      "en": "A living showroom for recent science — daily papers, thematic collections, discovery that does not require already knowing what you want."
-    },
+    "title": "Scholar Pulse",
+    "summary": "A living showroom for recent science — daily papers, thematic collections, discovery that does not require already knowing what you want.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -3891,7 +3999,15 @@
         "en": "Madrid"
       },
       "group": "repos",
-      "order": 4
+      "order": 4,
+      "i18n": {
+        "title": {
+          "en": "Scholar Pulse"
+        },
+        "summary": {
+          "en": "A living showroom for recent science — daily papers, thematic collections, discovery that does not require already knowing what you want."
+        }
+      }
     },
     "blocks": [
       {
@@ -4018,12 +4134,8 @@
     "id": "9a2fa109-401e-5d42-97c3-e4067471f8cb",
     "version": 1,
     "slug": "arraigo",
-    "title": {
-      "en": "Arraigo"
-    },
-    "summary": {
-      "en": "Residential intelligence: compare Málaga neighbourhoods with public data, real maps and a recommendation that matches how you actually want to live."
-    },
+    "title": "Arraigo",
+    "summary": "Residential intelligence: compare Málaga neighbourhoods with public data, real maps and a recommendation that matches how you actually want to live.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4038,7 +4150,15 @@
         "en": "Málaga"
       },
       "group": "repos",
-      "order": 1
+      "order": 1,
+      "i18n": {
+        "title": {
+          "en": "Arraigo"
+        },
+        "summary": {
+          "en": "Residential intelligence: compare Málaga neighbourhoods with public data, real maps and a recommendation that matches how you actually want to live."
+        }
+      }
     },
     "blocks": [
       {
@@ -4154,12 +4274,8 @@
     "id": "dbf5edd5-0f8b-5d2a-b5ea-0d567e957e7e",
     "version": 1,
     "slug": "cabicity",
-    "title": {
-      "en": "Cabicity & mad_plan"
-    },
-    "summary": {
-      "en": "Two attempts to make one city legible: every route, and every event."
-    },
+    "title": "Cabicity & mad_plan",
+    "summary": "Two attempts to make one city legible: every route, and every event.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4174,7 +4290,15 @@
         "en": "Madrid"
       },
       "group": "repos",
-      "order": 6
+      "order": 6,
+      "i18n": {
+        "title": {
+          "en": "Cabicity & mad_plan"
+        },
+        "summary": {
+          "en": "Two attempts to make one city legible: every route, and every event."
+        }
+      }
     },
     "blocks": [
       {
@@ -4305,12 +4429,8 @@
     "id": "a803e309-5771-5fb1-a1d6-91dcb2b3b16a",
     "version": 1,
     "slug": "atlas",
-    "title": {
-      "en": "ATLAS & the Data Science Ecosystem"
-    },
-    "summary": {
-      "en": "My own textbook. Classical methods through to generative AI, each one with a real case study, written so future-me can trust it."
-    },
+    "title": "ATLAS & the Data Science Ecosystem",
+    "summary": "My own textbook. Classical methods through to generative AI, each one with a real case study, written so future-me can trust it.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4325,7 +4445,15 @@
         "en": "everywhere"
       },
       "group": "repos",
-      "order": 7
+      "order": 7,
+      "i18n": {
+        "title": {
+          "en": "ATLAS & the Data Science Ecosystem"
+        },
+        "summary": {
+          "en": "My own textbook. Classical methods through to generative AI, each one with a real case study, written so future-me can trust it."
+        }
+      }
     },
     "blocks": [
       {
@@ -4437,12 +4565,8 @@
     "id": "3c47bb44-9166-5a31-a9d6-b5a47886c83e",
     "version": 1,
     "slug": "small-repos",
-    "title": {
-      "en": "Grabaciones, c2-practice-log, finanzas, Present, Development"
-    },
-    "summary": {
-      "en": "The utilities. Each one exists because paying for the alternative annoyed me more than building it."
-    },
+    "title": "Grabaciones, c2-practice-log, finanzas, Present, Development",
+    "summary": "The utilities. Each one exists because paying for the alternative annoyed me more than building it.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4457,7 +4581,15 @@
         "en": "github.com/aleetreny"
       },
       "group": "repos",
-      "order": 8
+      "order": 8,
+      "i18n": {
+        "title": {
+          "en": "Grabaciones, c2-practice-log, finanzas, Present, Development"
+        },
+        "summary": {
+          "en": "The utilities. Each one exists because paying for the alternative annoyed me more than building it."
+        }
+      }
     },
     "blocks": [
       {
@@ -4591,12 +4723,8 @@
     "id": "20709931-c9b0-5b81-b119-37a120f16898",
     "version": 1,
     "slug": "lab-l1",
-    "title": {
-      "en": "L1 Trigger anomaly detection"
-    },
-    "summary": {
-      "en": "Quantised autoencoders finding the events nobody labelled, at a data rate that forbids second guesses."
-    },
+    "title": "L1 Trigger anomaly detection",
+    "summary": "Quantised autoencoders finding the events nobody labelled, at a data rate that forbids second guesses.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4611,7 +4739,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "L1 Trigger anomaly detection"
+        },
+        "summary": {
+          "en": "Quantised autoencoders finding the events nobody labelled, at a data rate that forbids second guesses."
+        }
+      }
     },
     "blocks": [
       {
@@ -4698,12 +4834,8 @@
     "id": "7a821bf5-ae5a-5958-8393-a5d8b889fb23",
     "version": 1,
     "slug": "lab-flows",
-    "title": {
-      "en": "Neural phase integration with normalising flows"
-    },
-    "summary": {
-      "en": "Bijective normalising flows to integrate where classical quadrature gives up."
-    },
+    "title": "Neural phase integration with normalising flows",
+    "summary": "Bijective normalising flows to integrate where classical quadrature gives up.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4718,7 +4850,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 1
+      "order": 1,
+      "i18n": {
+        "title": {
+          "en": "Neural phase integration with normalising flows"
+        },
+        "summary": {
+          "en": "Bijective normalising flows to integrate where classical quadrature gives up."
+        }
+      }
     },
     "blocks": [
       {
@@ -4802,12 +4942,8 @@
     "id": "08d4be5e-6624-51ea-9d36-05dcbe83e7d7",
     "version": 1,
     "slug": "lab-grayscott",
-    "title": {
-      "en": "Gray–Scott simulation — Turing patterns"
-    },
-    "summary": {
-      "en": "Two chemicals, one reaction–diffusion equation, and every spot on every animal."
-    },
+    "title": "Gray–Scott simulation — Turing patterns",
+    "summary": "Two chemicals, one reaction–diffusion equation, and every spot on every animal.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4822,7 +4958,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 2
+      "order": 2,
+      "i18n": {
+        "title": {
+          "en": "Gray–Scott simulation — Turing patterns"
+        },
+        "summary": {
+          "en": "Two chemicals, one reaction–diffusion equation, and every spot on every animal."
+        }
+      }
     },
     "blocks": [
       {
@@ -4909,12 +5053,8 @@
     "id": "34ef2807-5d45-5cde-9504-80269544d207",
     "version": 1,
     "slug": "lab-epidemic",
-    "title": {
-      "en": "Epidemic dynamics on a lattice"
-    },
-    "summary": {
-      "en": "A vectorised 2D convolution model of contagion — geography as the real parameter."
-    },
+    "title": "Epidemic dynamics on a lattice",
+    "summary": "A vectorised 2D convolution model of contagion — geography as the real parameter.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -4929,7 +5069,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 3
+      "order": 3,
+      "i18n": {
+        "title": {
+          "en": "Epidemic dynamics on a lattice"
+        },
+        "summary": {
+          "en": "A vectorised 2D convolution model of contagion — geography as the real parameter."
+        }
+      }
     },
     "blocks": [
       {
@@ -5016,12 +5164,8 @@
     "id": "7a57fa01-8890-56b4-a92f-c0a2cf258596",
     "version": 1,
     "slug": "lab-kepler",
-    "title": {
-      "en": "Kepler PCA & MDS — clustering exoplanets"
-    },
-    "summary": {
-      "en": "The astro-analytics obsession, finally with a marking rubric attached."
-    },
+    "title": "Kepler PCA & MDS — clustering exoplanets",
+    "summary": "The astro-analytics obsession, finally with a marking rubric attached.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5036,7 +5180,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 4
+      "order": 4,
+      "i18n": {
+        "title": {
+          "en": "Kepler PCA & MDS — clustering exoplanets"
+        },
+        "summary": {
+          "en": "The astro-analytics obsession, finally with a marking rubric attached."
+        }
+      }
     },
     "blocks": [
       {
@@ -5138,12 +5290,8 @@
     "id": "1827be58-11c7-557c-8a37-d28faab45b33",
     "version": 1,
     "slug": "lab-particles",
-    "title": {
-      "en": "Particle tracking with quantum graph networks"
-    },
-    "summary": {
-      "en": "Reconstructing trajectories as a graph problem, with a quantum-flavoured twist."
-    },
+    "title": "Particle tracking with quantum graph networks",
+    "summary": "Reconstructing trajectories as a graph problem, with a quantum-flavoured twist.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5158,7 +5306,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 5
+      "order": 5,
+      "i18n": {
+        "title": {
+          "en": "Particle tracking with quantum graph networks"
+        },
+        "summary": {
+          "en": "Reconstructing trajectories as a graph problem, with a quantum-flavoured twist."
+        }
+      }
     },
     "blocks": [
       {
@@ -5245,12 +5401,8 @@
     "id": "b7552aeb-9e02-53f5-bae5-843482bca484",
     "version": 1,
     "slug": "lab-ica",
-    "title": {
-      "en": "Independent Component Analysis & the Fisher index"
-    },
-    "summary": {
-      "en": "Pulling independent signals out of a mixture, then measuring how much information each one actually carries."
-    },
+    "title": "Independent Component Analysis & the Fisher index",
+    "summary": "Pulling independent signals out of a mixture, then measuring how much information each one actually carries.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5265,7 +5417,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 6
+      "order": 6,
+      "i18n": {
+        "title": {
+          "en": "Independent Component Analysis & the Fisher index"
+        },
+        "summary": {
+          "en": "Pulling independent signals out of a mixture, then measuring how much information each one actually carries."
+        }
+      }
     },
     "blocks": [
       {
@@ -5349,12 +5509,8 @@
     "id": "8b3ed313-65ab-5bab-95cb-2398b37d573d",
     "version": 1,
     "slug": "lab-qtrading",
-    "title": {
-      "en": "Deep Q-Trading"
-    },
-    "summary": {
-      "en": "Reinforcement learning let loose on real tickers, by someone who has already lost money the manual way."
-    },
+    "title": "Deep Q-Trading",
+    "summary": "Reinforcement learning let loose on real tickers, by someone who has already lost money the manual way.",
     "entryType": "project",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5369,7 +5525,15 @@
         "en": "UC3M"
       },
       "group": "lab",
-      "order": 7
+      "order": 7,
+      "i18n": {
+        "title": {
+          "en": "Deep Q-Trading"
+        },
+        "summary": {
+          "en": "Reinforcement learning let loose on real tickers, by someone who has already lost money the manual way."
+        }
+      }
     },
     "blocks": [
       {
@@ -5467,12 +5631,8 @@
     "id": "56daf4c5-c0ff-5dbb-bc29-1214505009c5",
     "version": 1,
     "slug": "w-paraguay",
-    "title": {
-      "en": "Paraguay"
-    },
-    "summary": {
-      "en": "Three months, not three weeks. The difference between the two is the whole point."
-    },
+    "title": "Paraguay",
+    "summary": "Three months, not three weeks. The difference between the two is the whole point.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5488,7 +5648,15 @@
       },
       "group": "travel",
       "order": 0,
-      "code": "PY"
+      "code": "PY",
+      "i18n": {
+        "title": {
+          "en": "Paraguay"
+        },
+        "summary": {
+          "en": "Three months, not three weeks. The difference between the two is the whole point."
+        }
+      }
     },
     "blocks": [
       {
@@ -5613,12 +5781,8 @@
     "id": "97987973-2e94-5716-9dd1-25504a5c5cab",
     "version": 1,
     "slug": "w-norway",
-    "title": {
-      "en": "Fjords, aurora and a snowboard"
-    },
-    "summary": {
-      "en": "Bergen, the fjords, the northern lights and a week of light behaving wrongly."
-    },
+    "title": "Fjords, aurora and a snowboard",
+    "summary": "Bergen, the fjords, the northern lights and a week of light behaving wrongly.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5634,7 +5798,15 @@
       },
       "group": "travel",
       "order": 1,
-      "code": "NO"
+      "code": "NO",
+      "i18n": {
+        "title": {
+          "en": "Fjords, aurora and a snowboard"
+        },
+        "summary": {
+          "en": "Bergen, the fjords, the northern lights and a week of light behaving wrongly."
+        }
+      }
     },
     "blocks": [
       {
@@ -5748,12 +5920,8 @@
     "id": "15373933-027d-5939-b2e7-27a82b0ead01",
     "version": 1,
     "slug": "w-slovakia",
-    "title": {
-      "en": "Bratislava"
-    },
-    "summary": {
-      "en": "Erasmus base camp, and the first place that was mine rather than my family's."
-    },
+    "title": "Bratislava",
+    "summary": "Erasmus base camp, and the first place that was mine rather than my family's.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5769,7 +5937,15 @@
       },
       "group": "travel",
       "order": 2,
-      "code": "SK"
+      "code": "SK",
+      "i18n": {
+        "title": {
+          "en": "Bratislava"
+        },
+        "summary": {
+          "en": "Erasmus base camp, and the first place that was mine rather than my family's."
+        }
+      }
     },
     "blocks": [
       {
@@ -5883,12 +6059,8 @@
     "id": "58de8157-fb7e-5f3d-9ecb-1ed502b6ce81",
     "version": 1,
     "slug": "w-austria",
-    "title": {
-      "en": "Vienna & Tirol"
-    },
-    "summary": {
-      "en": "The most repeated destination on the board: Vienna for the city, Tirol for the mountains."
-    },
+    "title": "Vienna & Tirol",
+    "summary": "The most repeated destination on the board: Vienna for the city, Tirol for the mountains.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -5904,7 +6076,15 @@
       },
       "group": "travel",
       "order": 6,
-      "code": "AT"
+      "code": "AT",
+      "i18n": {
+        "title": {
+          "en": "Vienna & Tirol"
+        },
+        "summary": {
+          "en": "The most repeated destination on the board: Vienna for the city, Tirol for the mountains."
+        }
+      }
     },
     "blocks": [
       {
@@ -6003,12 +6183,8 @@
     "id": "021c25e6-3a2a-5f42-9577-bc488a0a5cc3",
     "version": 1,
     "slug": "w-czech",
-    "title": {
-      "en": "Prague, Kraków, Warsaw"
-    },
-    "summary": {
-      "en": "The interrail spine of the Erasmus year."
-    },
+    "title": "Prague, Kraków, Warsaw",
+    "summary": "The interrail spine of the Erasmus year.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6024,7 +6200,15 @@
       },
       "group": "travel",
       "order": 7,
-      "code": "CZ"
+      "code": "CZ",
+      "i18n": {
+        "title": {
+          "en": "Prague, Kraków, Warsaw"
+        },
+        "summary": {
+          "en": "The interrail spine of the Erasmus year."
+        }
+      }
     },
     "blocks": [
       {
@@ -6123,12 +6307,8 @@
     "id": "2831ac07-173d-5619-9ce1-ea6ee42487f5",
     "version": 1,
     "slug": "w-hungary",
-    "title": {
-      "en": "Budapest"
-    },
-    "summary": {
-      "en": "Baths, ruin bars, a parliament lit up at night that stopped a conversation dead."
-    },
+    "title": "Budapest",
+    "summary": "Baths, ruin bars, a parliament lit up at night that stopped a conversation dead.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6144,7 +6324,15 @@
       },
       "group": "travel",
       "order": 8,
-      "code": "HU"
+      "code": "HU",
+      "i18n": {
+        "title": {
+          "en": "Budapest"
+        },
+        "summary": {
+          "en": "Baths, ruin bars, a parliament lit up at night that stopped a conversation dead."
+        }
+      }
     },
     "blocks": [
       {
@@ -6240,12 +6428,8 @@
     "id": "36893339-b70c-5ed0-9819-ab3d69d93937",
     "version": 1,
     "slug": "w-lithuania",
-    "title": {
-      "en": "Vilnius & Kaunas"
-    },
-    "summary": {
-      "en": "Erasmus+ exchange, and the Baltic surprise nobody warns you about."
-    },
+    "title": "Vilnius & Kaunas",
+    "summary": "Erasmus+ exchange, and the Baltic surprise nobody warns you about.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6261,7 +6445,15 @@
       },
       "group": "travel",
       "order": 9,
-      "code": "LT"
+      "code": "LT",
+      "i18n": {
+        "title": {
+          "en": "Vilnius & Kaunas"
+        },
+        "summary": {
+          "en": "Erasmus+ exchange, and the Baltic surprise nobody warns you about."
+        }
+      }
     },
     "blocks": [
       {
@@ -6360,12 +6552,8 @@
     "id": "c28b2bab-c617-578c-9397-dabb65df28b5",
     "version": 1,
     "slug": "w-bulgaria",
-    "title": {
-      "en": "Sofia"
-    },
-    "summary": {
-      "en": "The second Erasmus+ exchange, and my first proper look at Europe's edges."
-    },
+    "title": "Sofia",
+    "summary": "The second Erasmus+ exchange, and my first proper look at Europe's edges.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6381,7 +6569,15 @@
       },
       "group": "travel",
       "order": 10,
-      "code": "BG"
+      "code": "BG",
+      "i18n": {
+        "title": {
+          "en": "Sofia"
+        },
+        "summary": {
+          "en": "The second Erasmus+ exchange, and my first proper look at Europe's edges."
+        }
+      }
     },
     "blocks": [
       {
@@ -6469,12 +6665,8 @@
     "id": "72f9e0e5-d629-59c0-b0df-629ab75573e9",
     "version": 1,
     "slug": "w-nordics",
-    "title": {
-      "en": "Copenhagen, Lund, Oslo, Stockholm"
-    },
-    "summary": {
-      "en": "The Nordic research trip that produced my private index of student cities."
-    },
+    "title": "Copenhagen, Lund, Oslo, Stockholm",
+    "summary": "The Nordic research trip that produced my private index of student cities.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6490,7 +6682,15 @@
       },
       "group": "travel",
       "order": 3,
-      "code": "SE"
+      "code": "SE",
+      "i18n": {
+        "title": {
+          "en": "Copenhagen, Lund, Oslo, Stockholm"
+        },
+        "summary": {
+          "en": "The Nordic research trip that produced my private index of student cities."
+        }
+      }
     },
     "blocks": [
       {
@@ -6589,12 +6789,8 @@
     "id": "4ec20741-8ae1-5f2e-8b95-02cabf51518a",
     "version": 1,
     "slug": "w-uk",
-    "title": {
-      "en": "London & Edinburgh"
-    },
-    "summary": {
-      "en": "The city I keep returning to and the one that surprised me most. Next year one of them becomes home."
-    },
+    "title": "London & Edinburgh",
+    "summary": "The city I keep returning to and the one that surprised me most. Next year one of them becomes home.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6610,7 +6806,15 @@
       },
       "group": "travel",
       "order": 4,
-      "code": "UK"
+      "code": "UK",
+      "i18n": {
+        "title": {
+          "en": "London & Edinburgh"
+        },
+        "summary": {
+          "en": "The city I keep returning to and the one that surprised me most. Next year one of them becomes home."
+        }
+      }
     },
     "blocks": [
       {
@@ -6709,12 +6913,8 @@
     "id": "5ea782b6-96a7-5cda-a991-c4c40f862839",
     "version": 1,
     "slug": "w-france",
-    "title": {
-      "en": "Strasbourg, Paris and the family side"
-    },
-    "summary": {
-      "en": "Half my mother tongue lives here. Strasbourg for the Parliament, the rest for the language."
-    },
+    "title": "Strasbourg, Paris and the family side",
+    "summary": "Half my mother tongue lives here. Strasbourg for the Parliament, the rest for the language.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6730,7 +6930,15 @@
       },
       "group": "travel",
       "order": 11,
-      "code": "FR"
+      "code": "FR",
+      "i18n": {
+        "title": {
+          "en": "Strasbourg, Paris and the family side"
+        },
+        "summary": {
+          "en": "Half my mother tongue lives here. Strasbourg for the Parliament, the rest for the language."
+        }
+      }
     },
     "blocks": [
       {
@@ -6829,12 +7037,8 @@
     "id": "f5052314-10d1-559a-a99f-75d271c7de6a",
     "version": 1,
     "slug": "w-benelux",
-    "title": {
-      "en": "Brussels"
-    },
-    "summary": {
-      "en": "The institutional Europe trip: buildings where the acronyms live."
-    },
+    "title": "Brussels",
+    "summary": "The institutional Europe trip: buildings where the acronyms live.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6850,7 +7054,15 @@
       },
       "group": "travel",
       "order": 12,
-      "code": "BE"
+      "code": "BE",
+      "i18n": {
+        "title": {
+          "en": "Brussels"
+        },
+        "summary": {
+          "en": "The institutional Europe trip: buildings where the acronyms live."
+        }
+      }
     },
     "blocks": [
       {
@@ -6923,12 +7135,8 @@
     "id": "f6a02152-5bd7-598d-a40f-e442d5b17fe0",
     "version": 1,
     "slug": "w-italy",
-    "title": {
-      "en": "Rome, Venice, Sardinia"
-    },
-    "summary": {
-      "en": "Italy in three modes: the museum, the impossible city and the island."
-    },
+    "title": "Rome, Venice, Sardinia",
+    "summary": "Italy in three modes: the museum, the impossible city and the island.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -6944,7 +7152,15 @@
       },
       "group": "travel",
       "order": 13,
-      "code": "IT"
+      "code": "IT",
+      "i18n": {
+        "title": {
+          "en": "Rome, Venice, Sardinia"
+        },
+        "summary": {
+          "en": "Italy in three modes: the museum, the impossible city and the island."
+        }
+      }
     },
     "blocks": [
       {
@@ -7043,12 +7259,8 @@
     "id": "c240fe81-fdb1-5487-9c3a-768d3b14df68",
     "version": 1,
     "slug": "w-croatia",
-    "title": {
-      "en": "Croatia"
-    },
-    "summary": {
-      "en": "Coast, islands, water clear enough to be suspicious."
-    },
+    "title": "Croatia",
+    "summary": "Coast, islands, water clear enough to be suspicious.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7064,7 +7276,15 @@
       },
       "group": "travel",
       "order": 14,
-      "code": "HR"
+      "code": "HR",
+      "i18n": {
+        "title": {
+          "en": "Croatia"
+        },
+        "summary": {
+          "en": "Coast, islands, water clear enough to be suspicious."
+        }
+      }
     },
     "blocks": [
       {
@@ -7152,12 +7372,8 @@
     "id": "94a90e4c-0b59-54b3-80a1-168896c3989c",
     "version": 1,
     "slug": "w-greece",
-    "title": {
-      "en": "Greece"
-    },
-    "summary": {
-      "en": "Where half the words in my degree come from."
-    },
+    "title": "Greece",
+    "summary": "Where half the words in my degree come from.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7173,7 +7389,15 @@
       },
       "group": "travel",
       "order": 15,
-      "code": "GR"
+      "code": "GR",
+      "i18n": {
+        "title": {
+          "en": "Greece"
+        },
+        "summary": {
+          "en": "Where half the words in my degree come from."
+        }
+      }
     },
     "blocks": [
       {
@@ -7243,12 +7467,8 @@
     "id": "f04c4a7a-6a0c-5180-bbb2-4f589a659a78",
     "version": 1,
     "slug": "w-portugal",
-    "title": {
-      "en": "Lisbon & Porto"
-    },
-    "summary": {
-      "en": "The neighbours. Same peninsula, entirely different temperature of melancholy."
-    },
+    "title": "Lisbon & Porto",
+    "summary": "The neighbours. Same peninsula, entirely different temperature of melancholy.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7264,7 +7484,15 @@
       },
       "group": "travel",
       "order": 16,
-      "code": "PT"
+      "code": "PT",
+      "i18n": {
+        "title": {
+          "en": "Lisbon & Porto"
+        },
+        "summary": {
+          "en": "The neighbours. Same peninsula, entirely different temperature of melancholy."
+        }
+      }
     },
     "blocks": [
       {
@@ -7334,12 +7562,8 @@
     "id": "5eeab305-d829-5a38-bcb9-74b5cf3caa42",
     "version": 1,
     "slug": "w-morocco",
-    "title": {
-      "en": "Morocco"
-    },
-    "summary": {
-      "en": "An hour from Andalucía and a different world. Repeatedly."
-    },
+    "title": "Morocco",
+    "summary": "An hour from Andalucía and a different world. Repeatedly.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7355,7 +7579,15 @@
       },
       "group": "travel",
       "order": 17,
-      "code": "MA"
+      "code": "MA",
+      "i18n": {
+        "title": {
+          "en": "Morocco"
+        },
+        "summary": {
+          "en": "An hour from Andalucía and a different world. Repeatedly."
+        }
+      }
     },
     "blocks": [
       {
@@ -7451,12 +7683,8 @@
     "id": "8334da32-7df8-53a9-9296-d8864664c9c4",
     "version": 1,
     "slug": "w-usa",
-    "title": {
-      "en": "Vegas → Palm Springs → Miami → New York"
-    },
-    "summary": {
-      "en": "The road trip I had been writing about wanting: a van, a desert, and a plan invented daily."
-    },
+    "title": "Vegas → Palm Springs → Miami → New York",
+    "summary": "The road trip I had been writing about wanting: a van, a desert, and a plan invented daily.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7472,7 +7700,15 @@
       },
       "group": "travel",
       "order": 5,
-      "code": "US"
+      "code": "US",
+      "i18n": {
+        "title": {
+          "en": "Vegas → Palm Springs → Miami → New York"
+        },
+        "summary": {
+          "en": "The road trip I had been writing about wanting: a van, a desert, and a plan invented daily."
+        }
+      }
     },
     "blocks": [
       {
@@ -7597,12 +7833,8 @@
     "id": "45af2811-1eb7-5308-9e56-f1efeb9e37d3",
     "version": 1,
     "slug": "w-canarias",
-    "title": {
-      "en": "Canarias"
-    },
-    "summary": {
-      "en": "A colour that exists nowhere else on the Spanish spectrum. My most repeated non-mainland destination."
-    },
+    "title": "Canarias",
+    "summary": "A colour that exists nowhere else on the Spanish spectrum. My most repeated non-mainland destination.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7618,7 +7850,15 @@
       },
       "group": "travel",
       "order": 18,
-      "code": "IC"
+      "code": "IC",
+      "i18n": {
+        "title": {
+          "en": "Canarias"
+        },
+        "summary": {
+          "en": "A colour that exists nowhere else on the Spanish spectrum. My most repeated non-mainland destination."
+        }
+      }
     },
     "blocks": [
       {
@@ -7717,12 +7957,8 @@
     "id": "513dc003-967e-59ee-8ea3-c5fd85e3d802",
     "version": 1,
     "slug": "w-andalucia",
-    "title": {
-      "en": "Málaga, Ronda, Tarifa, Sevilla, Granada"
-    },
-    "summary": {
-      "en": "The base. World-class climate, food and people, and the only humour I fully understand."
-    },
+    "title": "Málaga, Ronda, Tarifa, Sevilla, Granada",
+    "summary": "The base. World-class climate, food and people, and the only humour I fully understand.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7738,7 +7974,15 @@
       },
       "group": "travel",
       "order": 20,
-      "code": "ES"
+      "code": "ES",
+      "i18n": {
+        "title": {
+          "en": "Málaga, Ronda, Tarifa, Sevilla, Granada"
+        },
+        "summary": {
+          "en": "The base. World-class climate, food and people, and the only humour I fully understand."
+        }
+      }
     },
     "blocks": [
       {
@@ -7863,12 +8107,8 @@
     "id": "599a4c06-c8a7-56e6-bfcb-682d363dc5c6",
     "version": 1,
     "slug": "w-nevada",
-    "title": {
-      "en": "Sierra Nevada & the Alps"
-    },
-    "summary": {
-      "en": "The annual snowboard pilgrimage, plus Andorra and Tirol when the budget allows."
-    },
+    "title": "Sierra Nevada & the Alps",
+    "summary": "The annual snowboard pilgrimage, plus Andorra and Tirol when the budget allows.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -7884,7 +8124,15 @@
       },
       "group": "travel",
       "order": 19,
-      "code": "❄"
+      "code": "❄",
+      "i18n": {
+        "title": {
+          "en": "Sierra Nevada & the Alps"
+        },
+        "summary": {
+          "en": "The annual snowboard pilgrimage, plus Andorra and Tirol when the budget allows."
+        }
+      }
     },
     "blocks": [
       {
@@ -7983,12 +8231,8 @@
     "id": "8894c1dd-e98e-5134-aae3-50e885e3a64b",
     "version": 1,
     "slug": "podcast",
-    "title": {
-      "en": "Un Poco Absurdo — the podcast"
-    },
-    "summary": {
-      "en": "Tech and philosophy, named accurately. Two hundred-plus listeners an episode and five stars three months in."
-    },
+    "title": "Un Poco Absurdo — the podcast",
+    "summary": "Tech and philosophy, named accurately. Two hundred-plus listeners an episode and five stars three months in.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8003,7 +8247,15 @@
         "en": "Málaga / Madrid"
       },
       "group": "random",
-      "order": 7
+      "order": 7,
+      "i18n": {
+        "title": {
+          "en": "Un Poco Absurdo — the podcast"
+        },
+        "summary": {
+          "en": "Tech and philosophy, named accurately. Two hundred-plus listeners an episode and five stars three months in."
+        }
+      }
     },
     "blocks": [
       {
@@ -8116,12 +8368,8 @@
     "id": "3bd9d935-a575-5404-8436-b679e9dac120",
     "version": 1,
     "slug": "diary",
-    "title": {
-      "en": "Five years of a weekly diary"
-    },
-    "summary": {
-      "en": "Around 480 entries, each dated and star-rated, from a Sunday in April 2021 to this week. The longest-running dataset I own and the reason this site sounds like me."
-    },
+    "title": "Five years of a weekly diary",
+    "summary": "Around 480 entries, each dated and star-rated, from a Sunday in April 2021 to this week. The longest-running dataset I own and the reason this site sounds like me.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8136,7 +8384,15 @@
         "en": "everywhere"
       },
       "group": "random",
-      "order": 8
+      "order": 8,
+      "i18n": {
+        "title": {
+          "en": "Five years of a weekly diary"
+        },
+        "summary": {
+          "en": "Around 480 entries, each dated and star-rated, from a Sunday in April 2021 to this week. The longest-running dataset I own and the reason this site sounds like me."
+        }
+      }
     },
     "blocks": [
       {
@@ -8245,12 +8501,8 @@
     "id": "9aafdb9c-5ea7-551e-9b02-1f0cc8890548",
     "version": 1,
     "slug": "garden",
-    "title": {
-      "en": "The vegetable patch"
-    },
-    "summary": {
-      "en": "The least abstract thing I own. I plant it, it grows, I eat it, no dashboard required."
-    },
+    "title": "The vegetable patch",
+    "summary": "The least abstract thing I own. I plant it, it grows, I eat it, no dashboard required.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8265,7 +8517,15 @@
         "en": "Almayate"
       },
       "group": "random",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "The vegetable patch"
+        },
+        "summary": {
+          "en": "The least abstract thing I own. I plant it, it grows, I eat it, no dashboard required."
+        }
+      }
     },
     "blocks": [
       {
@@ -8364,12 +8624,8 @@
     "id": "585f6f87-6b26-5b60-ae0e-515bca549ea4",
     "version": 1,
     "slug": "telescope",
-    "title": {
-      "en": "Astro-analytics"
-    },
-    "summary": {
-      "en": "Telescope out, patterns in. I studied the cosmos for pleasure years before it appeared on a transcript."
-    },
+    "title": "Astro-analytics",
+    "summary": "Telescope out, patterns in. I studied the cosmos for pleasure years before it appeared on a transcript.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8384,7 +8640,15 @@
         "en": "dark skies"
       },
       "group": "random",
-      "order": 1
+      "order": 1,
+      "i18n": {
+        "title": {
+          "en": "Astro-analytics"
+        },
+        "summary": {
+          "en": "Telescope out, patterns in. I studied the cosmos for pleasure years before it appeared on a transcript."
+        }
+      }
     },
     "blocks": [
       {
@@ -8483,12 +8747,8 @@
     "id": "59742a86-ac34-53b4-a683-c23bdd4b9cdb",
     "version": 1,
     "slug": "racket",
-    "title": {
-      "en": "Padel, pickleball and an unreasonable competitive streak"
-    },
-    "summary": {
-      "en": "Racket sports weekly, plus volleyball, spikeball, bowling, billiards and any game with a scoreboard."
-    },
+    "title": "Padel, pickleball and an unreasonable competitive streak",
+    "summary": "Racket sports weekly, plus volleyball, spikeball, bowling, billiards and any game with a scoreboard.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8503,7 +8763,15 @@
         "en": "any court"
       },
       "group": "random",
-      "order": 2
+      "order": 2,
+      "i18n": {
+        "title": {
+          "en": "Padel, pickleball and an unreasonable competitive streak"
+        },
+        "summary": {
+          "en": "Racket sports weekly, plus volleyball, spikeball, bowling, billiards and any game with a scoreboard."
+        }
+      }
     },
     "blocks": [
       {
@@ -8605,12 +8873,8 @@
     "id": "5d2c27ec-3573-5fe5-9a23-fd6c616dc295",
     "version": 1,
     "slug": "apocalypse",
-    "title": {
-      "en": "The apocalypse notebook"
-    },
-    "summary": {
-      "en": "A genuine document I keep. Partly a survival plan, mostly an excuse to learn things that do not need electricity."
-    },
+    "title": "The apocalypse notebook",
+    "summary": "A genuine document I keep. Partly a survival plan, mostly an excuse to learn things that do not need electricity.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8625,7 +8889,15 @@
         "en": "a real notebook"
       },
       "group": "random",
-      "order": 3
+      "order": 3,
+      "i18n": {
+        "title": {
+          "en": "The apocalypse notebook"
+        },
+        "summary": {
+          "en": "A genuine document I keep. Partly a survival plan, mostly an excuse to learn things that do not need electricity."
+        }
+      }
     },
     "blocks": [
       {
@@ -8723,12 +8995,8 @@
     "id": "4a74ddc7-a03a-5b8e-be13-44edd846e5a4",
     "version": 1,
     "slug": "genome",
-    "title": {
-      "en": "I sequenced my own DNA to settle an argument"
-    },
-    "summary": {
-      "en": "Bought a test, downloaded the raw data, ran it through a second service for the interesting reports. My father called it a scam. It is not."
-    },
+    "title": "I sequenced my own DNA to settle an argument",
+    "summary": "Bought a test, downloaded the raw data, ran it through a second service for the interesting reports. My father called it a scam. It is not.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8743,7 +9011,15 @@
         "en": "Málaga"
       },
       "group": "random",
-      "order": 4
+      "order": 4,
+      "i18n": {
+        "title": {
+          "en": "I sequenced my own DNA to settle an argument"
+        },
+        "summary": {
+          "en": "Bought a test, downloaded the raw data, ran it through a second service for the interesting reports. My father called it a scam. It is not."
+        }
+      }
     },
     "blocks": [
       {
@@ -8838,12 +9114,8 @@
     "id": "1dcc6425-838f-5d56-97db-28349f6a9b1a",
     "version": 1,
     "slug": "investing",
-    "title": {
-      "en": "Investing, and the psychology of money"
-    },
-    "summary": {
-      "en": "Started at 19 in the loudest possible market. Learned that losing hurts several times more than winning feels good, with real money, on schedule."
-    },
+    "title": "Investing, and the psychology of money",
+    "summary": "Started at 19 in the loudest possible market. Learned that losing hurts several times more than winning feels good, with real money, on schedule.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8858,7 +9130,15 @@
         "en": "a screen"
       },
       "group": "random",
-      "order": 5
+      "order": 5,
+      "i18n": {
+        "title": {
+          "en": "Investing, and the psychology of money"
+        },
+        "summary": {
+          "en": "Started at 19 in the loudest possible market. Learned that losing hurts several times more than winning feels good, with real money, on schedule."
+        }
+      }
     },
     "blocks": [
       {
@@ -8956,12 +9236,8 @@
     "id": "5c278102-204b-5fe1-b174-37ab99752ed8",
     "version": 1,
     "slug": "lasik",
-    "title": {
-      "en": "−5.75 to 110% vision in five minutes"
-    },
-    "summary": {
-      "en": "Had my eyes lasered. Walked out seeing. Spent the recovery week listening to audio drama and appreciating my most important organ."
-    },
+    "title": "−5.75 to 110% vision in five minutes",
+    "summary": "Had my eyes lasered. Walked out seeing. Spent the recovery week listening to audio drama and appreciating my most important organ.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8976,7 +9252,15 @@
         "en": "Málaga"
       },
       "group": "random",
-      "order": 6
+      "order": 6,
+      "i18n": {
+        "title": {
+          "en": "−5.75 to 110% vision in five minutes"
+        },
+        "summary": {
+          "en": "Had my eyes lasered. Walked out seeing. Spent the recovery week listening to audio drama and appreciating my most important organ."
+        }
+      }
     },
     "blocks": [
       {
@@ -9060,12 +9344,8 @@
     "id": "6135d86d-3506-5c74-95e6-7f6f26e1c2d5",
     "version": 1,
     "slug": "contact",
-    "title": {
-      "en": "Say something strange"
-    },
-    "summary": {
-      "en": "Fastest reply if your message contains a question nobody has asked me before."
-    },
+    "title": "Say something strange",
+    "summary": "Fastest reply if your message contains a question nobody has asked me before.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -9080,7 +9360,15 @@
         "en": "Madrid → London"
       },
       "group": "contact",
-      "order": 0
+      "order": 0,
+      "i18n": {
+        "title": {
+          "en": "Say something strange"
+        },
+        "summary": {
+          "en": "Fastest reply if your message contains a question nobody has asked me before."
+        }
+      }
     },
     "blocks": [
       {

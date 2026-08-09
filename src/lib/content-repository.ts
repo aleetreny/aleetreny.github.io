@@ -13,6 +13,7 @@ import {
 } from '../types/content';
 import type { Json } from '../types/database';
 import { runtimeConfig } from './config';
+import { dehydrateEntry, hydrateEntry } from './entry-storage';
 import { getNeonClient } from './neon';
 
 type EntryRow = {
@@ -57,12 +58,12 @@ function assembleEntries(entries: EntryRow[], blocks: BlockRow[]): StoredPortfol
     blocksByEntry.set(block.entry_id, current);
   }
 
-  return entries.map((entry) => ({
+  return entries.map((entry) => hydrateEntry({
     id: entry.id,
     version: entry.version,
     slug: entry.slug,
-    title: entry.title,
-    summary: entry.summary,
+    title: entry.title as StoredPortfolioEntry['title'],
+    summary: entry.summary as StoredPortfolioEntry['summary'],
     entryType: entry.entry_type as EntryType,
     status: entry.status,
     publishedAt: entry.published_at,
@@ -234,10 +235,17 @@ async function getAuthorizedOwnerClient() {
   return neonClient;
 }
 
-export async function saveContentEntry(entry: StoredPortfolioEntry, reason = 'editor save'): Promise<StoredPortfolioEntry> {
+export async function saveContentEntry(
+  entry: StoredPortfolioEntry,
+  reason = 'editor save',
+  primaryLanguage?: string,
+): Promise<StoredPortfolioEntry> {
   const neonClient = await getAuthorizedOwnerClient();
 
-  const { blocks, ...entryFields } = entry;
+  // `title` and `summary` are text columns, so the languages go to the sidecar
+  // before this leaves the browser. Sending a map instead would store the JSON
+  // source: `save_content_entry` reads them with `->>`.
+  const { blocks, ...entryFields } = dehydrateEntry(entry, primaryLanguage);
   const { data, error } = await neonClient.rpc('save_content_entry', {
     p_entry_id: entry.id,
     p_expected_version: entry.version,
@@ -249,7 +257,7 @@ export async function saveContentEntry(entry: StoredPortfolioEntry, reason = 'ed
     const prefix = error.code === '40001' ? 'Edit conflict: reload before saving. ' : '';
     throw new Error(`${prefix}${error.message}`);
   }
-  return portfolioEntrySchema.parse(data);
+  return hydrateEntry(portfolioEntrySchema.parse(data));
 }
 
 export async function deleteContentEntry(entry: Pick<PortfolioEntry, 'id' | 'version'>): Promise<void> {
@@ -270,7 +278,7 @@ export async function restoreDeletedContentEntry(
     p_expected_version: entry.version,
   });
   if (error) throw new Error(error.message);
-  return portfolioEntrySchema.parse(data);
+  return hydrateEntry(portfolioEntrySchema.parse(data));
 }
 
 export async function listEntryVersions(entryId: string): Promise<EntryVersionSummary[]> {
@@ -301,7 +309,7 @@ export async function restoreEntryVersion(
     p_expected_version: expectedVersion,
   });
   if (error) throw new Error(error.message);
-  return portfolioEntrySchema.parse(data);
+  return hydrateEntry(portfolioEntrySchema.parse(data));
 }
 
 const presignResponseSchema = z.object({

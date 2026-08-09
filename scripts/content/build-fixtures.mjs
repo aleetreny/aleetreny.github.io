@@ -114,12 +114,23 @@ function tagBoard(board) {
   };
 }
 
+/** `content_entries.title` and `.summary` are text columns, so their languages
+ *  live in `metadata.i18n` and the column keeps a plain projection. This mirrors
+ *  `dehydrateEntry` in src/lib/entry-storage.ts — keep the two in step. */
 function tagEntry(entry) {
+  const i18n = {};
+  for (const field of ['title', 'summary']) {
+    const tagged = tag(entry[field]);
+    if (tagged !== entry[field]) i18n[field] = tagged;
+  }
+  const metadata = tagFields(entry.metadata, ['kicker', 'when', 'where']);
+  if (Object.keys(i18n).length > 0) metadata.i18n = i18n;
+
   return {
     ...entry,
-    title: tag(entry.title),
-    summary: tag(entry.summary),
-    metadata: tagFields(entry.metadata, ['kicker', 'when', 'where']),
+    title: entry.title,
+    summary: entry.summary,
+    metadata,
     blocks: entry.blocks.map((block) => {
       const props = tagFields(block.props, BLOCK_TEXT);
       if (Array.isArray(block.props.items) && block.props.items.every((x) => typeof x === 'string')) {

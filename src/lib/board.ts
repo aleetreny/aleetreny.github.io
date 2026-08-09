@@ -14,6 +14,12 @@ export type WallStyle = (typeof WALL_STYLE_IDS)[number];
 export const GRID_MODES = ['plate', 'viewport', 'off'] as const;
 export type GridMode = (typeof GRID_MODES)[number];
 
+/** What is drawn on the slate. `texture` keeps whatever the board style paints;
+ *  the rest are drawn in the pattern ink, so they work on a pale slate as well
+ *  as a dark one. */
+export const PATTERN_STYLES = ['texture', 'none', 'dots', 'grid', 'graph', 'rules', 'weave', 'stars', 'diagonal'] as const;
+export type PatternStyle = (typeof PATTERN_STYLES)[number];
+
 /** Everything behind the cards — wall, slate and its hardware. */
 export type BackdropConfig = {
   wall: WallStyle;
@@ -38,6 +44,18 @@ export type BackdropConfig = {
   grid: GridMode;
   /** Multiplies the texture's pattern size on the slate. */
   gridScale: number;
+  /** The slate's own colour, centre and edge. Empty means "whatever the board
+   *  texture paints", which is how every board looked before these existed. */
+  slate: string;
+  slate2: string;
+  /** What is written on the slate. Empty picks black or white by contrast. */
+  slateInk: string;
+  /** The pattern drawn on the slate. `texture` keeps the board style's own. */
+  pattern: PatternStyle;
+  /** Light or dark pattern lines; `auto` follows the slate's brightness. */
+  patternInk: 'auto' | 'light' | 'dark';
+  /** 0..2 multiplier on how strongly the pattern reads. */
+  patternFade: number;
 };
 
 /** How a card is built as an object: its edge, its weight, its fastening. */
@@ -246,6 +264,12 @@ export const DEFAULT_BACKDROP: BackdropConfig = {
   studInset: 34,
   grid: 'plate',
   gridScale: 1,
+  slate: '',
+  slate2: '',
+  slateInk: '',
+  pattern: 'texture',
+  patternInk: 'auto',
+  patternFade: 1,
 };
 
 export const DEFAULT_CARDS: CardsConfig = {
@@ -289,6 +313,25 @@ const DEFAULT_FONTS = {
 
 const fixtureTheme = fixtureByKey.theme as Partial<ThemeConfig> | undefined;
 
+/** The shipped palette, hardcoded rather than read from the fixture so that a
+ *  look always lands in the same place no matter what the board was seeded
+ *  with. Every preset builds its colours from here. */
+export const DEFAULT_COLORS: ThemeConfig['colors'] = {
+  accent: 'oklch(0.5 0.13 45)',
+  accent2: 'oklch(0.62 0.16 250)',
+  signal: 'oklch(0.78 0.14 66)',
+  signalSoft: 'oklch(0.82 0.11 74)',
+  lab: 'oklch(0.75 0.1 220)',
+  paper: '#fbf7ef',
+  paperWarm: '#faf3e6',
+  paperCream: '#efe7d4',
+  ink: '#17150f',
+  dark: '#171510',
+  slate: '#1d2733',
+  slateInk: '#e6eef6',
+  darkInk: '#f3ecdd',
+};
+
 export const DEFAULT_THEME = {
   ...(fixtureTheme as ThemeConfig),
   backdrop: { ...DEFAULT_BACKDROP, ...(fixtureTheme?.backdrop ?? {}) },
@@ -330,10 +373,14 @@ export function parseTheme(value: unknown): ThemeConfig {
  *
  *  A preset never touches content, positions or the tour, so trying one on and
  *  going back costs nothing. It does fully own the three surfaces it describes
- *  — backdrop, cards and article — building each from the defaults rather than
- *  from whatever the last look left behind, so applying a look twice, or after
- *  another one, always lands in the same place. Fonts stay as the owner set
- *  them, and colours are merged, because those are personal choices. */
+ *  — backdrop, cards, article and palette — building each from the defaults
+ *  rather than from whatever the last look left behind, so applying a look
+ *  twice, or after another one, always lands in the same place. Only the fonts
+ *  survive, because a typeface is a personal choice; a palette is the look.
+ *
+ *  The colours are the published schemes they are named after, so the board can
+ *  be pale or near-black and still hold together: the slate, the wall, the card
+ *  paper and the ink all move at once. */
 export type ThemePreset = {
   id: string;
   label: string;
@@ -341,124 +388,330 @@ export type ThemePreset = {
   patch: (theme: ThemeConfig) => ThemeConfig;
 };
 
-const withColors = (theme: ThemeConfig, colors: Partial<ThemeConfig['colors']>): ThemeConfig =>
-  ({ ...theme, colors: { ...theme.colors, ...colors } });
 
 export const THEME_PRESETS: ThemePreset[] = [
   {
     id: 'slate',
     label: 'Working slate',
-    hint: 'the original: a dark slate on a plaster wall, straight paper, hard shadows',
-    patch: (t) => withColors({
+    hint: 'the original — a green-grey slate on a plaster wall, straight paper, hard shadows',
+    patch: (t) => ({
       ...t,
       boardStyle: 'slate',
       cardRadius: 0,
       chaos: 1,
-      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'plaster', grain: 0.5, vignette: 0.55, frame: 10, studs: true, grid: 'plate' },
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#232629', wallColor2: '#0a0b0d',
+        slate: '#2e3a38', slate2: '#172120',
+        pattern: 'texture', grain: 0.5, vignette: 0.55, frame: 10, studs: true,
+      },
       cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1, grain: 0, fastener: 'none', lift: 'none', rowRule: 3 },
-      dossier: { ...DEFAULT_DOSSIER, width: 860, measure: 60, lede: 'italic', dropCap: false, numbered: false, enter: 'plate', titleWeight: 800 },
-    }, { accent: 'oklch(0.5 0.13 45)', signal: 'oklch(0.78 0.14 66)' }),
+      dossier: { ...DEFAULT_DOSSIER, width: 860, measure: 60, lede: 'italic', enter: 'plate', titleWeight: 800 },
+      colors: {
+        ...DEFAULT_COLORS,
+        accent: 'oklch(0.5 0.13 45)', accent2: 'oklch(0.55 0.12 250)',
+        signal: 'oklch(0.78 0.14 66)', lab: 'oklch(0.74 0.11 200)',
+      },
+    }),
+  },
+  {
+    id: 'solarized-light',
+    label: 'Solarized Light',
+    hint: 'Ethan Schoonover’s daylight palette — warm base3 paper, cyan-blue ink, a calm serif article',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'paper',
+      cardRadius: 2,
+      chaos: 0.35,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#e6dfc8', wallColor2: '#cec7ae',
+        slate: '#fdf6e3', slate2: '#eee8d5',
+        pattern: 'grid', patternInk: 'dark', patternFade: 0.75, gridScale: 1.1,
+        grain: 0.3, vignette: 0.18, frame: 3, plateShadow: 0.6, studs: false,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 0.55, grain: 0.15, padding: 24, fastener: 'none', lift: 'raise', rowContrast: 0.3, rowRule: 2 },
+      dossier: { ...DEFAULT_DOSSIER, width: 800, measure: 62, bodySize: 17, bodyLeading: 1.72, titleSize: 42, titleWeight: 700, lede: 'italic', blockGap: 20, enter: 'rise', scrim: 0.55, scrimBlur: 8 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#fdf6e3', paperWarm: '#eee8d5', paperCream: '#f5efdc',
+        ink: '#073642', dark: '#073642', darkInk: '#eee8d5',
+        slate: '#586e75', slateInk: '#fdf6e3',
+        accent: '#268bd2', accent2: '#2aa198', signal: '#b58900', signalSoft: '#cb9d3a', lab: '#859900',
+      },
+    }),
+  },
+  {
+    id: 'nord',
+    label: 'Nord',
+    hint: 'the arctic palette — polar-night slate, frost blues, snow-storm paper, a technical article',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'graphite',
+      cardRadius: 4,
+      chaos: 0.5,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#242933', wallColor2: '#12151c',
+        slate: '#3b4252', slate2: '#2e3440',
+        pattern: 'graph', patternInk: 'light', patternFade: 0.8, gridScale: 0.9,
+        grain: 0.25, vignette: 0.45, frame: 6, studs: true, studSize: 16,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 0.9, grain: 0, padding: 22, fastener: 'clip', lift: 'raise', rowContrast: 0.4, rowRule: 2 },
+      dossier: { ...DEFAULT_DOSSIER, width: 840, measure: 66, bodyFace: 'mono', bodySize: 14.5, bodyLeading: 1.78, titleWeight: 600, titleTracking: -0.01, lede: 'kicker', numbered: true, enter: 'rise', scrim: 0.86, scrimBlur: 10 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#eceff4', paperWarm: '#e5e9f0', paperCream: '#f0f3f8',
+        ink: '#2e3440', dark: '#3b4252', darkInk: '#eceff4',
+        slate: '#4c566a', slateInk: '#eceff4',
+        accent: '#5e81ac', accent2: '#81a1c1', signal: '#88c0d0', signalSoft: '#8fbcbb', lab: '#a3be8c',
+      },
+    }),
+  },
+  {
+    id: 'gruvbox',
+    label: 'Gruvbox',
+    hint: 'retro groove — charcoal slate, cream paper, burnt orange, a drop cap and taped photos',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'graphite',
+      cardRadius: 2,
+      chaos: 1.2,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#3c3836', wallColor2: '#1d2021',
+        slate: '#32302f', slate2: '#1d2021',
+        pattern: 'dots', patternInk: 'light', patternFade: 0.9, gridScale: 1.1,
+        grain: 0.55, vignette: 0.6, frame: 12, plateShadow: 1.2, studs: true,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1.3, grain: 0.45, padding: 23, fastener: 'tape', lift: 'straighten', rowContrast: 0.5, rowRule: 3 },
+      dossier: { ...DEFAULT_DOSSIER, width: 800, measure: 58, bodySize: 17, titleSize: 46, titleWeight: 800, lede: 'large', dropCap: true, enter: 'plate', scrim: 0.85, scrimBlur: 6 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#fbf1c7', paperWarm: '#f2e5bc', paperCream: '#f9f5d7',
+        ink: '#3c3836', dark: '#504945', darkInk: '#fbf1c7',
+        slate: '#665c54', slateInk: '#fbf1c7',
+        accent: '#d65d0e', accent2: '#458588', signal: '#fabd2f', signalSoft: '#d79921', lab: '#98971a',
+      },
+    }),
+  },
+  {
+    id: 'dracula',
+    label: 'Dracula',
+    hint: 'the purple classic — near-black slate, violet and pink, rounded cards with a glow',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'midnight',
+      cardRadius: 8,
+      chaos: 0.7,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#21222c', wallColor2: '#0b0b10',
+        slate: '#282a36', slate2: '#191a21',
+        pattern: 'stars', patternInk: 'light', patternFade: 1.1, gridScale: 1,
+        grain: 0.2, vignette: 0.7, frame: 6, plateShadow: 1.3, studs: false,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'none', shadow: 1.5, grain: 0, padding: 24, fastener: 'none', lift: 'glow', rowContrast: 0.55, rowRule: 0 },
+      dossier: { ...DEFAULT_DOSSIER, width: 840, measure: 62, bodySize: 16.5, bodyLeading: 1.8, titleSize: 46, titleWeight: 700, lede: 'large', enter: 'sheet', scrim: 0.9, scrimBlur: 14 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#f8f8f2', paperWarm: '#eeeef0', paperCream: '#fbfbf6',
+        ink: '#282a36', dark: '#44475a', darkInk: '#f8f8f2',
+        slate: '#44475a', slateInk: '#f8f8f2',
+        accent: '#bd93f9', accent2: '#ff79c6', signal: '#f1fa8c', signalSoft: '#ffb86c', lab: '#8be9fd',
+      },
+    }),
+  },
+  {
+    id: 'latte',
+    label: 'Catppuccin Latte',
+    hint: 'the soft light one — pale lavender-grey, rounded paper, a centred article, no rules',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'paper',
+      cardRadius: 12,
+      chaos: 0.5,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#dce0e8', wallColor2: '#bcc0cc',
+        slate: '#eff1f5', slate2: '#e6e9ef',
+        pattern: 'dots', patternInk: 'dark', patternFade: 0.55, gridScale: 1.2,
+        grain: 0.2, vignette: 0.15, frame: 0, plateShadow: 0.5, studs: false,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'none', shadow: 0.7, grain: 0, padding: 26, fastener: 'none', lift: 'raise', rowContrast: 0.25, rowRule: 0 },
+      dossier: { ...DEFAULT_DOSSIER, width: 760, measure: 56, bodySize: 17.5, bodyLeading: 1.75, titleSize: 40, titleWeight: 700, lede: 'large', blockGap: 24, enter: 'rise', scrim: 0.5, scrimBlur: 12, centred: true },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#ffffff', paperWarm: '#eff1f5', paperCream: '#f7f8fa',
+        ink: '#4c4f69', dark: '#5c5f77', darkInk: '#eff1f5',
+        slate: '#6c6f85', slateInk: '#eff1f5',
+        accent: '#1e66f5', accent2: '#8839ef', signal: '#df8e1d', signalSoft: '#fe640b', lab: '#179299',
+      },
+    }),
+  },
+  {
+    id: 'tokyonight',
+    label: 'Tokyo Night',
+    hint: 'deep indigo, neon blue and violet, a starfield slate and numbered mono blocks',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'midnight',
+      cardRadius: 6,
+      chaos: 0.4,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#16161e', wallColor2: '#08080c',
+        slate: '#1a1b26', slate2: '#101018',
+        pattern: 'stars', patternInk: 'light', patternFade: 1.3, gridScale: 0.9,
+        grain: 0.15, vignette: 0.8, frame: 4, plateShadow: 1.4, studs: false,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1.4, grain: 0, padding: 22, fastener: 'none', lift: 'glow', rowContrast: 0.6, rowRule: 2 },
+      dossier: { ...DEFAULT_DOSSIER, width: 860, measure: 68, bodyFace: 'mono', bodySize: 14.5, bodyLeading: 1.8, titleWeight: 700, titleTracking: -0.02, lede: 'kicker', numbered: true, enter: 'fade', scrim: 0.92, scrimBlur: 12 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#e8eaf6', paperWarm: '#dfe3f2', paperCream: '#f0f2fb',
+        ink: '#1a1b26', dark: '#24283b', darkInk: '#c0caf5',
+        slate: '#414868', slateInk: '#c0caf5',
+        accent: '#7aa2f7', accent2: '#bb9af7', signal: '#7dcfff', signalSoft: '#e0af68', lab: '#9ece6a',
+      },
+    }),
+  },
+  {
+    id: 'rosepine-dawn',
+    label: 'Rosé Pine Dawn',
+    hint: 'the light rosé — blush paper, muted plum ink, pinned photos and a drop cap',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'paper',
+      cardRadius: 6,
+      chaos: 1.4,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#f2e9e1', wallColor2: '#dfd4cc',
+        slate: '#faf4ed', slate2: '#f2e9e1',
+        pattern: 'weave', patternInk: 'dark', patternFade: 0.5, gridScale: 1.1,
+        grain: 0.35, vignette: 0.2, frame: 6, plateShadow: 0.8, studs: true, studSize: 16,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'none', shadow: 0.9, grain: 0.3, padding: 24, fastener: 'pin', lift: 'tilt', rowContrast: 0.28, rowRule: 0 },
+      dossier: { ...DEFAULT_DOSSIER, width: 780, measure: 58, bodySize: 17, bodyLeading: 1.74, titleSize: 44, titleWeight: 700, lede: 'italic', dropCap: true, enter: 'plate', scrim: 0.55, scrimBlur: 10 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#fffaf3', paperWarm: '#faf4ed', paperCream: '#fdf8f1',
+        ink: '#575279', dark: '#6e6a86', darkInk: '#faf4ed',
+        slate: '#797593', slateInk: '#faf4ed',
+        accent: '#b4637a', accent2: '#907aa9', signal: '#ea9d34', signalSoft: '#d7827e', lab: '#56949f',
+      },
+    }),
+  },
+  {
+    id: 'everforest',
+    label: 'Everforest',
+    hint: 'soft forest greens on warm cream, a woven slate, stapled paper, a plain calm article',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'slate',
+      cardRadius: 4,
+      chaos: 0.9,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#1e2326', wallColor2: '#0d1012',
+        slate: '#2d353b', slate2: '#232a2e',
+        pattern: 'weave', patternInk: 'light', patternFade: 0.85, gridScale: 1,
+        grain: 0.4, vignette: 0.5, frame: 10, plateShadow: 1.1, studs: true,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1.1, grain: 0.3, padding: 23, fastener: 'staple', lift: 'straighten', rowContrast: 0.45, rowRule: 3 },
+      dossier: { ...DEFAULT_DOSSIER, width: 820, measure: 60, bodySize: 16.5, bodyLeading: 1.76, titleSize: 42, titleWeight: 700, lede: 'plain', enter: 'plate', scrim: 0.84, scrimBlur: 8 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#fff9e8', paperWarm: '#f4f0d9', paperCream: '#fdf6e3',
+        ink: '#343f44', dark: '#3d484d', darkInk: '#d3c6aa',
+        slate: '#4f585e', slateInk: '#d3c6aa',
+        accent: '#a7c080', accent2: '#7fbbb3', signal: '#dbbc7f', signalSoft: '#e69875', lab: '#83c092',
+      },
+    }),
+  },
+  {
+    id: 'monokai',
+    label: 'Monokai',
+    hint: 'the editor classic — olive-black slate, hot pink and lime, heavy edges, upper-case titles',
+    patch: (t) => ({
+      ...t,
+      boardStyle: 'graphite',
+      cardRadius: 0,
+      chaos: 0.2,
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#1d1e19', wallColor2: '#0a0b08',
+        slate: '#272822', slate2: '#1a1b16',
+        pattern: 'diagonal', patternInk: 'light', patternFade: 1, gridScale: 1.4,
+        grain: 0.2, vignette: 0.45, frame: 0, plateShadow: 0.6, studs: false,
+      },
+      cards: { ...DEFAULT_CARDS, edge: 'heavy', shadow: 0.2, grain: 0, padding: 24, fastener: 'none', lift: 'tilt', rowContrast: 0.75, rowRule: 5 },
+      dossier: { ...DEFAULT_DOSSIER, width: 880, measure: 70, bodyFace: 'mono', bodySize: 15, titleSize: 50, titleWeight: 800, titleCase: 'upper', titleTracking: -0.03, lede: 'plain', numbered: true, blockGap: 24, enter: 'none', scrim: 0.93, scrimBlur: 0 },
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#f8f8f2', paperWarm: '#efefe6', paperCream: '#fbfbf3',
+        ink: '#272822', dark: '#3e3d32', darkInk: '#f8f8f2',
+        slate: '#49483e', slateInk: '#f8f8f2',
+        accent: '#f92672', accent2: '#ae81ff', signal: '#a6e22e', signalSoft: '#e6db74', lab: '#66d9ef',
+      },
+    }),
   },
   {
     id: 'newsprint',
     label: 'Newsprint',
-    hint: 'bone paper wall to wall, no slate, ink rules, numbered blocks, a drop cap',
-    patch: (t) => withColors({
+    hint: 'bone paper wall to wall, no slate at all, ink rules, numbered blocks and a drop cap',
+    patch: (t) => ({
       ...t,
       boardStyle: 'paper',
       cardRadius: 0,
       chaos: 0.3,
-      backdrop: { ...DEFAULT_BACKDROP, plate: false, grid: 'viewport', gridScale: 1 },
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        plate: false,
+        slate: '#f4efe1', slate2: '#e4dcc6',
+        pattern: 'rules', patternInk: 'dark', patternFade: 0.6,
+        grid: 'viewport', gridScale: 1,
+      },
       cards: { ...DEFAULT_CARDS, edge: 'inked', shadow: 0.25, grain: 0.35, fastener: 'none', lift: 'none', rowContrast: 0.3, rowRule: 0 },
       dossier: { ...DEFAULT_DOSSIER, width: 780, measure: 66, bodyFace: 'display', titleWeight: 800, titleCase: 'upper', titleTracking: -0.01, lede: 'plain', dropCap: true, numbered: true, enter: 'sheet', scrim: 0.9, scrimBlur: 0 },
-    }, { accent: 'oklch(0.42 0.14 30)', accent2: 'oklch(0.45 0.1 250)', signal: 'oklch(0.72 0.15 70)', ink: '#151310' }),
-  },
-  {
-    id: 'blueprint',
-    label: 'Blueprint studio',
-    hint: 'a drafting table: cyan grid, thin edges, a technical, quiet article',
-    patch: (t) => withColors({
-      ...t,
-      boardStyle: 'blueprint',
-      cardRadius: 0,
-      chaos: 0.4,
-      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'ink', grain: 0.3, vignette: 0.45, frame: 6, studs: true, studSize: 16, grid: 'plate', gridScale: 0.8 },
-      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 0.6, grain: 0, fastener: 'clip', lift: 'raise', rowRule: 2 },
-      dossier: { ...DEFAULT_DOSSIER, width: 820, measure: 64, bodyFace: 'mono', bodySize: 14.5, bodyLeading: 1.75, titleWeight: 600, titleCase: 'upper', titleTracking: 0.02, lede: 'kicker', numbered: true, enter: 'rise' },
-    }, { accent: 'oklch(0.62 0.13 240)', accent2: 'oklch(0.7 0.13 200)', signal: 'oklch(0.8 0.12 200)', lab: 'oklch(0.78 0.11 210)' }),
-  },
-  {
-    id: 'corkroom',
-    label: 'Cork room',
-    hint: 'warm cork, pinned paper, tilted cards, a soft article',
-    patch: (t) => withColors({
-      ...t,
-      boardStyle: 'cork',
-      cardRadius: 3,
-      chaos: 1.6,
-      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'warm', grain: 0.65, vignette: 0.6, frame: 14, plateShadow: 1.2, studs: true, grid: 'plate' },
-      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1.4, grain: 0.5, fastener: 'pin', lift: 'straighten', rowRule: 3 },
-      dossier: { ...DEFAULT_DOSSIER, width: 800, measure: 58, lede: 'large', dropCap: true, enter: 'plate', scrim: 0.7, scrimBlur: 8 },
-    }, { accent: 'oklch(0.5 0.14 50)', signal: 'oklch(0.8 0.14 75)' }),
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#f7f3e7', paperWarm: '#efe8d6', paperCream: '#fbf8ee',
+        ink: '#151310', dark: '#2a2620', darkInk: '#f7f3e7',
+        slate: '#4a453c', slateInk: '#f7f3e7',
+        accent: 'oklch(0.42 0.14 30)', accent2: 'oklch(0.45 0.1 250)', signal: 'oklch(0.72 0.15 70)', lab: 'oklch(0.5 0.1 160)',
+      },
+    }),
   },
   {
     id: 'brutalist',
     label: 'Brutalist',
-    hint: 'no shadow, heavy black edges, upper-case titles, everything flat and loud',
-    patch: (t) => withColors({
+    hint: 'no shadow, heavy black edges, a red accent, everything flat and loud',
+    patch: (t) => ({
       ...t,
       boardStyle: 'graphite',
       cardRadius: 0,
       chaos: 0,
-      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'void', grain: 0, vignette: 0.2, frame: 0, plateShadow: 0, studs: false, grid: 'plate', gridScale: 1.4 },
+      backdrop: {
+        ...DEFAULT_BACKDROP,
+        wall: 'custom', wallColor: '#101011', wallColor2: '#000000',
+        slate: '#101011', slate2: '#000000',
+        pattern: 'grid', patternInk: 'light', patternFade: 0.7, gridScale: 1.4,
+        grain: 0, vignette: 0.2, frame: 0, plateShadow: 0, studs: false,
+      },
       cards: { ...DEFAULT_CARDS, edge: 'heavy', shadow: 0, grain: 0, padding: 26, fastener: 'none', lift: 'tilt', rowContrast: 0.85, rowRule: 6 },
       dossier: { ...DEFAULT_DOSSIER, width: 900, measure: 72, bodyFace: 'mono', bodySize: 15, titleSize: 58, titleWeight: 800, titleCase: 'upper', titleTracking: -0.04, lede: 'plain', numbered: true, blockGap: 26, enter: 'none', scrim: 0.95, scrimBlur: 0 },
-    }, { accent: 'oklch(0.62 0.24 28)', accent2: 'oklch(0.7 0.2 250)', signal: 'oklch(0.85 0.2 95)' }),
-  },
-  {
-    id: 'nightlab',
-    label: 'Night lab',
-    hint: 'near-black, cool instrument light, a glow on hover, a long calm measure',
-    patch: (t) => withColors({
-      ...t,
-      boardStyle: 'midnight',
-      cardRadius: 2,
-      chaos: 0.6,
-      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'ink', grain: 0.25, vignette: 0.75, frame: 8, plateShadow: 1.3, studs: true, studSize: 14, grid: 'plate', gridScale: 1.2 },
-      cards: { ...DEFAULT_CARDS, edge: 'hairline', shadow: 1.6, grain: 0, fastener: 'none', lift: 'glow', rowContrast: 0.6, rowRule: 2 },
-      dossier: { ...DEFAULT_DOSSIER, width: 840, measure: 64, bodySize: 16, bodyLeading: 1.8, titleWeight: 700, lede: 'italic', enter: 'fade', scrim: 0.88, scrimBlur: 10 },
-    }, { accent: 'oklch(0.72 0.13 200)', accent2: 'oklch(0.68 0.16 280)', signal: 'oklch(0.82 0.14 190)', lab: 'oklch(0.8 0.12 195)' }),
-  },
-  {
-    id: 'sunbleached',
-    label: 'Sun-bleached',
-    hint: 'a bright studio wall, warm paper, taped photos, a generous article',
-    patch: (t) => withColors({
-      ...t,
-      boardStyle: 'paper',
-      cardRadius: 6,
-      chaos: 1.2,
-      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'studio', grain: 0.4, vignette: 0.25, frame: 4, plateShadow: 0.7, studs: false, grid: 'plate', gridScale: 1.2 },
-      cards: { ...DEFAULT_CARDS, edge: 'none', shadow: 0.8, grain: 0.4, padding: 24, fastener: 'tape', lift: 'raise', rowContrast: 0.35, rowRule: 0 },
-      dossier: { ...DEFAULT_DOSSIER, width: 760, measure: 56, bodySize: 17.5, bodyLeading: 1.72, titleSize: 42, titleWeight: 700, lede: 'large', dropCap: true, blockGap: 22, enter: 'rise', scrim: 0.6, scrimBlur: 6, centred: true },
-    }, { accent: 'oklch(0.55 0.15 40)', accent2: 'oklch(0.6 0.14 230)', signal: 'oklch(0.82 0.15 80)' }),
-  },
-  {
-    id: 'sunset',
-    label: 'Late sunset',
-    hint: 'plum and ember, staples, a headline that shouts and a body that does not',
-    patch: (t) => withColors({
-      ...t,
-      boardStyle: 'sunset',
-      cardRadius: 0,
-      chaos: 1.1,
-      backdrop: { ...DEFAULT_BACKDROP, plate: true, wall: 'warm', grain: 0.45, vignette: 0.7, frame: 12, studs: true, grid: 'plate' },
-      cards: { ...DEFAULT_CARDS, edge: 'double', shadow: 1.2, grain: 0.2, fastener: 'staple', lift: 'raise', rowRule: 4 },
-      dossier: { ...DEFAULT_DOSSIER, width: 820, measure: 60, titleSize: 52, titleWeight: 800, titleTracking: -0.045, lede: 'italic', enter: 'plate' },
-    }, { accent: 'oklch(0.58 0.17 30)', accent2: 'oklch(0.65 0.16 330)', signal: 'oklch(0.8 0.16 60)' }),
+      colors: {
+        ...DEFAULT_COLORS,
+        paper: '#ffffff', paperWarm: '#f2f2f2', paperCream: '#fafafa',
+        ink: '#000000', dark: '#111111', darkInk: '#ffffff',
+        slate: '#1a1a1a', slateInk: '#ffffff',
+        accent: 'oklch(0.62 0.24 28)', accent2: 'oklch(0.7 0.2 250)', signal: 'oklch(0.85 0.2 95)', lab: 'oklch(0.8 0.18 150)',
+      },
+    }),
   },
 ];
-
 function isBoardGroup(value: unknown): value is BoardGroup {
   return isRecord(value) && typeof value.id === 'string' && typeof value.label === 'string';
 }
@@ -593,14 +846,112 @@ export const WALLS: Record<Exclude<WallStyle, 'custom'>, string> = {
   void: 'radial-gradient(120% 100% at 50% -25%, #101011 0%, #060607 52%, #000 100%)',
 };
 
-/** What the viewport is painted with. Without a slate the board texture fills
+/** What the viewport is painted with. Without a slate the board surface fills
  *  the whole viewport, exactly as it did before the slate existed. */
 export function wallBackground(backdrop: BackdropConfig, texture: BoardTexture): string {
-  if (!backdrop.plate) return texture.vp;
+  if (!backdrop.plate) return slateBackground(backdrop, texture);
   if (backdrop.wall === 'custom') {
     return `radial-gradient(120% 100% at 50% -25%, ${backdrop.wallColor} 0%, ${backdrop.wallColor2} 100%)`;
   }
   return WALLS[backdrop.wall] ?? WALLS.plaster;
+}
+
+// ------------------------------------------------------------ the slate
+
+/** Perceived brightness of a `#rgb` / `#rrggbb`, 0..1. Anything else reads as
+ *  dark, which is the safe assumption for a board. */
+export function tintLuminance(hex: string): number {
+  const clean = hex.trim().replace('#', '');
+  const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return 0;
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** The slate's own colour. An unset tint keeps the board style's gradient, so
+ *  every board built before these fields existed looks exactly as it did. */
+export function slateBackground(backdrop: BackdropConfig, texture: BoardTexture): string {
+  if (!backdrop.slate) return texture.vp;
+  const edge = backdrop.slate2 || backdrop.slate;
+  return `radial-gradient(130% 110% at 26% -10%, ${backdrop.slate} 0%, ${edge} 100%)`;
+}
+
+/** What is legible written on the slate. */
+export function slateInk(backdrop: BackdropConfig, texture: BoardTexture): string {
+  if (backdrop.slateInk) return backdrop.slateInk;
+  if (!backdrop.slate) return texture.ink;
+  return tintLuminance(backdrop.slate) > 0.55 ? '#16150f' : '#f4f1e8';
+}
+
+const patternAlpha = (base: number, fade: number) => Math.round(base * fade * 1000) / 1000;
+
+/** The pattern layers, drawn in an ink that suits the slate rather than in the
+ *  board style's baked-in white. This is what lets a pale look keep a visible
+ *  grid: the same pattern, drawn dark. */
+export function patternLayers(
+  backdrop: BackdropConfig,
+  texture: BoardTexture,
+  onPlate: boolean,
+): { image: string; size: string } {
+  const scale = backdrop.gridScale;
+  if (backdrop.pattern === 'texture') {
+    const image = onPlate ? texture.plateImg : texture.img;
+    const size = onPlate ? texture.plateSize : texture.size;
+    return { image, size: scalePatternSize(size, scale) };
+  }
+  if (backdrop.pattern === 'none') return { image: 'none', size: 'auto' };
+
+  const light = backdrop.patternInk === 'auto'
+    ? tintLuminance(backdrop.slate || '#000') <= 0.55
+    : backdrop.patternInk === 'light';
+  const rgb = light ? '255,255,255' : '23,21,15';
+  const a = (base: number) => patternAlpha(base, backdrop.patternFade);
+  const px = (n: number) => `${Math.round(n * scale * (onPlate ? 1.25 : 1) * 100) / 100}px`;
+
+  switch (backdrop.pattern) {
+    case 'dots':
+      return {
+        image: `radial-gradient(rgba(${rgb},${a(0.16)}) 1.4px, transparent 1.9px)`,
+        size: `${px(26)} ${px(26)}`,
+      };
+    case 'grid':
+      return {
+        image: `linear-gradient(rgba(${rgb},${a(0.09)}) 1px, transparent 1px), linear-gradient(90deg, rgba(${rgb},${a(0.09)}) 1px, transparent 1px)`,
+        size: `${px(130)} ${px(130)}, ${px(130)} ${px(130)}`,
+      };
+    case 'graph':
+      return {
+        image: [
+          `linear-gradient(rgba(${rgb},${a(0.13)}) 1px, transparent 1px)`,
+          `linear-gradient(90deg, rgba(${rgb},${a(0.13)}) 1px, transparent 1px)`,
+          `linear-gradient(rgba(${rgb},${a(0.06)}) 1px, transparent 1px)`,
+          `linear-gradient(90deg, rgba(${rgb},${a(0.06)}) 1px, transparent 1px)`,
+        ].join(', '),
+        size: `${px(160)} ${px(160)}, ${px(160)} ${px(160)}, ${px(32)} ${px(32)}, ${px(32)} ${px(32)}`,
+      };
+    case 'rules':
+      return {
+        image: `linear-gradient(rgba(${rgb},${a(0.1)}) 1px, transparent 1px)`,
+        size: `${px(38)} ${px(38)}`,
+      };
+    case 'weave':
+      return {
+        image: `radial-gradient(rgba(${rgb},${a(0.13)}) 1.6px, transparent 2.1px), radial-gradient(rgba(${light ? '0,0,0' : '255,255,255'},${a(0.1)}) 1.8px, transparent 2.3px)`,
+        size: `${px(24)} ${px(24)}, ${px(36)} ${px(36)}`,
+      };
+    case 'stars':
+      return {
+        image: `radial-gradient(rgba(${rgb},${a(0.24)}) 1px, transparent 1.5px), radial-gradient(rgba(${rgb},${a(0.11)}) 1px, transparent 1.7px)`,
+        size: `${px(90)} ${px(90)}, ${px(220)} ${px(220)}`,
+      };
+    case 'diagonal':
+      return {
+        image: `repeating-linear-gradient(45deg, rgba(${rgb},${a(0.08)}) 0 1px, transparent 1px ${px(14)})`,
+        size: 'auto',
+      };
+    default:
+      return { image: 'none', size: 'auto' };
+  }
 }
 
 /** Scale every length in a `background-size` list by `factor`. */
