@@ -318,14 +318,16 @@ them.
 A look is a starting point, not a cage. Apply the closest one and then change
 whatever you like underneath — every field it set is a field you can set.
 
-### The same article, three looks
+### The same article, four looks
 
-The dossier follows the look too. This is one entry, unchanged, under three:
+The dossier follows the look too. This is one entry — same title, same opening
+line, same blocks — under four of them. Nothing but `theme` changed between
+these shots:
 
-| | | |
-| --- | --- | --- |
-| ![Default article](images/article-01-default.jpg) | ![Newsprint article](images/article-02-newsprint.jpg) | ![Brutalist article](images/article-03-brutalist.jpg) |
-| **Working slate** — a display face, an italic opening line, a 60-character measure. | **Newsprint** — upper-case title, a drop cap, numbered blocks, no scrim blur. | **Brutalist** — a 58px title, monospace body, a hard cut instead of an animation. |
+| | | | |
+| --- | --- | --- | --- |
+| ![Default article](images/article-01-default.jpg) | ![Newsprint article](images/article-02-newsprint.jpg) | ![Brutalist article](images/article-03-brutalist.jpg) | ![Sun-bleached article](images/article-04-sunbleached.jpg) |
+| **Working slate** — a display face, an italic opening line, a 60-character measure. | **Newsprint** — upper-case title, a drop cap, numbered blocks, no scrim blur. | **Brutalist** — a 58px title, monospace body, a hard cut instead of an animation. | **Sun-bleached** — centred column, a large plain-text lede, warm paper, no rules. |
 
 ### Building your own look
 
