@@ -101,7 +101,11 @@ a { color: var(--c-accent); text-decoration: none; }
 .desk__plate-grid { position: absolute; inset: 0; }
 .desk__plate-shade {
   position: absolute; inset: 0;
-  box-shadow: inset 0 0 120px rgba(0, 0, 0, .55), inset 0 2px 0 rgba(255, 255, 255, .06);
+  /* A pale slate needs a fraction of the inner shadow a dark one does, or the
+     light looks come out muddy at the edges. */
+  box-shadow:
+    inset 0 0 120px rgba(0, 0, 0, var(--plate-shade, .55)),
+    inset 0 2px 0 rgba(255, 255, 255, var(--plate-gloss, .06));
 }
 .desk__stud {
   position: absolute; pointer-events: none; z-index: 200;
@@ -246,15 +250,23 @@ a { color: var(--c-accent); text-decoration: none; }
 .chips-add { font-family: var(--font-mono); font-size: 10px; background: transparent; border: 1px dashed rgba(230, 238, 246, .35); color: rgba(230, 238, 246, .7); padding: 5px 9px; cursor: pointer; margin-top: 14px; }
 .chips-add:hover { color: rgba(230, 238, 246, .95); border-color: rgba(230, 238, 246, .6); }
 
-/* hero */
-.hero__eyebrow { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--c-signal-soft); }
+/* hero — painted straight onto the slate, so every colour here follows
+   --board-ink. Hardcoding a cream made the whole block vanish on a pale
+   look; mixing towards the ink keeps it legible on any slate. */
+.hero__eyebrow {
+  font-size: 11px; letter-spacing: .28em; text-transform: uppercase;
+  color: color-mix(in oklch, var(--c-signal-soft) 55%, var(--board-ink, #f0ece1));
+}
 .hero__name { font-family: var(--font-display); font-weight: var(--font-display-weight, 800); font-size: 92px; line-height: .86; letter-spacing: calc(-.04em + var(--font-tracking, 0em)); margin: 16px 0 0; white-space: pre-line; color: var(--board-ink, #f0ece1); }
 .hero__tags { display: flex; gap: 9px; flex-wrap: wrap; margin: 22px 0 0; color: var(--board-ink, #f0ece1); }
-.hero__tags span { border: 1px solid rgba(240, 236, 225, .4); padding: 4px 9px; font-size: 11px; letter-spacing: .06em; }
-.hero__tags .is-accent { border-color: color-mix(in oklch, var(--c-signal-soft) 60%, transparent); color: var(--c-signal-soft); }
-.hero__intro { margin: 20px 0 0; font-size: calc(15px * var(--font-scale)); line-height: 1.62; color: rgba(240, 236, 225, .78); max-width: 44ch; }
-.hero__hint { margin: 14px 0 0; font-size: 13px; line-height: 1.6; color: rgba(240, 236, 225, .5); max-width: 46ch; }
-.hero__hint b { color: var(--c-signal-soft); font-weight: 500; }
+.hero__tags span { border: 1px solid color-mix(in oklch, var(--board-ink, #f0ece1) 40%, transparent); padding: 4px 9px; font-size: 11px; letter-spacing: .06em; }
+.hero__tags .is-accent {
+  border-color: color-mix(in oklch, var(--c-signal-soft) 60%, transparent);
+  color: color-mix(in oklch, var(--c-signal-soft) 55%, var(--board-ink, #f0ece1));
+}
+.hero__intro { margin: 20px 0 0; font-size: calc(15px * var(--font-scale)); line-height: 1.62; color: color-mix(in oklch, var(--board-ink, #f0ece1) 84%, transparent); max-width: 44ch; }
+.hero__hint { margin: 14px 0 0; font-size: 13px; line-height: 1.6; color: color-mix(in oklch, var(--board-ink, #f0ece1) 68%, transparent); max-width: 46ch; }
+.hero__hint b { color: color-mix(in oklch, var(--c-signal-soft) 55%, var(--board-ink, #f0ece1)); font-weight: 500; }
 
 /* now card */
 .now__label { display: flex; align-items: center; gap: 7px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; }

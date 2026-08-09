@@ -9,6 +9,7 @@ import {
   DOSSIER_LEDES,
   DOSSIER_TITLE_CASES,
   GRID_MODES,
+  PATTERN_STYLES,
   THEME_PRESETS,
   WALL_STYLE_IDS,
   type BackdropConfig,
@@ -227,8 +228,54 @@ export function ThemePanel({ theme, onChange, i18n, onI18nChange, onClose }: The
               off: 'No pattern at all.',
             }[back.grid]}
         </div>
-        {back.grid === 'plate' && back.plate ? (
-          <NumberRow id="theme-gridscale" label="Pattern scale" value={back.gridScale} min={0.4} max={3} step={0.1} suffix="×" onChange={(v) => setBack('gridScale', v)} />
+        {back.grid !== 'off' ? (
+          <>
+            <div className="field-row">
+              <label htmlFor="theme-pattern">Pattern style</label>
+              <select id="theme-pattern" value={back.pattern} onChange={(event) => setBack('pattern', event.target.value as BackdropConfig['pattern'])}>
+                {PATTERN_STYLES.map((style) => <option key={style} value={style}>{style}</option>)}
+              </select>
+            </div>
+            {back.pattern !== 'texture' && back.pattern !== 'none' ? (
+              <>
+                <div className="field-row">
+                  <label htmlFor="theme-patternink">Pattern ink</label>
+                  <select id="theme-patternink" value={back.patternInk} onChange={(event) => setBack('patternInk', event.target.value as BackdropConfig['patternInk'])}>
+                    {(['auto', 'light', 'dark'] as const).map((ink) => <option key={ink} value={ink}>{ink}</option>)}
+                  </select>
+                </div>
+                <NumberRow id="theme-patternfade" label="Pattern strength" value={back.patternFade} min={0} max={2} step={0.05} suffix="×" onChange={(v) => setBack('patternFade', v)} />
+              </>
+            ) : null}
+            <NumberRow id="theme-gridscale" label="Pattern scale" value={back.gridScale} min={0.4} max={3} step={0.1} suffix="×" onChange={(v) => setBack('gridScale', v)} />
+          </>
+        ) : null}
+
+        {back.plate ? (
+          <>
+            <div className="panel__section">slate colour</div>
+            <div className="panel__note">
+              Empty means the board style paints it. Set one and the slate becomes
+              any colour you like — that is what makes a pale look possible.
+            </div>
+            <div className="field-row">
+              <label htmlFor="theme-slate1">Slate centre</label>
+              <input id="theme-slate1" type="color" value={back.slate || '#2e3a38'} onChange={(event) => setBack('slate', event.target.value)} />
+            </div>
+            <div className="field-row">
+              <label htmlFor="theme-slate2">Slate edge</label>
+              <input id="theme-slate2" type="color" value={back.slate2 || back.slate || '#172120'} onChange={(event) => setBack('slate2', event.target.value)} />
+            </div>
+            <div className="field-row">
+              <label htmlFor="theme-slateink">Slate ink</label>
+              <input id="theme-slateink" type="color" value={back.slateInk || '#f0ece1'} onChange={(event) => setBack('slateInk', event.target.value)} />
+            </div>
+            {back.slate || back.slate2 || back.slateInk ? (
+              <button className="tbtn" type="button" onClick={() => onChange({ ...theme, backdrop: { ...back, slate: '', slate2: '', slateInk: '' } })}>
+                back to the board style’s own colour
+              </button>
+            ) : null}
+          </>
         ) : null}
 
         <div className="panel__section">cards</div>
