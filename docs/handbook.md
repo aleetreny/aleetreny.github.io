@@ -278,6 +278,8 @@ With edit mode on:
   zoom, so it stays usable however far out you are.
 - **Article blocks.** The left rail stays visible in editing mode. Its `↑`,
   `↓` and `×` controls reorder or remove each block without covering the text.
+  The `⚙` opens that block's inline inspector, where alignment, width,
+  typography — or image height and crop — preview immediately on the block.
 - **Photos.** Click a photo slot to upload. In production it goes to Neon Object
   Storage through a signing Function; offline it becomes a data URL.
 - **Tool chips.** The chip row under a drawer is editable — add, rename, remove,
