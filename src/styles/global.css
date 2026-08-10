@@ -452,13 +452,13 @@ a { color: var(--c-accent); text-decoration: none; }
 .db-linker__dismiss { padding-inline: 8px !important; }
 .db-linker__error { flex: 1 0 100%; font-family: var(--font-mono); font-size: 10px; color: #9b2929; }
 .db-heading { font-family: var(--font-display); font-weight: var(--dossier-title-weight, 700); font-size: calc(21px * var(--font-scale)); letter-spacing: calc(-.02em + var(--font-tracking, 0em)); text-transform: var(--dossier-title-case, none); color: #241f16; margin: 6px 0 0; }
-.db-text { font-family: var(--dossier-body, var(--font-display)); font-weight: 400; font-size: calc(var(--dossier-body-size, 16.5px) * var(--font-scale)); line-height: var(--dossier-leading, 1.66); margin: 0; max-width: var(--dossier-measure, 60ch); color: #241f16; }
+.db-text { font-family: var(--dossier-body, var(--font-display)); font-weight: 400; font-size: calc(var(--dossier-body-size, 16.5px) * var(--font-scale)); line-height: var(--dossier-leading, 1.66); margin: 0; max-width: none; width: 100%; color: #241f16; }
 .db-callout { font-size: calc(14.5px * var(--font-scale)); line-height: 1.6; color: #2b271d; background: color-mix(in oklch, var(--c-signal) 16%, #fbf7ef); border-left: 3px solid var(--c-signal); padding: 12px 15px; }
 .db-quote { margin: 0; border-left: 2px solid var(--c-accent); padding: 2px 0 2px 16px; }
 .db-quote p { font-family: var(--font-display); font-style: italic; font-size: calc(18px * var(--font-scale)); line-height: 1.5; margin: 0; color: #2b271d; }
 .db-quote cite { display: block; font-size: 12px; font-style: normal; opacity: .6; margin-top: 6px; }
 .db-divider { border: none; border-top: 1px solid #e2dac9; margin: 4px 0; }
-.db-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.db-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; max-width: none; width: 100%; }
 .db-list li { font-family: var(--dossier-body, var(--font-display)); font-size: calc((var(--dossier-body-size, 16.5px) - 1px) * var(--font-scale)); line-height: var(--dossier-leading, 1.55); color: #241f16; }
 .db-metrics { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 13px 0; border-top: 1px solid #e2dac9; border-bottom: 1px solid #e2dac9; }
 .db-metric { font-size: 13px; color: #2b271d; white-space: nowrap; display: inline-flex; align-items: baseline; gap: 5px; }
