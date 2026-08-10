@@ -9,8 +9,24 @@ export type TextLink = {
 export type TextLinkMap = Record<string, TextLink[]>;
 export type TextLinkListMap = Record<string, TextLink[][]>;
 
+export type TextRange = Pick<TextLink, 'start' | 'end'>;
+
 const ARTICLE_PREFIX = 'article:';
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
+
+/** Find the occurrence nearest an observed DOM offset. This is a recovery path
+ * for browser selections whose boundary is reported on an element node rather
+ * than the text node itself. */
+export function locateSelectedText(text: string, selected: string, near = 0): TextRange | null {
+  if (!selected) return null;
+  let best: TextRange | null = null;
+  let cursor = text.indexOf(selected);
+  while (cursor >= 0) {
+    if (!best || Math.abs(cursor - near) < Math.abs(best.start - near)) best = { start: cursor, end: cursor + selected.length };
+    cursor = text.indexOf(selected, cursor + 1);
+  }
+  return best;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);

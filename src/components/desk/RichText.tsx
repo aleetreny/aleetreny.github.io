@@ -4,6 +4,7 @@ import {
   addTextLink,
   articleHref,
   articleSlug,
+  locateSelectedText,
   normaliseExternalHref,
   rebaseTextLinks,
   removeTextLink,
@@ -13,6 +14,7 @@ import {
 type RichTextTag = 'h3' | 'div' | 'p' | 'span';
 
 type TextRange = Pick<TextLink, 'start' | 'end'>;
+type SelectedTextRange = TextRange & { text: string };
 
 type RichTextProps = {
   as: RichTextTag;
@@ -27,14 +29,18 @@ type RichTextProps = {
 };
 
 function rangeOffset(root: HTMLElement, node: Node, offset: number): number | null {
-  try {
-    const before = document.createRange();
-    before.selectNodeContents(root);
-    before.setEnd(node, offset);
-    return before.toString().length;
-  } catch {
-    return null;
+  if (node.nodeType === Node.TEXT_NODE) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let total = 0;
+    let current = walker.nextNode();
+    while (current) {
+      const length = current.textContent?.length ?? 0;
+      if (current === node) return total + Math.min(offset, length);
+      total += length;
+      current = walker.nextNode();
+    }
   }
+  return null;
 }
 
 function textNodes(text: string, links: TextLink[]): ReactNode[] {
@@ -67,7 +73,7 @@ function textNodes(text: string, links: TextLink[]): ReactNode[] {
 /** Inline article prose with links held as text ranges rather than HTML. */
 export function RichText({ as, className, style, text, links, editing, articles, onChange, onOpenArticle }: RichTextProps) {
   const rootRef = useRef<HTMLElement | null>(null);
-  const [selected, setSelected] = useState<TextRange | null>(null);
+  const [selected, setSelected] = useState<SelectedTextRange | null>(null);
   const [activeLink, setActiveLink] = useState<TextLink | null>(null);
   const [destination, setDestination] = useState<'article' | 'external'>('external');
   const [articleSlugValue, setArticleSlugValue] = useState(articles[0]?.slug ?? '');
@@ -75,7 +81,7 @@ export function RichText({ as, className, style, text, links, editing, articles,
   const [error, setError] = useState('');
 
   const editingRange = activeLink ?? selected;
-  const selectedText = editingRange ? text.slice(editingRange.start, editingRange.end) : '';
+  const selectedText = selected?.text ?? (activeLink ? text.slice(activeLink.start, activeLink.end) : '');
 
   function saveText() {
     const nextText = rootRef.current?.textContent?.replace(/\u00a0/g, ' ') ?? text;
@@ -88,10 +94,20 @@ export function RichText({ as, className, style, text, links, editing, articles,
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
     const range = selection.getRangeAt(0);
     if (!rootRef.current.contains(range.startContainer) || !rootRef.current.contains(range.endContainer)) return;
-    const start = rangeOffset(rootRef.current, range.startContainer, range.startOffset);
-    const end = rangeOffset(rootRef.current, range.endContainer, range.endOffset);
+    const currentText = rootRef.current.textContent?.replace(/\u00a0/g, ' ') ?? text;
+    const selectedText = selection.toString().replace(/\u00a0/g, ' ');
+    let start = rangeOffset(rootRef.current, range.startContainer, range.startOffset);
+    let end = rangeOffset(rootRef.current, range.endContainer, range.endOffset);
+    const captured = start === null || end === null ? '' : currentText.slice(Math.min(start, end), Math.max(start, end));
+    if (captured !== selectedText) {
+      const repaired = locateSelectedText(currentText, selectedText, start ?? 0);
+      if (!repaired) return;
+      start = repaired.start;
+      end = repaired.end;
+    }
     if (start === null || end === null || start === end) return;
-    setSelected({ start: Math.min(start, end), end: Math.max(start, end) });
+    if (currentText !== text) onChange(currentText, rebaseTextLinks(links, text, currentText));
+    setSelected({ start: Math.min(start, end), end: Math.max(start, end), text: selectedText });
     setActiveLink(null);
     setDestination('external');
     setExternalHref('');
@@ -132,7 +148,9 @@ export function RichText({ as, className, style, text, links, editing, articles,
       setError(destination === 'article' ? 'Choose an article.' : 'Enter a valid web address.');
       return;
     }
-    onChange(text, addTextLink(links, editingRange.start, editingRange.end, href, text.length));
+    const sourceText = selected?.text !== undefined ? rootRef.current?.textContent?.replace(/\u00a0/g, ' ') ?? text : text;
+    const sourceLinks = sourceText === text ? links : rebaseTextLinks(links, text, sourceText);
+    onChange(sourceText, addTextLink(sourceLinks, editingRange.start, editingRange.end, href, sourceText.length));
     setSelected(null);
     setActiveLink(null);
     setError('');

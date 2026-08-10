@@ -5,6 +5,7 @@ import {
   articleSlug,
   linksForLanguageAt,
   linksForLanguage,
+  locateSelectedText,
   normaliseExternalHref,
   normaliseTextLinks,
   removeLinksForLanguageAt,
@@ -14,6 +15,12 @@ import {
 } from './rich-text';
 
 describe('article prose links', () => {
+  it('recovers the exact selected phrase from an imprecise DOM offset', () => {
+    const text = 'Una colaboración profesional. Sin embargo, seguimos trabajando.';
+    const range = locateSelectedText(text, 'Sin embargo,', 20);
+    expect(range && text.slice(range.start, range.end)).toBe('Sin embargo,');
+  });
+
   it('only accepts safe external web addresses', () => {
     expect(normaliseExternalHref('example.com/work')).toBe('https://example.com/work');
     expect(normaliseExternalHref('https://example.com/path?q=1')).toBe('https://example.com/path?q=1');
