@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type DragEvent } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
 import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
@@ -46,6 +46,10 @@ export function DossierPlate({
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
   const dragScrollFrame = useRef<number | null>(null);
+  const draggingBlockRef = useRef<string | null>(null);
+  const dropTargetRef = useRef<DropTarget | null>(null);
+  const dragPointerId = useRef<number | null>(null);
+  const dragPointerX = useRef(0);
   const dragPointerY = useRef(0);
 
   useEffect(() => { closeRef.current?.focus(); }, []);
@@ -83,7 +87,7 @@ export function DossierPlate({
     dragScrollFrame.current = window.requestAnimationFrame(() => {
       dragScrollFrame.current = null;
       const sheet = sheetRef.current;
-      if (!sheet || !draggingBlock) return;
+      if (!sheet || !draggingBlockRef.current) return;
       const bounds = sheet.getBoundingClientRect();
       const y = dragPointerY.current;
       let distance = 0;
@@ -96,7 +100,10 @@ export function DossierPlate({
       const amount = direction * Math.max(2, Math.round(DRAG_SCROLL_MAX * intensity));
       const previous = sheet.scrollTop;
       sheet.scrollTop += amount;
-      if (sheet.scrollTop !== previous) runDragAutoScroll();
+      if (sheet.scrollTop !== previous) {
+        updateDropTargetAt(dragPointerX.current, dragPointerY.current);
+        runDragAutoScroll();
+      }
     });
   }
 
@@ -110,45 +117,131 @@ export function DossierPlate({
     }
   }
 
-  function startBlockDrag(event: DragEvent<HTMLButtonElement>, id: string) {
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/plain', id);
-    setDraggingBlock(id);
-    setDropTarget(null);
-    dragPointerY.current = event.clientY;
+  function setCurrentDropTarget(next: DropTarget | null) {
+    const current = dropTargetRef.current;
+    if (current?.id === next?.id && current?.after === next?.after) return;
+    dropTargetRef.current = next;
+    setDropTarget(next);
   }
 
-  function markDropTarget(event: DragEvent<HTMLDivElement>, id: string) {
-    const source = draggingBlock || event.dataTransfer.getData('text/plain');
-    if (!source) return;
-    event.preventDefault();
-    dragPointerY.current = event.clientY;
-    runDragAutoScroll();
-    if (source === id) return;
-    event.dataTransfer.dropEffect = 'move';
-    const rect = event.currentTarget.getBoundingClientRect();
-    const after = event.clientY > rect.top + rect.height / 2;
-    setDropTarget((current) => current?.id === id && current.after === after ? current : { id, after });
+  function updateDropTargetAt(clientX: number, clientY: number) {
+    const source = draggingBlockRef.current;
+    const sheet = sheetRef.current;
+    if (!source || !sheet) return;
+    const sheetBounds = sheet.getBoundingClientRect();
+    if (clientY < sheetBounds.top || clientY > sheetBounds.bottom || clientX < sheetBounds.left || clientX > sheetBounds.right) {
+      setCurrentDropTarget(null);
+      return;
+    }
+    const direct = document.elementFromPoint(clientX, clientY)?.closest<HTMLElement>('[data-block-id]');
+    // The handle lives in the left rail, just outside the block itself. When a
+    // drag stays vertically aligned with that rail, find the block by height
+    // rather than making the owner steer back over the prose first.
+    const candidates = [...sheet.querySelectorAll<HTMLElement>('[data-block-id]')];
+    const candidate = direct ?? candidates.find((block) => {
+      const rect = block.getBoundingClientRect();
+      return clientY >= rect.top && clientY <= rect.bottom;
+    }) ?? candidates.reduce<HTMLElement | null>((nearest, block) => {
+      if (!nearest) return block;
+      const current = block.getBoundingClientRect();
+      const previous = nearest.getBoundingClientRect();
+      const currentDistance = clientY < current.top ? current.top - clientY : clientY - current.bottom;
+      const previousDistance = clientY < previous.top ? previous.top - clientY : clientY - previous.bottom;
+      return currentDistance < previousDistance ? block : nearest;
+    }, null);
+    if (!candidate || !sheet.contains(candidate)) {
+      setCurrentDropTarget(null);
+      return;
+    }
+    const id = candidate.dataset.blockId;
+    if (!id || id === source) {
+      setCurrentDropTarget(null);
+      return;
+    }
+    const rect = candidate.getBoundingClientRect();
+    setCurrentDropTarget({ id, after: clientY > rect.top + rect.height / 2 });
   }
 
-  function dropBlock(event: DragEvent<HTMLDivElement>, id: string) {
-    event.preventDefault();
+  function clearBlockDrag() {
     stopDragAutoScroll();
-    const source = draggingBlock || event.dataTransfer.getData('text/plain');
-    const rect = event.currentTarget.getBoundingClientRect();
-    const after = event.clientY > rect.top + rect.height / 2;
-    if (source && source !== id) commitBlocks(reorderById(blocks, source, id, after));
+    draggingBlockRef.current = null;
+    dragPointerId.current = null;
+    setCurrentDropTarget(null);
     setDraggingBlock(null);
-    setDropTarget(null);
   }
 
-  function markSheetDragOver(event: DragEvent<HTMLDivElement>) {
-    const source = draggingBlock || event.dataTransfer.getData('text/plain');
-    if (!source) return;
-    event.preventDefault();
-    dragPointerY.current = event.clientY;
+  function beginBlockDrag(id: string, pointerId: number, clientX: number, clientY: number) {
+    draggingBlockRef.current = id;
+    dragPointerId.current = pointerId;
+    dragPointerX.current = clientX;
+    dragPointerY.current = clientY;
+    setDraggingBlock(id);
+    setCurrentDropTarget(null);
+  }
+
+  function moveBlockDragAt(clientX: number, clientY: number) {
+    dragPointerX.current = clientX;
+    dragPointerY.current = clientY;
+    updateDropTargetAt(clientX, clientY);
     runDragAutoScroll();
   }
+
+  function finishBlockDrag() {
+    const source = draggingBlockRef.current;
+    const target = dropTargetRef.current;
+    if (source && target) commitBlocks(reorderById(blocks, source, target.id, target.after));
+    clearBlockDrag();
+  }
+
+  function startBlockDrag(event: PointerEvent<HTMLButtonElement>, id: string) {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    beginBlockDrag(id, event.pointerId, event.clientX, event.clientY);
+  }
+
+  function movePointerBlockDrag(event: PointerEvent<HTMLButtonElement>) {
+    if (dragPointerId.current !== event.pointerId) return;
+    event.preventDefault();
+    moveBlockDragAt(event.clientX, event.clientY);
+  }
+
+  function finishPointerBlockDrag(event: PointerEvent<HTMLButtonElement>) {
+    if (dragPointerId.current !== event.pointerId) return;
+    event.preventDefault();
+    moveBlockDragAt(event.clientX, event.clientY);
+    finishBlockDrag();
+  }
+
+  function startMouseBlockDrag(event: ReactMouseEvent<HTMLButtonElement>, id: string) {
+    // Pointer Events are the primary path. The mouse fallback keeps reordering
+    // working in browsers and automation surfaces that only emit Mouse Events.
+    if (dragPointerId.current !== null || event.button !== 0) return;
+    event.preventDefault();
+    beginBlockDrag(id, -1, event.clientX, event.clientY);
+  }
+
+  const moveMouseBlockDrag = useEffectEvent((event: MouseEvent) => {
+    if (!draggingBlockRef.current) return;
+    moveBlockDragAt(event.clientX, event.clientY);
+  });
+
+  const finishMouseBlockDrag = useEffectEvent((event: MouseEvent) => {
+    if (!draggingBlockRef.current) return;
+    moveBlockDragAt(event.clientX, event.clientY);
+    finishBlockDrag();
+  });
+
+  useLayoutEffect(() => {
+    const move = (event: MouseEvent) => moveMouseBlockDrag(event);
+    const finish = (event: MouseEvent) => finishMouseBlockDrag(event);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', finish);
+    return () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', finish);
+    };
+  }, []);
 
   function renderBlockBody(block: ContentBlock) {
     const text = propString(block, 'text');
@@ -292,7 +385,7 @@ export function DossierPlate({
           </div>
         </div>
 
-        <div className="dossier__sheet" ref={sheetRef} onDragOver={editing ? markSheetDragOver : undefined}>
+        <div className="dossier__sheet" ref={sheetRef}>
           <div className="dossier__inner">
             <div className="dossier__crumbs">
               <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setMeta('when', readText(e)) } : {})}>{metaString(entry, 'when')}</span>
@@ -308,14 +401,13 @@ export function DossierPlate({
                 <div
                   className={`db-block db-block--${block.type}`}
                   key={block.id}
+                  data-block-id={block.id}
                   data-dragging={draggingBlock === block.id || undefined}
                   data-drop={dropTarget?.id === block.id ? (dropTarget.after ? 'after' : 'before') : undefined}
-                  onDragOver={editing ? (event) => markDropTarget(event, block.id) : undefined}
-                  onDrop={editing ? (event) => dropBlock(event, block.id) : undefined}
                 >
                   {editing ? (
                     <div className="db-block__ctrl" data-nodrag>
-                      <button className="db-block__drag" type="button" draggable onDragStart={(event) => startBlockDrag(event, block.id)} onDragEnd={() => { stopDragAutoScroll(); setDraggingBlock(null); setDropTarget(null); }} aria-label="Drag block to reorder" title="Drag to reorder">⠿</button>
+                      <button className="db-block__drag" type="button" onPointerDown={(event) => startBlockDrag(event, block.id)} onPointerMove={movePointerBlockDrag} onPointerUp={finishPointerBlockDrag} onPointerCancel={clearBlockDrag} onLostPointerCapture={clearBlockDrag} onMouseDown={(event) => startMouseBlockDrag(event, block.id)} aria-label="Drag block to reorder" title="Drag to reorder">⠿</button>
                       <button type="button" onClick={() => removeBlock(block.id)} aria-label="Delete block">✕</button>
                     </div>
                   ) : null}

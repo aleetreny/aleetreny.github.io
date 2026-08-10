@@ -305,7 +305,7 @@ export function ThemePanel({ theme, onChange, i18n, onI18nChange, onClose }: The
 
         <div className="panel__section">articles</div>
         <div className="panel__note">The full-page dossier a card opens into.</div>
-        <NumberRow id="doss-width" label="Plate width" value={doss.width} min={520} max={1400} step={10} suffix="px" onChange={(v) => setDoss('width', v)} />
+        <NumberRow id="doss-width" label="Plate width" value={doss.width} min={520} max={1800} step={10} suffix="px" onChange={(v) => setDoss('width', v)} />
         <NumberRow id="doss-measure" label="Measure" value={doss.measure} min={32} max={110} suffix="ch" onChange={(v) => setDoss('measure', v)} />
         <div className="field-row">
           <label htmlFor="doss-face">Body face</label>

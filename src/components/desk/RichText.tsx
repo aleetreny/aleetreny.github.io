@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { PortfolioEntry } from '../../types/content';
 import {
   addTextLink,
@@ -73,6 +73,7 @@ function textNodes(text: string, links: TextLink[]): ReactNode[] {
 /** Inline article prose with links held as text ranges rather than HTML. */
 export function RichText({ as, className, style, text, links, editing, articles, onChange, onOpenArticle }: RichTextProps) {
   const rootRef = useRef<HTMLElement | null>(null);
+  const linkerRef = useRef<HTMLDivElement | null>(null);
   const [selected, setSelected] = useState<SelectedTextRange | null>(null);
   const [activeLink, setActiveLink] = useState<TextLink | null>(null);
   const [destination, setDestination] = useState<'article' | 'external'>('external');
@@ -82,6 +83,23 @@ export function RichText({ as, className, style, text, links, editing, articles,
 
   const editingRange = activeLink ?? selected;
   const selectedText = selected?.text ?? (activeLink ? text.slice(activeLink.start, activeLink.end) : '');
+
+  useEffect(() => {
+    if (!editing) return;
+    const dismissWhenSelectionLeaves = () => {
+      const selection = window.getSelection();
+      const root = rootRef.current;
+      if (linkerRef.current?.contains(document.activeElement)) return;
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !root
+        || !root.contains(selection.anchorNode) || !root.contains(selection.focusNode)) {
+        setSelected(null);
+        setActiveLink(null);
+        setError('');
+      }
+    };
+    document.addEventListener('selectionchange', dismissWhenSelectionLeaves);
+    return () => document.removeEventListener('selectionchange', dismissWhenSelectionLeaves);
+  }, [editing]);
 
   function saveText() {
     const nextText = rootRef.current?.textContent?.replace(/\u00a0/g, ' ') ?? text;
@@ -184,7 +202,7 @@ export function RichText({ as, className, style, text, links, editing, articles,
         {textNodes(text, links)}
       </Tag>
       {editing && editingRange ? (
-        <div className="db-linker" data-nodrag role="group" aria-label="Link selected text">
+        <div className="db-linker" ref={linkerRef} data-nodrag role="group" aria-label="Link selected text">
           <span className="db-linker__selection">“{selectedText}”</span>
           <label>
             link to

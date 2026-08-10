@@ -284,7 +284,7 @@ export const DEFAULT_CARDS: CardsConfig = {
 };
 
 export const DEFAULT_DOSSIER: DossierConfig = {
-  width: 860,
+  width: 1600,
   measure: 60,
   bodyFace: 'display',
   bodySize: 16.5,
