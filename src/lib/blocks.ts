@@ -58,6 +58,22 @@ export function newBlock(type: DossierBlockType, position: number): ContentBlock
   };
 }
 
+/** Move one identified item immediately before or after another one. Positions
+ * are intentionally left to the caller, since the same helper also serves UI
+ * collections that do not carry a `position` field. */
+export function reorderById<T extends { id: string }>(items: T[], sourceId: string, targetId: string, after = false): T[] {
+  if (sourceId === targetId) return items;
+  const sourceIndex = items.findIndex((item) => item.id === sourceId);
+  const targetIndex = items.findIndex((item) => item.id === targetId);
+  if (sourceIndex < 0 || targetIndex < 0) return items;
+
+  const next = [...items];
+  const [source] = next.splice(sourceIndex, 1);
+  const target = next.findIndex((item) => item.id === targetId);
+  next.splice(target + (after ? 1 : 0), 0, source);
+  return next;
+}
+
 /** Read a string prop safely. */
 export function propString(block: ContentBlock, key: string): string {
   const value = block.props[key];

@@ -407,6 +407,7 @@ a { color: var(--c-accent); text-decoration: none; }
   font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
   color: color-mix(in oklch, var(--c-accent) 70%, transparent);
 }
+.dossier[data-editing='true'][data-numbered='true'] .db-block::before { display: none; }
 @media (max-width: 900px) {
   .dossier[data-numbered='true'] .db-block::before { position: static; display: block; margin-bottom: 4px; }
 }
@@ -422,10 +423,15 @@ a { color: var(--c-accent); text-decoration: none; }
   color: var(--c-accent);
 }
 .db-block { position: relative; }
-.db-block__ctrl { position: absolute; left: -46px; top: 0; display: flex; flex-direction: column; gap: 2px; opacity: 0; transition: opacity .15s; }
+.db-block__ctrl { position: absolute; left: -58px; top: 0; display: flex; flex-direction: row; gap: 3px; opacity: 0; transition: opacity .15s; }
 .db-block:hover .db-block__ctrl, .db-block:focus-within .db-block__ctrl, .dossier[data-editing='true'] .db-block__ctrl { opacity: 1; }
-.db-block__ctrl button { font-family: var(--font-mono); font-size: 11px; width: 22px; height: 20px; line-height: 1; background: #f4eee0; border: 1px solid #cfc5b0; color: oklch(0.42 0.03 60); cursor: pointer; }
+.db-block__ctrl button { font-family: var(--font-mono); font-size: 12px; width: 24px; height: 24px; line-height: 1; background: #f4eee0; border: 1px solid #cfc5b0; color: oklch(0.42 0.03 60); cursor: pointer; }
 .db-block__ctrl button:disabled { opacity: .35; cursor: default; }
+.db-block__drag { cursor: grab !important; }
+.db-block__drag:active { cursor: grabbing !important; }
+.db-block[data-dragging='true'] { opacity: .42; }
+.db-block[data-drop='before'] { box-shadow: inset 0 3px 0 var(--c-accent); }
+.db-block[data-drop='after'] { box-shadow: inset 0 -3px 0 var(--c-accent); }
 .db-block__inspector { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 12px; margin: 10px 0 2px; padding: 10px 12px; background: #f4eee0; border: 1px dashed #cfc5b0; color: #2b271d; }
 .db-block__inspector-title { flex: 1 0 100%; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: oklch(0.42 0.03 60); }
 .db-block__inspector label { display: flex; flex-direction: column; gap: 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: oklch(0.42 0.03 60); }

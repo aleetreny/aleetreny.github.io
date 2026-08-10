@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
-import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, type DossierBlockType } from '../../lib/blocks';
+import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
 import { linksForLanguage, setLinksForLanguage, type TextLink } from '../../lib/rich-text';
 import { ImageSlot } from './ImageSlot';
@@ -36,6 +36,7 @@ function metaString(entry: PortfolioEntry, key: string): string {
 type BlockAlign = 'start' | 'center' | 'end';
 type BlockWidth = 'normal' | 'compact' | 'wide';
 type ImageFit = 'cover' | 'contain';
+type DropTarget = { id: string; after: boolean };
 
 function layoutChoice<T extends string>(block: ContentBlock, key: string, choices: readonly T[], fallback: T): T {
   const value = block.layout[key];
@@ -72,6 +73,8 @@ export function DossierPlate({
   const sheetRef = useRef<HTMLDivElement>(null);
   const [busyBlock, setBusyBlock] = useState<string | null>(null);
   const [inspectorBlock, setInspectorBlock] = useState<string | null>(null);
+  const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
 
   useEffect(() => { closeRef.current?.focus(); }, []);
   useEffect(() => { if (sheetRef.current) sheetRef.current.scrollTop = 0; }, [entry.slug]);
@@ -87,14 +90,6 @@ export function DossierPlate({
   const updateLinkedText = (block: ContentBlock, text: string, links: TextLink[]) =>
     updateBlock(block.id, { text, textLinks: setLinksForLanguage(block.props.textLinks, activeLanguage, links) });
   const removeBlock = (id: string) => commitBlocks(blocks.filter((block) => block.id !== id));
-  const moveBlock = (id: string, dir: -1 | 1) => {
-    const index = blocks.findIndex((block) => block.id === id);
-    const target = index + dir;
-    if (index < 0 || target < 0 || target >= blocks.length) return;
-    const next = [...blocks];
-    [next[index], next[target]] = [next[target], next[index]];
-    commitBlocks(next);
-  };
   const addBlock = (type: DossierBlockType) => commitBlocks([...blocks, newBlock(type, blocks.length)]);
 
   async function pickBlockImage(id: string, file: File) {
@@ -105,6 +100,33 @@ export function DossierPlate({
     } finally {
       setBusyBlock(null);
     }
+  }
+
+  function startBlockDrag(event: DragEvent<HTMLButtonElement>, id: string) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', id);
+    setDraggingBlock(id);
+    setDropTarget(null);
+  }
+
+  function markDropTarget(event: DragEvent<HTMLDivElement>, id: string) {
+    const source = draggingBlock || event.dataTransfer.getData('text/plain');
+    if (!source || source === id) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    const rect = event.currentTarget.getBoundingClientRect();
+    const after = event.clientY > rect.top + rect.height / 2;
+    setDropTarget((current) => current?.id === id && current.after === after ? current : { id, after });
+  }
+
+  function dropBlock(event: DragEvent<HTMLDivElement>, id: string) {
+    event.preventDefault();
+    const source = draggingBlock || event.dataTransfer.getData('text/plain');
+    const rect = event.currentTarget.getBoundingClientRect();
+    const after = event.clientY > rect.top + rect.height / 2;
+    if (source && source !== id) commitBlocks(reorderById(blocks, source, id, after));
+    setDraggingBlock(null);
+    setDropTarget(null);
   }
 
   function renderBlockInspector(block: ContentBlock) {
@@ -312,13 +334,19 @@ export function DossierPlate({
             <p className="dossier__lede" {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => onChange({ ...entry, summary: readText(e) }) } : {})}>{entry.summary}</p>
 
             <div className="dossier__body">
-              {blocks.map((block, index) => (
-                <div className={`db-block db-block--${block.type}`} key={block.id}>
+              {blocks.map((block) => (
+                <div
+                  className={`db-block db-block--${block.type}`}
+                  key={block.id}
+                  data-dragging={draggingBlock === block.id || undefined}
+                  data-drop={dropTarget?.id === block.id ? (dropTarget.after ? 'after' : 'before') : undefined}
+                  onDragOver={editing ? (event) => markDropTarget(event, block.id) : undefined}
+                  onDrop={editing ? (event) => dropBlock(event, block.id) : undefined}
+                >
                   {editing ? (
                     <div className="db-block__ctrl" data-nodrag>
                       <button type="button" onClick={() => setInspectorBlock((open) => (open === block.id ? null : block.id))} aria-label="Edit this block's appearance" aria-expanded={inspectorBlock === block.id}>⚙</button>
-                      <button type="button" onClick={() => moveBlock(block.id, -1)} disabled={index === 0} aria-label="Move up">↑</button>
-                      <button type="button" onClick={() => moveBlock(block.id, 1)} disabled={index === blocks.length - 1} aria-label="Move down">↓</button>
+                      <button className="db-block__drag" type="button" draggable onDragStart={(event) => startBlockDrag(event, block.id)} onDragEnd={() => { setDraggingBlock(null); setDropTarget(null); }} aria-label="Drag block to reorder" title="Drag to reorder">⠿</button>
                       <button type="button" onClick={() => removeBlock(block.id)} aria-label="Delete block">✕</button>
                     </div>
                   ) : null}

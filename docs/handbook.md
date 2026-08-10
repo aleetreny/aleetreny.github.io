@@ -276,10 +276,10 @@ With edit mode on:
   background and ink, which list a drawer shows, its row layout, its row cap,
   which dossier a spotlight opens, and delete. The menu counter-scales with the
   zoom, so it stays usable however far out you are.
-- **Article blocks.** The left rail stays visible in editing mode. Its `↑`,
-  `↓` and `×` controls reorder or remove each block without covering the text.
-  The `⚙` opens that block's inline inspector, where alignment, width,
-  typography — or image height and crop — preview immediately on the block.
+- **Article blocks.** The left rail stays visible in editing mode without
+  covering the text. Drag its `⠿` handle onto another block to reorder, use
+  `×` to remove it, and `⚙` to open that block's inline inspector. Alignment,
+  width, typography — or image height and crop — preview immediately there.
   Select words in a paragraph, heading, callout or quote to reveal its inline
   link editor. It can point to another published dossier or an external web
   address; click an existing link while editing to update or remove it.
