@@ -1592,58 +1592,65 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           <div className="stamp stamp--tr">click any line to open its page<br />drag the paper · scroll to zoom</div>
 
           {authed ? (
-            <div className="ownerbar">
-              <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => { if (v) setCardMenu(null); return !v; })}>{editing ? 'editing · on' : 'edit mode'}</button>
-              <button
-                className={`tbtn ${positionsLocked ? 'tbtn--on' : ''}`}
-                type="button"
-                aria-pressed={positionsLocked}
-                title={positionsLocked ? 'Card positions are locked' : 'Card positions can be dragged'}
-                onClick={() => setPositionsLocked((locked) => !locked)}
-              >
-                {positionsLocked ? '🔒 positions' : '🔓 positions'}
-              </button>
-              {editing ? (
-                <>
-                  <span className="ownerbar__add">add:</span>
-                  <button className="tbtn" type="button" onClick={() => addCard('drawer')}>drawer</button>
-                  <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>spotlight</button>
-                  <button className="tbtn" type="button" onClick={addPolaroid}>photo</button>
-                  <button className="tbtn" type="button" onClick={addNote}>note</button>
-                </>
-              ) : null}
-              {i18n.enabled && i18n.languages.length > 1 ? (
-                <>
-                  <span className="ownerbar__add">writing:</span>
-                  {i18n.languages.map((option) => (
-                    <button
-                      key={option.code}
-                      type="button"
-                      className={`tbtn ${option.code === activeLang ? 'tbtn--on' : ''}`}
-                      aria-pressed={option.code === activeLang}
-                      title={option.code === i18n.primary ? `${option.label} — the language you author in` : option.label}
-                      onClick={() => { setLang(option.code); rememberLanguage(i18n, option.code); }}
-                    >
-                      {option.code.toUpperCase()}
-                    </button>
-                  ))}
-                  {canTranslate ? (
-                    <button
-                      className="tbtn"
-                      type="button"
-                      disabled={translating}
-                      title={`Fill every empty translation from ${i18n.primary.toUpperCase()}`}
-                      onClick={() => { void runTranslate(); }}
-                    >
-                      {translating ? 'translating…' : '⇄ translate'}
-                    </button>
+            <div className={`ownerbar${editing ? ' ownerbar--editing' : ''}`}>
+              <div className="ownerbar__controls">
+                <div className="ownerbar__row">
+                  <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => { if (v) setCardMenu(null); return !v; })}>{editing ? 'editing · on' : 'edit mode'}</button>
+                  <button
+                    className={`tbtn ${positionsLocked ? 'tbtn--on' : ''}`}
+                    type="button"
+                    aria-pressed={positionsLocked}
+                    title={positionsLocked ? 'Card positions are locked' : 'Card positions can be dragged'}
+                    onClick={() => setPositionsLocked((locked) => !locked)}
+                  >
+                    {positionsLocked ? '🔒 positions' : '🔓 positions'}
+                  </button>
+                  {editing ? (
+                    <>
+                      <span className="ownerbar__add">add:</span>
+                      <button className="tbtn" type="button" onClick={() => addCard('drawer')}>drawer</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>spotlight</button>
+                      <button className="tbtn" type="button" onClick={addPolaroid}>photo</button>
+                      <button className="tbtn" type="button" onClick={addNote}>note</button>
+                    </>
                   ) : null}
-                </>
-              ) : null}
-              <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
-              <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>tour</button>
-              <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
-              {localEdit ? <span className="ownerbar__badge" title="Local preview — changes are not saved">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
+                </div>
+
+                <div className="ownerbar__row">
+                  {i18n.enabled && i18n.languages.length > 1 ? (
+                    <>
+                      <span className="ownerbar__add">writing:</span>
+                      {i18n.languages.map((option) => (
+                        <button
+                          key={option.code}
+                          type="button"
+                          className={`tbtn ${option.code === activeLang ? 'tbtn--on' : ''}`}
+                          aria-pressed={option.code === activeLang}
+                          title={option.code === i18n.primary ? `${option.label} — the language you author in` : option.label}
+                          onClick={() => { setLang(option.code); rememberLanguage(i18n, option.code); }}
+                        >
+                          {option.code.toUpperCase()}
+                        </button>
+                      ))}
+                      {canTranslate ? (
+                        <button
+                          className="tbtn"
+                          type="button"
+                          disabled={translating}
+                          title={`Fill every empty translation from ${i18n.primary.toUpperCase()}`}
+                          onClick={() => { void runTranslate(); }}
+                        >
+                          {translating ? 'translating…' : '⇄ translate'}
+                        </button>
+                      ) : null}
+                    </>
+                  ) : null}
+                  <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
+                  <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>tour</button>
+                  <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
+                  {localEdit ? <span className="ownerbar__badge" title="Local preview — changes are not saved">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
+                </div>
+              </div>
             </div>
           ) : (
             <button className="signin" type="button" onClick={() => setLoginOpen(true)}>⌗ sign in</button>
