@@ -264,6 +264,8 @@ With edit mode on:
 - **Text.** Every kicker, title, subtitle, blurb, caption, note and hero role
   badge is editable in place. Hero badges can also be added and removed. Click
   it, type, click away. It saves on blur, debounced.
+- **Card statistics.** The large number/value pairs on a drawer are editable;
+  add a statistic with `+ stat` or remove one with its `×` control.
 - **Position.** Positions start locked. Press `🔒 positions` in the owner bar
   to unlock dragging, then drag any piece. The position, tilt and width are
   stored as an override in `board.layout`, leaving the authored values intact —
@@ -274,6 +276,8 @@ With edit mode on:
   background and ink, which list a drawer shows, its row layout, its row cap,
   which dossier a spotlight opens, and delete. The menu counter-scales with the
   zoom, so it stays usable however far out you are.
+- **Article blocks.** The left rail stays visible in editing mode. Its `↑`,
+  `↓` and `×` controls reorder or remove each block without covering the text.
 - **Photos.** Click a photo slot to upload. In production it goes to Neon Object
   Storage through a signing Function; offline it becomes a data URL.
 - **Tool chips.** The chip row under a drawer is editable — add, rename, remove,

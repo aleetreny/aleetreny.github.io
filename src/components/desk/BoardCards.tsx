@@ -188,6 +188,39 @@ function ToolChips({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
   );
 }
 
+/** The large value/label pairs on a drawer are portfolio content, not fixed
+ * decoration. Give them the same inline add, edit and remove controls as the
+ * other card chips. */
+function CardStats({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const stats = card.stats;
+  if (!stats?.length) {
+    return editing ? (
+      <button className="statline__add" type="button" data-nodrag onClick={() => onCardEdit(card.id, { stats: [['0', 'label']] })}>+ stat</button>
+    ) : null;
+  }
+
+  const setPair = (index: number, part: 0 | 1, value: string) => {
+    const next = stats.map((pair) => [...pair] as [string, string]);
+    next[index][part] = value;
+    onCardEdit(card.id, { stats: next });
+  };
+  const deleteStat = (index: number) => onCardEdit(card.id, { stats: stats.filter((_, statIndex) => statIndex !== index) });
+  const addStat = () => onCardEdit(card.id, { stats: [...stats, ['0', 'label']] });
+
+  return (
+    <div className="statline" {...(editing ? { 'data-nodrag': '' } : {})}>
+      {stats.map((pair, index) => (
+        <div className="statline__item" key={index}>
+          <div className="statline__v" {...editableProps(editing, (value) => setPair(index, 0, value))}>{pair[0]}</div>
+          <div className="statline__l" {...editableProps(editing, (value) => setPair(index, 1, value))}>{pair[1]}</div>
+          {editing ? <button className="statline__remove" type="button" onClick={() => deleteStat(index)} aria-label={`Remove ${pair[0]}`}>×</button> : null}
+        </div>
+      ))}
+      {editing ? <button className="statline__add" type="button" onClick={addStat}>+ stat</button> : null}
+    </div>
+  );
+}
+
 function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   const tone = card.tone ?? 'paper';
   const style: CSSProperties | undefined = tone === 'custom'
@@ -298,13 +331,7 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
       {card.subtitle ? <div className="card__sub" {...ed((v) => ({ subtitle: v }))}>{card.subtitle}</div> : null}
       {card.intro ? <div className="card__intro" {...ed((v) => ({ intro: v }))}>{card.intro}</div> : null}
       <DrawerRows card={card} entries={entries} />
-      {card.stats ? (
-        <div className="statline">
-          {card.stats.map((pair, index) => (
-            <div key={index}><div className="statline__v">{pair[0]}</div><div className="statline__l">{pair[1]}</div></div>
-          ))}
-        </div>
-      ) : null}
+      <CardStats card={card} editing={editing} onCardEdit={onCardEdit} />
       <ToolChips card={card} editing={editing} onCardEdit={onCardEdit} />
       {card.footerLink ? (
         <a className="card__footlink" href={card.footerLink[1]} target="_blank" rel="noreferrer" data-nodrag>{card.footerLink[0]}</a>

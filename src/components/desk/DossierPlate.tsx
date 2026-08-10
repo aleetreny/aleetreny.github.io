@@ -174,6 +174,7 @@ export function DossierPlate({
       data-numbered={dossier.numbered ? 'true' : 'false'}
       data-dropcap={dossier.dropCap ? 'true' : 'false'}
       data-centred={dossier.centred ? 'true' : 'false'}
+      data-editing={editing ? 'true' : 'false'}
     >
       <div className="dossier__scrim" onClick={onClose} />
       <div className="dossier__plate" role="dialog" aria-modal="true" aria-label={entry.title}>

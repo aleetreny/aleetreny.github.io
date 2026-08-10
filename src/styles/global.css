@@ -241,6 +241,10 @@ a { color: var(--c-accent); text-decoration: none; }
 .card__surface--dark .statline, .card__surface--slate .statline { border-top-color: rgba(230, 238, 246, .14); }
 .statline__v { font-family: var(--font-display); font-weight: 800; font-size: 27px; letter-spacing: -.03em; color: var(--c-accent); line-height: 1; }
 .statline__l { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin-top: 3px; }
+.statline__item { position: relative; }
+.statline__remove { position: absolute; right: -16px; top: -8px; font-family: var(--font-mono); font-size: 10px; line-height: 1; width: 15px; height: 15px; padding: 0; background: rgba(18, 22, 21, .82); color: var(--c-signal-soft); border: 1px solid rgba(243, 236, 221, .35); cursor: pointer; }
+.statline__add { align-self: flex-start; font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; background: transparent; color: inherit; border: 1px dashed currentColor; opacity: .68; padding: 4px 7px; cursor: pointer; }
+.statline__remove:hover, .statline__add:hover { opacity: 1; color: var(--c-signal-soft); }
 .chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(230, 238, 246, .14); }
 .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; border: 1px solid rgba(230, 238, 246, .3); padding: 3px 7px; }
 .chip__x { font-family: var(--font-mono); font-size: 9px; line-height: 1; background: transparent; border: none; color: inherit; opacity: .6; cursor: pointer; padding: 0; }
@@ -355,6 +359,9 @@ a { color: var(--c-accent); text-decoration: none; }
 .pbtn--close:hover { background: var(--c-signal-soft); }
 .dossier__sheet { overflow-y: auto; flex: 1; min-height: 0; background: var(--c-paper); }
 .dossier__inner { max-width: none; margin: 0; padding: 38px 30px 56px; }
+/* Block actions used to sit 46px into the plate's clipped edge. Editing gets
+   a permanent left rail, so every move/delete button remains fully visible. */
+.dossier[data-editing='true'] .dossier__inner { padding-left: 78px; }
 .dossier[data-centred='true'] .dossier__inner { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .dossier[data-centred='true'] .dossier__crumbs { justify-content: center; }
 .dossier__crumbs { display: flex; gap: 12px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: rgba(60, 55, 40, .78); }
@@ -416,7 +423,7 @@ a { color: var(--c-accent); text-decoration: none; }
 }
 .db-block { position: relative; }
 .db-block__ctrl { position: absolute; left: -46px; top: 0; display: flex; flex-direction: column; gap: 2px; opacity: 0; transition: opacity .15s; }
-.db-block:hover .db-block__ctrl { opacity: 1; }
+.db-block:hover .db-block__ctrl, .db-block:focus-within .db-block__ctrl, .dossier[data-editing='true'] .db-block__ctrl { opacity: 1; }
 .db-block__ctrl button { font-family: var(--font-mono); font-size: 11px; width: 22px; height: 20px; line-height: 1; background: #f4eee0; border: 1px solid #cfc5b0; color: oklch(0.42 0.03 60); cursor: pointer; }
 .db-block__ctrl button:disabled { opacity: .35; cursor: default; }
 .db-heading { font-family: var(--font-display); font-weight: var(--dossier-title-weight, 700); font-size: calc(21px * var(--font-scale)); letter-spacing: calc(-.02em + var(--font-tracking, 0em)); text-transform: var(--dossier-title-case, none); color: #241f16; margin: 6px 0 0; }
@@ -732,6 +739,7 @@ a { color: var(--c-accent); text-decoration: none; }
   .dossier { padding: 10px 10px 8px; }
   .dossier__bar { padding: 10px 14px; }
   .dossier__inner { padding: 26px 18px 40px; }
+  .dossier[data-editing='true'] .dossier__inner { padding-left: 64px; }
   .dossier__foot { padding: 10px 14px; }
   .owner-toast { bottom: 78px; left: 10px; right: 10px; transform: none; text-align: center; }
   .board-error { bottom: 78px; left: 10px; right: 10px; transform: none; max-width: none; }
@@ -758,6 +766,7 @@ a { color: var(--c-accent); text-decoration: none; }
   .tourbar__label { font-size: 14px; }
   .dossier { padding: 6px; }
   .dossier__inner { padding: 20px 18px 28px; }
+  .dossier[data-editing='true'] .dossier__inner { padding-left: 64px; }
   .panel--theme, .panel--login { max-height: 94vh; }
 }
 
