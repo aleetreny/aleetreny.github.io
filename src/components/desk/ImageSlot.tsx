@@ -28,7 +28,7 @@ export function ImageSlot({ url, alt, placeholder = 'Drop a photo', editable = f
 
   return (
     <div
-      className={`slot${editable ? ' slot--editable' : ''}`}
+      className={`slot${url ? ' slot--filled' : ''}${editable ? ' slot--editable' : ''}`}
       {...(editable ? { 'data-nodrag': '' } : {})}
       style={over ? { outlineColor: 'var(--c-signal)' } : undefined}
       onClick={editable ? () => inputRef.current?.click() : undefined}

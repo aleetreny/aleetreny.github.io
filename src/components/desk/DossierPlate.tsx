@@ -345,7 +345,7 @@ export function DossierPlate({
       case 'image': {
         return (
           <figure className="db-image">
-            <div className="db-image__frame" style={{ height: 280 }}>
+            <div className="db-image__frame">
               <ImageSlot url={propString(block, 'url') || undefined} alt={propString(block, 'alt')} placeholder={propString(block, 'caption') || 'drop a photo'} editable={editing} busy={busyBlock === block.id} onPick={(file) => pickBlockImage(block.id, file)} />
             </div>
             {propString(block, 'caption') || editing ? <figcaption {...ed('caption')}>{propString(block, 'caption')}</figcaption> : null}
