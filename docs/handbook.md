@@ -280,6 +280,9 @@ With edit mode on:
   `↓` and `×` controls reorder or remove each block without covering the text.
   The `⚙` opens that block's inline inspector, where alignment, width,
   typography — or image height and crop — preview immediately on the block.
+  Select words in a paragraph, heading, callout or quote to reveal its inline
+  link editor. It can point to another published dossier or an external web
+  address; click an existing link while editing to update or remove it.
 - **Photos.** Click a photo slot to upload. In production it goes to Neon Object
   Storage through a signing Function; offline it becomes a data URL.
 - **Tool chips.** The chip row under a drawer is editable — add, rename, remove,
@@ -855,6 +858,16 @@ dossier while editing.
 | `links` | External links. |
 | `tags` | Filed-under keywords. |
 | `divider` | A thin rule. |
+
+### Links inside prose
+
+While editing, select the exact words in a paragraph, heading, callout or
+quote. A small editor appears below that block: choose **another article** to
+open a published dossier inside the portfolio, or **external website** and
+enter its address. Selecting an existing link opens the same editor so it can
+be changed or removed. Links are stored as safe text ranges rather than HTML,
+and each language keeps its own ranges because a translation can change word
+positions.
 
 Saving is transactional with optimistic locking: the entry's `version` is
 checked, the previous state is snapshotted into `entry_versions`, and a

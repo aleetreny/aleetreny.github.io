@@ -2,10 +2,14 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
 import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
+import { linksForLanguage, setLinksForLanguage, type TextLink } from '../../lib/rich-text';
 import { ImageSlot } from './ImageSlot';
+import { RichText } from './RichText';
 
 type DossierPlateProps = {
   entry: PortfolioEntry;
+  articles: PortfolioEntry[];
+  activeLanguage: string;
   posLabel: string;
   prevTitle: string;
   nextTitle: string;
@@ -13,6 +17,7 @@ type DossierPlateProps = {
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
+  onOpenArticle: (slug: string) => void;
   onChange: (next: PortfolioEntry) => void;
   uploadPhoto: (file: File) => Promise<string>;
   /** Article design: measure, title, lede, drop cap, numbering, entrance. */
@@ -61,7 +66,7 @@ function blockStyle(block: ContentBlock): CSSProperties {
 }
 
 export function DossierPlate({
-  entry, posLabel, prevTitle, nextTitle, editing, onClose, onPrev, onNext, onChange, uploadPhoto, dossier,
+  entry, articles, activeLanguage, posLabel, prevTitle, nextTitle, editing, onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, dossier,
 }: DossierPlateProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -79,6 +84,8 @@ export function DossierPlate({
     commitBlocks(blocks.map((block) => (block.id === id ? { ...block, props: { ...block.props, ...props } } : block)));
   const updateBlockLayout = (id: string, layout: Record<string, unknown>) =>
     commitBlocks(blocks.map((block) => (block.id === id ? { ...block, layout: { ...block.layout, ...layout } } : block)));
+  const updateLinkedText = (block: ContentBlock, text: string, links: TextLink[]) =>
+    updateBlock(block.id, { text, textLinks: setLinksForLanguage(block.props.textLinks, activeLanguage, links) });
   const removeBlock = (id: string) => commitBlocks(blocks.filter((block) => block.id !== id));
   const moveBlock = (id: string, dir: -1 | 1) => {
     const index = blocks.findIndex((block) => block.id === id);
@@ -162,19 +169,22 @@ export function DossierPlate({
 
   function renderBlockBody(block: ContentBlock) {
     const style = blockStyle(block);
+    const text = propString(block, 'text');
+    const textLinks = linksForLanguage(block.props.textLinks, activeLanguage, text.length);
+    const linkableArticles = articles.filter((article) => article.slug !== entry.slug && article.status === 'published');
     const ed = (key: string) => (editing
       ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => updateBlock(block.id, { [key]: readText(e) }) }
       : {});
 
     switch (block.type) {
       case 'heading':
-        return <h3 className="db-heading" style={style} {...ed('text')}>{propString(block, 'text')}</h3>;
+        return <RichText as="h3" className="db-heading" style={style} text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
       case 'callout':
-        return <div className="db-callout" style={style} {...ed('text')}>{propString(block, 'text')}</div>;
+        return <RichText as="div" className="db-callout" style={style} text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
       case 'quote':
         return (
           <blockquote className="db-quote" style={style}>
-            <p {...ed('text')}>{propString(block, 'text')}</p>
+            <RichText as="p" className="" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />
             {propString(block, 'cite') || editing ? <cite {...ed('cite')}>{propString(block, 'cite')}</cite> : null}
           </blockquote>
         );
@@ -258,7 +268,7 @@ export function DossierPlate({
         );
       }
       default:
-        return <p className="db-text" style={style} {...ed('text')}>{propString(block, 'text')}</p>;
+        return <RichText as="p" className="db-text" style={style} text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
     }
   }
 

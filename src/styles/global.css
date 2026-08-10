@@ -433,6 +433,18 @@ a { color: var(--c-accent); text-decoration: none; }
 .db-block__range { min-width: 130px; }
 .db-block__range output { margin-left: 3px; color: rgba(60, 55, 40, .7); }
 .db-block__range input { padding: 0; accent-color: var(--c-accent); }
+.db-inline-link { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in oklch, var(--c-accent) 72%, transparent); text-decoration-thickness: 1.5px; text-underline-offset: .16em; cursor: pointer; }
+.db-inline-link:hover { color: var(--c-accent); text-decoration-color: currentColor; }
+.db-linker { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 7px 10px; margin: 9px 0 2px; padding: 9px 11px; background: color-mix(in oklch, var(--c-signal) 12%, #fbf7ef); border: 1px dashed color-mix(in oklch, var(--c-accent) 34%, #cfc5b0); color: #2b271d; }
+.db-linker__selection { flex: 1 0 100%; overflow: hidden; font-family: var(--font-display); font-size: 13px; font-style: italic; text-overflow: ellipsis; white-space: nowrap; }
+.db-linker label { display: flex; flex-direction: column; gap: 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: oklch(0.42 0.03 60); }
+.db-linker select, .db-linker input { min-height: 28px; font-family: var(--font-mono); font-size: 11px; background: #fff; border: 1px solid #cfc5b0; color: #241f16; padding: 4px 6px; }
+.db-linker__url { min-width: min(260px, 100%); }
+.db-linker__url input { width: 100%; }
+.db-linker button { min-height: 28px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .03em; background: #241f16; border: 1px solid #241f16; color: #fbf7ef; cursor: pointer; padding: 4px 8px; }
+.db-linker__remove, .db-linker__dismiss { background: transparent !important; border-color: #cfc5b0 !important; color: oklch(0.42 0.03 60) !important; }
+.db-linker__dismiss { padding-inline: 8px !important; }
+.db-linker__error { flex: 1 0 100%; font-family: var(--font-mono); font-size: 10px; color: #9b2929; }
 .db-heading { font-family: var(--font-display); font-weight: var(--dossier-title-weight, 700); font-size: calc(21px * var(--font-scale)); letter-spacing: calc(-.02em + var(--font-tracking, 0em)); text-transform: var(--dossier-title-case, none); color: #241f16; margin: 6px 0 0; }
 .db-text { font-family: var(--dossier-body, var(--font-display)); font-weight: 400; font-size: calc(var(--dossier-body-size, 16.5px) * var(--font-scale)); line-height: var(--dossier-leading, 1.66); margin: 0; max-width: var(--dossier-measure, 60ch); color: #241f16; }
 .db-callout { font-size: calc(14.5px * var(--font-scale)); line-height: 1.6; color: #2b271d; background: color-mix(in oklch, var(--c-signal) 16%, #fbf7ef); border-left: 3px solid var(--c-signal); padding: 12px 15px; }

@@ -1678,6 +1678,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       {openEntry ? (
         <DossierPlate
           entry={openEntry}
+          articles={entries}
+          activeLanguage={activeLang}
           posLabel={`${openIndex + 1} / ${orderedSlugs.length}`}
           prevTitle={prevEntry?.title ?? ''}
           nextTitle={nextEntry?.title ?? ''}
@@ -1685,6 +1687,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           onClose={() => setOpenSlug(null)}
           onPrev={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i - 1 + orderedSlugs.length) % orderedSlugs.length]); }}
           onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}
+          onOpenArticle={setOpenSlug}
           onChange={changeEntry}
           uploadPhoto={uploadPhoto}
           dossier={theme.dossier}
