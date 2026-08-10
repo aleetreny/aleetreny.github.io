@@ -631,7 +631,7 @@ a { color: var(--c-accent); text-decoration: none; }
 
 .signin { position: fixed; right: 18px; top: 14px; z-index: 95; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; background: rgba(18, 22, 21, .9); backdrop-filter: blur(6px); color: rgba(243, 236, 221, .5); border: 1px solid rgba(243, 236, 221, .22); padding: 7px 11px; cursor: pointer; }
 .signin:hover { color: var(--c-signal-soft); border-color: color-mix(in oklch, var(--c-signal-soft) 60%, transparent); }
-.ownerbar { position: fixed; right: 18px; top: 14px; z-index: 95; display: flex; gap: 6px; align-items: center; background: rgba(18, 22, 21, .92); backdrop-filter: blur(6px); padding: 6px; border: 1px solid rgba(243, 236, 221, .22); }
+.ownerbar { position: fixed; left: 210px; right: 18px; top: 14px; z-index: 95; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-items: center; background: rgba(18, 22, 21, .92); backdrop-filter: blur(6px); padding: 6px; border: 1px solid rgba(243, 236, 221, .22); }
 .ownerbar .tbtn--on { background: var(--c-signal); color: #191509; border: none; }
 
 /* login + theme panel */
@@ -714,6 +714,7 @@ a { color: var(--c-accent); text-decoration: none; }
 @media (max-width: 720px), (max-height: 460px) {
   .stamp--tr { display: none; }
   .stamp--tl { left: 10px; top: 10px; font-size: 9px; letter-spacing: .16em; padding: 5px 8px; }
+  .stamp--tl--owner { display: none; }
   .card__title { font-size: 28px; }
 
   .toolbar { padding: 0 0 10px; }

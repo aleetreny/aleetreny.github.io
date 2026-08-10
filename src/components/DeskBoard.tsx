@@ -252,6 +252,19 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   useEffect(() => { phaseRef.current = phase; }, [phase]);
   useEffect(() => { tourRef.current = tour; }, [tour]);
 
+  // Card menus are deliberately local, contextual controls. Once the owner
+  // clicks anywhere else, the edit has already been committed and the menu
+  // should get out of the way instead of needing a second gear click.
+  useEffect(() => {
+    if (!cardMenu) return undefined;
+    const closeCardMenuOutside = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest('.card-ctrl')) setCardMenu(null);
+    };
+    document.addEventListener('pointerdown', closeCardMenuOutside);
+    return () => document.removeEventListener('pointerdown', closeCardMenuOutside);
+  }, [cardMenu]);
+
   const flash = useCallback((text: string, isError = false) => {
     setToast({ text, error: isError });
     window.setTimeout(() => setToast(null), 2600);
@@ -1179,7 +1192,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const target = event.target as HTMLElement | null;
       const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
       if (typing) { if (event.key === 'Escape') target?.blur(); return; }
-      if (loginOpen || themeOpen || tourOpen || inventoryOpen || overflowGroup) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setTourOpen(false); setInventoryOpen(false); setOverflowGroup(null); } return; }
+      if (loginOpen || themeOpen || tourOpen || inventoryOpen || overflowGroup || cardMenu) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setTourOpen(false); setInventoryOpen(false); setOverflowGroup(null); setCardMenu(null); } return; }
       const current = openSlugRef.current;
       if (current) {
         if (event.key === 'Escape') setOpenSlug(null);
@@ -1202,7 +1215,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [advance, endTour, fitAll, orderedSlugs, loginOpen, themeOpen, tourOpen, inventoryOpen, overflowGroup]);
+  }, [advance, endTour, fitAll, orderedSlugs, loginOpen, themeOpen, tourOpen, inventoryOpen, overflowGroup, cardMenu]);
 
   // ---- arrange --------------------------------------------------------------
   const draggableIds = useMemo(() => [
@@ -1550,7 +1563,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
       {error ? <div className="board-error" role="alert">{error}</div> : null}
 
-      <div className="stamp stamp--tl">A. Treny · working board</div>
+      <div className={`stamp stamp--tl${authed ? ' stamp--tl--owner' : ''}`}>A. Treny · working board</div>
 
       {/* Board-level chrome (owner bar, sign-in, top-right hint, bottom
           toolbar) is hidden while a dossier is open: it floats above the
@@ -1580,7 +1593,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
           {authed ? (
             <div className="ownerbar">
-              <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => !v)}>{editing ? 'editing · on' : 'edit mode'}</button>
+              <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => { if (v) setCardMenu(null); return !v; })}>{editing ? 'editing · on' : 'edit mode'}</button>
               <button
                 className={`tbtn ${positionsLocked ? 'tbtn--on' : ''}`}
                 type="button"
