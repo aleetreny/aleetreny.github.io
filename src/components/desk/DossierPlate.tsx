@@ -34,6 +34,8 @@ function metaString(entry: PortfolioEntry, key: string): string {
 }
 
 type DropTarget = { id: string; after: boolean };
+const DRAG_SCROLL_EDGE = 88;
+const DRAG_SCROLL_MAX = 18;
 
 export function DossierPlate({
   entry, articles, activeLanguage, posLabel, prevTitle, nextTitle, editing, onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, dossier,
@@ -43,9 +45,14 @@ export function DossierPlate({
   const [busyBlock, setBusyBlock] = useState<string | null>(null);
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
+  const dragScrollFrame = useRef<number | null>(null);
+  const dragPointerY = useRef(0);
 
   useEffect(() => { closeRef.current?.focus(); }, []);
   useEffect(() => { if (sheetRef.current) sheetRef.current.scrollTop = 0; }, [entry.slug]);
+  useEffect(() => () => {
+    if (dragScrollFrame.current !== null) window.cancelAnimationFrame(dragScrollFrame.current);
+  }, []);
 
   const blocks = [...entry.blocks].sort((a, b) => a.position - b.position);
 
@@ -57,6 +64,35 @@ export function DossierPlate({
     updateBlock(block.id, { text, textLinks: setLinksForLanguage(block.props.textLinks, activeLanguage, links) });
   const removeBlock = (id: string) => commitBlocks(blocks.filter((block) => block.id !== id));
   const addBlock = (type: DossierBlockType) => commitBlocks([...blocks, newBlock(type, blocks.length)]);
+
+  function stopDragAutoScroll() {
+    if (dragScrollFrame.current !== null) {
+      window.cancelAnimationFrame(dragScrollFrame.current);
+      dragScrollFrame.current = null;
+    }
+  }
+
+  function runDragAutoScroll() {
+    if (dragScrollFrame.current !== null) return;
+    dragScrollFrame.current = window.requestAnimationFrame(() => {
+      dragScrollFrame.current = null;
+      const sheet = sheetRef.current;
+      if (!sheet || !draggingBlock) return;
+      const bounds = sheet.getBoundingClientRect();
+      const y = dragPointerY.current;
+      let distance = 0;
+      if (y < bounds.top + DRAG_SCROLL_EDGE) distance = y - (bounds.top + DRAG_SCROLL_EDGE);
+      if (y > bounds.bottom - DRAG_SCROLL_EDGE) distance = y - (bounds.bottom - DRAG_SCROLL_EDGE);
+      if (distance === 0) return;
+
+      const direction = distance < 0 ? -1 : 1;
+      const intensity = Math.min(1, Math.abs(distance) / DRAG_SCROLL_EDGE);
+      const amount = direction * Math.max(2, Math.round(DRAG_SCROLL_MAX * intensity));
+      const previous = sheet.scrollTop;
+      sheet.scrollTop += amount;
+      if (sheet.scrollTop !== previous) runDragAutoScroll();
+    });
+  }
 
   async function pickBlockImage(id: string, file: File) {
     setBusyBlock(id);
@@ -73,12 +109,16 @@ export function DossierPlate({
     event.dataTransfer.setData('text/plain', id);
     setDraggingBlock(id);
     setDropTarget(null);
+    dragPointerY.current = event.clientY;
   }
 
   function markDropTarget(event: DragEvent<HTMLDivElement>, id: string) {
     const source = draggingBlock || event.dataTransfer.getData('text/plain');
-    if (!source || source === id) return;
+    if (!source) return;
     event.preventDefault();
+    dragPointerY.current = event.clientY;
+    runDragAutoScroll();
+    if (source === id) return;
     event.dataTransfer.dropEffect = 'move';
     const rect = event.currentTarget.getBoundingClientRect();
     const after = event.clientY > rect.top + rect.height / 2;
@@ -87,12 +127,21 @@ export function DossierPlate({
 
   function dropBlock(event: DragEvent<HTMLDivElement>, id: string) {
     event.preventDefault();
+    stopDragAutoScroll();
     const source = draggingBlock || event.dataTransfer.getData('text/plain');
     const rect = event.currentTarget.getBoundingClientRect();
     const after = event.clientY > rect.top + rect.height / 2;
     if (source && source !== id) commitBlocks(reorderById(blocks, source, id, after));
     setDraggingBlock(null);
     setDropTarget(null);
+  }
+
+  function markSheetDragOver(event: DragEvent<HTMLDivElement>) {
+    const source = draggingBlock || event.dataTransfer.getData('text/plain');
+    if (!source) return;
+    event.preventDefault();
+    dragPointerY.current = event.clientY;
+    runDragAutoScroll();
   }
 
   function renderBlockBody(block: ContentBlock) {
@@ -225,7 +274,7 @@ export function DossierPlate({
           </div>
         </div>
 
-        <div className="dossier__sheet" ref={sheetRef}>
+        <div className="dossier__sheet" ref={sheetRef} onDragOver={editing ? markSheetDragOver : undefined}>
           <div className="dossier__inner">
             <div className="dossier__crumbs">
               <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setMeta('when', readText(e)) } : {})}>{metaString(entry, 'when')}</span>
@@ -248,7 +297,7 @@ export function DossierPlate({
                 >
                   {editing ? (
                     <div className="db-block__ctrl" data-nodrag>
-                      <button className="db-block__drag" type="button" draggable onDragStart={(event) => startBlockDrag(event, block.id)} onDragEnd={() => { setDraggingBlock(null); setDropTarget(null); }} aria-label="Drag block to reorder" title="Drag to reorder">⠿</button>
+                      <button className="db-block__drag" type="button" draggable onDragStart={(event) => startBlockDrag(event, block.id)} onDragEnd={() => { stopDragAutoScroll(); setDraggingBlock(null); setDropTarget(null); }} aria-label="Drag block to reorder" title="Drag to reorder">⠿</button>
                       <button type="button" onClick={() => removeBlock(block.id)} aria-label="Delete block">✕</button>
                     </div>
                   ) : null}

@@ -279,7 +279,8 @@ With edit mode on:
 - **Article blocks.** The left rail stays visible in editing mode without
   covering the text. Drag its `⠿` handle onto another block to reorder and use
   `×` to remove it. Blocks use the same left-aligned, medium-width layout by
-  default, so the article keeps one consistent reading column.
+  default, so the article keeps one consistent reading column. While dragging,
+  hovering near the sheet's top or bottom edge scrolls the article for you.
   Select words in a paragraph, heading, callout or quote to reveal its inline
   link editor. It can point to another published dossier or an external web
   address; click an existing link while editing to update or remove it.
