@@ -260,6 +260,11 @@ a { color: var(--c-accent); text-decoration: none; }
 .hero__name { font-family: var(--font-display); font-weight: var(--font-display-weight, 800); font-size: 92px; line-height: .86; letter-spacing: calc(-.04em + var(--font-tracking, 0em)); margin: 16px 0 0; white-space: pre-line; color: var(--board-ink, #f0ece1); }
 .hero__tags { display: flex; gap: 9px; flex-wrap: wrap; margin: 22px 0 0; color: var(--board-ink, #f0ece1); }
 .hero__tags span { border: 1px solid color-mix(in oklch, var(--board-ink, #f0ece1) 40%, transparent); padding: 4px 9px; font-size: 11px; letter-spacing: .06em; }
+.hero__tags > span { display: inline-flex; align-items: center; gap: 5px; }
+.hero__tags > span > span { border: 0; padding: 0; }
+.hero__tag-remove, .hero__tag-add { font-family: var(--font-mono); font-size: 10px; line-height: 1; background: transparent; color: inherit; border: 1px dashed color-mix(in oklch, var(--board-ink, #f0ece1) 48%, transparent); padding: 4px 7px; cursor: pointer; }
+.hero__tag-remove { border: 0; padding: 0; opacity: .72; }
+.hero__tag-remove:hover, .hero__tag-add:hover { opacity: 1; color: var(--c-signal-soft); }
 .hero__tags .is-accent {
   border-color: color-mix(in oklch, var(--c-signal-soft) 60%, transparent);
   color: color-mix(in oklch, var(--c-signal-soft) 55%, var(--board-ink, #f0ece1));

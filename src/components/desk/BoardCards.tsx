@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { BoardCard, TagChip } from '../../lib/board';
+import type { BoardCard } from '../../lib/board';
 import { entriesForGroup } from '../../lib/board';
 import type { PortfolioEntry } from '../../types/content';
 
@@ -115,15 +115,35 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
   );
 }
 
-function TagChips({ tags }: { tags?: TagChip[] }) {
+/** The role badges on the hero used to be the lone chip group without owner
+ * controls. Keep each badge editable in place, just like the tool chips. */
+function TagChips({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const tags = card.tags;
   if (!tags?.length) return null;
+
+  const setTag = (index: number, value: string) => {
+    const next = tags.map((tag, tagIndex) => {
+      if (tagIndex !== index) return tag;
+      return typeof tag === 'string' ? value : { ...tag, label: value };
+    });
+    onCardEdit(card.id, { tags: next });
+  };
+  const deleteTag = (index: number) => onCardEdit(card.id, { tags: tags.filter((_, tagIndex) => tagIndex !== index) });
+  const addTag = () => onCardEdit(card.id, { tags: [...tags, 'role'] });
+
   return (
-    <div className="hero__tags">
+    <div className="hero__tags" {...(editing ? { 'data-nodrag': '' } : {})}>
       {tags.map((tag, index) => {
         const label = typeof tag === 'string' ? tag : tag.label;
         const accent = typeof tag === 'string' ? false : Boolean(tag.accent);
-        return <span key={index} className={accent ? 'is-accent' : undefined}>{label}</span>;
+        return (
+          <span key={index} className={accent ? 'is-accent' : undefined}>
+            <span {...editableProps(editing, (value) => setTag(index, value))}>{label}</span>
+            {editing ? <button type="button" className="hero__tag-remove" onClick={() => deleteTag(index)} aria-label={`Remove ${label}`}>×</button> : null}
+          </span>
+        );
       })}
+      {editing ? <button type="button" className="hero__tag-add" onClick={addTag}>+ role</button> : null}
     </div>
   );
 }
@@ -185,7 +205,7 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
       <div style={{ color: 'var(--board-ink, #f0ece1)' }}>
         <div className="hero__eyebrow" {...ed((v) => ({ kicker: v }))}>{card.kicker}</div>
         <h1 className="hero__name" {...ed((v) => ({ name: v }))}>{card.name}</h1>
-        <TagChips tags={card.tags} />
+        <TagChips card={card} editing={editing} onCardEdit={onCardEdit} />
         <p className="hero__intro" {...ed((v) => ({ intro: v }))}>{card.intro}</p>
         <p className="hero__hint" {...ed((v) => ({ hint: v }))}>{card.hint}</p>
       </div>

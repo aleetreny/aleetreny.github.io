@@ -77,7 +77,7 @@ edge to edge, which is how the board looked before the slate existed.
 | Zoom | scroll wheel | pinch |
 | Frame one card | double-click it | double-tap it |
 | Zoom out to everything | double-click empty board, or `fit` | double-tap empty board, or `fit` |
-| Move a card | drag it | drag it |
+| Move a card | unlock `🔒 positions`, then drag it | unlock `🔒 positions`, then drag it |
 
 Zoom is clamped to 0.14×–2.4×. A pinch is anchored to the point between your
 fingers, so it zooms and pans in one gesture. A pinch never lands as a click and
@@ -250,6 +250,7 @@ nothing is saved.
 | Button | Opens |
 | --- | --- |
 | `edit mode` | Toggles inline editing on the whole board. |
+| `🔒 positions` | Locks every card, photo and note in place. It starts locked; press it deliberately to enable dragging. |
 | `add: drawer / spotlight / photo / note` | Drops a new piece at the centre of the view. |
 | `theme` | [Appearance panel](#51-theme). |
 | `tour` | [Guided tour panel](#54-boardtour). |
@@ -260,11 +261,13 @@ nothing is saved.
 
 With edit mode on:
 
-- **Text.** Every kicker, title, subtitle, blurb, caption and note is editable in
-  place. Click it, type, click away. It saves on blur, debounced.
-- **Position.** Drag any piece. The position, tilt and width are stored as an
-  override in `board.layout`, leaving the authored values intact — `reset` drops
-  the overrides.
+- **Text.** Every kicker, title, subtitle, blurb, caption, note and hero role
+  badge is editable in place. Hero badges can also be added and removed. Click
+  it, type, click away. It saves on blur, debounced.
+- **Position.** Positions start locked. Press `🔒 positions` in the owner bar
+  to unlock dragging, then drag any piece. The position, tilt and width are
+  stored as an override in `board.layout`, leaving the authored values intact —
+  `reset` drops the overrides.
 ![The per-card menu](images/owner-02-card-menu.jpg)
 
 - **Per-card settings.** The `⚙` on each card opens its menu: tone, custom
@@ -422,7 +425,7 @@ translation service is down it costs you a button press, not your site.
 
 | Provider | What it needs | When to use it |
 | --- | --- | --- |
-| `mymemory` | Nothing at all | The default. Free, keyless, called from your browser while you edit. Anonymous use is rate-limited per day, which one person editing one portfolio will not reach. |
+| `mymemory` | Nothing to configure | The default. It is called from the browser only while the signed-in owner edits. The owner's account email is sent as MyMemory's contact parameter for its larger daily allowance; it is never stored in the board settings. |
 | `function` | A Neon Function and a provider key | Better prose or higher volume. See below. |
 | `off` | — | You want to type both languages yourself. |
 

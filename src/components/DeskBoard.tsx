@@ -61,6 +61,7 @@ import {
 import {
   hasOwnerSession,
   isCurrentUserOwner,
+  getCurrentOwnerEmail,
   listPublishedEntries,
   listSiteSettings,
   saveContentEntry,
@@ -153,6 +154,9 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [loginError, setLoginError] = useState('');
   const [toast, setToast] = useState<{ text: string; error?: boolean } | null>(null);
   const [polBusy, setPolBusy] = useState<string | null>(null);
+  // Cards do not move unless the owner deliberately unlocks them. This is UI
+  // state rather than content: a reload always starts in the safe position.
+  const [positionsLocked, setPositionsLocked] = useState(true);
 
   const theme = useMemo<ThemeConfig>(() => parseTheme(settings.theme), [settings.theme]);
   const layout = useMemo<LayoutMap>(() => parseLayout(settings['board.layout']), [settings]);
@@ -1072,7 +1076,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const startY = event.clientY;
       const card = target.closest<HTMLElement>('[data-card]');
 
-      if (card) {
+      if (card && !positionsLocked) {
         card.style.zIndex = String(++zTop.current);
         const rot = parseFloat(card.dataset.rot || '0');
         const ox = parseFloat(card.style.left || '0');
@@ -1167,7 +1171,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       live.clear();
       pinchRef.current = null;
     };
-  }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, layout]);
+  }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, layout, positionsLocked]);
 
   // ---- keyboard -------------------------------------------------------------
   useEffect(() => {
@@ -1241,13 +1245,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const targets = target ? [target] : codes;
     setTranslating(true);
     try {
+      // MyMemory accepts a contact address to identify the owner and grant its
+      // larger daily allowance. Previously every translation used the tiny
+      // shared anonymous quota, which is why an otherwise valid edit hit 429.
+      const email = i18n.provider === 'mymemory' ? await getCurrentOwnerEmail() : undefined;
       let filled = 0;
       let nextBoard = rawBoard;
       let nextEntries = rawEntries;
       for (const to of targets) {
         const boardJobs = missingAt(nextBoard, boardTextSlots(nextBoard), codes, to, i18n.primary);
         for (const [from, jobs] of groupByFrom(boardJobs)) {
-          const done = await translateTexts({ texts: jobs.map((j) => j.text), from, to }, { provider: i18n.provider });
+          const done = await translateTexts({ texts: jobs.map((j) => j.text), from, to }, { provider: i18n.provider, email });
           jobs.forEach((job, index) => {
             const text = done[index];
             if (!text) return;
@@ -1261,7 +1269,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           if (jobs.length === 0) continue;
           let merged = entry;
           for (const [from, group] of groupByFrom(jobs)) {
-            const done = await translateTexts({ texts: group.map((j) => j.text), from, to }, { provider: i18n.provider });
+            const done = await translateTexts({ texts: group.map((j) => j.text), from, to }, { provider: i18n.provider, email });
             group.forEach((job, index) => {
               const text = done[index];
               if (!text) return;
@@ -1573,6 +1581,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           {authed ? (
             <div className="ownerbar">
               <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => !v)}>{editing ? 'editing · on' : 'edit mode'}</button>
+              <button
+                className={`tbtn ${positionsLocked ? 'tbtn--on' : ''}`}
+                type="button"
+                aria-pressed={positionsLocked}
+                title={positionsLocked ? 'Card positions are locked' : 'Card positions can be dragged'}
+                onClick={() => setPositionsLocked((locked) => !locked)}
+              >
+                {positionsLocked ? '🔒 positions' : '🔓 positions'}
+              </button>
               {editing ? (
                 <>
                   <span className="ownerbar__add">add:</span>

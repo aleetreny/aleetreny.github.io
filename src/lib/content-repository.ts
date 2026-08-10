@@ -200,6 +200,21 @@ export async function hasOwnerSession(): Promise<boolean> {
   return Boolean(result.data?.session);
 }
 
+/** The signed-in owner's address is only used as MyMemory's contact parameter.
+ * It raises that provider's daily quota from the anonymous allowance; it is
+ * never saved in site settings or rendered on the board. */
+export async function getCurrentOwnerEmail(): Promise<string | undefined> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) return undefined;
+
+  const result = await neonClient.auth.getSession();
+  const data = result.data as { user?: { email?: unknown }; session?: { user?: { email?: unknown } } } | undefined;
+  // Better Auth returns the user alongside the session. The nested fallback
+  // keeps this compatible with adapters that attach it to the session itself.
+  const email = data?.user?.email ?? data?.session?.user?.email;
+  return typeof email === 'string' && email.trim() ? email.trim() : undefined;
+}
+
 export async function isCurrentUserOwner(): Promise<boolean> {
   const neonClient = await getNeonClient();
   if (!neonClient) return false;
