@@ -281,9 +281,10 @@ With edit mode on:
   `×` to remove it. Blocks use the same left-aligned, medium-width layout by
   default, so the article keeps one consistent reading column. While dragging,
   hovering near the sheet's top or bottom edge scrolls the article for you.
-  Select words in a paragraph, heading, callout or quote to reveal its inline
-  link editor. It can point to another published dossier or an external web
-  address; click an existing link while editing to update or remove it.
+  Select words in a paragraph, heading, callout, quote or bullet point to reveal
+  its inline link editor. It can point to another published dossier or an
+  external web address; click an existing link while editing to update or
+  remove it.
 - **Photos.** Click a photo slot to upload. In production it goes to Neon Object
   Storage through a signing Function; offline it becomes a data URL.
 - **Tool chips.** The chip row under a drawer is editable — add, rename, remove,
@@ -862,8 +863,8 @@ dossier while editing.
 
 ### Links inside prose
 
-While editing, select the exact words in a paragraph, heading, callout or
-quote. A small editor appears below that block: choose **another article** to
+While editing, select the exact words in a paragraph, heading, callout, quote
+or bullet point. A small editor appears below that text: choose **another article** to
 open a published dossier inside the portfolio, or **external website** and
 enter its address. Selecting an existing link opens the same editor so it can
 be changed or removed. Links are stored as safe text ranges rather than HTML,

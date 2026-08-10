@@ -7,6 +7,7 @@ export type TextLink = {
 };
 
 export type TextLinkMap = Record<string, TextLink[]>;
+export type TextLinkListMap = Record<string, TextLink[][]>;
 
 const ARTICLE_PREFIX = 'article:';
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
@@ -72,6 +73,25 @@ export function linksForLanguage(value: unknown, language: string, textLength: n
 export function setLinksForLanguage(value: unknown, language: string, links: TextLink[]): TextLinkMap {
   const existing: TextLinkMap = isRecord(value) ? value as TextLinkMap : {};
   return { ...existing, [language]: links };
+}
+
+export function linksForLanguageAt(value: unknown, language: string, index: number, textLength: number): TextLink[] {
+  if (!isRecord(value) || !Array.isArray(value[language])) return [];
+  return normaliseTextLinks(value[language][index], textLength);
+}
+
+export function setLinksForLanguageAt(value: unknown, language: string, index: number, links: TextLink[]): TextLinkListMap {
+  const existing: TextLinkListMap = isRecord(value) ? value as TextLinkListMap : {};
+  const current = Array.isArray(existing[language]) ? [...existing[language]] : [];
+  current[index] = links;
+  return { ...existing, [language]: current };
+}
+
+export function removeLinksForLanguageAt(value: unknown, language: string, index: number): TextLinkListMap {
+  const existing: TextLinkListMap = isRecord(value) ? value as TextLinkListMap : {};
+  const current = Array.isArray(existing[language]) ? [...existing[language]] : [];
+  current.splice(index, 1);
+  return { ...existing, [language]: current };
 }
 
 /** Adding a range intentionally replaces a link it intersects; nested anchors

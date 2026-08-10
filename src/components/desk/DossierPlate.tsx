@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type DragEvent } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
 import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
-import { linksForLanguage, setLinksForLanguage, type TextLink } from '../../lib/rich-text';
+import { linksForLanguage, linksForLanguageAt, removeLinksForLanguageAt, setLinksForLanguage, setLinksForLanguageAt, type TextLink } from '../../lib/rich-text';
 import { ImageSlot } from './ImageSlot';
 import { RichText } from './RichText';
 
@@ -62,6 +62,12 @@ export function DossierPlate({
     commitBlocks(blocks.map((block) => (block.id === id ? { ...block, props: { ...block.props, ...props } } : block)));
   const updateLinkedText = (block: ContentBlock, text: string, links: TextLink[]) =>
     updateBlock(block.id, { text, textLinks: setLinksForLanguage(block.props.textLinks, activeLanguage, links) });
+  const updateLinkedListItem = (block: ContentBlock, index: number, text: string, links: TextLink[]) => {
+    const items = propStringList(block, 'items');
+    const nextItems = [...items];
+    nextItems[index] = text;
+    updateBlock(block.id, { items: nextItems, itemTextLinks: setLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, links) });
+  };
   const removeBlock = (id: string) => commitBlocks(blocks.filter((block) => block.id !== id));
   const addBlock = (type: DossierBlockType) => commitBlocks([...blocks, newBlock(type, blocks.length)]);
 
@@ -168,13 +174,25 @@ export function DossierPlate({
         return <hr className="db-divider" />;
       case 'list': {
         const items = propStringList(block, 'items');
-        const setItem = (index: number, value: string) => { const next = [...items]; next[index] = value; updateBlock(block.id, { items: next }); };
+        const removeItem = (index: number) => updateBlock(block.id, {
+          items: items.filter((_, i) => i !== index),
+          itemTextLinks: removeLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index),
+        });
         return (
           <ul className="db-list">
             {items.map((item, index) => (
               <li key={index}>
-                <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setItem(index, readText(e)) } : {})}>{item}</span>
-                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button> : null}
+                <RichText
+                  as="span"
+                  className="db-list__item-text"
+                  text={item}
+                  links={linksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, item.length)}
+                  editing={editing}
+                  articles={linkableArticles}
+                  onChange={(nextText, links) => updateLinkedListItem(block, index, nextText, links)}
+                  onOpenArticle={onOpenArticle}
+                />
+                {editing ? <button className="db-x" type="button" onClick={() => removeItem(index)} aria-label="Delete">×</button> : null}
               </li>
             ))}
             {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, 'New point'] })}>+ point</button> : null}

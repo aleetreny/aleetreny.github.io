@@ -10,7 +10,7 @@ import {
   type TextLink,
 } from '../../lib/rich-text';
 
-type RichTextTag = 'h3' | 'div' | 'p';
+type RichTextTag = 'h3' | 'div' | 'p' | 'span';
 
 type TextRange = Pick<TextLink, 'start' | 'end'>;
 

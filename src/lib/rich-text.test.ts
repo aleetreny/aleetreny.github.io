@@ -3,10 +3,13 @@ import {
   addTextLink,
   articleHref,
   articleSlug,
+  linksForLanguageAt,
   linksForLanguage,
   normaliseExternalHref,
   normaliseTextLinks,
+  removeLinksForLanguageAt,
   rebaseTextLinks,
+  setLinksForLanguageAt,
   setLinksForLanguage,
 } from './rich-text';
 
@@ -58,5 +61,12 @@ describe('article prose links', () => {
     const saved = setLinksForLanguage({ en: [{ start: 0, end: 4, href: 'https://example.com' }] }, 'es', es);
     expect(linksForLanguage(saved, 'es', 4)).toEqual(es);
     expect(linksForLanguage(saved, 'en', 4)).toEqual([{ start: 0, end: 4, href: 'https://example.com' }]);
+  });
+
+  it('keeps list-item links isolated by language and item', () => {
+    const saved = setLinksForLanguageAt({}, 'es', 1, [{ start: 0, end: 4, href: 'article:nota' }]);
+    expect(linksForLanguageAt(saved, 'es', 0, 4)).toEqual([]);
+    expect(linksForLanguageAt(saved, 'es', 1, 4)).toEqual([{ start: 0, end: 4, href: 'article:nota' }]);
+    expect(removeLinksForLanguageAt(saved, 'es', 0).es).toEqual([[{ start: 0, end: 4, href: 'article:nota' }]]);
   });
 });
