@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from 'react';
+import { useEffect, useRef, useState, type DragEvent } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
 import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
@@ -33,38 +33,7 @@ function metaString(entry: PortfolioEntry, key: string): string {
   return typeof value === 'string' ? value : '';
 }
 
-type BlockAlign = 'start' | 'center' | 'end';
-type BlockWidth = 'normal' | 'compact' | 'wide';
-type ImageFit = 'cover' | 'contain';
 type DropTarget = { id: string; after: boolean };
-
-function layoutChoice<T extends string>(block: ContentBlock, key: string, choices: readonly T[], fallback: T): T {
-  const value = block.layout[key];
-  return typeof value === 'string' && choices.includes(value as T) ? value as T : fallback;
-}
-
-function layoutNumber(block: ContentBlock, key: string, fallback: number): number {
-  const value = block.layout[key];
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
-}
-
-/** Per-block visual overrides live in `layout`, which already persists with
- * every content block. They never change the appearance of other blocks. */
-function blockStyle(block: ContentBlock): CSSProperties {
-  const style: CSSProperties = {};
-  const fontSize = block.layout.fontSize;
-  const lineHeight = block.layout.lineHeight;
-  const align = layoutChoice(block, 'align', ['start', 'center', 'end'] as const, 'start');
-  const width = layoutChoice(block, 'width', ['normal', 'compact', 'wide'] as const, 'normal');
-
-  if (typeof fontSize === 'number' && Number.isFinite(fontSize)) style.fontSize = `${fontSize}px`;
-  if (typeof lineHeight === 'number' && Number.isFinite(lineHeight)) style.lineHeight = lineHeight;
-  if (width === 'compact') style.maxWidth = '38ch';
-  if (width === 'wide') style.maxWidth = '100%';
-  if (align === 'center') { style.textAlign = 'center'; style.marginLeft = 'auto'; style.marginRight = 'auto'; }
-  if (align === 'end') { style.textAlign = 'right'; style.marginLeft = 'auto'; }
-  return style;
-}
 
 export function DossierPlate({
   entry, articles, activeLanguage, posLabel, prevTitle, nextTitle, editing, onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, dossier,
@@ -72,7 +41,6 @@ export function DossierPlate({
   const closeRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const [busyBlock, setBusyBlock] = useState<string | null>(null);
-  const [inspectorBlock, setInspectorBlock] = useState<string | null>(null);
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
 
@@ -85,8 +53,6 @@ export function DossierPlate({
   const commitBlocks = (next: ContentBlock[]) => onChange({ ...entry, blocks: next.map((block, index) => ({ ...block, position: index })) });
   const updateBlock = (id: string, props: Record<string, unknown>) =>
     commitBlocks(blocks.map((block) => (block.id === id ? { ...block, props: { ...block.props, ...props } } : block)));
-  const updateBlockLayout = (id: string, layout: Record<string, unknown>) =>
-    commitBlocks(blocks.map((block) => (block.id === id ? { ...block, layout: { ...block.layout, ...layout } } : block)));
   const updateLinkedText = (block: ContentBlock, text: string, links: TextLink[]) =>
     updateBlock(block.id, { text, textLinks: setLinksForLanguage(block.props.textLinks, activeLanguage, links) });
   const removeBlock = (id: string) => commitBlocks(blocks.filter((block) => block.id !== id));
@@ -129,68 +95,7 @@ export function DossierPlate({
     setDropTarget(null);
   }
 
-  function renderBlockInspector(block: ContentBlock) {
-    const isImage = block.type === 'image';
-    const align = layoutChoice(block, 'align', ['start', 'center', 'end'] as const, 'start');
-    const width = layoutChoice(block, 'width', ['normal', 'compact', 'wide'] as const, 'normal');
-    const defaultSize = block.type === 'heading' ? 21 : block.type === 'callout' ? 14.5 : 16.5;
-    const fontSize = layoutNumber(block, 'fontSize', defaultSize);
-    const lineHeight = layoutNumber(block, 'lineHeight', block.type === 'heading' ? 1.2 : 1.66);
-    const imageHeight = layoutNumber(block, 'height', 280);
-    const imageFit = layoutChoice(block, 'fit', ['cover', 'contain'] as const, 'cover');
-    const supportsTypography = block.type === 'heading' || block.type === 'text' || block.type === 'callout';
-
-    return (
-      <div className="db-block__inspector" data-nodrag role="group" aria-label="Block settings">
-        <div className="db-block__inspector-title">this block · live preview</div>
-        <label>
-          alignment
-          <select value={align} onChange={(event) => updateBlockLayout(block.id, { align: event.target.value as BlockAlign })}>
-            <option value="start">left</option>
-            <option value="center">centre</option>
-            <option value="end">right</option>
-          </select>
-        </label>
-        <label>
-          width
-          <select value={width} onChange={(event) => updateBlockLayout(block.id, { width: event.target.value as BlockWidth })}>
-            <option value="normal">normal</option>
-            <option value="compact">compact</option>
-            <option value="wide">wide</option>
-          </select>
-        </label>
-        {isImage ? (
-          <>
-            <label className="db-block__range">
-              height <output>{imageHeight}px</output>
-              <input type="range" min={140} max={640} step={10} value={imageHeight} onChange={(event) => updateBlockLayout(block.id, { height: Number(event.target.value) })} />
-            </label>
-            <label>
-              crop
-              <select value={imageFit} onChange={(event) => updateBlockLayout(block.id, { fit: event.target.value as ImageFit })}>
-                <option value="cover">fill frame</option>
-                <option value="contain">show all</option>
-              </select>
-            </label>
-          </>
-        ) : supportsTypography ? (
-          <>
-            <label className="db-block__range">
-              size <output>{fontSize}px</output>
-              <input type="range" min={12} max={block.type === 'heading' ? 60 : 32} step={0.5} value={fontSize} onChange={(event) => updateBlockLayout(block.id, { fontSize: Number(event.target.value) })} />
-            </label>
-            <label className="db-block__range">
-              leading <output>{lineHeight.toFixed(2)}</output>
-              <input type="range" min={1.1} max={2.2} step={0.02} value={lineHeight} onChange={(event) => updateBlockLayout(block.id, { lineHeight: Number(event.target.value) })} />
-            </label>
-          </>
-        ) : null}
-      </div>
-    );
-  }
-
   function renderBlockBody(block: ContentBlock) {
-    const style = blockStyle(block);
     const text = propString(block, 'text');
     const textLinks = linksForLanguage(block.props.textLinks, activeLanguage, text.length);
     const linkableArticles = articles.filter((article) => article.slug !== entry.slug && article.status === 'published');
@@ -200,23 +105,23 @@ export function DossierPlate({
 
     switch (block.type) {
       case 'heading':
-        return <RichText as="h3" className="db-heading" style={style} text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
+        return <RichText as="h3" className="db-heading" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
       case 'callout':
-        return <RichText as="div" className="db-callout" style={style} text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
+        return <RichText as="div" className="db-callout" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
       case 'quote':
         return (
-          <blockquote className="db-quote" style={style}>
+          <blockquote className="db-quote">
             <RichText as="p" className="" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />
             {propString(block, 'cite') || editing ? <cite {...ed('cite')}>{propString(block, 'cite')}</cite> : null}
           </blockquote>
         );
       case 'divider':
-        return <hr className="db-divider" style={style} />;
+        return <hr className="db-divider" />;
       case 'list': {
         const items = propStringList(block, 'items');
         const setItem = (index: number, value: string) => { const next = [...items]; next[index] = value; updateBlock(block.id, { items: next }); };
         return (
-          <ul className="db-list" style={style}>
+          <ul className="db-list">
             {items.map((item, index) => (
               <li key={index}>
                 <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setItem(index, readText(e)) } : {})}>{item}</span>
@@ -231,7 +136,7 @@ export function DossierPlate({
         const items = propPairList(block, 'items');
         const setPair = (index: number, which: 0 | 1, value: string) => { const next = items.map((p) => [...p] as [string, string]); next[index][which] = value; updateBlock(block.id, { items: next }); };
         return (
-          <div className="db-metrics" style={style}>
+          <div className="db-metrics">
             {items.map((pair, index) => (
               <div className="db-metric" key={index}>
                 <b {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setPair(index, 0, readText(e)) } : {})}>{pair[0]}</b>
@@ -247,7 +152,7 @@ export function DossierPlate({
         const items = propPairList(block, 'items');
         const setPair = (index: number, which: 0 | 1, value: string) => { const next = items.map((p) => [...p] as [string, string]); next[index][which] = value; updateBlock(block.id, { items: next }); };
         return (
-          <div className="db-links" style={style}>
+          <div className="db-links">
             {items.map((pair, index) => (editing ? (
               <div className="db-link-edit" key={index}>
                 <input className="db-input" value={pair[0]} placeholder="label" onChange={(e) => setPair(index, 0, e.target.value)} data-nodrag />
@@ -265,7 +170,7 @@ export function DossierPlate({
         const items = propStringList(block, 'items');
         const setItem = (index: number, value: string) => { const next = [...items]; next[index] = value; updateBlock(block.id, { items: next }); };
         return (
-          <div className="db-tags" style={style}>
+          <div className="db-tags">
             <span className="db-tags__lbl">filed under</span>
             {items.map((item, index) => (
               <span className="db-tag" key={index}>
@@ -278,11 +183,9 @@ export function DossierPlate({
         );
       }
       case 'image': {
-        const imageHeight = layoutNumber(block, 'height', 280);
-        const imageFit = layoutChoice(block, 'fit', ['cover', 'contain'] as const, 'cover');
         return (
-          <figure className="db-image" style={style}>
-            <div className="db-image__frame" data-fit={imageFit} style={{ height: imageHeight }}>
+          <figure className="db-image">
+            <div className="db-image__frame" style={{ height: 280 }}>
               <ImageSlot url={propString(block, 'url') || undefined} alt={propString(block, 'alt')} placeholder={propString(block, 'caption') || 'drop a photo'} editable={editing} busy={busyBlock === block.id} onPick={(file) => pickBlockImage(block.id, file)} />
             </div>
             {propString(block, 'caption') || editing ? <figcaption {...ed('caption')}>{propString(block, 'caption')}</figcaption> : null}
@@ -290,7 +193,7 @@ export function DossierPlate({
         );
       }
       default:
-        return <RichText as="p" className="db-text" style={style} text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
+        return <RichText as="p" className="db-text" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
     }
   }
 
@@ -345,13 +248,11 @@ export function DossierPlate({
                 >
                   {editing ? (
                     <div className="db-block__ctrl" data-nodrag>
-                      <button type="button" onClick={() => setInspectorBlock((open) => (open === block.id ? null : block.id))} aria-label="Edit this block's appearance" aria-expanded={inspectorBlock === block.id}>⚙</button>
                       <button className="db-block__drag" type="button" draggable onDragStart={(event) => startBlockDrag(event, block.id)} onDragEnd={() => { setDraggingBlock(null); setDropTarget(null); }} aria-label="Drag block to reorder" title="Drag to reorder">⠿</button>
                       <button type="button" onClick={() => removeBlock(block.id)} aria-label="Delete block">✕</button>
                     </div>
                   ) : null}
                   {renderBlockBody(block)}
-                  {editing && inspectorBlock === block.id ? renderBlockInspector(block) : null}
                 </div>
               ))}
             </div>

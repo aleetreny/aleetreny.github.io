@@ -277,9 +277,9 @@ With edit mode on:
   which dossier a spotlight opens, and delete. The menu counter-scales with the
   zoom, so it stays usable however far out you are.
 - **Article blocks.** The left rail stays visible in editing mode without
-  covering the text. Drag its `⠿` handle onto another block to reorder, use
-  `×` to remove it, and `⚙` to open that block's inline inspector. Alignment,
-  width, typography — or image height and crop — preview immediately there.
+  covering the text. Drag its `⠿` handle onto another block to reorder and use
+  `×` to remove it. Blocks use the same left-aligned, medium-width layout by
+  default, so the article keeps one consistent reading column.
   Select words in a paragraph, heading, callout or quote to reveal its inline
   link editor. It can point to another published dossier or an external web
   address; click an existing link while editing to update or remove it.
