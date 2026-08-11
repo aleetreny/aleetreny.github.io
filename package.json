@@ -60,7 +60,7 @@
     "eslint": "10.8.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.9.0",
-    "neon": "2.43.0",
+    "neon": "2.46.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.66.0",
     "vite": "8.2.0",
