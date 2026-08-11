@@ -50,7 +50,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@neon/config": "0.13.2",
+    "@neon/config": "0.14.1",
     "@eslint/js": "10.0.1",
     "@types/node": "26.1.2",
     "@types/pg": "8.20.4",
