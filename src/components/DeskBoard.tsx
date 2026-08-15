@@ -38,8 +38,18 @@ import {
   rememberLanguage,
   setAt,
   type I18nConfig,
+  type Path,
+  type TranslateJob,
+  type TranslateScope,
 } from '../lib/i18n';
-import { TranslateError, translateTexts, translatorAvailable } from '../lib/translate';
+import {
+  TranslateError,
+  TranslateQuotaError,
+  providerDailyBudget,
+  translateTexts,
+  translatorAvailable,
+} from '../lib/translate';
+import { makeUiText, parseUiOverrides, type UiOverrides } from '../lib/ui-text';
 import { runtimeConfig } from '../lib/config';
 import {
   buildStops,
@@ -62,6 +72,7 @@ import {
   hasOwnerSession,
   isCurrentUserOwner,
   getCurrentOwnerEmail,
+  getEntryVersion,
   listPublishedEntries,
   listSiteSettings,
   saveContentEntry,
@@ -71,13 +82,16 @@ import {
   uploadImage,
 } from '../lib/content-repository';
 import { BoardCardView } from './desk/BoardCards';
-import { DossierPlate } from './desk/DossierPlate';
+import { DossierPlate, type SaveState } from './desk/DossierPlate';
 import { GroupOverflowPanel } from './desk/GroupOverflowPanel';
 import { ImageSlot } from './desk/ImageSlot';
 import { ThemePanel } from './desk/ThemePanel';
 import { InventoryPanel } from './desk/InventoryPanel';
 import { TourBar } from './desk/TourBar';
 import { TourPanel } from './desk/TourPanel';
+import { WordingPanel } from './desk/WordingPanel';
+import { UiTextContext } from './desk/ui-text-context';
+import { EditableText } from './desk/EditableText';
 
 type DeskBoardProps = {
   remoteDataEnabled: boolean;
@@ -105,11 +119,9 @@ function itemLabel(text: string | undefined, fallback: string): string {
   return clean.length > 34 ? `${clean.slice(0, 33)}…` : clean;
 }
 
-const JUMPS: Array<[string, string]> = [
-  ['who', 'me'], ['work', 'work'], ['study', 'edu'], ['giving', 'vol'],
-  ['prizes', 'hack'], ['code', 'repos'], ['lab', 'lab'], ['world', 'travel'],
-  ['odd', 'random'], ['reach', 'contact'],
-];
+/** The jump buttons, in bar order. Their words come from the wording
+ *  catalogue (`jump.<id>`), so they follow the language and stay editable. */
+const JUMPS = ['me', 'work', 'edu', 'vol', 'hack', 'repos', 'lab', 'travel', 'random', 'contact'];
 
 const TONES: CardTone[] = ['paper', 'paperWarm', 'paperCream', 'dark', 'slate', 'amber', 'custom'];
 
@@ -149,6 +161,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [themeOpen, setThemeOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [wordingOpen, setWordingOpen] = useState(false);
   const [cardMenu, setCardMenu] = useState<string | null>(null);
   const [overflowGroup, setOverflowGroup] = useState<string | null>(null);
   const [loginError, setLoginError] = useState('');
@@ -159,10 +172,16 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [positionsLocked, setPositionsLocked] = useState(true);
 
   const theme = useMemo<ThemeConfig>(() => parseTheme(settings.theme), [settings.theme]);
+  const uiOverrides = useMemo<UiOverrides>(() => parseUiOverrides(settings['site.ui']), [settings]);
   const layout = useMemo<LayoutMap>(() => parseLayout(settings['board.layout']), [settings]);
   const i18n = useMemo<I18nConfig>(() => parseI18n(settings['site.i18n'] ?? DEFAULT_I18N), [settings]);
   const [lang, setLang] = useState<string>(() => initialLanguage(parseI18n(demoSettings['site.i18n'] ?? DEFAULT_I18N)));
   const activeLang = i18n.enabled && i18n.languages.some((l) => l.code === lang) ? lang : i18n.primary;
+  // Every word of chrome, resolved once per language change. Components read it
+  // through a context so a new one cannot quietly go back to English.
+  const t = useMemo(() => makeUiText(uiOverrides, activeLang, i18n.primary), [uiOverrides, activeLang, i18n.primary]);
+  const tRef = useRef(t);
+  useEffect(() => { tRef.current = t; }, [t]);
 
   // The raw documents keep every language; the localised copies are what the
   // board renders, so no component below here knows a second language exists.
@@ -281,8 +300,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       })
       .catch((reason: unknown) => {
         if (!active) return;
-        const detail = reason instanceof Error ? reason.message : 'contenido remoto no disponible';
-        setError(`Contenido remoto no disponible; mostrando la copia segura. ${detail}`);
+        const detail = reason instanceof Error ? reason.message : tRef.current('board.offlineDetail');
+        setError(tRef.current('board.offline', { detail }));
       });
     return () => { active = false; };
   }, []);
@@ -330,11 +349,49 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   useEffect(() => { itemsRef.current = tourItems; }, [tourItems]);
 
   // ---- imperative view ------------------------------------------------------
+  //
+  // Text quality at high zoom.
+  //
+  // `.desk__board` used to declare `will-change: transform` permanently. That
+  // is the documented way to ask a browser for a composited layer, and a
+  // composited layer is rasterised once, at one scale, and then stretched by
+  // the GPU. Zooming in therefore did not re-draw the type at its new size: it
+  // magnified the bitmap, which is exactly the soft, thin, low-quality lettering
+  // you get past about 1.5×.
+  //
+  // The promotion is still worth having *while the view is moving* — that is
+  // what keeps a pan at sixty frames. So it is applied on the first frame of a
+  // gesture and dropped once the view has been still for a moment, which makes
+  // the browser rasterise the board again at the scale it actually came to rest
+  // at. The type is sharp wherever the owner stops.
+  const settleTimer = useRef(0);
+  const movingRef = useRef(false);
+  const settle = useCallback(() => {
+    const boardEl = boardRef.current;
+    if (!boardEl) return;
+    window.clearTimeout(settleTimer.current);
+    if (!movingRef.current) {
+      movingRef.current = true;
+      boardEl.style.willChange = 'transform';
+    }
+    settleTimer.current = window.setTimeout(() => {
+      movingRef.current = false;
+      const el = boardRef.current;
+      if (!el) return;
+      // Dropping the hint is the whole point; the transition has to be gone
+      // too, or the next paint animates from a stale layer.
+      el.style.willChange = 'auto';
+      el.style.transition = 'none';
+    }, 420);
+  }, []);
+  useEffect(() => () => window.clearTimeout(settleTimer.current), []);
+
   const paint = useCallback((animate: boolean) => {
     const boardEl = boardRef.current;
     const gridEl = gridRef.current;
     const v = view.current;
     if (boardEl) {
+      settle();
       boardEl.style.transition = animate ? 'transform .6s cubic-bezier(.22,.9,.2,1)' : 'none';
       boardEl.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.s})`;
       // The owner's per-item controls ride the board, so at a fitted zoom a
@@ -358,7 +415,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       gridEl.style.backgroundSize = layers.size;
       gridEl.style.backgroundPosition = sizes.map(() => `${v.x}px ${v.y}px`).join(', ');
     }
-  }, [texture, backdrop]);
+  }, [texture, backdrop, settle]);
 
   /** Frame a board-space rectangle inside the viewport. */
   const fitRect = useCallback((rect: Rect, padX: number, padTop: number, padBottom: number, maxScale: number): View | null => {
@@ -862,13 +919,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     if (!remoteDataEnabled) return; // local preview: keep edits in session only
     window.clearTimeout(settingTimers.current[key]);
     settingTimers.current[key] = window.setTimeout(() => {
-      saveSiteSetting(key, value).catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'Could not save.', true));
+      saveSiteSetting(key, value).catch((reason: unknown) => flash(reason instanceof Error ? reason.message : tRef.current('msg.saveFailed'), true));
     }, delay);
   }, [flash, remoteDataEnabled]);
 
   const commitTheme = useCallback((next: ThemeConfig) => { setSettings((s) => ({ ...s, theme: next })); saveSetting('theme', next); }, [saveSetting]);
   const commitBoard = useCallback((next: BoardConfig) => { setSettings((s) => ({ ...s, board: next })); saveSetting('board', next); }, [saveSetting]);
   const commitI18n = useCallback((next: I18nConfig) => { setSettings((s) => ({ ...s, 'site.i18n': next })); saveSetting('site.i18n', next); }, [saveSetting]);
+  const commitUi = useCallback((next: UiOverrides) => { setSettings((s) => ({ ...s, 'site.ui': next })); saveSetting('site.ui', next); }, [saveSetting]);
 
   /** Apply a patch to a raw item, routing prose into the active language slot
    *  and everything else — tones, layouts, ids — straight through. */
@@ -886,37 +944,128 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
   // A ref, because the translate action is declared after the edit path that
   // triggers it and neither should force the other to re-create.
-  const autoTranslateRef = useRef<() => void>(() => {});
+  const autoTranslateRef = useRef<(entryId: string) => void>(() => {});
+
+  // ---- the save queue -------------------------------------------------------
+  //
+  // Saving used to be one slot and one in-flight request. Two things went
+  // wrong with that, and both of them looked to the owner like "it did not
+  // keep what I wrote":
+  //
+  //  - the queued payload carried the version the entry had when it was
+  //    edited. If a save had completed in between, that version was already
+  //    stale and Postgres rejected the write with an edit conflict — and the
+  //    payload had already been cleared, so the text was simply gone;
+  //  - a second entry edited while the first was saving overwrote the slot, so
+  //    translating several dossiers persisted the first and the last only.
+  //
+  // Now there is a queue keyed by entry, the version is stamped from the last
+  // one the server acknowledged rather than from the edit, and nothing leaves
+  // the queue until the server has taken it.
+  const pendingEntries = useRef(new Map<string, StoredPortfolioEntry>());
+  const entryVersions = useRef(new Map<string, number>());
   const savingRef = useRef(false);
-  const pendingEntry = useRef<StoredPortfolioEntry | null>(null);
   const entryTimer = useRef<number>(0);
   const flushRef = useRef<() => void>(() => {});
+  const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [saveError, setSaveError] = useState('');
+  const rawEntriesRef = useRef<StoredPortfolioEntry[]>(rawEntries);
+  useEffect(() => { rawEntriesRef.current = rawEntries; }, [rawEntries]);
+  const rawBoardRef = useRef<BoardConfig>(rawBoard);
+  useEffect(() => { rawBoardRef.current = rawBoard; }, [rawBoard]);
+  const primaryRef = useRef(i18n.primary);
+  useEffect(() => { primaryRef.current = i18n.primary; }, [i18n.primary]);
+
   const flushEntry = useCallback(() => {
-    if (!remoteDataEnabled) { pendingEntry.current = null; return; } // local preview
-    if (savingRef.current || !pendingEntry.current) return;
-    const entry = pendingEntry.current;
-    pendingEntry.current = null;
+    if (!remoteDataEnabled) { pendingEntries.current.clear(); setSaveState('idle'); return; } // local preview
+    if (savingRef.current) return;
+    const first = pendingEntries.current.entries().next();
+    if (first.done) return;
+    const [id, queued] = first.value;
     savingRef.current = true;
-    saveContentEntry(entry, 'inline edit', i18n.primary)
-      .then((saved) => { setEntries((list) => list.map((item) => (item.id === saved.id ? { ...item, version: saved.version } : item))); })
-      .catch((reason: unknown) => { flash(reason instanceof Error ? reason.message : 'Could not save the text.', true); })
-      .finally(() => { savingRef.current = false; if (pendingEntry.current) entryTimer.current = window.setTimeout(() => flushRef.current(), 60); });
-  }, [flash, remoteDataEnabled, i18n.primary]);
+    setSaveState('saving');
+
+    const send = (version: number) => saveContentEntry({ ...queued, version }, 'inline edit', primaryRef.current);
+    const known = entryVersions.current.get(id) ?? queued.version;
+
+    send(known)
+      // An edit conflict here means the version counter moved on — another tab,
+      // or a save this session lost track of. The content in hand is still the
+      // owner's newest, so adopt the server's counter and write it once more
+      // rather than dropping what they typed.
+      .catch(async (reason: unknown) => {
+        const message = reason instanceof Error ? reason.message : '';
+        if (!message.startsWith('Edit conflict')) throw reason;
+        const fresh = await getEntryVersion(id);
+        if (fresh === null) throw reason;
+        entryVersions.current.set(id, fresh);
+        return send(fresh);
+      })
+      .then((saved) => {
+        entryVersions.current.set(id, saved.version);
+        // Only drop the payload when nothing newer arrived while it was in
+        // flight; otherwise the next pass picks the newer one up.
+        if (pendingEntries.current.get(id) === queued) pendingEntries.current.delete(id);
+        setEntries((list) => list.map((item) => (item.id === saved.id ? { ...item, version: saved.version } : item)));
+        setSaveError('');
+        setSaveState(pendingEntries.current.size > 0 ? 'pending' : 'saved');
+      })
+      .catch((reason: unknown) => {
+        const message = reason instanceof Error ? reason.message : '';
+        setSaveError(message);
+        setSaveState('error');
+        flash(tRef.current('msg.textSaveFailed', { detail: message }), true);
+      })
+      .finally(() => {
+        savingRef.current = false;
+        if (pendingEntries.current.size > 0) {
+          window.clearTimeout(entryTimer.current);
+          entryTimer.current = window.setTimeout(() => flushRef.current(), 400);
+        }
+      });
+  }, [flash, remoteDataEnabled]);
   useEffect(() => { flushRef.current = flushEntry; }, [flushEntry]);
+
+  /** Put an already-merged raw entry into the queue and start the timer. */
+  const queueEntry = useCallback((merged: StoredPortfolioEntry) => {
+    rawEntriesRef.current = rawEntriesRef.current.map((item) => (item.id === merged.id ? merged : item));
+    setEntries((list) => list.map((item) => (item.id === merged.id ? merged : item)));
+    if (!remoteDataEnabled) return;
+    pendingEntries.current.set(merged.id, merged);
+    setSaveState((current) => (current === 'saving' ? current : 'pending'));
+    window.clearTimeout(entryTimer.current);
+    entryTimer.current = window.setTimeout(() => flushRef.current(), 600);
+  }, [remoteDataEnabled]);
 
   const changeEntry = useCallback((next: PortfolioEntry) => {
     // `next` came from the localised view: it carries the structure, the raw
-    // entry carries the languages.
-    const raw = rawEntries.find((item) => item.id === next.id);
-    const merged = i18n.enabled && raw
+    // entry carries the languages. Read the raw one from the ref rather than
+    // from a render closure, so two edits landing back to back cannot compute
+    // the second from a copy that predates the first.
+    const raw = rawEntriesRef.current.find((item) => item.id === next.id);
+    const merged = (i18n.enabled && raw
       ? mergeEdit(raw, next, entryTextSlots(next), activeLang, i18n.primary)
-      : next;
-    setEntries((list) => list.map((item) => (item.id === merged.id ? merged : item)));
-    pendingEntry.current = merged;
-    window.clearTimeout(entryTimer.current);
-    entryTimer.current = window.setTimeout(flushEntry, 500);
-    autoTranslateRef.current();
-  }, [flushEntry, rawEntries, i18n.enabled, i18n.primary, activeLang]);
+      : next) as StoredPortfolioEntry;
+    queueEntry(merged);
+    autoTranslateRef.current(merged.id);
+  }, [queueEntry, i18n.enabled, i18n.primary, activeLang]);
+
+  // Nothing in the queue may be lost to a closed tab or a reloaded page: flush
+  // on the way out, and say so if the browser is willing to ask.
+  useEffect(() => {
+    const onLeave = (event: BeforeUnloadEvent) => {
+      if (pendingEntries.current.size === 0) return;
+      flushRef.current();
+      event.preventDefault();
+    };
+    const onHide = () => { if (pendingEntries.current.size > 0) flushRef.current(); };
+    window.addEventListener('beforeunload', onLeave);
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      window.removeEventListener('beforeunload', onLeave);
+      document.removeEventListener('visibilitychange', onHide);
+    };
+  }, []);
 
   const editCard = useCallback((cardId: string, patch: Partial<BoardCard>) => {
     commitBoard({
@@ -937,7 +1086,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(new Error('Could not read the image.'));
+        reader.onerror = () => reject(new Error(tRef.current('msg.imageReadFailed')));
         reader.readAsDataURL(file);
       });
     }
@@ -949,7 +1098,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     setPolBusy(polaroidId);
     uploadPhoto(file)
       .then((url) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: url } : p)) }); })
-      .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : 'Could not upload the photo.', true))
+      .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : tRef.current('msg.uploadFailed'), true))
       .finally(() => setPolBusy(null));
   }, [rawBoard, commitBoard, flash, uploadPhoto]);
 
@@ -966,21 +1115,21 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const at = viewCenterWorld();
     const id = crypto.randomUUID();
     const card: BoardCard = type === 'drawer'
-      ? { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: 'new drawer', title: 'New drawer', group: 'random', layout: 'compact' }
-      : { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: 'spotlight', title: 'New\nspotlight', blurb: 'Say what this is.', open: entries[0]?.slug };
+      ? { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: '', title: '', group: board.groups[0]?.id ?? 'random', layout: 'compact' }
+      : { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: '', title: '', blurb: '', open: entries[0]?.slug };
     commitBoard({ ...rawBoard, cards: [...rawBoard.cards, card] });
     setCardMenu(id);
-  }, [rawBoard, commitBoard, entries, viewCenterWorld]);
+  }, [rawBoard, commitBoard, entries, board.groups, viewCenterWorld]);
 
   const addPolaroid = useCallback(() => {
     const at = viewCenterWorld();
-    const polaroid: Polaroid = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 280, h: 220, caption: 'Caption', placeholder: 'drop a photo' };
+    const polaroid: Polaroid = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 280, h: 220, caption: '', placeholder: '' };
     commitBoard({ ...rawBoard, polaroids: [...rawBoard.polaroids, polaroid] });
   }, [rawBoard, commitBoard, viewCenterWorld]);
 
   const addNote = useCallback(() => {
     const at = viewCenterWorld();
-    const note: Marginal = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 250, style: 'amber', text: 'A new note.' };
+    const note: Marginal = { id: crypto.randomUUID(), x: at.x, y: at.y, rot: 0, w: 250, style: 'amber', text: '' };
     commitBoard({ ...rawBoard, marginalia: [...rawBoard.marginalia, note] });
   }, [rawBoard, commitBoard, viewCenterWorld]);
 
@@ -1192,7 +1341,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const target = event.target as HTMLElement | null;
       const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
       if (typing) { if (event.key === 'Escape') target?.blur(); return; }
-      if (loginOpen || themeOpen || tourOpen || inventoryOpen || overflowGroup || cardMenu) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setTourOpen(false); setInventoryOpen(false); setOverflowGroup(null); setCardMenu(null); } return; }
+      if (loginOpen || themeOpen || tourOpen || inventoryOpen || wordingOpen || overflowGroup || cardMenu) { if (event.key === 'Escape') { setLoginOpen(false); setThemeOpen(false); setTourOpen(false); setInventoryOpen(false); setWordingOpen(false); setOverflowGroup(null); setCardMenu(null); } return; }
       const current = openSlugRef.current;
       if (current) {
         if (event.key === 'Escape') setOpenSlug(null);
@@ -1215,7 +1364,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [advance, endTour, fitAll, orderedSlugs, loginOpen, themeOpen, tourOpen, inventoryOpen, overflowGroup, cardMenu]);
+  }, [advance, endTour, fitAll, orderedSlugs, loginOpen, themeOpen, tourOpen, inventoryOpen, wordingOpen, overflowGroup, cardMenu]);
 
   // ---- arrange --------------------------------------------------------------
   const draggableIds = useMemo(() => [
@@ -1243,82 +1392,157 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   }, [board.size.height, board.size.width, commitLayout, draggableIds]);
 
   // ---- translation ----------------------------------------------------------
+  //
   // Authoring-time only: the result is stored next to the source, so a visitor
   // never waits on a translation service and an outage cannot blank the site.
+  //
+  // What used to go wrong, in the order it bit:
+  //
+  //  1. Every run translated the whole site — 144 fields and about 9.000
+  //     characters on the seeded board alone. MyMemory's free allowance is
+  //     ~5.000 characters a day anonymously, so the very first press ran out
+  //     of allowance somewhere in the middle.
+  //  2. Everything was thrown away when it did. The fields already translated
+  //     lived in a local variable that the `throw` skipped straight past, so a
+  //     run that got nine tenths of the way through saved nothing at all.
+  //  3. The finished run called `setEntries` with a list captured before the
+  //     first request went out, so anything typed during those seconds was
+  //     silently overwritten — with `Translate as I write` on, that is a real
+  //     risk every ninety seconds.
+  //  4. It only ever filled languages that were empty, so editing the Spanish
+  //     never reached the English again. "Nothing left to translate" was the
+  //     answer to a board that plainly needed translating.
+  //
+  // So: the open article is the default scope, work is committed batch by
+  // batch, every merge happens against the live state, and a `refresh` pass
+  // exists for text that has been rewritten.
   const [translating, setTranslating] = useState(false);
+  const translatingRef = useRef(false);
   const canTranslate = i18n.enabled
     && translatorAvailable({ provider: i18n.provider, endpoint: runtimeConfig.translateFunctionUrl })
     && i18n.languages.length > 1;
 
-  const runTranslate = useCallback(async (target?: string) => {
-    if (!canTranslate || translating) return;
-    // Every language is a target, the primary included: a board authored in
-    // one language can be seeded into the other from whichever side has text.
+  /** One batch of slots at a time, so a refusal half way through costs the
+   *  batch rather than the run. */
+  const TRANSLATE_BATCH = 6;
+
+  const runTranslate = useCallback(async (options: {
+    entryId?: string;
+    scope?: TranslateScope;
+    includeBoard?: boolean;
+    quiet?: boolean;
+  } = {}) => {
+    if (!canTranslate || translatingRef.current) return;
+    const scope: TranslateScope = options.scope ?? 'fill';
     const codes = i18n.languages.map((l) => l.code);
-    const targets = target ? [target] : codes;
+    const t0 = tRef.current;
+    translatingRef.current = true;
     setTranslating(true);
+
+    let filled = 0;
+    let failure = '';
     try {
-      // MyMemory accepts a contact address to identify the owner and grant its
-      // larger daily allowance. Previously every translation used the tiny
-      // shared anonymous quota, which is why an otherwise valid edit hit 429.
+      // MyMemory grants ten times the daily allowance to a request that
+      // identifies its owner, so the address is worth asking for before the
+      // first call rather than discovering the small quota half way through.
       const email = i18n.provider === 'mymemory' ? await getCurrentOwnerEmail() : undefined;
-      let filled = 0;
-      let nextBoard = rawBoard;
-      let nextEntries = rawEntries;
-      for (const to of targets) {
-        const boardJobs = missingAt(nextBoard, boardTextSlots(nextBoard), codes, to, i18n.primary);
-        for (const [from, jobs] of groupByFrom(boardJobs)) {
-          const done = await translateTexts({ texts: jobs.map((j) => j.text), from, to }, { provider: i18n.provider, email });
-          jobs.forEach((job, index) => {
+      let budget = providerDailyBudget(i18n.provider, Boolean(email));
+
+      const translateBatch = async (jobs: TranslateJob[], to: string): Promise<Array<{ path: Path; text: string }>> => {
+        const out: Array<{ path: Path; text: string }> = [];
+        for (const [from, group] of groupByFrom(jobs)) {
+          const done = await translateTexts(
+            { texts: group.map((job) => job.text), from, to },
+            { provider: i18n.provider, email },
+          );
+          group.forEach((job, index) => {
             const text = done[index];
             if (!text) return;
-            nextBoard = setAt(nextBoard, job.path, putText(readAt(nextBoard, job.path), to, text, i18n.primary));
-            filled += 1;
+            budget -= job.text.length;
+            out.push({ path: job.path, text });
           });
         }
-        for (let e = 0; e < nextEntries.length; e += 1) {
-          const entry = nextEntries[e];
-          const jobs = missingAt(entry, entryTextSlots(entry), codes, to, i18n.primary);
-          if (jobs.length === 0) continue;
-          let merged = entry;
-          for (const [from, group] of groupByFrom(jobs)) {
-            const done = await translateTexts({ texts: group.map((j) => j.text), from, to }, { provider: i18n.provider, email });
-            group.forEach((job, index) => {
-              const text = done[index];
-              if (!text) return;
-              merged = setAt(merged, job.path, putText(readAt(merged, job.path), to, text, i18n.primary));
-              filled += 1;
-            });
-          }
-          nextEntries = nextEntries.map((item, i) => (i === e ? merged : item));
-        }
-      }
-      if (nextBoard !== rawBoard) commitBoard(nextBoard);
-      if (nextEntries !== rawEntries) {
-        setEntries(nextEntries);
-        for (const entry of nextEntries) {
-          if (rawEntries.find((item) => item.id === entry.id) !== entry) {
-            pendingEntry.current = entry;
-            flushEntry();
+        return out;
+      };
+
+      // ---- the board's own words -------------------------------------------
+      if (options.includeBoard) {
+        for (const to of codes) {
+          const board0 = rawBoardRef.current;
+          const jobs = missingAt(board0, boardTextSlots(board0), codes, to, i18n.primary, scope);
+          for (let at = 0; at < jobs.length; at += TRANSLATE_BATCH) {
+            if (budget <= 0) throw new TranslateQuotaError(t0('msg.translatorQuota'));
+            const results = await translateBatch(jobs.slice(at, at + TRANSLATE_BATCH), to);
+            if (results.length === 0) continue;
+            // Start from the board as it stands now, not as it stood when this
+            // run began: the owner may have moved a card or renamed a list
+            // while the request was in flight.
+            let next = rawBoardRef.current;
+            for (const item of results) next = setAt(next, item.path, putText(readAt(next, item.path), to, item.text, i18n.primary));
+            rawBoardRef.current = next;
+            commitBoard(next);
+            filled += results.length;
           }
         }
       }
-      flash(filled > 0 ? `Translated ${filled} field${filled === 1 ? '' : 's'}.` : 'Nothing left to translate.');
+
+      // ---- the articles -----------------------------------------------------
+      const targets = options.entryId
+        ? rawEntriesRef.current.filter((entry) => entry.id === options.entryId)
+        : rawEntriesRef.current;
+
+      for (const target of targets) {
+        for (const to of codes) {
+          // Re-read the entry between batches: it is the live copy that has to
+          // be written back, never the one this loop started with.
+          const at0 = () => rawEntriesRef.current.find((item) => item.id === target.id) ?? target;
+          const jobs = missingAt(at0(), entryTextSlots(at0()), codes, to, i18n.primary, scope);
+          for (let at = 0; at < jobs.length; at += TRANSLATE_BATCH) {
+            if (budget <= 0) throw new TranslateQuotaError(t0('msg.translatorQuota'));
+            const results = await translateBatch(jobs.slice(at, at + TRANSLATE_BATCH), to);
+            if (results.length === 0) continue;
+            let merged = at0();
+            for (const item of results) {
+              merged = setAt(merged, item.path, putText(readAt(merged, item.path), to, item.text, i18n.primary));
+            }
+            queueEntry(merged);
+            filled += results.length;
+          }
+        }
+      }
     } catch (error) {
-      flash(error instanceof TranslateError ? error.message : 'The translator could not be reached.', true);
+      failure = error instanceof TranslateError ? error.message : t0('msg.translatorFailed');
     } finally {
+      translatingRef.current = false;
       setTranslating(false);
     }
-  }, [canTranslate, translating, i18n.languages, i18n.primary, i18n.provider, rawBoard, rawEntries, commitBoard, flash, flushEntry]);
 
-  /** Fill the other languages shortly after the owner stops typing. */
-  const autoTranslateEntry = useCallback(() => {
+    if (options.quiet && filled === 0 && !failure) return;
+    if (failure) {
+      flash(filled > 0 ? t0('msg.translatorPartial', { count: filled, detail: failure }) : failure, true);
+      return;
+    }
+    if (filled === 0) { if (!options.quiet) flash(t0('msg.nothingToTranslate')); return; }
+    flash(filled === 1 ? t0('msg.translatedOne') : t0('msg.translated', { count: filled }));
+  }, [canTranslate, i18n.languages, i18n.primary, i18n.provider, queueEntry, commitBoard, flash]);
+
+  /** Fill the other languages of the article being written, shortly after the
+   *  owner stops typing.
+   *
+   *  Deliberately narrow: one article, empty slots only, and never while a
+   *  dossier other than that one is open. A background pass that rewrote text
+   *  the owner had already translated — or that reached across the whole board
+   *  — would be a worse bargain than doing nothing. */
+  const autoTranslateEntry = useCallback((entryId: string) => {
     if (!canTranslate || !i18n.auto || activeLang !== i18n.primary) return;
     window.clearTimeout(autoTimer.current);
-    autoTimer.current = window.setTimeout(() => { void runTranslate(); }, 1400);
+    autoTimer.current = window.setTimeout(() => {
+      void runTranslate({ entryId, scope: 'fill', quiet: true });
+    }, 4000);
   }, [canTranslate, i18n.auto, activeLang, i18n.primary, runTranslate]);
 
   useEffect(() => { autoTranslateRef.current = autoTranslateEntry; }, [autoTranslateEntry]);
+  useEffect(() => () => window.clearTimeout(autoTimer.current), []);
 
   // ---- auth -----------------------------------------------------------------
   const doLogin = useCallback(() => {
@@ -1328,12 +1552,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     signInOwner(email, password)
       .then(() => isCurrentUserOwner())
       .then((owner) => {
-        if (!owner) { setLoginError('Valid account, but not the owner.'); return; }
+        if (!owner) { setLoginError(tRef.current('login.notOwner')); return; }
         setAuthed(true);
         setEditing(true);
         setLoginOpen(false);
       })
-      .catch((reason: unknown) => setLoginError(reason instanceof Error ? reason.message : 'Could not sign in.'));
+      .catch((reason: unknown) => setLoginError(reason instanceof Error ? reason.message : tRef.current('login.failed')));
   }, []);
 
   const doLogout = useCallback(() => {
@@ -1389,12 +1613,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   ];
 
   return (
-    <>
+    <UiTextContext value={t}>
       <div
         className="desk"
         ref={viewportRef}
         style={viewportStyle}
-        aria-label="Working board"
+        aria-label={t('board.aria')}
         data-edge={theme.cards.edge}
         data-lift={theme.cards.lift}
       >
@@ -1457,11 +1681,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 ) : null}
                 {editing ? (
                   <div className="card-ctrl" data-nodrag>
-                    <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label="Card settings">⚙</button>
+                    <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label={t('owner.cardSettings')}>⚙</button>
                     {cardMenu === card.id ? (
                       <div className="card-ctrl__menu">
                         {card.type !== 'hero' ? (
-                          <label>tone
+                          <label>{t('cardmenu.tone')}
                             <select value={card.tone ?? 'paper'} onChange={(e) => editCard(card.id, { tone: e.target.value as CardTone })}>
                               {TONES.map((t) => <option key={t} value={t}>{t}</option>)}
                             </select>
@@ -1469,47 +1693,47 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                         ) : null}
                         {card.type !== 'hero' && card.tone === 'custom' ? (
                           <>
-                            <label>bg
+                            <label>{t('cardmenu.bg')}
                               <input type="color" value={card.bg ?? '#fbf7ef'} onChange={(e) => editCard(card.id, { bg: e.target.value })} />
                             </label>
-                            <label>ink
+                            <label>{t('cardmenu.ink')}
                               <input type="color" value={card.ink ?? '#17150f'} onChange={(e) => editCard(card.id, { ink: e.target.value })} />
                             </label>
                           </>
                         ) : null}
                         {card.type === 'drawer' ? (
                           <>
-                            <label>list
+                            <label>{t('cardmenu.list')}
                               <select value={card.group ?? board.groups[0]?.id ?? ''} onChange={(e) => editCard(card.id, { group: e.target.value })}>
                                 {board.groups.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
                               </select>
                             </label>
-                            <label>layout
+                            <label>{t('cardmenu.layout')}
                               <select value={card.layout ?? 'list'} onChange={(e) => editCard(card.id, { layout: e.target.value as BoardCard['layout'] })}>
                                 {DRAWER_LAYOUTS.map((l) => <option key={l} value={l}>{l}</option>)}
                               </select>
                             </label>
-                            <label>max items
+                            <label>{t('cardmenu.maxItems')}
                               <input
                                 type="number"
                                 min={1}
                                 max={99}
                                 value={card.maxItems ?? ''}
-                                placeholder="all"
+                                placeholder={t('cardmenu.all')}
                                 onChange={(e) => { const v = e.target.value; editCard(card.id, { maxItems: v ? Math.max(1, parseInt(v, 10)) : undefined }); }}
                               />
                             </label>
                           </>
                         ) : null}
                         {card.type === 'spotlight' ? (
-                          <label>opens
+                          <label>{t('cardmenu.opens')}
                             <select value={card.open ?? ''} onChange={(e) => editCard(card.id, { open: e.target.value })}>
                               <option value="">—</option>
                               {entries.map((entry) => <option key={entry.id} value={entry.slug}>{entry.title}</option>)}
                             </select>
                           </label>
                         ) : null}
-                        <button className="card-ctrl__del" type="button" onClick={() => removeCard(card.id)}>delete card</button>
+                        <button className="card-ctrl__del" type="button" onClick={() => removeCard(card.id)}>{t('cardmenu.delete')}</button>
                       </div>
                     ) : null}
                   </div>
@@ -1523,17 +1747,21 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
             const geom = polGeom(p);
             return (
               <div key={p.id} className="polaroid" data-card={p.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 40 + index }}>
-                {editing ? <span className="item-grip" aria-hidden="true">⠿ drag</span> : null}
-                {editing ? <button className="item-del" type="button" data-nodrag onClick={() => removePolaroid(p.id)} aria-label="Delete photo">✕</button> : null}
+                {editing ? <span className="item-grip" aria-hidden="true">{t('owner.dragHint')}</span> : null}
+                {editing ? <button className="item-del" type="button" data-nodrag onClick={() => removePolaroid(p.id)} aria-label={t('owner.deletePhoto')}>✕</button> : null}
                 <div className="polaroid__frame">
                   {p.tape ? <div className="polaroid__tape" /> : null}
                   <div style={{ position: 'relative', width: '100%', height: p.h }}>
-                    <ImageSlot url={p.assetUrl} alt={p.caption} placeholder={p.placeholder ?? 'drop a photo'} editable={editing} busy={polBusy === p.id} onPick={(file) => pickPolaroidPhoto(p.id, file)} />
+                    <ImageSlot url={p.assetUrl} alt={p.caption} placeholder={p.placeholder || undefined} editable={editing} busy={polBusy === p.id} onPick={(file) => pickPolaroidPhoto(p.id, file)} />
                   </div>
-                  <div
+                  <EditableText
+                    as="div"
                     className="polaroid__cap"
-                    {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => editPolaroid(p.id, { caption: (e.currentTarget.textContent ?? '').trim() }) } : {})}
-                  >{p.caption}</div>
+                    text={p.caption ?? ''}
+                    placeholder={t('ph.caption')}
+                    editing={editing}
+                    onCommit={(value) => editPolaroid(p.id, { caption: value })}
+                  />
                 </div>
               </div>
             );
@@ -1543,17 +1771,21 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
             const geom = noteGeom(n);
             return (
               <div key={n.id} className={`note note--${n.style}`} data-card={n.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 60 + index }}>
-                {editing ? <span className="item-grip" aria-hidden="true">⠿ drag</span> : null}
+                {editing ? <span className="item-grip" aria-hidden="true">{t('owner.dragHint')}</span> : null}
                 {editing ? (
                   <div className="note-ctrl" data-nodrag>
-                    <button className="note-ctrl__style" type="button" onClick={() => editNote(n.id, { style: n.style === 'amber' ? 'paper-dashed' : 'amber' })} aria-label="Change note style">◑</button>
-                    <button className="item-del item-del--inline" type="button" onClick={() => removeNote(n.id)} aria-label="Delete note">✕</button>
+                    <button className="note-ctrl__style" type="button" onClick={() => editNote(n.id, { style: n.style === 'amber' ? 'paper-dashed' : 'amber' })} aria-label={t('owner.noteStyle')}>◑</button>
+                    <button className="item-del item-del--inline" type="button" onClick={() => removeNote(n.id)} aria-label={t('owner.deleteNote')}>✕</button>
                   </div>
                 ) : null}
-                <div
+                <EditableText
+                  as="div"
                   className="note__body"
-                  {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => editNote(n.id, { text: (e.currentTarget.textContent ?? '').trim() }) } : {})}
-                >{n.text}</div>
+                  text={n.text ?? ''}
+                  placeholder={t('ph.text')}
+                  editing={editing}
+                  onCommit={(value) => editNote(n.id, { text: value })}
+                />
               </div>
             );
           })}
@@ -1563,7 +1795,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
       {error ? <div className="board-error" role="alert">{error}</div> : null}
 
-      <div className={`stamp stamp--tl${authed ? ' stamp--tl--owner' : ''}`}>A. Treny · working board</div>
+      <div className={`stamp stamp--tl${authed ? ' stamp--tl--owner' : ''}`}>{t('board.stamp')}</div>
 
       {/* Board-level chrome (owner bar, sign-in, top-right hint, bottom
           toolbar) is hidden while a dossier is open: it floats above the
@@ -1589,29 +1821,29 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
       {!openEntry && phase === 'live' ? (
         <>
-          <div className="stamp stamp--tr">click any line to open its page<br />drag the paper · scroll to zoom</div>
+          <div className="stamp stamp--tr">{t('board.hintOpen')}<br />{t('board.hintMove')}</div>
 
           {authed ? (
             <div className={`ownerbar${editing ? ' ownerbar--editing' : ''}`}>
               <div className="ownerbar__controls">
                 <div className="ownerbar__row">
-                  <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => { if (v) setCardMenu(null); return !v; })}>{editing ? 'editing · on' : 'edit mode'}</button>
+                  <button className={`tbtn ${editing ? 'tbtn--on' : ''}`} type="button" onClick={() => setEditing((v) => { if (v) setCardMenu(null); return !v; })}>{editing ? t('owner.editOn') : t('owner.editOff')}</button>
                   <button
                     className={`tbtn ${positionsLocked ? 'tbtn--on' : ''}`}
                     type="button"
                     aria-pressed={positionsLocked}
-                    title={positionsLocked ? 'Card positions are locked' : 'Card positions can be dragged'}
+                    title={positionsLocked ? t('owner.positionsLockedTitle') : t('owner.positionsFreeTitle')}
                     onClick={() => setPositionsLocked((locked) => !locked)}
                   >
-                    {positionsLocked ? '🔒 positions' : '🔓 positions'}
+                    {positionsLocked ? t('owner.positionsLocked') : t('owner.positionsFree')}
                   </button>
                   {editing ? (
                     <>
-                      <span className="ownerbar__add">add:</span>
-                      <button className="tbtn" type="button" onClick={() => addCard('drawer')}>drawer</button>
-                      <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>spotlight</button>
-                      <button className="tbtn" type="button" onClick={addPolaroid}>photo</button>
-                      <button className="tbtn" type="button" onClick={addNote}>note</button>
+                      <span className="ownerbar__add">{t('owner.add')}</span>
+                      <button className="tbtn" type="button" onClick={() => addCard('drawer')}>{t('owner.addDrawer')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>{t('owner.addSpotlight')}</button>
+                      <button className="tbtn" type="button" onClick={addPolaroid}>{t('owner.addPhoto')}</button>
+                      <button className="tbtn" type="button" onClick={addNote}>{t('owner.addNote')}</button>
                     </>
                   ) : null}
                 </div>
@@ -1619,14 +1851,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 <div className="ownerbar__row">
                   {i18n.enabled && i18n.languages.length > 1 ? (
                     <>
-                      <span className="ownerbar__add">writing:</span>
+                      <span className="ownerbar__add">{t('owner.writing')}</span>
                       {i18n.languages.map((option) => (
                         <button
                           key={option.code}
                           type="button"
                           className={`tbtn ${option.code === activeLang ? 'tbtn--on' : ''}`}
                           aria-pressed={option.code === activeLang}
-                          title={option.code === i18n.primary ? `${option.label} — the language you author in` : option.label}
+                          title={option.code === i18n.primary ? t('owner.primaryTitle', { label: option.label }) : option.label}
                           onClick={() => { setLang(option.code); rememberLanguage(i18n, option.code); }}
                         >
                           {option.code.toUpperCase()}
@@ -1637,42 +1869,43 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                           className="tbtn"
                           type="button"
                           disabled={translating}
-                          title={`Fill every empty translation from ${i18n.primary.toUpperCase()}`}
-                          onClick={() => { void runTranslate(); }}
+                          title={t('owner.translateTitle')}
+                          onClick={(event) => { void runTranslate({ includeBoard: true, scope: event.altKey || event.shiftKey ? 'refresh' : 'fill' }); }}
                         >
-                          {translating ? 'translating…' : '⇄ translate'}
+                          {translating ? t('owner.translating') : t('owner.translate')}
                         </button>
                       ) : null}
                     </>
                   ) : null}
-                  <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>theme</button>
-                  <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>tour</button>
-                  <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>entries</button>
-                  {localEdit ? <span className="ownerbar__badge" title="Local preview — changes are not saved">preview</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title="sign out">⏏</button>}
+                  <button className="tbtn" type="button" onClick={() => setThemeOpen(true)}>{t('owner.theme')}</button>
+                  <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>{t('owner.tour')}</button>
+                  <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>{t('owner.entries')}</button>
+                  <button className="tbtn" type="button" onClick={() => setWordingOpen(true)}>{t('owner.wording')}</button>
+                  {localEdit ? <span className="ownerbar__badge" title={t('owner.previewTitle')}>{t('owner.preview')}</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title={t('owner.signOut')}>⏏</button>}
                 </div>
               </div>
             </div>
           ) : (
-            <button className="signin" type="button" onClick={() => setLoginOpen(true)}>⌗ sign in</button>
+            <button className="signin" type="button" onClick={() => setLoginOpen(true)}>{t('board.signIn')}</button>
           )}
 
           <div className="toolbar">
             <div className="toolbar__inner">
-              <span className="toolbar__label">the board</span>
-              <button className="tbtn" type="button" onClick={() => fitAll()}>fit</button>
-              <button className="tbtn" type="button" onClick={() => arrange('scatter')}>scatter</button>
-              <button className="tbtn" type="button" onClick={() => arrange('reset')}>reset</button>
+              <span className="toolbar__label">{t('board.label')}</span>
+              <button className="tbtn" type="button" onClick={() => fitAll()}>{t('board.fit')}</button>
+              <button className="tbtn" type="button" onClick={() => arrange('scatter')}>{t('board.scatter')}</button>
+              <button className="tbtn" type="button" onClick={() => arrange('reset')}>{t('board.reset')}</button>
               {tour.enabled || authed ? (
-                <button className="tbtn tbtn--on" type="button" onClick={replayTour} title="Replay the guided tour">↻ tour</button>
+                <button className="tbtn tbtn--on" type="button" onClick={replayTour} title={t('board.tourTitle')}>{t('board.tour')}</button>
               ) : null}
               <span className="toolbar__sep" />
-              {JUMPS.map(([label, name]) => (
-                <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{label}</button>
+              {JUMPS.map((name) => (
+                <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{t(`jump.${name}`)}</button>
               ))}
               {i18n.enabled && i18n.languages.length > 1 ? (
                 <>
                   <span className="toolbar__sep" />
-                  <div className="langpick" role="group" aria-label="Language">
+                  <div className="langpick" role="group" aria-label={t('board.language')}>
                     {i18n.languages.map((option) => (
                       <button
                         key={option.code}
@@ -1688,8 +1921,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 </>
               ) : null}
               <span className="toolbar__sep" />
-              <button className="tbtn tbtn--icon" type="button" aria-label="Zoom out" onClick={() => zoomBy(0.8)}>−</button>
-              <button className="tbtn tbtn--icon" type="button" aria-label="Zoom in" onClick={() => zoomBy(1.25)}>+</button>
+              <button className="tbtn tbtn--icon" type="button" aria-label={t('board.zoomOut')} onClick={() => zoomBy(0.8)}>−</button>
+              <button className="tbtn tbtn--icon" type="button" aria-label={t('board.zoomIn')} onClick={() => zoomBy(1.25)}>+</button>
             </div>
           </div>
         </>
@@ -1704,6 +1937,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           prevTitle={prevEntry?.title ?? ''}
           nextTitle={nextEntry?.title ?? ''}
           editing={editing}
+          saveState={saveState}
+          saveError={saveError}
+          onRetrySave={() => { setSaveState('pending'); flushRef.current(); }}
+          canTranslate={canTranslate}
+          translating={translating}
+          onTranslate={(refresh) => { void runTranslate({ entryId: openEntry.id, scope: refresh ? 'refresh' : 'fill' }); }}
           onClose={() => setOpenSlug(null)}
           onPrev={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i - 1 + orderedSlugs.length) % orderedSlugs.length]); }}
           onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}
@@ -1717,15 +1956,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       {loginOpen ? (
         <div className="overlay" role="presentation">
           <div className="overlay__scrim" onClick={() => setLoginOpen(false)} />
-          <div className="panel panel--login" role="dialog" aria-modal="true" aria-label="Owner access">
-            <div className="panel__eyebrow">owner access</div>
-            <div className="panel__title">Sign in to edit<br />the board</div>
-            <p className="panel__hint">Unlocks inline editing of every card and page, plus draggable layout, colours, fonts and photos — all saved to your Neon database.</p>
-            <input ref={emailRef} className="field" type="email" placeholder="email" autoComplete="username" />
-            <input ref={passRef} className="field" type="password" placeholder="password" autoComplete="current-password" onKeyDown={(e) => { if (e.key === 'Enter') doLogin(); }} />
+          <div className="panel panel--login" role="dialog" aria-modal="true" aria-label={t('login.aria')}>
+            <div className="panel__eyebrow">{t('login.eyebrow')}</div>
+            <div className="panel__title" style={{ whiteSpace: 'pre-line' }}>{t('login.title')}</div>
+            <p className="panel__hint">{t('login.hint')}</p>
+            <input ref={emailRef} className="field" type="email" placeholder={t('login.email')} autoComplete="username" />
+            <input ref={passRef} className="field" type="password" placeholder={t('login.password')} autoComplete="current-password" onKeyDown={(e) => { if (e.key === 'Enter') doLogin(); }} />
             <div className="panel__actions">
-              <button className="tbtn tbtn--on" type="button" onClick={doLogin}>unlock</button>
-              <button className="tbtn" type="button" onClick={() => setLoginOpen(false)}>cancel</button>
+              <button className="tbtn tbtn--on" type="button" onClick={doLogin}>{t('login.unlock')}</button>
+              <button className="tbtn" type="button" onClick={() => setLoginOpen(false)}>{t('login.cancel')}</button>
             </div>
             <div className="panel__err">{loginError}</div>
           </div>
@@ -1748,6 +1987,16 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           onChange={commitTour}
           onPreview={() => { setTourOpen(false); replayTour(); }}
           onClose={() => setTourOpen(false)}
+        />
+      ) : null}
+      {wordingOpen ? (
+        <WordingPanel
+          overrides={uiOverrides}
+          language={activeLang}
+          languageLabel={i18n.languages.find((l) => l.code === activeLang)?.label ?? activeLang}
+          primary={i18n.primary}
+          onChange={commitUi}
+          onClose={() => setWordingOpen(false)}
         />
       ) : null}
       {inventoryOpen ? (
@@ -1776,6 +2025,6 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       ) : null}
 
       {toast ? <div className={`owner-toast ${toast.error ? 'owner-toast--err' : ''}`}>{toast.text}</div> : null}
-    </>
+    </UiTextContext>
   );
 }

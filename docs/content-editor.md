@@ -26,7 +26,13 @@ normalised before persisting. The public renderer falls back to plain text for a
 unknown type and never interprets arbitrary HTML.
 
 The palette is `heading`, `text`, `callout`, `quote`, `list`, `metrics`, `image`,
-`links`, `tags` and `divider`.
+`links`, `tags` and `divider`. Its labels and hints come from the wording
+catalogue (`block.<type>`), so they follow the language being written.
+
+A new block arrives **empty**, showing a placeholder rather than sample prose. A
+block that arrived pre-filled with "Write something here." had to be selected and
+deleted before it could be used, and a translation pass would happily copy that
+sentence into the other language as if it were real content.
 
 ## Transactional saving
 
@@ -41,9 +47,48 @@ The palette is `heading`, `text`, `callout`, `quote`, `list`, `metrics`, `image`
 7. soft-delete removed blocks;
 8. bump the version and return the canonical document.
 
-The client validates the document with Zod and turns a `40001` conflict into a
-"reload before saving" instruction. Board and panel edits are debounced and saved
-automatically; publishing an entry stays an explicit choice through its status.
+The client validates the document with Zod. Board and panel edits are debounced
+and saved automatically; publishing an entry stays an explicit choice through its
+status.
+
+### The client's save queue
+
+`DeskBoard` keeps a queue keyed by entry id rather than a single pending slot,
+and stamps the version from the last one the server acknowledged rather than
+from the edit that produced the payload. Both are corrections of real data loss:
+
+- one slot meant a second entry edited while the first was in flight replaced it,
+  so a pass that touched several dossiers persisted the first and the last only;
+- a version taken at edit time was already stale if a save had completed in
+  between, and the payload was cleared *before* the request, so the rejected
+  write took the owner's text with it.
+
+Nothing leaves the queue until the server has taken it. A `40001` conflict is not
+surfaced as "reload before saving" any more: the text in hand is the newest thing
+in play, so the client reads the row's current version back with `getEntryVersion`
+and writes once more. A conflict that survives that leaves the payload queued and
+the article shows `sin guardar` with a retry. The queue is flushed on
+`beforeunload` and on `visibilitychange`, and a non-empty queue asks the browser
+to confirm before the tab closes.
+
+### The editable fields
+
+Every field the owner types into — on a card, in an article, in a caption — goes
+through `useEditable` (`src/components/desk/EditableText.tsx`). It exists because
+a bare `contentEditable` read back with `textContent` loses and duplicates text:
+
+- `Enter` made the browser insert a `<div>`, and `textContent` concatenated the
+  two lines with no separator, so a line break silently destroyed a word
+  boundary;
+- that `<div>` is a node React never created and therefore cannot remove, so the
+  commit's re-render left it in place and the paragraph showed its last line
+  twice;
+- a paste brought the source document's markup in with it.
+
+So every insertion is intercepted at `beforeinput` and re-applied as plain text
+or as an explicit line break, the element holds text nodes only, and a drift
+check remounts a field whose DOM stops matching the model. `readEditable`
+reconstructs `\n` from any element break that still gets through.
 
 ## Images
 

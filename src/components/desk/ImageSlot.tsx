@@ -1,4 +1,5 @@
 import { useRef, useState, type DragEvent } from 'react';
+import { useUiText } from './ui-text-context';
 
 type ImageSlotProps = {
   url?: string;
@@ -11,7 +12,9 @@ type ImageSlotProps = {
 
 /** A fillable photo frame. Owner can click or drop an image; the parent
  * uploads it to Neon Object Storage and persists the resulting URL. */
-export function ImageSlot({ url, alt, placeholder = 'Drop a photo', editable = false, busy = false, onPick }: ImageSlotProps) {
+export function ImageSlot({ url, alt, placeholder, editable = false, busy = false, onPick }: ImageSlotProps) {
+  const t = useUiText();
+  const slotText = placeholder ?? t('card.dropPhoto');
   const inputRef = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
 
@@ -38,9 +41,9 @@ export function ImageSlot({ url, alt, placeholder = 'Drop a photo', editable = f
       role={editable ? 'button' : undefined}
       tabIndex={editable ? 0 : undefined}
       onKeyDown={editable ? (event) => { if (event.key === 'Enter') inputRef.current?.click(); } : undefined}
-      aria-label={editable ? `Cambiar foto: ${placeholder}` : (alt || placeholder)}
+      aria-label={editable ? t('card.changePhoto', { placeholder: slotText }) : (alt || slotText)}
     >
-      {url ? <img src={url} alt={alt ?? ''} /> : <span className="slot__ph">{placeholder}</span>}
+      {url ? <img src={url} alt={alt ?? ''} /> : <span className="slot__ph">{slotText}</span>}
       {busy ? <span className="slot__busy" aria-hidden="true" /> : null}
       {editable ? (
         <input

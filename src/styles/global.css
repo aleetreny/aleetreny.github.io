@@ -93,7 +93,22 @@ a { color: var(--c-accent); text-decoration: none; }
   left: 0; top: 0;
   transform-origin: 0 0;
   z-index: 1;
-  will-change: transform;
+  /* No permanent `will-change: transform` here. It pins the board into a
+     composited layer that is rasterised once and then scaled by the GPU, so
+     zooming in magnified the type instead of redrawing it — soft, thin
+     lettering past about 1.5x. DeskBoard turns the hint on for the duration of
+     a gesture and off again once the view settles, which is when the browser
+     redraws the text at the scale it came to rest at. */
+  will-change: auto;
+}
+
+/* Type on a scaled surface is the whole point of this board, so ask for the
+   geometric outlines rather than the hinted, pixel-snapped ones: hinting is
+   computed for one size and smears at every other. */
+.desk__board,
+.dossier__plate {
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* ---- the slate ---- */
@@ -827,3 +842,72 @@ a { color: var(--c-accent); text-decoration: none; }
   .sweep, .now__dot { animation: none; }
   .tourbar__fill { transition: none; }
 }
+
+
+/* ---------------------------------------------------- editable fields */
+/* An empty editable field used to collapse to nothing: no height, no hint, no
+   way to know it was there or to click into it. Every field the owner can type
+   in now carries its own prompt, drawn only while editing and never selectable,
+   so it can never be mistaken for — or saved as — real content. */
+[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  opacity: .42;
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-modify: read-only;
+}
+[data-placeholder]:empty {
+  min-width: 2ch;
+  min-height: 1em;
+}
+.dossier[data-editing='true'] [data-placeholder]:empty {
+  outline: 1px dashed color-mix(in oklch, var(--c-accent) 30%, transparent);
+  outline-offset: 3px;
+}
+
+/* Line breaks the owner typed are real content: keep them, in the article and
+   on the cards alike. Without this a two-line title renders as one. */
+.dossier__title, .dossier__lede, .db-text, .db-heading, .db-callout,
+.db-quote p, .db-list__item-text, .note__body,
+.card__title, .card__sub, .card__intro, .spot__title, .spot__blurb,
+.hero__name, .hero__intro, .hero__hint, .now__cur-title, .now__cur-sub,
+.now__next-title, .now__next-sub, .polaroid__cap {
+  white-space: pre-wrap;
+}
+
+/* ---------------------------------------------------- save indicator */
+.dossier__save {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em;
+  text-transform: uppercase; white-space: nowrap;
+  color: rgba(243, 236, 221, .62);
+}
+.dossier__save--saved { color: color-mix(in oklch, var(--c-signal-soft) 80%, #fff); }
+.dossier__save--error { color: var(--c-danger-ink); }
+.dossier__save-retry {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+  background: transparent; color: inherit; cursor: pointer;
+  border: 1px solid currentColor; padding: 2px 6px;
+}
+
+/* ---------------------------------------------------- wording panel */
+.wording__list { max-height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.wording__row { display: flex; flex-direction: column; gap: 3px; padding: 4px 0; }
+.wording__key {
+  display: flex; align-items: baseline; gap: 8px;
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em;
+  text-transform: uppercase; color: rgba(243, 236, 221, .5);
+}
+.wording__flag { color: var(--c-signal); letter-spacing: .1em; }
+.wording__field { display: flex; align-items: flex-start; gap: 6px; }
+.wording__field input, .wording__field textarea {
+  flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 11.5px;
+  background: var(--c-control-bg); color: var(--c-dark-ink);
+  border: 1px solid rgba(243, 236, 221, .22); padding: 5px 7px; resize: vertical;
+}
+.wording__field input::placeholder, .wording__field textarea::placeholder {
+  color: rgba(243, 236, 221, .42); font-style: italic;
+}
+.wording__field .editdel { flex: none; }
+.wording__field .editdel:disabled { opacity: .3; cursor: default; }

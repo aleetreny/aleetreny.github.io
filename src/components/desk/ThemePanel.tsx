@@ -445,8 +445,9 @@ export function ThemePanel({ theme, onChange, i18n, onI18nChange, onClose }: The
             </div>
             <div className="panel__note">
               {{
-                mymemory: 'Free and keyless, called straight from your browser while you edit.',
-                function: 'Your own Neon Function holds a provider key server-side — see docs/handbook.md.',
+                mymemory: 'Free and keyless, straight from your browser. About 5.000 characters a day anonymously, ten times that once you are signed in — it sends your address as its contact.',
+                google: 'The keyless endpoint Google Translate\u2019s own web widget calls: better prose and no daily ceiling in practice, but undocumented, so Google can change or close it without notice. Editing only — a visitor never touches it.',
+                function: 'Your own Neon Function holds a provider key server-side (DeepL free tier, or a LibreTranslate you host) — see docs/handbook.md.',
                 off: 'No machine translation; type each language yourself.',
               }[i18n.provider]}
             </div>

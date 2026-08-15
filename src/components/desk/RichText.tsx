@@ -10,6 +10,8 @@ import {
   removeTextLink,
   type TextLink,
 } from '../../lib/rich-text';
+import { caretOffset, readEditable, useEditable } from './EditableText';
+import { useUiText } from './ui-text-context';
 
 type RichTextTag = 'h3' | 'div' | 'p' | 'span';
 
@@ -24,24 +26,13 @@ type RichTextProps = {
   links: TextLink[];
   editing: boolean;
   articles: PortfolioEntry[];
+  placeholder?: string;
+  /** Enter splits the prose into two blocks instead of breaking the line. */
+  onSplit?: (before: string, after: string) => void;
+  autoFocus?: boolean;
   onChange: (text: string, links: TextLink[]) => void;
   onOpenArticle: (slug: string) => void;
 };
-
-function rangeOffset(root: HTMLElement, node: Node, offset: number): number | null {
-  if (node.nodeType === Node.TEXT_NODE) {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    let total = 0;
-    let current = walker.nextNode();
-    while (current) {
-      const length = current.textContent?.length ?? 0;
-      if (current === node) return total + Math.min(offset, length);
-      total += length;
-      current = walker.nextNode();
-    }
-  }
-  return null;
-}
 
 function textNodes(text: string, links: TextLink[]): ReactNode[] {
   const nodes: ReactNode[] = [];
@@ -71,7 +62,11 @@ function textNodes(text: string, links: TextLink[]): ReactNode[] {
 }
 
 /** Inline article prose with links held as text ranges rather than HTML. */
-export function RichText({ as, className, style, text, links, editing, articles, onChange, onOpenArticle }: RichTextProps) {
+export function RichText({
+  as, className, style, text, links, editing, articles, placeholder,
+  onSplit, autoFocus, onChange, onOpenArticle,
+}: RichTextProps) {
+  const t = useUiText();
   const rootRef = useRef<HTMLElement | null>(null);
   const linkerRef = useRef<HTMLDivElement | null>(null);
   const [selected, setSelected] = useState<SelectedTextRange | null>(null);
@@ -84,8 +79,19 @@ export function RichText({ as, className, style, text, links, editing, articles,
   const editingRange = activeLink ?? selected;
   const selectedText = selected?.text ?? (activeLink ? text.slice(activeLink.start, activeLink.end) : '');
 
+  // Line breaks and pastes are the shared editable's job; this component only
+  // adds the link ranges on top.
+  const { ref: bindEditable, generation, props: editableProps } = useEditable({
+    editing,
+    text,
+    multiline: true,
+    autoFocus,
+    onSplit,
+    onCommit: (next) => { if (next !== text) onChange(next, rebaseTextLinks(links, text, next)); },
+  });
+
   useEffect(() => {
-    if (!editing) return;
+    if (!editing) return undefined;
     const dismissWhenSelectionLeaves = () => {
       const selection = window.getSelection();
       const root = rootRef.current;
@@ -101,31 +107,34 @@ export function RichText({ as, className, style, text, links, editing, articles,
     return () => document.removeEventListener('selectionchange', dismissWhenSelectionLeaves);
   }, [editing]);
 
-  function saveText() {
-    const nextText = rootRef.current?.textContent?.replace(/\u00a0/g, ' ') ?? text;
-    if (nextText !== text) onChange(nextText, rebaseTextLinks(links, text, nextText));
-  }
-
+  /** Note the selection so the link editor knows what it is linking.
+   *
+   *  This used to run on every keyup, which meant holding Shift+Arrow popped
+   *  the link editor open on the way to simply replacing a word — and, worse,
+   *  committed the text mid-keystroke, so React re-rendered the paragraph under
+   *  the caret and the caret jumped to the front. Now the mouse has to finish
+   *  its drag, or Shift has to be released, and nothing is committed here at
+   *  all: the text reaches the model when the field is left, exactly like every
+   *  other edit. */
   function captureSelection() {
     if (!editing || !rootRef.current) return;
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
     const range = selection.getRangeAt(0);
     if (!rootRef.current.contains(range.startContainer) || !rootRef.current.contains(range.endContainer)) return;
-    const currentText = rootRef.current.textContent?.replace(/\u00a0/g, ' ') ?? text;
-    const selectedText = selection.toString().replace(/\u00a0/g, ' ');
-    let start = rangeOffset(rootRef.current, range.startContainer, range.startOffset);
-    let end = rangeOffset(rootRef.current, range.endContainer, range.endOffset);
+    const currentText = readEditable(rootRef.current);
+    const picked = selection.toString().replace(/\u00a0/g, ' ');
+    let start: number | null = caretOffset(rootRef.current, range.startContainer, range.startOffset);
+    let end: number | null = caretOffset(rootRef.current, range.endContainer, range.endOffset);
     const captured = start === null || end === null ? '' : currentText.slice(Math.min(start, end), Math.max(start, end));
-    if (captured !== selectedText) {
-      const repaired = locateSelectedText(currentText, selectedText, start ?? 0);
+    if (captured !== picked) {
+      const repaired = locateSelectedText(currentText, picked, start ?? 0);
       if (!repaired) return;
       start = repaired.start;
       end = repaired.end;
     }
     if (start === null || end === null || start === end) return;
-    if (currentText !== text) onChange(currentText, rebaseTextLinks(links, text, currentText));
-    setSelected({ start: Math.min(start, end), end: Math.max(start, end), text: selectedText });
+    setSelected({ start: Math.min(start, end), end: Math.max(start, end), text: picked });
     setActiveLink(null);
     setDestination('external');
     setExternalHref('');
@@ -143,8 +152,9 @@ export function RichText({ as, className, style, text, links, editing, articles,
       return;
     }
     if (!editing) return;
-
-    event.preventDefault();
+    // While editing, the click is *not* swallowed: the caret lands where it was
+    // aimed, so a typo inside a linked phrase can be fixed, and the link editor
+    // opens alongside rather than instead of it.
     const start = Number(anchor.dataset.linkStart);
     const end = Number(anchor.dataset.linkEnd);
     const href = anchor.dataset.linkHref ?? '';
@@ -163,10 +173,10 @@ export function RichText({ as, className, style, text, links, editing, articles,
       ? articleHref(articleSlugValue)
       : normaliseExternalHref(externalHref);
     if (!href) {
-      setError(destination === 'article' ? 'Choose an article.' : 'Enter a valid web address.');
+      setError(destination === 'article' ? t('link.errArticle') : t('link.errUrl'));
       return;
     }
-    const sourceText = selected?.text !== undefined ? rootRef.current?.textContent?.replace(/\u00a0/g, ' ') ?? text : text;
+    const sourceText = rootRef.current ? readEditable(rootRef.current) : text;
     const sourceLinks = sourceText === text ? links : rebaseTextLinks(links, text, sourceText);
     onChange(sourceText, addTextLink(sourceLinks, editingRange.start, editingRange.end, href, sourceText.length));
     setSelected(null);
@@ -186,48 +196,47 @@ export function RichText({ as, className, style, text, links, editing, articles,
   return (
     <>
       <Tag
+        key={generation}
         className={className}
         style={style}
-        ref={(node: HTMLElement | null) => { rootRef.current = node; }}
+        data-placeholder={editing ? placeholder : undefined}
+        ref={(node: HTMLElement | null) => { rootRef.current = node; bindEditable(node); }}
+        {...editableProps}
         {...(editing ? {
-          contentEditable: true,
-          suppressContentEditableWarning: true,
-          'data-nodrag': '',
-          onBlur: saveText,
           onMouseUp: captureSelection,
-          onKeyUp: captureSelection,
+          onKeyUp: (event: React.KeyboardEvent) => { if (event.key === 'Shift') captureSelection(); },
         } : {})}
         onClick={handleLinkClick}
       >
         {textNodes(text, links)}
       </Tag>
       {editing && editingRange ? (
-        <div className="db-linker" ref={linkerRef} data-nodrag role="group" aria-label="Link selected text">
+        <div className="db-linker" ref={linkerRef} data-nodrag role="group" aria-label={t('link.aria')}>
           <span className="db-linker__selection">“{selectedText}”</span>
           <label>
-            link to
+            {t('link.linkTo')}
             <select value={destination} onChange={(event) => { setDestination(event.target.value as 'article' | 'external'); setError(''); }}>
-              <option value="external">external website</option>
-              <option value="article" disabled={articles.length === 0}>another article</option>
+              <option value="external">{t('link.external')}</option>
+              <option value="article" disabled={articles.length === 0}>{t('link.internal')}</option>
             </select>
           </label>
           {destination === 'article' ? (
             <label>
-              article
+              {t('link.article')}
               <select value={articleSlugValue} onChange={(event) => { setArticleSlugValue(event.target.value); setError(''); }}>
-                {articles.length === 0 ? <option value="">No published articles</option> : null}
+                {articles.length === 0 ? <option value="">{t('link.noArticles')}</option> : null}
                 {articles.map((article) => <option key={article.id} value={article.slug}>{article.title}</option>)}
               </select>
             </label>
           ) : (
             <label className="db-linker__url">
-              web address
+              {t('link.address')}
               <input type="url" value={externalHref} placeholder="https://example.com" onChange={(event) => { setExternalHref(event.target.value); setError(''); }} />
             </label>
           )}
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={applyLink}>{activeLink ? 'update link' : 'add link'}</button>
-          {activeLink ? <button type="button" className="db-linker__remove" onMouseDown={(event) => event.preventDefault()} onClick={removeLink}>remove</button> : null}
-          <button type="button" className="db-linker__dismiss" onMouseDown={(event) => event.preventDefault()} onClick={() => { setSelected(null); setActiveLink(null); setError(''); }} aria-label="Dismiss link editor">×</button>
+          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={applyLink}>{activeLink ? t('link.update') : t('link.add')}</button>
+          {activeLink ? <button type="button" className="db-linker__remove" onMouseDown={(event) => event.preventDefault()} onClick={removeLink}>{t('link.remove')}</button> : null}
+          <button type="button" className="db-linker__dismiss" onMouseDown={(event) => event.preventDefault()} onClick={() => { setSelected(null); setActiveLink(null); setError(''); }} aria-label={t('link.dismiss')}>×</button>
           {error ? <span className="db-linker__error">{error}</span> : null}
         </div>
       ) : null}

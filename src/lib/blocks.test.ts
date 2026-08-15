@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, reorderById } from './blocks';
+import { BLOCK_TYPES, newBlock, propPairList, propString, propStringList, reorderById } from './blocks';
 
 describe('dossier blocks', () => {
   it('creates every palette block with sane defaults', () => {
-    for (const { type } of BLOCK_PALETTE) {
+    for (const type of BLOCK_TYPES) {
       const block = newBlock(type, 3);
       expect(block.type).toBe(type);
       expect(block.position).toBe(3);

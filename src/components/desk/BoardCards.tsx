@@ -2,6 +2,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { BoardCard } from '../../lib/board';
 import { entriesForGroup } from '../../lib/board';
 import type { PortfolioEntry } from '../../types/content';
+import { EditableText } from './EditableText';
+import { useUiText } from './ui-text-context';
 
 type CardEdit = (cardId: string, patch: Partial<BoardCard>) => void;
 
@@ -12,14 +14,36 @@ type BoardCardViewProps = {
   onCardEdit: CardEdit;
 };
 
-function editableProps(editing: boolean, commit: (value: string) => void) {
-  if (!editing) return {};
-  return {
-    contentEditable: true,
-    suppressContentEditableWarning: true,
-    'data-nodrag': '',
-    onBlur: (event: { currentTarget: HTMLElement }) => commit((event.currentTarget.textContent ?? '').trim()),
-  };
+type FieldTag = 'span' | 'div' | 'p';
+
+/** One editable card field. It goes through the shared editable so a card
+ *  title behaves exactly like article prose: Enter keeps its line break, a
+ *  paste arrives as plain text, and an empty field still has something to
+ *  click on. */
+function CardField({
+  as = 'div', className, style, editing, value, placeholder, multiline = true, commit,
+}: {
+  as?: FieldTag;
+  className?: string;
+  style?: CSSProperties;
+  editing: boolean;
+  value: string | undefined;
+  placeholder?: string;
+  multiline?: boolean;
+  commit: (value: string) => void;
+}) {
+  return (
+    <EditableText
+      as={as}
+      className={className}
+      style={style}
+      text={value ?? ''}
+      placeholder={placeholder}
+      editing={editing}
+      multiline={multiline}
+      onCommit={commit}
+    />
+  );
 }
 
 function metaLine(entry: PortfolioEntry): string {
@@ -38,9 +62,10 @@ function firstTag(entry: PortfolioEntry): string {
  * owner-configured cap. Clicking it opens the full-list overflow panel
  * (handled centrally in DeskBoard via the data-more attribute). */
 function MoreRow({ count, groupId }: { count: number; groupId: string }) {
+  const t = useUiText();
   return (
     <div className="row row--more" data-more={groupId}>
-      <span className="row__title">+ {count} more</span>
+      <span className="row__title">{t('card.more', { count })}</span>
     </div>
   );
 }
@@ -118,6 +143,7 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
 /** The role badges on the hero used to be the lone chip group without owner
  * controls. Keep each badge editable in place, just like the tool chips. */
 function TagChips({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const t = useUiText();
   const tags = card.tags;
   if (!tags?.length) return null;
 
@@ -129,7 +155,7 @@ function TagChips({ card, editing, onCardEdit }: { card: BoardCard; editing: boo
     onCardEdit(card.id, { tags: next });
   };
   const deleteTag = (index: number) => onCardEdit(card.id, { tags: tags.filter((_, tagIndex) => tagIndex !== index) });
-  const addTag = () => onCardEdit(card.id, { tags: [...tags, 'role'] });
+  const addTag = () => onCardEdit(card.id, { tags: [...tags, ''] });
 
   return (
     <div className="hero__tags" {...(editing ? { 'data-nodrag': '' } : {})}>
@@ -138,12 +164,12 @@ function TagChips({ card, editing, onCardEdit }: { card: BoardCard; editing: boo
         const accent = typeof tag === 'string' ? false : Boolean(tag.accent);
         return (
           <span key={index} className={accent ? 'is-accent' : undefined}>
-            <span {...editableProps(editing, (value) => setTag(index, value))}>{label}</span>
-            {editing ? <button type="button" className="hero__tag-remove" onClick={() => deleteTag(index)} aria-label={`Remove ${label}`}>×</button> : null}
+            <CardField as="span" editing={editing} value={label} placeholder={t('card.newRole')} multiline={false} commit={(value) => setTag(index, value)} />
+            {editing ? <button type="button" className="hero__tag-remove" onClick={() => deleteTag(index)} aria-label={t('card.removeRole', { label })}>×</button> : null}
           </span>
         );
       })}
-      {editing ? <button type="button" className="hero__tag-add" onClick={addTag}>+ role</button> : null}
+      {editing ? <button type="button" className="hero__tag-add" onClick={addTag}>{t('card.addRole')}</button> : null}
     </div>
   );
 }
@@ -151,6 +177,7 @@ function TagChips({ card, editing, onCardEdit }: { card: BoardCard; editing: boo
 /** The "tools" chip row under lab-style drawers — fully editable: add, edit
  * and remove chips, or enable the row on a drawer that doesn't have one yet. */
 function ToolChips({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const t = useUiText();
   const tech = card.tech;
   if (!tech) {
     if (!editing) return null;
@@ -159,9 +186,9 @@ function ToolChips({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
         className="chips-add"
         type="button"
         data-nodrag
-        onClick={() => onCardEdit(card.id, { tech: ['tool'] })}
+        onClick={() => onCardEdit(card.id, { tech: [''] })}
       >
-        + tools row
+        {t('card.addToolsRow')}
       </button>
     );
   }
@@ -173,17 +200,17 @@ function ToolChips({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
     onCardEdit(card.id, { tech: next });
   };
   const delChip = (index: number) => onCardEdit(card.id, { tech: tech.filter((_, i) => i !== index) });
-  const addChip = () => onCardEdit(card.id, { tech: [...tech, 'tool'] });
+  const addChip = () => onCardEdit(card.id, { tech: [...tech, ''] });
 
   return (
     <div className="chips" {...(editing ? { 'data-nodrag': '' } : {})}>
-      {tech.map((t, index) => (
+      {tech.map((chip, index) => (
         <span className="chip" key={index}>
-          <span {...editableProps(editing, (value) => setChip(index, value))}>{t}</span>
-          {editing ? <button type="button" className="chip__x" onClick={() => delChip(index)} aria-label="Remove tool">×</button> : null}
+          <CardField as="span" editing={editing} value={chip} placeholder={t('card.newTool')} multiline={false} commit={(value) => setChip(index, value)} />
+          {editing ? <button type="button" className="chip__x" onClick={() => delChip(index)} aria-label={t('card.removeTool')}>×</button> : null}
         </span>
       ))}
-      {editing ? <button type="button" className="chip chip--add" onClick={addChip}>+ tech</button> : null}
+      {editing ? <button type="button" className="chip chip--add" onClick={addChip}>{t('card.addTool')}</button> : null}
     </div>
   );
 }
@@ -192,10 +219,11 @@ function ToolChips({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
  * decoration. Give them the same inline add, edit and remove controls as the
  * other card chips. */
 function CardStats({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const t = useUiText();
   const stats = card.stats;
   if (!stats?.length) {
     return editing ? (
-      <button className="statline__add" type="button" data-nodrag onClick={() => onCardEdit(card.id, { stats: [['0', 'label']] })}>+ stat</button>
+      <button className="statline__add" type="button" data-nodrag onClick={() => onCardEdit(card.id, { stats: [['', '']] })}>{t('card.addStat')}</button>
     ) : null;
   }
 
@@ -205,18 +233,18 @@ function CardStats({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
     onCardEdit(card.id, { stats: next });
   };
   const deleteStat = (index: number) => onCardEdit(card.id, { stats: stats.filter((_, statIndex) => statIndex !== index) });
-  const addStat = () => onCardEdit(card.id, { stats: [...stats, ['0', 'label']] });
+  const addStat = () => onCardEdit(card.id, { stats: [...stats, ['', '']] });
 
   return (
     <div className="statline" {...(editing ? { 'data-nodrag': '' } : {})}>
       {stats.map((pair, index) => (
         <div className="statline__item" key={index}>
-          <div className="statline__v" {...editableProps(editing, (value) => setPair(index, 0, value))}>{pair[0]}</div>
-          <div className="statline__l" {...editableProps(editing, (value) => setPair(index, 1, value))}>{pair[1]}</div>
-          {editing ? <button className="statline__remove" type="button" onClick={() => deleteStat(index)} aria-label={`Remove ${pair[0]}`}>×</button> : null}
+          <CardField className="statline__v" editing={editing} value={pair[0]} placeholder="0" multiline={false} commit={(value) => setPair(index, 0, value)} />
+          <CardField className="statline__l" editing={editing} value={pair[1]} placeholder={t('card.statLabel')} multiline={false} commit={(value) => setPair(index, 1, value)} />
+          {editing ? <button className="statline__remove" type="button" onClick={() => deleteStat(index)} aria-label={t('card.removeStat', { label: pair[0] })}>×</button> : null}
         </div>
       ))}
-      {editing ? <button className="statline__add" type="button" onClick={addStat}>+ stat</button> : null}
+      {editing ? <button className="statline__add" type="button" onClick={addStat}>{t('card.addStat')}</button> : null}
     </div>
   );
 }
@@ -230,17 +258,34 @@ function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
 }
 
 export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardViewProps) {
-  const ed = (patch: (value: string) => Partial<BoardCard>) =>
-    editableProps(editing, (value) => onCardEdit(card.id, patch(value)));
+  const t = useUiText();
+  const field = (
+    key: keyof BoardCard,
+    value: string | undefined,
+    options: { as?: FieldTag; className?: string; style?: CSSProperties; placeholder?: string; multiline?: boolean } = {},
+  ) => (
+    <CardField
+      as={options.as}
+      className={options.className}
+      style={options.style}
+      editing={editing}
+      value={value}
+      placeholder={options.placeholder}
+      multiline={options.multiline}
+      commit={(next) => onCardEdit(card.id, { [key]: next } as Partial<BoardCard>)}
+    />
+  );
 
   if (card.type === 'hero') {
     return (
       <div style={{ color: 'var(--board-ink, #f0ece1)' }}>
-        <div className="hero__eyebrow" {...ed((v) => ({ kicker: v }))}>{card.kicker}</div>
-        <h1 className="hero__name" {...ed((v) => ({ name: v }))}>{card.name}</h1>
+        {field('kicker', card.kicker, { className: 'hero__eyebrow', placeholder: t('ph.kicker') })}
+        <h1 className="hero__name">
+          <EditableText as="span" text={card.name ?? ''} placeholder={t('ph.title')} editing={editing} onCommit={(v) => onCardEdit(card.id, { name: v })} />
+        </h1>
         <TagChips card={card} editing={editing} onCardEdit={onCardEdit} />
-        <p className="hero__intro" {...ed((v) => ({ intro: v }))}>{card.intro}</p>
-        <p className="hero__hint" {...ed((v) => ({ hint: v }))}>{card.hint}</p>
+        {field('intro', card.intro, { as: 'p', className: 'hero__intro', placeholder: t('ph.text') })}
+        {field('hint', card.hint, { as: 'p', className: 'hero__hint', placeholder: t('ph.text') })}
       </div>
     );
   }
@@ -248,16 +293,16 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
   if (card.type === 'now') {
     return (
       <Surface card={card}>
-        <div className="now__label"><span className="now__dot" />{card.label ?? 'currently'}</div>
+        <div className="now__label"><span className="now__dot" />{card.label ?? t('card.currently')}</div>
         <div className="now__cur" data-open={card.current}>
-          <div className="now__cur-title" {...ed((v) => ({ currentTitle: v }))}>{card.currentTitle}</div>
-          <div className="now__cur-sub" {...ed((v) => ({ currentSub: v }))}>{card.currentSub}</div>
+          {field('currentTitle', card.currentTitle, { className: 'now__cur-title', placeholder: t('ph.title') })}
+          {field('currentSub', card.currentSub, { className: 'now__cur-sub', placeholder: t('ph.text') })}
         </div>
         <div className="now__rule" />
-        <div className="k" style={{ fontWeight: 600 }}>{card.nextLabel ?? 'next'}</div>
+        <div className="k" style={{ fontWeight: 600 }}>{card.nextLabel ?? t('card.next')}</div>
         <div className="now__next" data-open={card.next}>
-          <div className="now__next-title" {...ed((v) => ({ nextTitle: v }))}>{card.nextTitle}</div>
-          <div className="now__next-sub" {...ed((v) => ({ nextSub: v }))}>{card.nextSub}</div>
+          {field('nextTitle', card.nextTitle, { className: 'now__next-title', placeholder: t('ph.title') })}
+          {field('nextSub', card.nextSub, { className: 'now__next-sub', placeholder: t('ph.text') })}
         </div>
       </Surface>
     );
@@ -268,11 +313,11 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
       <Surface card={card}>
         {card.ruled ? <div className="spot--ruled" /> : null}
         <div className="card__head">
-          <span className="k" {...ed((v) => ({ kicker: v }))}>{card.kicker}</span>
+          {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
         </div>
         <div className="spot" data-open={card.open}>
-          <div className="spot__title" {...ed((v) => ({ title: v }))}>{card.title}</div>
-          <div className="spot__blurb" {...ed((v) => ({ blurb: v }))}>{card.blurb}</div>
+          {field('title', card.title, { className: 'spot__title', placeholder: t('ph.title') })}
+          {field('blurb', card.blurb, { className: 'spot__blurb', placeholder: t('ph.text') })}
           {card.grid ? (
             <div className="dgrid">
               {card.grid.map((pair, index) => (
@@ -306,14 +351,14 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
   if (card.type === 'contact') {
     return (
       <Surface card={card}>
-        <div className="k" {...ed((v) => ({ kicker: v }))}>{card.kicker}</div>
-        <div className="card__title" style={{ marginTop: 10 }} {...ed((v) => ({ title: v }))}>{card.title}</div>
+        {field('kicker', card.kicker, { className: 'k', placeholder: t('ph.kicker'), multiline: false })}
+        {field('title', card.title, { className: 'card__title', style: { marginTop: 10 }, placeholder: t('ph.title') })}
         <div className="links">
           {(card.links ?? []).map((link, index) => (
             <a key={index} href={link[1]} target="_blank" rel="noreferrer" data-nodrag>{link[0]}</a>
           ))}
         </div>
-        <div style={{ marginTop: 16, fontSize: 11.5, lineHeight: 1.6, opacity: 0.6 }} {...ed((v) => ({ note: v }))}>{card.note}</div>
+        {field('note', card.note, { style: { marginTop: 16, fontSize: 11.5, lineHeight: 1.6, opacity: 0.6 }, placeholder: t('ph.text') })}
       </Surface>
     );
   }
@@ -324,12 +369,12 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
     <Surface card={card}>
       {card.sweep ? <div className="sweep" /> : null}
       <div className="card__head">
-        <span className="k" {...ed((v) => ({ kicker: v }))}>{card.kicker}</span>
-        <span className="k">{count} {count === 1 ? 'entry' : 'entries'}</span>
+        {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
+        <span className="k">{count} {count === 1 ? t('card.entryOne') : t('card.entryMany')}</span>
       </div>
-      <div className="card__title" {...ed((v) => ({ title: v }))}>{card.title}</div>
-      {card.subtitle ? <div className="card__sub" {...ed((v) => ({ subtitle: v }))}>{card.subtitle}</div> : null}
-      {card.intro ? <div className="card__intro" {...ed((v) => ({ intro: v }))}>{card.intro}</div> : null}
+      {field('title', card.title, { className: 'card__title', placeholder: t('ph.title') })}
+      {card.subtitle || editing ? field('subtitle', card.subtitle, { className: 'card__sub', placeholder: t('ph.text') }) : null}
+      {card.intro || editing ? field('intro', card.intro, { className: 'card__intro', placeholder: t('ph.text') }) : null}
       <DrawerRows card={card} entries={entries} />
       <CardStats card={card} editing={editing} onCardEdit={onCardEdit} />
       <ToolChips card={card} editing={editing} onCardEdit={onCardEdit} />

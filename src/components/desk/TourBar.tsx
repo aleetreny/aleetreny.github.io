@@ -1,4 +1,5 @@
 import type { TourConfig } from '../../lib/tour';
+import { useUiText } from './ui-text-context';
 
 type TourBarProps = {
   tour: TourConfig;
@@ -21,6 +22,7 @@ type TourBarProps = {
 export function TourBar({
   tour, step, total, label, waiting, paused, onNext, onBack, onSkip, onJump, onTogglePause,
 }: TourBarProps) {
+  const t = useUiText();
   if (!tour.bar.show) return null;
   const last = step >= total;
   const shown = Math.max(1, step);
@@ -34,7 +36,7 @@ export function TourBar({
         {/* Two rows on a phone: the heading needs the full width, and the
             controls need tap targets rather than what is left over. */}
         <div className="tourbar__head">
-          {tour.bar.counter ? <span className="tourbar__step">stop {shown} / {total}</span> : null}
+          {tour.bar.counter ? <span className="tourbar__step">{t('tourbar.step', { step: shown, total })}</span> : null}
           {tour.bar.label ? <span className="tourbar__label">{label}</span> : null}
         </div>
         <div className="tourbar__row">
@@ -43,7 +45,7 @@ export function TourBar({
               className="tbtn tbtn--icon"
               type="button"
               onClick={onTogglePause}
-              aria-label={paused ? 'Resume the tour' : 'Pause the tour'}
+              aria-label={paused ? t('tourbar.resume') : t('tourbar.pause')}
             >
               {paused ? '▶' : '❚❚'}
             </button>
@@ -67,7 +69,7 @@ export function TourBar({
                     type="button"
                     className={`tourbar__dot ${index < step ? 'is-done' : ''} ${index === step - 1 ? 'is-here' : ''}`}
                     onClick={() => onJump(index)}
-                    aria-label={`Go to stop ${index + 1}`}
+                    aria-label={t('tourbar.goto', { index: index + 1 })}
                     aria-current={index === step - 1 ? 'step' : undefined}
                   />
                 ))}

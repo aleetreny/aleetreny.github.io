@@ -1,10 +1,15 @@
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
-import { BLOCK_PALETTE, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
+import { BLOCK_TYPES, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
 import { linksForLanguage, linksForLanguageAt, removeLinksForLanguageAt, setLinksForLanguage, setLinksForLanguageAt, type TextLink } from '../../lib/rich-text';
 import { ImageSlot } from './ImageSlot';
 import { RichText } from './RichText';
+import { EditableText } from './EditableText';
+import { useUiText } from './ui-text-context';
+
+/** What the board is doing with the owner's typing right now. */
+export type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error';
 
 type DossierPlateProps = {
   entry: PortfolioEntry;
@@ -14,6 +19,12 @@ type DossierPlateProps = {
   prevTitle: string;
   nextTitle: string;
   editing: boolean;
+  saveState: SaveState;
+  saveError: string;
+  onRetrySave: () => void;
+  canTranslate: boolean;
+  translating: boolean;
+  onTranslate: (refresh: boolean) => void;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -24,10 +35,6 @@ type DossierPlateProps = {
   dossier: DossierConfig;
 };
 
-function readText(event: { currentTarget: HTMLElement }): string {
-  return (event.currentTarget.textContent ?? '').trim();
-}
-
 function metaString(entry: PortfolioEntry, key: string): string {
   const value = entry.metadata[key];
   return typeof value === 'string' ? value : '';
@@ -37,14 +44,25 @@ type DropTarget = { id: string; after: boolean };
 const DRAG_SCROLL_EDGE = 88;
 const DRAG_SCROLL_MAX = 18;
 
+/** Which block types Enter should split into a second block of the same kind
+ *  rather than break a line inside. Writing prose, Enter means "next
+ *  paragraph"; inside a callout or a quote it means "next line". */
+const SPLITS_ON_ENTER = new Set<string>(['text', 'heading']);
+
 export function DossierPlate({
-  entry, articles, activeLanguage, posLabel, prevTitle, nextTitle, editing, onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, dossier,
+  entry, articles, activeLanguage, posLabel, prevTitle, nextTitle, editing,
+  saveState, saveError, onRetrySave, canTranslate, translating, onTranslate,
+  onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, dossier,
 }: DossierPlateProps) {
+  const t = useUiText();
   const closeRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const [busyBlock, setBusyBlock] = useState<string | null>(null);
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
+  /** The block, or list row, that Enter just created and that should already
+   *  have the caret in it by the time the owner looks up. */
+  const [focusTarget, setFocusTarget] = useState<{ block: string; item?: number } | null>(null);
   const dragScrollFrame = useRef<number | null>(null);
   const draggingBlockRef = useRef<string | null>(null);
   const dropTargetRef = useRef<DropTarget | null>(null);
@@ -57,6 +75,13 @@ export function DossierPlate({
   useEffect(() => () => {
     if (dragScrollFrame.current !== null) window.cancelAnimationFrame(dragScrollFrame.current);
   }, []);
+  // The focus request is consumed by the render that follows it; holding it any
+  // longer would steal the caret back every time the article re-rendered.
+  useEffect(() => {
+    if (!focusTarget) return undefined;
+    const timer = window.setTimeout(() => setFocusTarget(null), 250);
+    return () => window.clearTimeout(timer);
+  }, [focusTarget]);
 
   const blocks = [...entry.blocks].sort((a, b) => a.position - b.position);
 
@@ -73,7 +98,42 @@ export function DossierPlate({
     updateBlock(block.id, { items: nextItems, itemTextLinks: setLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, links) });
   };
   const removeBlock = (id: string) => commitBlocks(blocks.filter((block) => block.id !== id));
-  const addBlock = (type: DossierBlockType) => commitBlocks([...blocks, newBlock(type, blocks.length)]);
+  const addBlock = (type: DossierBlockType) => {
+    const block = newBlock(type, blocks.length);
+    commitBlocks([...blocks, block]);
+    setFocusTarget({ block: block.id });
+  };
+
+  /** Enter inside prose: keep what is before the caret, carry what is after it
+   *  into a fresh block, and put the caret at its start.
+   *
+   *  A heading splits into a paragraph rather than a second heading — pressing
+   *  Enter at the end of a title means "now write the section", not "now write
+   *  another title". Splitting a heading in the middle does keep both halves as
+   *  headings, because that is a rename, not a new section. */
+  const splitBlock = (block: ContentBlock, before: string, after: string) => {
+    const nextType: DossierBlockType = block.type === 'heading' && !after.trim()
+      ? 'text'
+      : (block.type as DossierBlockType);
+    const created = newBlock(nextType, 0);
+    const index = blocks.findIndex((item) => item.id === block.id);
+    const next = blocks.map((item) => (item.id === block.id
+      ? { ...item, props: { ...item.props, text: before, textLinks: setLinksForLanguage(item.props.textLinks, activeLanguage, []) } }
+      : item));
+    next.splice(index + 1, 0, { ...created, props: { ...created.props, text: after } });
+    commitBlocks(next);
+    setFocusTarget({ block: created.id });
+  };
+
+  /** Enter inside a bullet: the same idea, one row down. */
+  const splitListItem = (block: ContentBlock, index: number, before: string, after: string) => {
+    const items = propStringList(block, 'items');
+    const next = [...items];
+    next[index] = before;
+    next.splice(index + 1, 0, after);
+    updateBlock(block.id, { items: next, itemTextLinks: setLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, []) });
+    setFocusTarget({ block: block.id, item: index + 1 });
+  };
 
   function stopDragAutoScroll() {
     if (dragScrollFrame.current !== null) {
@@ -247,20 +307,42 @@ export function DossierPlate({
     const text = propString(block, 'text');
     const textLinks = linksForLanguage(block.props.textLinks, activeLanguage, text.length);
     const linkableArticles = articles.filter((article) => article.slug !== entry.slug && article.status === 'published');
-    const ed = (key: string) => (editing
-      ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => updateBlock(block.id, { [key]: readText(e) }) }
-      : {});
+    const focusHere = focusTarget?.block === block.id && focusTarget.item === undefined;
+    const prose = (as: 'h3' | 'div' | 'p', className: string, placeholder: string) => (
+      <RichText
+        as={as}
+        className={className}
+        text={text}
+        links={textLinks}
+        editing={editing}
+        articles={linkableArticles}
+        placeholder={placeholder}
+        autoFocus={focusHere}
+        onSplit={SPLITS_ON_ENTER.has(block.type) ? (before, after) => splitBlock(block, before, after) : undefined}
+        onChange={(nextText, links) => updateLinkedText(block, nextText, links)}
+        onOpenArticle={onOpenArticle}
+      />
+    );
 
     switch (block.type) {
       case 'heading':
-        return <RichText as="h3" className="db-heading" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
+        return prose('h3', 'db-heading', t('ph.heading'));
       case 'callout':
-        return <RichText as="div" className="db-callout" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
+        return prose('div', 'db-callout', t('ph.callout'));
       case 'quote':
         return (
           <blockquote className="db-quote">
-            <RichText as="p" className="" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />
-            {propString(block, 'cite') || editing ? <cite {...ed('cite')}>{propString(block, 'cite')}</cite> : null}
+            {prose('p', '', t('ph.quote'))}
+            {propString(block, 'cite') || editing ? (
+              <EditableText
+                as="cite"
+                text={propString(block, 'cite')}
+                placeholder={t('ph.cite')}
+                editing={editing}
+                multiline={false}
+                onCommit={(value) => updateBlock(block.id, { cite: value })}
+              />
+            ) : null}
           </blockquote>
         );
       case 'divider':
@@ -271,6 +353,10 @@ export function DossierPlate({
           items: items.filter((_, i) => i !== index),
           itemTextLinks: removeLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index),
         });
+        const addItem = () => {
+          updateBlock(block.id, { items: [...items, ''] });
+          setFocusTarget({ block: block.id, item: items.length });
+        };
         return (
           <ul className="db-list">
             {items.map((item, index) => (
@@ -282,13 +368,16 @@ export function DossierPlate({
                   links={linksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, item.length)}
                   editing={editing}
                   articles={linkableArticles}
+                  placeholder={t('ph.item')}
+                  autoFocus={focusTarget?.block === block.id && focusTarget.item === index}
+                  onSplit={(before, after) => splitListItem(block, index, before, after)}
                   onChange={(nextText, links) => updateLinkedListItem(block, index, nextText, links)}
                   onOpenArticle={onOpenArticle}
                 />
-                {editing ? <button className="db-x" type="button" onClick={() => removeItem(index)} aria-label="Delete">×</button> : null}
+                {editing ? <button className="db-x" type="button" onClick={() => removeItem(index)} aria-label={t('dossier.delete')}>×</button> : null}
               </li>
             ))}
-            {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, 'New point'] })}>+ point</button> : null}
+            {editing ? <button className="db-add-item" type="button" onClick={addItem}>{t('dossier.addPoint')}</button> : null}
           </ul>
         );
       }
@@ -299,12 +388,12 @@ export function DossierPlate({
           <div className="db-metrics">
             {items.map((pair, index) => (
               <div className="db-metric" key={index}>
-                <b {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setPair(index, 0, readText(e)) } : {})}>{pair[0]}</b>
-                <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setPair(index, 1, readText(e)) } : {})}>{pair[1]}</span>
-                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button> : null}
+                <EditableText as="b" text={pair[0]} placeholder="0" editing={editing} multiline={false} onCommit={(value) => setPair(index, 0, value)} />
+                <EditableText as="span" text={pair[1]} placeholder={t('card.statLabel')} editing={editing} multiline={false} onCommit={(value) => setPair(index, 1, value)} />
+                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label={t('dossier.delete')}>×</button> : null}
               </div>
             ))}
-            {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, ['0', 'label']] })}>+ number</button> : null}
+            {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, ['', '']] })}>{t('dossier.addNumber')}</button> : null}
           </div>
         );
       }
@@ -315,14 +404,14 @@ export function DossierPlate({
           <div className="db-links">
             {items.map((pair, index) => (editing ? (
               <div className="db-link-edit" key={index}>
-                <input className="db-input" value={pair[0]} placeholder="label" onChange={(e) => setPair(index, 0, e.target.value)} data-nodrag />
+                <input className="db-input" value={pair[0]} placeholder={t('dossier.linkLabelPlaceholder')} onChange={(e) => setPair(index, 0, e.target.value)} data-nodrag />
                 <input className="db-input" value={pair[1]} placeholder="https://" onChange={(e) => setPair(index, 1, e.target.value)} data-nodrag />
-                <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button>
+                <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label={t('dossier.delete')}>×</button>
               </div>
             ) : (
-              <a key={index} href={pair[1]} target="_blank" rel="noreferrer" data-nodrag>{pair[0]} →</a>
+              pair[0] && pair[1] ? <a key={index} href={pair[1]} target="_blank" rel="noreferrer" data-nodrag>{pair[0]} →</a> : null
             )))}
-            {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, ['Label', 'https://']] })}>+ link</button> : null}
+            {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, ['', 'https://']] })}>{t('dossier.addLink')}</button> : null}
           </div>
         );
       }
@@ -331,14 +420,14 @@ export function DossierPlate({
         const setItem = (index: number, value: string) => { const next = [...items]; next[index] = value; updateBlock(block.id, { items: next }); };
         return (
           <div className="db-tags">
-            <span className="db-tags__lbl">filed under</span>
+            <span className="db-tags__lbl">{t('dossier.filedUnder')}</span>
             {items.map((item, index) => (
               <span className="db-tag" key={index}>
-                <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setItem(index, readText(e)) } : {})}>{item}</span>
-                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label="Delete">×</button> : null}
+                <EditableText as="span" text={item} placeholder={t('dossier.newTag')} editing={editing} multiline={false} onCommit={(value) => setItem(index, value)} />
+                {editing ? <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label={t('dossier.delete')}>×</button> : null}
               </span>
             ))}
-            {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, 'tag'] })}>+ tag</button> : null}
+            {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, ''] })}>{t('dossier.addTag')}</button> : null}
           </div>
         );
       }
@@ -346,16 +435,29 @@ export function DossierPlate({
         return (
           <figure className="db-image">
             <div className="db-image__frame">
-              <ImageSlot url={propString(block, 'url') || undefined} alt={propString(block, 'alt')} placeholder={propString(block, 'caption') || 'drop a photo'} editable={editing} busy={busyBlock === block.id} onPick={(file) => pickBlockImage(block.id, file)} />
+              <ImageSlot url={propString(block, 'url') || undefined} alt={propString(block, 'alt')} placeholder={propString(block, 'caption') || t('card.dropPhoto')} editable={editing} busy={busyBlock === block.id} onPick={(file) => pickBlockImage(block.id, file)} />
             </div>
-            {propString(block, 'caption') || editing ? <figcaption {...ed('caption')}>{propString(block, 'caption')}</figcaption> : null}
+            {propString(block, 'caption') || editing ? (
+              <EditableText
+                as="figcaption"
+                text={propString(block, 'caption')}
+                placeholder={t('ph.caption')}
+                editing={editing}
+                multiline={false}
+                onCommit={(value) => updateBlock(block.id, { caption: value })}
+              />
+            ) : null}
           </figure>
         );
       }
       default:
-        return <RichText as="p" className="db-text" text={text} links={textLinks} editing={editing} articles={linkableArticles} onChange={(nextText, links) => updateLinkedText(block, nextText, links)} onOpenArticle={onOpenArticle} />;
+        return prose('p', 'db-text', t('ph.text'));
     }
   }
+
+  const saveLabel = saveState === 'error' ? t('dossier.saveFailed')
+    : saveState === 'saving' || saveState === 'pending' ? t('dossier.saving')
+      : saveState === 'saved' ? t('dossier.saved') : '';
 
   return (
     // The theme drives the article's shape through data attributes rather than
@@ -374,27 +476,60 @@ export function DossierPlate({
       <div className="dossier__plate" role="dialog" aria-modal="true" aria-label={entry.title}>
         <div className="dossier__bar">
           <div className="dossier__bar-meta">
-            <span className="k" {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setMeta('kicker', readText(e)) } : {})}>{metaString(entry, 'kicker')}</span>
+            <EditableText as="span" className="k" text={metaString(entry, 'kicker')} placeholder={t('ph.kicker')} editing={editing} multiline={false} onCommit={(value) => setMeta('kicker', value)} />
             <span className="dossier__bar-pos">{posLabel}</span>
           </div>
           <div className="dossier__bar-actions">
-            {editing ? <span className="dossier__editflag">editing — click any text</span> : null}
-            <button className="pbtn" onClick={onPrev} type="button" aria-label="Previous">←</button>
-            <button className="pbtn" onClick={onNext} type="button" aria-label="Next">→</button>
-            <button ref={closeRef} className="pbtn pbtn--close" onClick={onClose} type="button">close · esc</button>
+            {editing ? <span className="dossier__editflag">{t('dossier.editFlag')}</span> : null}
+            {editing && saveLabel ? (
+              <span className={`dossier__save dossier__save--${saveState}`} title={saveError || undefined}>
+                {saveLabel}
+                {saveState === 'error' ? (
+                  <button className="dossier__save-retry" type="button" onClick={onRetrySave}>{t('dossier.retry')}</button>
+                ) : null}
+              </span>
+            ) : null}
+            {editing && canTranslate ? (
+              <button
+                className="pbtn"
+                type="button"
+                disabled={translating}
+                title={t('dossier.translateTitle')}
+                onClick={(event) => onTranslate(event.altKey || event.shiftKey)}
+              >
+                {translating ? t('dossier.translating') : t('dossier.translate')}
+              </button>
+            ) : null}
+            <button className="pbtn" onClick={onPrev} type="button" aria-label={t('dossier.prev')}>←</button>
+            <button className="pbtn" onClick={onNext} type="button" aria-label={t('dossier.next')}>→</button>
+            <button ref={closeRef} className="pbtn pbtn--close" onClick={onClose} type="button">{t('dossier.close')}</button>
           </div>
         </div>
 
         <div className="dossier__sheet" ref={sheetRef}>
           <div className="dossier__inner">
             <div className="dossier__crumbs">
-              <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setMeta('when', readText(e)) } : {})}>{metaString(entry, 'when')}</span>
+              <EditableText as="span" text={metaString(entry, 'when')} placeholder={t('ph.when')} editing={editing} multiline={false} onCommit={(value) => setMeta('when', value)} />
               <span className="dot">·</span>
-              <span {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => setMeta('where', readText(e)) } : {})}>{metaString(entry, 'where')}</span>
+              <EditableText as="span" text={metaString(entry, 'where')} placeholder={t('ph.where')} editing={editing} multiline={false} onCommit={(value) => setMeta('where', value)} />
             </div>
 
-            <h2 className="dossier__title" {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => onChange({ ...entry, title: readText(e) || entry.title }) } : {})}>{entry.title}</h2>
-            <p className="dossier__lede" {...(editing ? { contentEditable: true, suppressContentEditableWarning: true, 'data-nodrag': '', onBlur: (e: { currentTarget: HTMLElement }) => onChange({ ...entry, summary: readText(e) }) } : {})}>{entry.summary}</p>
+            <EditableText
+              as="h2"
+              className="dossier__title"
+              text={entry.title}
+              placeholder={t('ph.title')}
+              editing={editing}
+              onCommit={(value) => onChange({ ...entry, title: value || entry.title })}
+            />
+            <EditableText
+              as="p"
+              className="dossier__lede"
+              text={entry.summary}
+              placeholder={t('ph.lede')}
+              editing={editing}
+              onCommit={(value) => onChange({ ...entry, summary: value })}
+            />
 
             <div className="dossier__body">
               {blocks.map((block) => (
@@ -407,8 +542,8 @@ export function DossierPlate({
                 >
                   {editing ? (
                     <div className="db-block__ctrl" data-nodrag>
-                      <button className="db-block__drag" type="button" onPointerDown={(event) => startBlockDrag(event, block.id)} onPointerMove={movePointerBlockDrag} onPointerUp={finishPointerBlockDrag} onPointerCancel={clearBlockDrag} onLostPointerCapture={clearBlockDrag} onMouseDown={(event) => startMouseBlockDrag(event, block.id)} aria-label="Drag block to reorder" title="Drag to reorder">⠿</button>
-                      <button type="button" onClick={() => removeBlock(block.id)} aria-label="Delete block">✕</button>
+                      <button className="db-block__drag" type="button" onPointerDown={(event) => startBlockDrag(event, block.id)} onPointerMove={movePointerBlockDrag} onPointerUp={finishPointerBlockDrag} onPointerCancel={clearBlockDrag} onLostPointerCapture={clearBlockDrag} onMouseDown={(event) => startMouseBlockDrag(event, block.id)} aria-label={t('dossier.dragBlock')} title={t('dossier.dragBlock')}>⠿</button>
+                      <button type="button" onClick={() => removeBlock(block.id)} aria-label={t('dossier.deleteBlock')}>✕</button>
                     </div>
                   ) : null}
                   {renderBlockBody(block)}
@@ -418,9 +553,9 @@ export function DossierPlate({
 
             {editing ? (
               <div className="db-palette" data-nodrag>
-                <span className="db-palette__lbl">add block</span>
-                {BLOCK_PALETTE.map((item) => (
-                  <button key={item.type} type="button" className="db-palette__btn" title={item.hint} onClick={() => addBlock(item.type)}>+ {item.label.toLowerCase()}</button>
+                <span className="db-palette__lbl">{t('dossier.addBlock')}</span>
+                {BLOCK_TYPES.map((type) => (
+                  <button key={type} type="button" className="db-palette__btn" title={t(`block.${type}.hint`)} onClick={() => addBlock(type)}>+ {t(`block.${type}`).toLowerCase()}</button>
                 ))}
               </div>
             ) : null}

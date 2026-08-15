@@ -1,6 +1,82 @@
 # Project status
 
-Updated: 2026-08-09. Branch: `main`.
+Updated: 2026-08-15. Branch: `main`.
+
+## Writing articles: wording, typing and translation (2026-08)
+
+The board was being used in earnest to write Spanish articles, which surfaced
+four things.
+
+- **Type went soft past about 1.5× zoom.** `.desk__board` declared
+  `will-change: transform` permanently, which pins it into a composited layer
+  rasterised once and then stretched by the GPU — so zooming magnified the
+  bitmap instead of redrawing the text. The hint is now applied for the duration
+  of a gesture and dropped once the view settles, so the browser re-rasterises at
+  the scale the owner stopped at. `text-rendering: geometricPrecision` on the
+  board and the article keeps outlines from being hinted for one size only.
+- **The chrome was English and not editable.** `entries`, `fit`, `close · esc`,
+  `+ point`, `N entries` and about 190 other strings were literals in the
+  components. They now come from `src/lib/ui-text.ts`, which ships a Spanish and
+  an English default for every key, and the `textos` panel overrides any of them
+  per language into `site_settings['site.ui']`. An override is read only for its
+  own language, and an empty one falls through to the built-in text, so the
+  interface can never be blanked. The seed never writes the key, so reseeding
+  leaves the owner's wording alone.
+- **Typing lost and duplicated text.** A bare `contentEditable` read back with
+  `textContent`: `Enter` inserted a `<div>` that concatenated two lines with no
+  separator, that `<div>` was a node React could not remove so the commit's
+  re-render showed the last line twice, and pastes brought their markup along.
+  Every field now goes through `useEditable`: insertions are intercepted at
+  `beforeinput`, the element holds text nodes only, a drift check remounts a
+  field whose DOM stops matching the model, and empty fields carry a placeholder
+  so they are still clickable. `Enter` splits a paragraph or a bullet into a new
+  one, `Shift`+`Enter` breaks the line.
+- **Saving dropped edits.** One pending slot meant a second entry edited while
+  the first was in flight replaced it; and the queued payload carried the version
+  from edit time, which was already stale if a save had completed in between —
+  the rejected write took the text with it. There is now a queue keyed by entry,
+  the version is stamped from the last one the server acknowledged, a conflict
+  re-reads the counter and writes again instead of discarding, nothing leaves the
+  queue until the server takes it, and the article shows `guardando…` /
+  `guardado` / `sin guardar · reintentar`.
+
+### Why translation did not work
+
+Investigated end to end against the live services. Five separate causes, all
+fixed:
+
+1. **Quality.** MyMemory's `responseData.translatedText` is the best entry in a
+   crowd-sourced *memory*, not its machine translation, and a loose fuzzy match
+   frequently outranks the real one — *"Hola mundo, esto es una prueba"* came
+   back as *"hello this is a test 123"*. The machine entry sits in `matches`;
+   that is what is read now, with an exact memory match second and the headline
+   answer last.
+2. **Scope.** Every press translated the whole board — 144 fields, ~9.000
+   characters on the seeded content alone — against a free allowance of ~5.000 a
+   day anonymously. The default scope is now the open article; the whole board is
+   a separate, deliberate button.
+3. **All-or-nothing.** Results lived in a local variable that the throw skipped
+   past, so a run that got nine tenths of the way through saved nothing. Work is
+   committed in batches of six as it goes.
+4. **Concurrent edits were overwritten.** The finished run called `setEntries`
+   with a list captured before the first request, silently discarding anything
+   typed during it — with `translate as I write` on, a real risk every ninety
+   seconds. Every merge now happens against the live state.
+5. **Edits never reached the other language.** Only empty slots were filled, so
+   rewriting the Spanish left the English on its first translation for ever, and
+   the board answered "nothing left to translate". `Alt`+press refreshes.
+
+Plus: a retry ladder for throttling, a spent daily allowance reported as such
+rather than as a network error, MyMemory's contact address wired in for its ten
+times larger quota, and line breaks translated line by line instead of collapsed.
+A third provider is offered — the keyless endpoint Google Translate's own widget
+calls, better prose and no practical ceiling, but undocumented and quick to
+rate-limit a shared address, so it is a choice and never the default. The
+`function` route with a server-side DeepL or LibreTranslate key remains the
+answer for guaranteed volume.
+
+No reseed is required for any of this: `site.ui` is optional and absent from the
+fixtures, and no stored shape changed.
 
 ## The board as a template (2026-08)
 

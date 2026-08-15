@@ -252,10 +252,15 @@ nothing is saved.
 | `edit mode` | Toggles inline editing on the whole board. |
 | `🔒 positions` | Locks every card, photo and note in place. It starts locked; press it deliberately to enable dragging. |
 | `add: drawer / spotlight / photo / note` | Drops a new piece at the centre of the view. |
-| `theme` | [Appearance panel](#51-theme). |
-| `tour` | [Guided tour panel](#54-boardtour). |
-| `entries` | [Inventory panel](#inventory). |
+| `aspecto` / `theme` | [Appearance panel](#51-theme). |
+| `visita` / `tour` | [Guided tour panel](#54-boardtour). |
+| `artículos` / `entries` | [Inventory panel](#inventory). |
+| `textos` / `wording` | [Interface wording panel](#interface-wording). |
 | `⏏` | Sign out. |
+
+The bar itself, like the rest of the chrome, is written in the language you are
+writing in — and every word of it is editable. See
+[interface wording](#interface-wording).
 
 ### Editing on the board
 
@@ -264,6 +269,20 @@ With edit mode on:
 - **Text.** Every kicker, title, subtitle, blurb, caption, note and hero role
   badge is editable in place. Hero badges can also be added and removed. Click
   it, type, click away. It saves on blur, debounced.
+- **What typing does.** Every editable field behaves the same way, on the board
+  and in an article:
+
+  | Key | What happens |
+  | --- | --- |
+  | `Enter` in a paragraph, a heading or a bullet | Splits it in two: a second block, or a second bullet, with the caret already in it. |
+  | `Enter` in a callout, a quote, a title or an opening line | A line break inside the same field. |
+  | `Enter` in a date, a place, a kicker, a tag or a citation | Confirms and leaves the field. |
+  | `Shift` + `Enter` | Always a line break, never a split. |
+  | `Escape` | Leaves the field, keeping what you typed. |
+  | Paste | Arrives as plain text; the source's fonts, colours and markup are dropped. |
+
+  Line breaks you type are kept and published. An empty field shows a greyed
+  prompt of what belongs in it, so it is still there to click on.
 - **Card statistics.** The large number/value pairs on a drawer are editable;
   add a statistic with `+ stat` or remove one with its `×` control.
 - **Position.** Positions start locked. Press `🔒 positions` in the owner bar
@@ -287,6 +306,10 @@ With edit mode on:
   remove it.
 - **Photos.** Click a photo slot to upload. In production it goes to Neon Object
   Storage through a signing Function; offline it becomes a data URL.
+- **Knowing it saved.** An open article shows `guardando…` while a save is in
+  flight and `guardado` once the database has it. If a save fails it says
+  `sin guardar` and offers `reintentar`; what you typed stays in the queue until
+  it goes through, and closing the tab with something still queued asks first.
 - **Tool chips.** The chip row under a drawer is editable — add, rename, remove,
   or add the row to a drawer that has none.
 
@@ -304,6 +327,26 @@ The `entries` panel is the one place that is not on the board:
 
 Nothing is ever hard-deleted. Entries, blocks and assets all use `deleted_at`,
 and every save snapshots the previous version into `entry_versions`.
+
+### Interface wording
+
+Article prose lives in the documents and is edited in place. The words *around*
+it — `artículos`, `encajar`, `cerrar · esc`, `añadir bloque`, every placeholder,
+every toast — come from a catalogue with a built-in Spanish and English default,
+and the `textos` panel lets you rewrite any of them.
+
+- Each language keeps its own wording. Renaming a button in Spanish leaves the
+  English board on its built-in English.
+- An empty box means "use the built-in text", which is what the greyed prompt
+  in each field shows you. `×` puts a single label back; the button at the foot
+  puts the whole language back.
+- Overrides live in `site_settings['site.ui']` as `key → { es, en }`. The key
+  is shown above each box, so it is searchable and diffable.
+- A key with no wording of its own falls back to the primary language and then
+  to the built-in default, so a third language added later is never blank.
+
+Reseeding does not touch it: `pnpm db:seed` upserts the keys the fixtures carry
+and `site.ui` is not one of them.
 
 ---
 
@@ -420,34 +463,72 @@ and no second site.
 
 ### Translating
 
-Press **`⇄ translate`** and every empty slot is filled from whichever language
-has the text — in either direction. It works both ways on purpose: a board
-already written in English can be seeded into Spanish, and from then on your
-Spanish drives the English.
+There are two buttons, and the difference matters.
 
-With **translate as I write** on, the same thing happens by itself a moment
-after you stop typing in a dossier.
+| Where | What it does |
+| --- | --- |
+| `⇄ traducir este artículo`, in an open article's bar | Fills the empty translations of *that article only*. |
+| `⇄ traducir todo`, in the owner bar | Fills the empty translations of the whole board and every article. |
+
+Hold **`Alt`** (or `Shift`) while pressing either one to *refresh* instead of
+fill: text that already has a translation is translated again from the source
+language. That is the way to push a rewritten Spanish paragraph into the
+English — without it, a slot that already has something is left alone for ever.
+
+Direction is decided per field, not fixed: whichever language has the text is
+the source. A board already written in English can be seeded into Spanish, and
+from then on your Spanish drives the English.
+
+With **translate as I write** on, the article you are writing has its empty
+slots filled by itself a few seconds after you stop typing. Deliberately narrow:
+one article, empty slots only, never a refresh — a background pass that rewrote
+text you had already corrected would be a worse bargain than doing nothing.
 
 **Translation happens while you edit, never while a visitor reads.** The result
 is stored, so the published site has no runtime dependency on any service. If a
 translation service is down it costs you a button press, not your site.
 
+#### When it runs out
+
+The free translators have limits, and the board is honest about which one it
+hit. Work is committed in small batches as it goes, so a run that stops half way
+keeps everything it had already translated — press the button again later and it
+picks up where it left off. If the day's allowance is spent you are told that in
+so many words, rather than being shown a network error.
+
+The whole seeded board is roughly 9.000 characters. MyMemory allows about 5.000
+a day anonymously and ten times that once it knows who is asking, which is why
+the board sends your account address as its contact parameter. Translating one
+article at a time keeps you comfortably inside it.
+
 ### Choosing a translator
 
 | Provider | What it needs | When to use it |
 | --- | --- | --- |
-| `mymemory` | Nothing to configure | The default. It is called from the browser only while the signed-in owner edits. The owner's account email is sent as MyMemory's contact parameter for its larger daily allowance; it is never stored in the board settings. |
-| `function` | A Neon Function and a provider key | Better prose or higher volume. See below. |
+| `mymemory` | Nothing to configure | The default. Keyless, called from the browser only while the signed-in owner edits. ~5.000 characters a day anonymously, ~50.000 with your address attached. It takes 500 characters per call, so long prose is split on sentence boundaries and rejoined. |
+| `google` | Nothing to configure | The keyless endpoint Google Translate's own web widget calls. Noticeably better prose, a whole paragraph per call, no daily ceiling in practice — but undocumented, so Google can change or close it at any time, and a shared or datacentre IP address gets rate-limited quickly. A good second option, not a foundation. |
+| `function` | A Neon Function and a provider key | Guaranteed prose or higher volume. See below. |
 | `off` | — | You want to type both languages yourself. |
 
-Both are free. The keyless one is enough to start; nothing needs configuring.
+All three keyless routes are free and none of them is ever touched by a visitor.
+
+#### A note on quality
+
+MyMemory answers with the best entry in a crowd-sourced translation *memory*,
+which is not the same thing as its machine translation — and a loose fuzzy match
+on somebody else's sentence often outranks the real one. Asked for *"Hola mundo,
+esto es una prueba"* it answers *"hello this is a test 123"*, while the machine
+translation sitting further down the same response says *"Hello world, this is a
+test"*. The board reads the machine entry, accepts a memory entry only when it
+is the very same sentence, and falls back to the headline answer last. If your
+translations used to come back subtly wrong, that was why.
 
 #### Wiring up your own translator
 
-The keyless route is good, not great. For DeepL's free tier (500k characters a
-month) or a self-hosted LibreTranslate, the key must stay server-side — so it
-goes in a Neon Function beside the storage broker, which already validates the
-owner's JWT.
+The keyless routes are good, not guaranteed. For DeepL's free tier (500k
+characters a month) or a self-hosted LibreTranslate, the key must stay
+server-side — so it goes in a Neon Function beside the storage broker, which
+already validates the owner's JWT.
 
 1. Add a `POST /translate` route to the project's Function that accepts
    `{ texts: string[], from: string, to: string }` and answers
@@ -465,6 +546,9 @@ Translated: every card's kicker, title, subtitle, intro, name, hint, blurb and
 note; drawer list names; photo captions and placeholders; sticky notes; a
 dossier's title, opening line, kicker, date and place; and every prose block —
 paragraphs, headings, quotes, list items, captions and alt text.
+
+Also translated, separately and by hand rather than by machine: the interface's
+own words — see [interface wording](#interface-wording).
 
 Not translated, deliberately: ids, tone and layout names, list keys, URLs,
 dates you typed as numbers, and the paired arrays — a card's `stats`, `links`,
@@ -815,14 +899,35 @@ Languages. **Panel:** owner bar → `theme` → **languages**. See
 | `enabled` | bool | true | Off means one language and no switcher, exactly as the board behaves without this. |
 | `primary` | a language code | `es` | The language you author in. Everything falls back to it. |
 | `languages` | `[{ code, label }]` | Español, English | Every language offered, in switcher order. Add or remove rows in the panel. |
-| `auto` | bool | true | Translate a dossier's empty languages shortly after you stop typing. |
-| `provider` | `mymemory` `function` `off` | `mymemory` | Where translations come from. |
+| `auto` | bool | true | Fill the *open* article's empty languages a few seconds after you stop typing. Never refreshes text that already has a translation. |
+| `provider` | `mymemory` `google` `function` `off` | `mymemory` | Where translations come from. See [choosing a translator](#choosing-a-translator). |
 | `remember` | bool | true | Keep the visitor's choice in their browser. |
 | `followBrowser` | bool | true | Offer the language their browser asks for on a first visit. |
 
 **To add a third language:** open the panel, press `+ language`, set its code
-(`fr`) and name (`Français`), then press `⇄ translate`. Nothing else changes —
-the switcher, the fallbacks and the translator all work off this list.
+(`fr`) and name (`Français`), then press `⇄ traducir todo`. Nothing else changes
+— the switcher, the fallbacks and the translator all work off this list. The
+interface's own wording has no built-in French, so it falls back to the primary
+language until you fill it in from the `textos` panel.
+
+### 7.6 · `site.ui`
+
+Interface wording. **Panel:** owner bar → `textos`. See
+[interface wording](#interface-wording).
+
+A flat map of `key → { es, en, … }`. Every key has a built-in default, so the
+document is empty on a fresh install and holds only what you have changed.
+
+```json
+{ "owner.entries": { "es": "dossiers" }, "board.fit": { "es": "ajustar" } }
+```
+
+| Rule | Why |
+| --- | --- |
+| A language slot is read only for its own language. | Renaming a button in Spanish must not put the Spanish word on the English board. |
+| An empty or missing slot falls through to the built-in wording. | The interface can never be blanked by a stray edit. |
+| A plain string instead of a map applies to every language. | Only reachable by hand-editing the JSON; the panel always writes a map. |
+| The seed never writes this key. | `pnpm db:seed` upserts the keys the fixtures carry, and this is not one of them, so reseeding leaves your wording alone. |
 
 ---
 

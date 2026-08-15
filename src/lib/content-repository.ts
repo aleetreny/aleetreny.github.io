@@ -149,6 +149,27 @@ export function listOwnerEntries(): Promise<StoredPortfolioEntry[]> {
   return fetchEntries(true);
 }
 
+/** The version counter one entry is on right now.
+ *
+ *  `save_content_entry` takes the expected version and refuses a write that
+ *  does not match. When the browser's idea of that number falls behind — a
+ *  second tab, a save whose answer never arrived — the owner's text is still
+ *  the newest thing in play, so the editor reads the counter back and writes
+ *  once more instead of discarding what they typed. Returns null when the row
+ *  cannot be read, which the caller treats as "leave the conflict standing". */
+export async function getEntryVersion(entryId: string): Promise<number | null> {
+  const neonClient = await getNeonClient();
+  if (!neonClient) return null;
+  const { data, error } = await neonClient
+    .from('content_entries')
+    .select('version')
+    .eq('id', entryId)
+    .limit(1);
+  if (error) return null;
+  const row = (data ?? [])[0] as { version?: unknown } | undefined;
+  return typeof row?.version === 'number' ? row.version : null;
+}
+
 export async function listDeletedEntries(): Promise<DeletedEntrySummary[]> {
   const neonClient = await getNeonClient();
   if (!neonClient) return [];

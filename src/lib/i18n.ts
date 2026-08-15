@@ -16,7 +16,7 @@ export type Localised = string | Record<string, string>;
 
 export type LanguageOption = { code: string; label: string };
 
-export const TRANSLATE_PROVIDERS = ['mymemory', 'function', 'off'] as const;
+export const TRANSLATE_PROVIDERS = ['mymemory', 'google', 'function', 'off'] as const;
 export type TranslateProvider = (typeof TRANSLATE_PROVIDERS)[number];
 
 export type I18nConfig = {
@@ -293,7 +293,15 @@ export function entryTextSlots(entry: unknown): Path[] {
   return out;
 }
 
-/** The slots `to` is missing, each with the language to translate it from.
+export type TranslateJob = { path: Path; text: string; from: string };
+
+/** `fill` only writes languages that have nothing — the safe default, and what
+ *  a background pass must always do.
+ *  `refresh` also rewrites languages that already carry a translation, which is
+ *  the only way an edit to the source language ever reaches the other one. */
+export type TranslateScope = 'fill' | 'refresh';
+
+/** The slots `to` still needs, each with the language to translate it from.
  *
  *  Direction is decided per slot rather than fixed: the primary language wins
  *  when it has the text, and otherwise whichever language does. That is what
@@ -305,14 +313,18 @@ export function missingAt(
   languages: string[],
   to: string,
   primary: string,
-): Array<{ path: Path; text: string; from: string }> {
+  scope: TranslateScope = 'fill',
+): TranslateJob[] {
   const order = [primary, ...languages.filter((code) => code !== primary && code !== to)];
-  const out: Array<{ path: Path; text: string; from: string }> = [];
+  const out: TranslateJob[] = [];
   for (const path of slots) {
     const value = readAt(document, path);
-    if (hasText(value, to, primary)) continue;
+    if (scope === 'fill' && hasText(value, to, primary)) continue;
     const from = order.find((code) => hasText(value, code, primary));
     if (!from) continue;
+    // A plain string is the primary language by definition, so refreshing it
+    // into itself would only overwrite the source with a round trip.
+    if (from === to) continue;
     const text = pickText(value, from, from);
     if (!text.trim()) continue;
     out.push({ path, text, from });

@@ -15,34 +15,31 @@ export type DossierBlockType =
   | 'tags'
   | 'divider';
 
-export const BLOCK_PALETTE: Array<{ type: DossierBlockType; label: string; hint: string }> = [
-  { type: 'heading', label: 'Heading', hint: 'A section title' },
-  { type: 'text', label: 'Paragraph', hint: 'A block of prose' },
-  { type: 'callout', label: 'Callout', hint: 'A highlighted note' },
-  { type: 'quote', label: 'Quote', hint: 'A pulled quotation' },
-  { type: 'list', label: 'List', hint: 'Bulleted points' },
-  { type: 'metrics', label: 'Numbers', hint: 'Value + label figures' },
-  { type: 'image', label: 'Image', hint: 'A photo slot' },
-  { type: 'links', label: 'Links', hint: 'External links' },
-  { type: 'tags', label: 'Tags', hint: 'Filed-under keywords' },
-  { type: 'divider', label: 'Divider', hint: 'A thin rule' },
+/** The palette's order. Its words live in the wording catalogue under
+ *  `block.<type>` and `block.<type>.hint`, so the buttons speak the language
+ *  the owner is writing in and stay editable. */
+export const BLOCK_TYPES: DossierBlockType[] = [
+  'heading', 'text', 'callout', 'quote', 'list', 'metrics', 'image', 'links', 'tags', 'divider',
 ];
 
-export const BLOCK_LABELS: Record<string, string> = Object.fromEntries(
-  BLOCK_PALETTE.map((entry) => [entry.type, entry.label]),
-);
-
+/** A new block starts empty rather than pre-filled with sample prose.
+ *
+ *  It used to arrive carrying "Write something here." — English text that then
+ *  had to be selected and deleted, and that a translation pass would happily
+ *  copy into the other language as if it were real content. An empty block
+ *  shows its placeholder instead: nothing to delete, nothing to translate, and
+ *  no half-written sentence can reach the published board. */
 function defaultProps(type: DossierBlockType): Record<string, unknown> {
   switch (type) {
-    case 'heading': return { text: 'Section' };
-    case 'text': return { text: 'Write something here.' };
-    case 'callout': return { text: 'Something worth highlighting.' };
-    case 'quote': return { text: 'A line worth quoting.', cite: '' };
-    case 'list': return { items: ['First point'] };
-    case 'metrics': return { items: [['0', 'label']] };
+    case 'heading': return { text: '' };
+    case 'text': return { text: '' };
+    case 'callout': return { text: '' };
+    case 'quote': return { text: '', cite: '' };
+    case 'list': return { items: [''] };
+    case 'metrics': return { items: [['', '']] };
     case 'image': return { url: '', alt: '', caption: '' };
-    case 'links': return { items: [['Label', 'https://']] };
-    case 'tags': return { items: ['tag'] };
+    case 'links': return { items: [['', '']] };
+    case 'tags': return { items: [''] };
     case 'divider': return {};
     default: return {};
   }
