@@ -71,6 +71,14 @@ export function reorderById<T extends { id: string }>(items: T[], sourceId: stri
   return next;
 }
 
+/** Insert an item directly after a known block, preserving the surrounding
+ * order. Contextual “add below” controls use the same rule everywhere. */
+export function insertAfterId<T extends { id: string }>(items: T[], targetId: string, item: T): T[] {
+  const index = items.findIndex((candidate) => candidate.id === targetId);
+  if (index < 0) return [...items, item];
+  return [...items.slice(0, index + 1), item, ...items.slice(index + 1)];
+}
+
 /** Read a string prop safely. */
 export function propString(block: ContentBlock, key: string): string {
   const value = block.props[key];

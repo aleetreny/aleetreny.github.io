@@ -124,6 +124,20 @@ export function removeTextLink(links: TextLink[], link: TextLink): TextLink[] {
   return links.filter((candidate) => candidate.start !== link.start || candidate.end !== link.end || candidate.href !== link.href);
 }
 
+/** Divide the link ranges with their prose. A link spanning the split remains
+ * linked on both sides, with coordinates local to each new paragraph. */
+export function splitTextLinks(links: TextLink[], offset: number, textLength: number): { before: TextLink[]; after: TextLink[] } {
+  const at = Math.max(0, Math.min(textLength, Math.trunc(offset)));
+  return {
+    before: normaliseTextLinks(links.flatMap((link): TextLink[] => (
+      link.start < at ? [{ ...link, end: Math.min(link.end, at) }] : []
+    )), at),
+    after: normaliseTextLinks(links.flatMap((link): TextLink[] => (
+      link.end > at ? [{ ...link, start: Math.max(0, link.start - at), end: link.end - at }] : []
+    )), textLength - at),
+  };
+}
+
 /** Rebase ranges after one text edit. Ranges touched by the edit are removed;
  * untouched links remain, including links after the changed passage. */
 export function rebaseTextLinks(links: TextLink[], previous: string, next: string): TextLink[] {

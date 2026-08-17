@@ -236,15 +236,15 @@ export const MARGINALIA = [
 // writes in `primary`, and the translate action in the owner bar fills the rest.
 export const I18N = {
   enabled: true,
-  primary: 'es',
+  primary: 'en',
   languages: [
-    { code: 'es', label: 'Español' },
     { code: 'en', label: 'English' },
+    { code: 'es', label: 'Español' },
   ],
   auto: true, // translate a field when the owner leaves it
   provider: 'mymemory', // mymemory (keyless) | function (your own key) | off
   remember: true, // keep the visitor's choice
-  followBrowser: true, // otherwise guess from Accept-Language
+  followBrowser: false, // start in English regardless of the visitor's browser
 };
 
 // The guided tour — the slate slams onto the wall and the visitor walks the

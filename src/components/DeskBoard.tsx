@@ -758,64 +758,72 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const runTour = useCallback(async () => {
     const token = (tokenRef.current += 1);
     const alive = () => token === tokenRef.current;
-    const box = viewportRef.current?.getBoundingClientRect();
-    const stops = isNarrow(tourRef.current, box?.width ?? window.innerWidth, box?.height ?? window.innerHeight)
-      ? splitStops(buildStops(tourRef.current, itemsRef.current), tourRef.current.mobile.maxPerStop)
-      : buildStops(tourRef.current, itemsRef.current);
-    stopsRef.current = stops;
-    setTourTotal(stops.length);
-    if (stops.length === 0) { endTour('fit'); return; }
+    try {
+      const box = viewportRef.current?.getBoundingClientRect();
+      const stops = isNarrow(tourRef.current, box?.width ?? window.innerWidth, box?.height ?? window.innerHeight)
+        ? splitStops(buildStops(tourRef.current, itemsRef.current), tourRef.current.mobile.maxPerStop)
+        : buildStops(tourRef.current, itemsRef.current);
+      stopsRef.current = stops;
+      setTourTotal(stops.length);
+      if (stops.length === 0) { endTour('fit'); return; }
 
-    const startSpeed = tourRef.current.speed > 0 ? tourRef.current.speed : 1;
-    await wait(tourRef.current.intro.hold / startSpeed);
-    if (!alive()) return;
-    await playIntro();
-    if (!alive()) return;
-    await wait(tourRef.current.intro.settle / (tourRef.current.speed > 0 ? tourRef.current.speed : 1));
-    if (!alive()) return;
-
-    let i = 0;
-    while (i < stops.length) {
+      const startSpeed = tourRef.current.speed > 0 ? tourRef.current.speed : 1;
+      await wait(tourRef.current.intro.hold / startSpeed);
       if (!alive()) return;
-      const stop = stops[i];
-      // Read the config fresh each stop, so an owner tweaking the panel mid-run
-      // sees it applied from the very next move.
-      const cfg = tourRef.current;
-      const speed = cfg.speed > 0 ? cfg.speed : 1;
-      setTourStep(i + 1);
-      setTourLabel(stop.label);
-      setTourWaiting(false);
-
-      const target = frameFor(stop.items);
-      if (target) await flyTo(target, (i === 0 ? cfg.camera.firstDuration : cfg.camera.duration) / speed);
+      await playIntro();
+      if (!alive()) return;
+      await wait(tourRef.current.intro.settle / (tourRef.current.speed > 0 ? tourRef.current.speed : 1));
       if (!alive()) return;
 
-      if (stop.items.some((id) => !shownRef.current.has(id))) {
-        const order = revealSequence(stop.items.length, cfg.reveal.order);
-        const stagger = cfg.reveal.order === 'together' ? 0 : cfg.reveal.stagger / speed;
-        for (const index of order) {
-          if (!alive()) return;
-          showItem(stop.items[index], index, true);
-          await wait(stagger);
-        }
+      let i = 0;
+      while (i < stops.length) {
         if (!alive()) return;
-      }
+        const stop = stops[i];
+        // Read the config fresh each stop, so an owner tweaking the panel mid-run
+        // sees it applied from the very next move.
+        const cfg = tourRef.current;
+        const speed = cfg.speed > 0 ? cfg.speed : 1;
+        setTourStep(i + 1);
+        setTourLabel(stop.label);
+        setTourWaiting(false);
 
-      setTourWaiting(true);
-      const asked = await gate();
-      if (!alive()) return;
-      if (asked === 'skip') { endTour('fit'); return; }
-      if (typeof asked === 'number') {
-        const next = Math.max(0, Math.min(stops.length - 1, asked));
-        showThrough(next);
-        i = next;
-        continue;
+        const target = frameFor(stop.items);
+        if (target) await flyTo(target, (i === 0 ? cfg.camera.firstDuration : cfg.camera.duration) / speed);
+        if (!alive()) return;
+
+        if (stop.items.some((id) => !shownRef.current.has(id))) {
+          const order = revealSequence(stop.items.length, cfg.reveal.order);
+          const stagger = cfg.reveal.order === 'together' ? 0 : cfg.reveal.stagger / speed;
+          for (const index of order) {
+            if (!alive()) return;
+            showItem(stop.items[index], index, true);
+            await wait(stagger);
+          }
+          if (!alive()) return;
+        }
+
+        setTourWaiting(true);
+        const asked = await gate();
+        if (!alive()) return;
+        if (asked === 'skip') { endTour('fit'); return; }
+        if (typeof asked === 'number') {
+          const next = Math.max(0, Math.min(stops.length - 1, asked));
+          showThrough(next);
+          i = next;
+          continue;
+        }
+        i = asked === 'back' ? Math.max(0, i - 1) : i + 1;
+        if (i >= stops.length && tourRef.current.loop) i = 0;
       }
-      i = asked === 'back' ? Math.max(0, i - 1) : i + 1;
-      if (i >= stops.length && tourRef.current.loop) i = 0;
+      if (!alive()) return;
+      endTour('fit');
+    } catch (error) {
+      // A tour begins by hiding the board. An interrupted animation must not
+      // strand visitors on an empty slate until they reload the page.
+      if (!alive()) return;
+      console.error('Guided tour interrupted; restoring the board.', error);
+      endTour('fit');
     }
-    if (!alive()) return;
-    endTour('fit');
   }, [endTour, flyTo, frameFor, gate, playIntro, showItem, showThrough, wait]);
 
   /** Re-hide everything and play the run from stop one. */
@@ -857,7 +865,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         // React's development double-mount tears the tour down and mounts
         // again; rewinding lets the second mount replay it instead of leaving
         // the board hidden forever.
-        if (phaseRef.current === 'tour') phaseRef.current = 'pre';
+        if (phaseRef.current === 'tour') {
+          revealAll();
+          phaseRef.current = 'pre';
+        }
       },
     };
   });
@@ -1851,7 +1862,6 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 <div className="ownerbar__row">
                   {i18n.enabled && i18n.languages.length > 1 ? (
                     <>
-                      <span className="ownerbar__add">{t('owner.writing')}</span>
                       {i18n.languages.map((option) => (
                         <button
                           key={option.code}

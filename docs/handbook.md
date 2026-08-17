@@ -897,12 +897,12 @@ Languages. **Panel:** owner bar → `theme` → **languages**. See
 | Field | Values | Default | What it does |
 | --- | --- | --- | --- |
 | `enabled` | bool | true | Off means one language and no switcher, exactly as the board behaves without this. |
-| `primary` | a language code | `es` | The language you author in. Everything falls back to it. |
-| `languages` | `[{ code, label }]` | Español, English | Every language offered, in switcher order. Add or remove rows in the panel. |
-| `auto` | bool | true | Fill the *open* article's empty languages a few seconds after you stop typing. Never refreshes text that already has a translation. |
-| `provider` | `mymemory` `google` `function` `off` | `mymemory` | Where translations come from. See [choosing a translator](#choosing-a-translator). |
+| `primary` | a language code | `en` | The language you author in. Everything falls back to it. |
+| `languages` | `[{ code, label }]` | English, Español | Every language offered, in switcher order. Add or remove rows in the panel. |
+| `auto` | bool | true | Translate a dossier's empty languages shortly after you stop typing. |
+| `provider` | `mymemory` `function` `off` | `mymemory` | Where translations come from. |
 | `remember` | bool | true | Keep the visitor's choice in their browser. |
-| `followBrowser` | bool | true | Offer the language their browser asks for on a first visit. |
+| `followBrowser` | bool | false | Offer the language their browser asks for on a first visit. |
 
 **To add a third language:** open the panel, press `+ language`, set its code
 (`fr`) and name (`Français`), then press `⇄ traducir todo`. Nothing else changes

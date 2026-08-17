@@ -135,6 +135,7 @@ const CATALOGUE: Record<string, Entry> = {
   'dossier.prev': { es: 'Anterior', en: 'Previous' },
   'dossier.next': { es: 'Siguiente', en: 'Next' },
   'dossier.addBlock': { es: 'añadir bloque', en: 'add block' },
+  'dossier.addParagraph': { es: 'añadir párrafo debajo', en: 'add paragraph below' },
   'dossier.dragBlock': { es: 'Arrastra para reordenar', en: 'Drag to reorder' },
   'dossier.deleteBlock': { es: 'Borrar bloque', en: 'Delete block' },
   'dossier.delete': { es: 'Borrar', en: 'Delete' },

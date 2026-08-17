@@ -38,12 +38,12 @@ export type I18nConfig = {
 
 const BASE_I18N: I18nConfig = {
   enabled: false,
-  primary: 'es',
-  languages: [{ code: 'es', label: 'Español' }, { code: 'en', label: 'English' }],
+  primary: 'en',
+  languages: [{ code: 'en', label: 'English' }, { code: 'es', label: 'Español' }],
   auto: true,
   provider: 'mymemory',
   remember: true,
-  followBrowser: true,
+  followBrowser: false,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

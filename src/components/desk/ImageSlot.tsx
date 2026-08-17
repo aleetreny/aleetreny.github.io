@@ -16,27 +16,59 @@ export function ImageSlot({ url, alt, placeholder, editable = false, busy = fals
   const t = useUiText();
   const slotText = placeholder ?? t('card.dropPhoto');
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
   const [over, setOver] = useState(false);
 
   function handleFiles(files: FileList | null) {
-    const file = files?.[0];
+    const file = files ? Array.from(files).find((candidate) => candidate.type.startsWith('image/') || /\.(avif|gif|jpe?g|png|svg|webp)$/i.test(candidate.name)) : undefined;
     if (file && onPick) onPick(file);
   }
 
-  function onDrop(event: DragEvent) {
+  function isFileDrag(event: DragEvent) {
+    return Array.from(event.dataTransfer.types).includes('Files');
+  }
+
+  function onDragEnter(event: DragEvent) {
+    if (!editable || !isFileDrag(event)) return;
     event.preventDefault();
+    event.stopPropagation();
+    dragDepth.current += 1;
+    setOver(true);
+  }
+
+  function onDragOver(event: DragEvent) {
+    if (!editable || !isFileDrag(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+    setOver(true);
+  }
+
+  function onDragLeave(event: DragEvent) {
+    if (!editable || !isFileDrag(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (dragDepth.current === 0) setOver(false);
+  }
+
+  function onDrop(event: DragEvent) {
+    if (!editable) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepth.current = 0;
     setOver(false);
-    if (editable) handleFiles(event.dataTransfer.files);
+    handleFiles(event.dataTransfer.files);
   }
 
   return (
     <div
-      className={`slot${url ? ' slot--filled' : ''}${editable ? ' slot--editable' : ''}`}
+      className={`slot${url ? ' slot--filled' : ''}${editable ? ' slot--editable' : ''}${over ? ' slot--dragover' : ''}`}
       {...(editable ? { 'data-nodrag': '' } : {})}
-      style={over ? { outlineColor: 'var(--c-signal)' } : undefined}
       onClick={editable ? () => inputRef.current?.click() : undefined}
-      onDragOver={editable ? (event) => { event.preventDefault(); setOver(true); } : undefined}
-      onDragLeave={editable ? () => setOver(false) : undefined}
+      onDragEnter={editable ? onDragEnter : undefined}
+      onDragOver={editable ? onDragOver : undefined}
+      onDragLeave={editable ? onDragLeave : undefined}
       onDrop={editable ? onDrop : undefined}
       role={editable ? 'button' : undefined}
       tabIndex={editable ? 0 : undefined}

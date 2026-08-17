@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BLOCK_TYPES, newBlock, propPairList, propString, propStringList, reorderById } from './blocks';
+import { BLOCK_TYPES, insertAfterId, newBlock, propPairList, propString, propStringList, reorderById } from './blocks';
 
 describe('dossier blocks', () => {
   it('creates every palette block with sane defaults', () => {
@@ -28,5 +28,11 @@ describe('dossier blocks', () => {
     expect(reorderById(blocks, 'a', 'c').map((block) => block.id)).toEqual(['b', 'a', 'c', 'd']);
     expect(reorderById(blocks, 'd', 'b', true).map((block) => block.id)).toEqual(['a', 'b', 'd', 'c']);
     expect(reorderById(blocks, 'b', 'b')).toBe(blocks);
+  });
+
+  it('inserts a block immediately after its target', () => {
+    const blocks = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+    expect(insertAfterId(blocks, 'b', { id: 'new' }).map((block) => block.id)).toEqual(['a', 'b', 'new', 'c']);
+    expect(insertAfterId(blocks, 'missing', { id: 'new' }).map((block) => block.id)).toEqual(['a', 'b', 'c', 'new']);
   });
 });

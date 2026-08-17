@@ -12,6 +12,7 @@ import {
   rebaseTextLinks,
   setLinksForLanguageAt,
   setLinksForLanguage,
+  splitTextLinks,
 } from './rich-text';
 
 describe('article prose links', () => {
@@ -61,6 +62,23 @@ describe('article prose links', () => {
       { start: 0, end: 4, href: 'https://one.example' },
       { start: 17, end: 21, href: 'https://two.example' },
     ]);
+  });
+
+  it('splits link ranges into their new paragraphs', () => {
+    expect(splitTextLinks([
+      { start: 0, end: 2, href: 'https://one.example' },
+      { start: 3, end: 8, href: 'article:case-study' },
+      { start: 9, end: 12, href: 'https://two.example' },
+    ], 5, 12)).toEqual({
+      before: [
+        { start: 0, end: 2, href: 'https://one.example' },
+        { start: 3, end: 5, href: 'article:case-study' },
+      ],
+      after: [
+        { start: 0, end: 3, href: 'article:case-study' },
+        { start: 4, end: 7, href: 'https://two.example' },
+      ],
+    });
   });
 
   it('keeps link ranges isolated to their article language', () => {

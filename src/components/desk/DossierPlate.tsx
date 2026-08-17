@@ -1,8 +1,8 @@
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
-import { BLOCK_TYPES, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
+import { BLOCK_TYPES, insertAfterId, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
-import { linksForLanguage, linksForLanguageAt, removeLinksForLanguageAt, setLinksForLanguage, setLinksForLanguageAt, type TextLink } from '../../lib/rich-text';
+import { linksForLanguage, linksForLanguageAt, rebaseTextLinks, removeLinksForLanguageAt, setLinksForLanguage, setLinksForLanguageAt, splitTextLinks, type TextLink } from '../../lib/rich-text';
 import { ImageSlot } from './ImageSlot';
 import { RichText } from './RichText';
 import { EditableText } from './EditableText';
@@ -57,6 +57,7 @@ export function DossierPlate({
   const t = useUiText();
   const closeRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const latestEntryRef = useRef(entry);
   const [busyBlock, setBusyBlock] = useState<string | null>(null);
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
@@ -72,6 +73,7 @@ export function DossierPlate({
 
   useEffect(() => { closeRef.current?.focus(); }, []);
   useEffect(() => { if (sheetRef.current) sheetRef.current.scrollTop = 0; }, [entry.slug]);
+  useLayoutEffect(() => { latestEntryRef.current = entry; }, [entry]);
   useEffect(() => () => {
     if (dragScrollFrame.current !== null) window.cancelAnimationFrame(dragScrollFrame.current);
   }, []);
@@ -86,7 +88,8 @@ export function DossierPlate({
   const blocks = [...entry.blocks].sort((a, b) => a.position - b.position);
 
   const setMeta = (key: string, value: unknown) => onChange({ ...entry, metadata: { ...entry.metadata, [key]: value } });
-  const commitBlocks = (next: ContentBlock[]) => onChange({ ...entry, blocks: next.map((block, index) => ({ ...block, position: index })) });
+  const normaliseBlocks = (next: ContentBlock[]) => next.map((block, index) => ({ ...block, position: index }));
+  const commitBlocks = (next: ContentBlock[]) => onChange({ ...entry, blocks: normaliseBlocks(next) });
   const updateBlock = (id: string, props: Record<string, unknown>) =>
     commitBlocks(blocks.map((block) => (block.id === id ? { ...block, props: { ...block.props, ...props } } : block)));
   const updateLinkedText = (block: ContentBlock, text: string, links: TextLink[]) =>
@@ -103,6 +106,18 @@ export function DossierPlate({
     commitBlocks([...blocks, block]);
     setFocusTarget({ block: block.id });
   };
+  const addParagraphAfter = (id: string) => {
+    // Let the field losing focus store its text before producing the following
+    // block. Reading the latest entry prevents the pending blur from replacing
+    // that paragraph with its stale pre-click value.
+    window.setTimeout(() => {
+      const latest = latestEntryRef.current;
+      const current = [...latest.blocks].sort((a, b) => a.position - b.position);
+      const paragraph = newBlock('text', current.length);
+      onChange({ ...latest, blocks: normaliseBlocks(insertAfterId(current, id, paragraph)) });
+      setFocusTarget({ block: paragraph.id });
+    }, 0);
+  };
 
   /** Enter inside prose: keep what is before the caret, carry what is after it
    *  into a fresh block, and put the caret at its start.
@@ -117,10 +132,21 @@ export function DossierPlate({
       : (block.type as DossierBlockType);
     const created = newBlock(nextType, 0);
     const index = blocks.findIndex((item) => item.id === block.id);
+    const previous = propString(block, 'text');
+    const current = `${before}${after}`;
+    const rebasedLinks = rebaseTextLinks(
+      linksForLanguage(block.props.textLinks, activeLanguage, previous.length),
+      previous,
+      current,
+    );
+    const { before: beforeLinks, after: afterLinks } = splitTextLinks(rebasedLinks, before.length, current.length);
     const next = blocks.map((item) => (item.id === block.id
-      ? { ...item, props: { ...item.props, text: before, textLinks: setLinksForLanguage(item.props.textLinks, activeLanguage, []) } }
+      ? { ...item, props: { ...item.props, text: before, textLinks: setLinksForLanguage(item.props.textLinks, activeLanguage, beforeLinks) } }
       : item));
-    next.splice(index + 1, 0, { ...created, props: { ...created.props, text: after } });
+    next.splice(index + 1, 0, {
+      ...created,
+      props: { ...created.props, text: after, textLinks: setLinksForLanguage(undefined, activeLanguage, afterLinks) },
+    });
     commitBlocks(next);
     setFocusTarget({ block: created.id });
   };
@@ -480,7 +506,6 @@ export function DossierPlate({
             <span className="dossier__bar-pos">{posLabel}</span>
           </div>
           <div className="dossier__bar-actions">
-            {editing ? <span className="dossier__editflag">{t('dossier.editFlag')}</span> : null}
             {editing && saveLabel ? (
               <span className={`dossier__save dossier__save--${saveState}`} title={saveError || undefined}>
                 {saveLabel}
@@ -543,6 +568,7 @@ export function DossierPlate({
                   {editing ? (
                     <div className="db-block__ctrl" data-nodrag>
                       <button className="db-block__drag" type="button" onPointerDown={(event) => startBlockDrag(event, block.id)} onPointerMove={movePointerBlockDrag} onPointerUp={finishPointerBlockDrag} onPointerCancel={clearBlockDrag} onLostPointerCapture={clearBlockDrag} onMouseDown={(event) => startMouseBlockDrag(event, block.id)} aria-label={t('dossier.dragBlock')} title={t('dossier.dragBlock')}>⠿</button>
+                      <button className="db-block__add" type="button" onClick={() => addParagraphAfter(block.id)} aria-label={t('dossier.addParagraph')} title={t('dossier.addParagraph')}>+</button>
                       <button type="button" onClick={() => removeBlock(block.id)} aria-label={t('dossier.deleteBlock')}>✕</button>
                     </div>
                   ) : null}

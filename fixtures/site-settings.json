@@ -682,21 +682,21 @@
     "key": "site.i18n",
     "value": {
       "enabled": true,
-      "primary": "es",
+      "primary": "en",
       "languages": [
-        {
-          "code": "es",
-          "label": "Español"
-        },
         {
           "code": "en",
           "label": "English"
+        },
+        {
+          "code": "es",
+          "label": "Español"
         }
       ],
       "auto": true,
       "provider": "mymemory",
       "remember": true,
-      "followBrowser": true
+      "followBrowser": false
     },
     "is_public": true
   }
