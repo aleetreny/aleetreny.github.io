@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { BoardCard } from '../../lib/board';
-import { entriesForGroup } from '../../lib/board';
+import { entriesForGroup, reorderGroupEntries } from '../../lib/board';
 import type { PortfolioEntry } from '../../types/content';
 import { EditableText } from './EditableText';
 import { useUiText } from './ui-text-context';
@@ -12,6 +12,9 @@ type BoardCardViewProps = {
   entries: PortfolioEntry[];
   editing: boolean;
   onCardEdit: CardEdit;
+  onAddEntry: (group: string) => void;
+  onDeleteEntry: (entry: PortfolioEntry) => void;
+  onReorderEntries: (entries: PortfolioEntry[]) => void;
 };
 
 type FieldTag = 'span' | 'div' | 'p';
@@ -70,21 +73,87 @@ function MoreRow({ count, groupId }: { count: number; groupId: string }) {
   );
 }
 
-function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntry[] }) {
+function EntryRowControls({
+  entry,
+  index,
+  count,
+  onMove,
+  onDelete,
+}: {
+  entry: PortfolioEntry;
+  index: number;
+  count: number;
+  onMove: (delta: -1 | 1) => void;
+  onDelete: () => void;
+}) {
+  const t = useUiText();
+  return (
+    <span className="row__controls" data-nodrag role="group" aria-label={t('inv.reorderEntry', { title: entry.title })}>
+      <button
+        type="button"
+        disabled={index === 0}
+        onClick={() => onMove(-1)}
+        aria-label={t('inv.moveEntryUp', { title: entry.title })}
+        title={t('inv.moveEntryUp', { title: entry.title })}
+      >↑</button>
+      <button
+        type="button"
+        disabled={index === count - 1}
+        onClick={() => onMove(1)}
+        aria-label={t('inv.moveEntryDown', { title: entry.title })}
+        title={t('inv.moveEntryDown', { title: entry.title })}
+      >↓</button>
+      <button
+        className="row__delete"
+        type="button"
+        onClick={onDelete}
+        aria-label={t('card.deleteEntry', { title: entry.title })}
+        title={t('card.deleteEntry', { title: entry.title })}
+      >×</button>
+    </span>
+  );
+}
+
+function DrawerRows({
+  card,
+  entries,
+  editing,
+  onDeleteEntry,
+  onReorderEntries,
+}: {
+  card: BoardCard;
+  entries: PortfolioEntry[];
+  editing: boolean;
+  onDeleteEntry: (entry: PortfolioEntry) => void;
+  onReorderEntries: (entries: PortfolioEntry[]) => void;
+}) {
   const items = entriesForGroup(entries, card.group ?? '');
   const layout = card.layout ?? 'list';
   const cap = card.maxItems && card.maxItems > 0 ? card.maxItems : items.length;
   const visible = items.slice(0, cap);
   const overflow = items.length - visible.length;
   const groupId = card.group ?? '';
+  const controls = (entry: PortfolioEntry, index: number) => editing ? (
+    <EntryRowControls
+      entry={entry}
+      index={index}
+      count={items.length}
+      onMove={(delta) => {
+        const nextIndex = index + delta;
+        onReorderEntries(reorderGroupEntries(entries, groupId, index, nextIndex));
+      }}
+      onDelete={() => onDeleteEntry(entry)}
+    />
+  ) : null;
 
   if (layout === 'grid') {
     return (
       <div className="rows rows--grid">
-        {visible.map((entry) => (
+        {visible.map((entry, index) => (
           <div className="row row--stack" data-open={entry.slug} key={entry.id}>
             <span className="row__title" style={{ fontSize: 13.5 }}>{entry.title}</span>
             <span className="row__desc">{firstTag(entry) || metaLine(entry)}</span>
+            {controls(entry, index)}
           </div>
         ))}
         {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
@@ -95,16 +164,17 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
   if (layout === 'atlas') {
     return (
       <div className="rows">
-        {visible.map((entry) => (
+        {visible.map((entry, index) => (
           <div
             className="row"
             data-open={entry.slug}
             key={entry.id}
-            style={{ display: 'grid', gridTemplateColumns: '34px 1fr auto', gap: 10, alignItems: 'baseline', padding: '6px 9px' }}
+            style={{ display: 'grid', gridTemplateColumns: '34px 1fr auto auto', gap: 10, alignItems: 'baseline', padding: '6px 9px' }}
           >
             <span style={{ color: 'var(--c-accent)', fontSize: 11 }}>{typeof entry.metadata.code === 'string' ? entry.metadata.code : '·'}</span>
             <span className="row__title" style={{ fontWeight: 600 }}>{entry.title}</span>
             <span className="row__meta">{typeof entry.metadata.when === 'string' ? entry.metadata.when : ''}</span>
+            {controls(entry, index)}
           </div>
         ))}
         {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
@@ -115,10 +185,11 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
   if (layout === 'compact' || layout === 'notes') {
     return (
       <div className="rows">
-        {visible.map((entry) => (
+        {visible.map((entry, index) => (
           <div className="row row--stack" data-open={entry.slug} key={entry.id}>
             <span className="row__title" style={{ fontSize: 14 }}>{entry.title}</span>
             <span className="row__desc">{layout === 'notes' ? entry.summary : (metaLine(entry) || firstTag(entry))}</span>
+            {controls(entry, index)}
           </div>
         ))}
         {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
@@ -129,10 +200,11 @@ function DrawerRows({ card, entries }: { card: BoardCard; entries: PortfolioEntr
   // list
   return (
     <div className="rows">
-      {visible.map((entry) => (
+      {visible.map((entry, index) => (
         <div className="row" data-open={entry.slug} key={entry.id}>
           <span className="row__title">{entry.title}</span>
           <span className="row__meta">{metaLine(entry)}</span>
+          {controls(entry, index)}
         </div>
       ))}
       {overflow > 0 ? <MoreRow count={overflow} groupId={groupId} /> : null}
@@ -257,7 +329,7 @@ function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   return <div className={`card__surface card__surface--${tone}`} style={style}>{children}</div>;
 }
 
-export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardViewProps) {
+export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, onDeleteEntry, onReorderEntries }: BoardCardViewProps) {
   const t = useUiText();
   const field = (
     key: keyof BoardCard,
@@ -375,7 +447,12 @@ export function BoardCardView({ card, entries, editing, onCardEdit }: BoardCardV
       {field('title', card.title, { className: 'card__title', placeholder: t('ph.title') })}
       {card.subtitle || editing ? field('subtitle', card.subtitle, { className: 'card__sub', placeholder: t('ph.text') }) : null}
       {card.intro || editing ? field('intro', card.intro, { className: 'card__intro', placeholder: t('ph.text') }) : null}
-      <DrawerRows card={card} entries={entries} />
+      <DrawerRows card={card} entries={entries} editing={editing} onDeleteEntry={onDeleteEntry} onReorderEntries={onReorderEntries} />
+      {editing ? (
+        <button className="drawer__add" type="button" data-nodrag onClick={() => onAddEntry(card.group ?? '')}>
+          {t('card.addEntry')}
+        </button>
+      ) : null}
       <CardStats card={card} editing={editing} onCardEdit={onCardEdit} />
       <ToolChips card={card} editing={editing} onCardEdit={onCardEdit} />
       {card.footerLink ? (

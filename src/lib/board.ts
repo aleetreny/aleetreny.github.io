@@ -755,6 +755,33 @@ export function entriesForGroup(entries: PortfolioEntry[], group: string): Portf
     .sort((a, b) => metaNumber(a, 'order') - metaNumber(b, 'order'));
 }
 
+/** Return a drawer's entries after moving one item and normalising every
+ * stored order. Keeping this operation here means every editor surface uses
+ * the same ordering rules, including entries that arrived without an order. */
+export function reorderGroupEntries(
+  entries: PortfolioEntry[],
+  group: string,
+  fromIndex: number,
+  toIndex: number,
+): PortfolioEntry[] {
+  const ordered = entriesForGroup(entries, group);
+  if (
+    fromIndex < 0 || fromIndex >= ordered.length
+    || toIndex < 0 || toIndex >= ordered.length
+    || fromIndex === toIndex
+  ) {
+    return ordered;
+  }
+
+  const next = [...ordered];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return next.map((entry, order) => ({
+    ...entry,
+    metadata: { ...entry.metadata, order },
+  }));
+}
+
 /** Board-wide dossier order: drawers in sequence, entries by order within each. */
 export function dossierOrder(entries: PortfolioEntry[], groupIds: string[]): string[] {
   const order: string[] = [];

@@ -24,6 +24,7 @@ import {
   type Polaroid,
   type ThemeConfig,
 } from '../lib/board';
+import { createEntry, slugify } from '../lib/editor';
 import {
   DEFAULT_I18N,
   boardTextSlots,
@@ -69,6 +70,7 @@ import {
   type TourStop,
 } from '../lib/tour';
 import {
+  deleteContentEntry,
   hasOwnerSession,
   isCurrentUserOwner,
   getCurrentOwnerEmail,
@@ -1106,6 +1108,53 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     changeEntry({ ...entry, metadata: { ...entry.metadata, group, order } });
   }, [entries, changeEntry]);
 
+  const reorderEntries = useCallback((reordered: PortfolioEntry[]) => {
+    reordered.forEach((entry) => changeEntry(entry));
+  }, [changeEntry]);
+
+  const addEntryToDrawer = useCallback((group: string) => {
+    const title = window.prompt(tRef.current('inv.titlePrompt'))?.trim();
+    if (!title) return;
+
+    const base = createEntry('note');
+    const label = board.groups.find((item) => item.id === group)?.label ?? group;
+    const entry: PortfolioEntry = {
+      ...base,
+      version: 1,
+      slug: slugify(title) || `nota-${base.id.slice(0, 6)}`,
+      title,
+      summary: '',
+      status: 'published',
+      publishedAt: new Date().toISOString(),
+      metadata: { kicker: label, when: '', where: '', group, order: entriesForGroup(entries, group).length },
+      blocks: [],
+    };
+
+    void (async () => {
+      try {
+        const saved = remoteDataEnabled ? await saveContentEntry(entry, 'create from drawer', primaryRef.current) : entry;
+        setEntries((list) => [...list, saved]);
+        flash(tRef.current('inv.created'));
+      } catch (reason) {
+        flash(reason instanceof Error ? reason.message : tRef.current('inv.createFailed'), true);
+      }
+    })();
+  }, [board.groups, entries, flash, remoteDataEnabled]);
+
+  const deleteEntryFromDrawer = useCallback((entry: PortfolioEntry) => {
+    if (!window.confirm(tRef.current('inv.confirmTrash', { title: entry.title }))) return;
+
+    void (async () => {
+      try {
+        if (remoteDataEnabled) await deleteContentEntry({ id: entry.id, version: entry.version });
+        setEntries((list) => list.filter((item) => item.id !== entry.id));
+        flash(tRef.current('inv.trashed'));
+      } catch (reason) {
+        flash(reason instanceof Error ? reason.message : tRef.current('inv.deleteFailed'), true);
+      }
+    })();
+  }, [flash, remoteDataEnabled]);
+
   // Photo upload: Neon Object Storage in production, an in-browser data URL in
   // local preview so the whole flow is testable offline.
   const uploadPhoto = useCallback(async (file: File): Promise<string> => {
@@ -1779,7 +1828,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                     ) : null}
                   </div>
                 ) : null}
-                <BoardCardView card={card} entries={entries} editing={editing} onCardEdit={editCard} />
+                <BoardCardView
+                  card={card}
+                  entries={entries}
+                  editing={editing}
+                  onCardEdit={editCard}
+                  onAddEntry={addEntryToDrawer}
+                  onDeleteEntry={deleteEntryFromDrawer}
+                  onReorderEntries={reorderEntries}
+                />
               </div>
             );
           })}
@@ -2049,6 +2106,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           onDeleted={(id) => { setEntries((list) => list.filter((e) => e.id !== id)); }}
           onRestored={(entry) => { setEntries((list) => (list.some((e) => e.id === entry.id) ? list : [...list, entry])); }}
           onMoveEntry={moveEntryGroup}
+          onReorderEntries={reorderEntries}
           onBoardChange={commitBoard}
           notify={flash}
         />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { EntryType, PortfolioEntry, StoredPortfolioEntry, DeletedEntrySummary } from '../../types/content';
 import { createEntry, slugify } from '../../lib/editor';
-import { entriesForGroup, type BoardConfig } from '../../lib/board';
+import { entriesForGroup, reorderGroupEntries, type BoardConfig } from '../../lib/board';
 import {
   deleteContentEntry,
   listDeletedEntries,
@@ -19,6 +19,7 @@ type InventoryPanelProps = {
   onDeleted: (id: string) => void;
   onRestored: (entry: StoredPortfolioEntry) => void;
   onMoveEntry: (entry: PortfolioEntry, group: string) => void;
+  onReorderEntries: (entries: PortfolioEntry[]) => void;
   onBoardChange: (next: BoardConfig) => void;
   notify: (message: string, isError?: boolean) => void;
 };
@@ -31,7 +32,7 @@ const GROUP_TYPE: Record<string, EntryType> = {
 };
 
 export function InventoryPanel({
-  entries, board, remoteDataEnabled, onClose, onCreated, onDeleted, onRestored, onMoveEntry, onBoardChange, notify,
+  entries, board, remoteDataEnabled, onClose, onCreated, onDeleted, onRestored, onMoveEntry, onReorderEntries, onBoardChange, notify,
 }: InventoryPanelProps) {
   const t = useUiText();
   const [group, setGroup] = useState<string>(board.groups[0]?.id ?? 'random');
@@ -135,6 +136,10 @@ export function InventoryPanel({
     notify(t('inv.listDeleted'));
   }
 
+  function reorder(groupId: string, fromIndex: number, toIndex: number) {
+    onReorderEntries(reorderGroupEntries(entries, groupId, fromIndex, toIndex));
+  }
+
   return (
     <div className="overlay" role="presentation">
       <div className="overlay__scrim" onClick={onClose} />
@@ -192,10 +197,27 @@ export function InventoryPanel({
         </div>
 
         <div className="panel__section">{t('inv.onBoard', { count: entries.length })}</div>
+        <p className="panel__note">{t('inv.orderHint')}</p>
         <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {board.groups.map((g) => entriesForGroup(entries, g.id).map((entry) => (
+          {board.groups.map((g) => entriesForGroup(entries, g.id).map((entry, index, groupEntries) => (
             <div key={entry.id} className="field-row" style={{ margin: 0 }}>
               <label style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{entry.title}</label>
+              <span className="entry-order" role="group" aria-label={t('inv.reorderEntry', { title: entry.title })}>
+                <button
+                  type="button"
+                  disabled={index === 0}
+                  onClick={() => reorder(g.id, index, index - 1)}
+                  aria-label={t('inv.moveEntryUp', { title: entry.title })}
+                  title={t('inv.moveEntryUp', { title: entry.title })}
+                >↑</button>
+                <button
+                  type="button"
+                  disabled={index === groupEntries.length - 1}
+                  onClick={() => reorder(g.id, index, index + 1)}
+                  aria-label={t('inv.moveEntryDown', { title: entry.title })}
+                  title={t('inv.moveEntryDown', { title: entry.title })}
+                >↓</button>
+              </span>
               <select
                 className="entry-move"
                 value={g.id}
