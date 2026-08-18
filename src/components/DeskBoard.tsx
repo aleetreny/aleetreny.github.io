@@ -144,6 +144,9 @@ function groupByFrom<T extends { from: string }>(jobs: T[]): Array<[string, T[]]
 }
 const NOTE_TEXT_FIELDS = ['text'];
 const DRAWER_LAYOUTS = ['list', 'compact', 'grid', 'notes', 'atlas'] as const;
+const CARD_WIDTH_MIN = 220;
+const CARD_WIDTH_MAX = 1_000;
+const CARD_WIDTH_STEP = 10;
 
 export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [rawEntries, setEntries] = useState<StoredPortfolioEntry[]>(demoEntries);
@@ -1085,6 +1088,19 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     });
   }, [rawBoard, commitBoard, patchText]);
 
+  /** Width belongs to the card itself, but a card that has been moved also has
+   *  a layout override. Keep both in sync so the control always changes what
+   *  is on screen and a later layout reset still keeps the chosen width. */
+  const setCardWidth = useCallback((cardId: string, value: number) => {
+    const width = Math.max(CARD_WIDTH_MIN, Math.min(CARD_WIDTH_MAX, Math.round(value / CARD_WIDTH_STEP) * CARD_WIDTH_STEP));
+    editCard(cardId, { w: width });
+    const override = layout[cardId];
+    if (!override) return;
+    const next = { ...layout, [cardId]: { ...override, w: width } };
+    if (authedRef.current) commitLayout(next);
+    else setSettings((settings) => ({ ...settings, 'board.layout': next }));
+  }, [editCard, layout, commitLayout]);
+
   const moveEntryGroup = useCallback((entry: PortfolioEntry, group: string) => {
     const order = entriesForGroup(entries, group).length;
     changeEntry({ ...entry, metadata: { ...entry.metadata, group, order } });
@@ -1440,12 +1456,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const runTranslate = useCallback(async (options: {
     entryId?: string;
     scope?: TranslateScope;
+    source?: string;
     includeBoard?: boolean;
     quiet?: boolean;
   } = {}) => {
     if (!canTranslate || translatingRef.current) return;
     const scope: TranslateScope = options.scope ?? 'fill';
     const codes = i18n.languages.map((l) => l.code);
+    const source = options.source && codes.includes(options.source) ? options.source : i18n.primary;
     const t0 = tRef.current;
     translatingRef.current = true;
     setTranslating(true);
@@ -1480,7 +1498,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       if (options.includeBoard) {
         for (const to of codes) {
           const board0 = rawBoardRef.current;
-          const jobs = missingAt(board0, boardTextSlots(board0), codes, to, i18n.primary, scope);
+          const jobs = missingAt(board0, boardTextSlots(board0), codes, to, i18n.primary, scope, source);
           for (let at = 0; at < jobs.length; at += TRANSLATE_BATCH) {
             if (budget <= 0) throw new TranslateQuotaError(t0('msg.translatorQuota'));
             const results = await translateBatch(jobs.slice(at, at + TRANSLATE_BATCH), to);
@@ -1507,7 +1525,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           // Re-read the entry between batches: it is the live copy that has to
           // be written back, never the one this loop started with.
           const at0 = () => rawEntriesRef.current.find((item) => item.id === target.id) ?? target;
-          const jobs = missingAt(at0(), entryTextSlots(at0()), codes, to, i18n.primary, scope);
+          const jobs = missingAt(at0(), entryTextSlots(at0()), codes, to, i18n.primary, scope, source);
           for (let at = 0; at < jobs.length; at += TRANSLATE_BATCH) {
             if (budget <= 0) throw new TranslateQuotaError(t0('msg.translatorQuota'));
             const results = await translateBatch(jobs.slice(at, at + TRANSLATE_BATCH), to);
@@ -1695,6 +1713,18 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                     <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label={t('owner.cardSettings')}>⚙</button>
                     {cardMenu === card.id ? (
                       <div className="card-ctrl__menu">
+                        <label className="card-ctrl__width">
+                          <span>{t('cardmenu.width')} <output>{Math.round(geom.w)} px</output></span>
+                          <input
+                            type="range"
+                            min={CARD_WIDTH_MIN}
+                            max={CARD_WIDTH_MAX}
+                            step={CARD_WIDTH_STEP}
+                            value={Math.max(CARD_WIDTH_MIN, Math.min(CARD_WIDTH_MAX, Math.round(geom.w / CARD_WIDTH_STEP) * CARD_WIDTH_STEP))}
+                            aria-label={t('cardmenu.width')}
+                            onChange={(event) => setCardWidth(card.id, Number(event.target.value))}
+                          />
+                        </label>
                         {card.type !== 'hero' ? (
                           <label>{t('cardmenu.tone')}
                             <select value={card.tone ?? 'paper'} onChange={(e) => editCard(card.id, { tone: e.target.value as CardTone })}>
@@ -1880,7 +1910,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                           type="button"
                           disabled={translating}
                           title={t('owner.translateTitle')}
-                          onClick={(event) => { void runTranslate({ includeBoard: true, scope: event.altKey || event.shiftKey ? 'refresh' : 'fill' }); }}
+                          onClick={(event) => { void runTranslate({ includeBoard: true, scope: event.altKey || event.shiftKey ? 'refresh' : 'fill', source: activeLang }); }}
                         >
                           {translating ? t('owner.translating') : t('owner.translate')}
                         </button>
@@ -1952,7 +1982,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           onRetrySave={() => { setSaveState('pending'); flushRef.current(); }}
           canTranslate={canTranslate}
           translating={translating}
-          onTranslate={(refresh) => { void runTranslate({ entryId: openEntry.id, scope: refresh ? 'refresh' : 'fill' }); }}
+          onTranslate={() => { void runTranslate({ entryId: openEntry.id, scope: 'refresh', source: activeLang }); }}
           onClose={() => setOpenSlug(null)}
           onPrev={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i - 1 + orderedSlugs.length) % orderedSlugs.length]); }}
           onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}

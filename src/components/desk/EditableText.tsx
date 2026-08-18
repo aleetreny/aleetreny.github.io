@@ -226,9 +226,18 @@ export function useEditable({
           const current = readEditable(node);
           const at = caret ? caret.start : current.length;
           const end = caret ? caret.end : current.length;
+          const before = current.slice(0, at);
+          const after = current.slice(end);
+
+          // React only knows the last committed value. When that happens to
+          // equal `before`, it does not touch the DOM — even though the live
+          // editable still contains `after`. The focus handoff would then blur
+          // that stale node and commit the full paragraph back over the first
+          // half. Remount it now, before the new paragraph takes focus.
           liveRef.current = null;
-          textRef.current = current;
-          split(current.slice(0, at), current.slice(end));
+          textRef.current = before;
+          setGeneration((value) => value + 1);
+          split(before, after);
           return;
         }
         if (!multilineRef.current) { node.blur(); return; }

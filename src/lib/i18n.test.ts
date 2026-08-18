@@ -167,6 +167,20 @@ describe('finding prose', () => {
     const jobs = missingAt(board2, boardTextSlots(board2), ['es', 'en'], 'es', 'es');
     expect(jobs).toEqual([{ path: ['cards', 0, 'title'], text: 'Hello', from: 'en' }]);
   });
+
+  it('refreshes an article title from the language being edited', () => {
+    const entry = {
+      title: { es: 'Nuevo título', en: 'Old title' },
+      summary: { es: 'Resumen nuevo', en: 'Old summary' },
+      metadata: {},
+      blocks: [],
+    };
+    const jobs = missingAt(entry, entryTextSlots(entry), ['es', 'en'], 'en', 'en', 'refresh', 'es');
+    expect(jobs).toEqual([
+      { path: ['title'], text: 'Nuevo título', from: 'es' },
+      { path: ['summary'], text: 'Resumen nuevo', from: 'es' },
+    ]);
+  });
 });
 
 describe('folding an edit back', () => {

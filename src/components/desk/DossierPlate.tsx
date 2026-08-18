@@ -24,7 +24,7 @@ type DossierPlateProps = {
   onRetrySave: () => void;
   canTranslate: boolean;
   translating: boolean;
-  onTranslate: (refresh: boolean) => void;
+  onTranslate: () => void;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -503,9 +503,9 @@ export function DossierPlate({
         <div className="dossier__bar">
           <div className="dossier__bar-meta">
             <EditableText as="span" className="k" text={metaString(entry, 'kicker')} placeholder={t('ph.kicker')} editing={editing} multiline={false} onCommit={(value) => setMeta('kicker', value)} />
-            <span className="dossier__bar-pos">{posLabel}</span>
           </div>
           <div className="dossier__bar-actions">
+            <span className="dossier__bar-pos">{posLabel}</span>
             {editing && saveLabel ? (
               <span className={`dossier__save dossier__save--${saveState}`} title={saveError || undefined}>
                 {saveLabel}
@@ -520,7 +520,7 @@ export function DossierPlate({
                 type="button"
                 disabled={translating}
                 title={t('dossier.translateTitle')}
-                onClick={(event) => onTranslate(event.altKey || event.shiftKey)}
+                onClick={onTranslate}
               >
                 {translating ? t('dossier.translating') : t('dossier.translate')}
               </button>
