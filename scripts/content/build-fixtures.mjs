@@ -6,7 +6,7 @@ import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ITEMS, ORDER } from '../../content/source/desk-data.mjs';
 import {
-  BOARD, THEME, GROUPS, GROUP_LABELS, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
+  BOARD, THEME, GROUPS, GROUP_LABELS, GROUP_LABELS_ES, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
   CARDS, POLAROIDS, MARGINALIA, TOUR, I18N,
 } from '../../content/source/board-spec.mjs';
 
@@ -75,7 +75,12 @@ const entries = ORDER.map((slug) => {
   };
 });
 
-const groups = Object.keys(GROUPS).map((id) => ({ id, label: GROUP_LABELS[id] ?? id }));
+const groups = Object.keys(GROUPS).map((id) => ({
+  id,
+  label: I18N.enabled && GROUP_LABELS_ES[id]
+    ? { en: GROUP_LABELS[id] ?? id, es: GROUP_LABELS_ES[id] }
+    : GROUP_LABELS[id] ?? id,
+}));
 
 // ---------------------------------------------------------------- languages
 //

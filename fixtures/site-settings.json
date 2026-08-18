@@ -87,55 +87,64 @@
         {
           "id": "work",
           "label": {
-            "en": "Paid work"
+            "en": "Paid work",
+            "es": "Trabajo remunerado"
           }
         },
         {
           "id": "edu",
           "label": {
-            "en": "Schooling"
+            "en": "Schooling",
+            "es": "Estudios"
           }
         },
         {
           "id": "lab",
           "label": {
-            "en": "Lab bench"
+            "en": "Lab bench",
+            "es": "Laboratorio"
           }
         },
         {
           "id": "vol",
           "label": {
-            "en": "Unpaid"
+            "en": "Unpaid",
+            "es": "Voluntariado"
           }
         },
         {
           "id": "hack",
           "label": {
-            "en": "Hackathons & prizes"
+            "en": "Hackathons & prizes",
+            "es": "Hackatones y premios"
           }
         },
         {
           "id": "repos",
           "label": {
-            "en": "The workshop"
+            "en": "The workshop",
+            "es": "El taller"
           }
         },
         {
           "id": "travel",
           "label": {
-            "en": "Field log"
+            "en": "Field log",
+            "es": "Bitácora de viajes"
           }
         },
         {
           "id": "random",
           "label": {
-            "en": "The drawer"
+            "en": "The drawer",
+            "es": "El cajón"
           }
         },
         {
           "id": "contact",
           "label": {
-            "en": "Reachable"
+            "en": "Reachable",
+            "es": "Contacto"
           }
         }
       ],

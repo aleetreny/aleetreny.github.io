@@ -108,6 +108,15 @@ export const GROUP_LABELS = {
   random: 'The drawer', contact: 'Reachable',
 };
 
+// The list names are part of the board copy too. Keep the English source above
+// for single-language forks, and provide the authored Spanish labels when the
+// bilingual fixture is built so overflow panels never fall back to English.
+export const GROUP_LABELS_ES = {
+  work: 'Trabajo remunerado', edu: 'Estudios', lab: 'Laboratorio', vol: 'Voluntariado',
+  hack: 'Hackatones y premios', repos: 'El taller', travel: 'Bitácora de viajes',
+  random: 'El cajón', contact: 'Contacto',
+};
+
 // entry_type per group (DB constraint: project|case-study|experience|education|note|custom)
 export const GROUP_ENTRY_TYPE = {
   work: 'experience',
