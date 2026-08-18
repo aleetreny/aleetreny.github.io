@@ -131,6 +131,34 @@ a { color: var(--c-accent); text-decoration: none; }
 /* ------------------------------------------------------------------ cards */
 .card { position: absolute; cursor: grab; }
 .card.is-dragging { cursor: grabbing; }
+.card.is-resizing { cursor: ew-resize; }
+.card__resize-handle {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  z-index: 7;
+  width: 18px;
+  cursor: ew-resize;
+  touch-action: none;
+  opacity: .28;
+  transition: opacity .15s ease;
+}
+.card__resize-handle--left { left: -9px; }
+.card__resize-handle--right { right: -9px; }
+.card__resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 42px;
+  border: 1px solid currentColor;
+  background: var(--c-signal);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .3);
+}
+.card__resize-handle:hover,
+.card.is-resizing .card__resize-handle { opacity: 1; }
 .card__surface {
   padding: calc(var(--card-pad, 22px) * .92) var(--card-pad, 22px) var(--card-pad, 22px);
   box-shadow: 0 calc(24px * var(--card-shadow, 1)) calc(40px * var(--card-shadow, 1)) calc(-24px * var(--card-shadow, 1)) rgba(0, 0, 0, calc(.65 * var(--card-shadow, 1)));

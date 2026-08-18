@@ -127,6 +127,33 @@ const JUMPS = ['me', 'work', 'edu', 'vol', 'hack', 'repos', 'lab', 'travel', 'ra
 
 const TONES: CardTone[] = ['paper', 'paperWarm', 'paperCream', 'dark', 'slate', 'amber', 'custom'];
 
+// Older remote boards may still have only the English label stored. Keep the
+// default lists readable in Spanish while preserving any custom label the
+// owner has written.
+const DEFAULT_GROUP_LABELS: Record<string, { en: string; es: string }> = {
+  work: { en: 'Paid work', es: 'Trabajo remunerado' },
+  edu: { en: 'Schooling', es: 'Estudios' },
+  lab: { en: 'Lab bench', es: 'Laboratorio' },
+  vol: { en: 'Unpaid', es: 'Voluntariado' },
+  hack: { en: 'Hackathons & prizes', es: 'Hackatones y premios' },
+  repos: { en: 'The workshop', es: 'El taller' },
+  travel: { en: 'Field log', es: 'Bitácora de viajes' },
+  random: { en: 'The drawer', es: 'El cajón' },
+  contact: { en: 'Reachable', es: 'Contacto' },
+};
+
+function localiseDefaultGroupLabels(board: BoardConfig, language: string): BoardConfig {
+  if (language !== 'es') return board;
+  let changed = false;
+  const groups = board.groups.map((group) => {
+    const fallback = DEFAULT_GROUP_LABELS[group.id];
+    if (!fallback || group.label !== fallback.en) return group;
+    changed = true;
+    return { ...group, label: fallback.es };
+  });
+  return changed ? { ...board, groups } : board;
+}
+
 /** Which fields on each board item carry prose, and so belong to a language.
  *  Everything else — tones, layouts, group keys — is structure. */
 const CARD_TEXT_FIELDS = [
@@ -192,7 +219,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   // board renders, so no component below here knows a second language exists.
   const rawBoard = useMemo<BoardConfig>(() => parseBoard(settings.board), [settings.board]);
   const board = useMemo<BoardConfig>(
-    () => (i18n.enabled ? localise(rawBoard, activeLang, i18n.primary) : rawBoard),
+    () => localiseDefaultGroupLabels(
+      i18n.enabled ? localise(rawBoard, activeLang, i18n.primary) : rawBoard,
+      activeLang,
+    ),
     [rawBoard, i18n.enabled, i18n.primary, activeLang],
   );
   const tour = useMemo<TourConfig>(() => {
@@ -1120,7 +1150,9 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const label = board.groups.find((item) => item.id === group)?.label ?? group;
     const entry: PortfolioEntry = {
       ...base,
-      version: 1,
+      // Version 0 tells save_content_entry that this is a new row. The RPC
+      // inserts it and returns the first persisted version (1).
+      version: 0,
       slug: slugify(title) || `nota-${base.id.slice(0, 6)}`,
       title,
       summary: '',
@@ -1308,11 +1340,85 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       }
       if (event.button !== 0) return;
       const target = event.target as HTMLElement;
+      const card = target.closest<HTMLElement>('[data-card]');
+      const resizeHandle = target.closest<HTMLElement>('[data-card-resize]');
+
+      // Resize from the card's own left/right edge. Pointer movement is
+      // projected onto the card's local x-axis, so an inclined card keeps the
+      // same angle while its width changes. The small position correction
+      // compensates for CSS's centred transform origin and keeps the opposite
+      // edge anchored during the resize.
+      if (resizeHandle && card) {
+        event.preventDefault();
+        const side = resizeHandle.dataset.cardResize === 'left' ? 'left' : 'right';
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const startW = parseFloat(card.style.width || '0');
+        const startLeft = parseFloat(card.style.left || '0');
+        const startTop = parseFloat(card.style.top || '0');
+        const rot = parseFloat(card.dataset.rot || '0');
+        const radians = rot * Math.PI / 180;
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+        card.style.zIndex = String(++zTop.current);
+        card.style.transition = 'none';
+        card.classList.add('is-resizing');
+
+        const move = (ev: PointerEvent) => {
+          if (pinchRef.current) return;
+          const dx = (ev.clientX - startX) / view.current.s;
+          const dy = (ev.clientY - startY) / view.current.s;
+          const localDelta = dx * cos + dy * sin;
+          const candidate = startW + (side === 'right' ? localDelta : -localDelta);
+          const width = Math.max(CARD_WIDTH_MIN, Math.min(CARD_WIDTH_MAX, candidate));
+          const change = width - startW;
+          card.style.width = `${width}px`;
+          if (side === 'right') {
+            card.style.left = `${startLeft + change * (cos - 1) / 2}px`;
+            card.style.top = `${startTop + change * sin / 2}px`;
+          } else {
+            card.style.left = `${startLeft - change * (cos + 1) / 2}px`;
+            card.style.top = `${startTop - change * sin / 2}px`;
+          }
+          if (!didDrag.current && Math.hypot(ev.clientX - startX, ev.clientY - startY) > 4) {
+            didDrag.current = true;
+          }
+        };
+        const up = () => {
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', up);
+          card.classList.remove('is-resizing');
+          card.style.transition = '';
+          card.style.transform = `rotate(${rot}deg)`;
+          const width = Math.max(
+            CARD_WIDTH_MIN,
+            Math.min(CARD_WIDTH_MAX, Math.round(parseFloat(card.style.width || String(startW)) / CARD_WIDTH_STEP) * CARD_WIDTH_STEP),
+          );
+          card.style.width = `${width}px`;
+          card.style.filter = 'none';
+          if (didDrag.current && !pinchedRef.current) {
+            const id = card.dataset.card as string;
+            const geom: LayoutOverride = {
+              x: parseFloat(card.style.left || '0'),
+              y: parseFloat(card.style.top || '0'),
+              rot,
+              w: width,
+            };
+            editCard(id, { w: width });
+            const next = { ...layout, [id]: geom };
+            if (authedRef.current) commitLayout(next); else setSettings((s) => ({ ...s, 'board.layout': next }));
+          }
+          window.setTimeout(() => { didDrag.current = false; }, 60);
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', up);
+        return;
+      }
+
       if (isInteractive(target) || target.isContentEditable) return;
       didDrag.current = false;
       const startX = event.clientX;
       const startY = event.clientY;
-      const card = target.closest<HTMLElement>('[data-card]');
 
       if (card && !positionsLocked) {
         card.style.zIndex = String(++zTop.current);
@@ -1409,7 +1515,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       live.clear();
       pinchRef.current = null;
     };
-  }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, layout, positionsLocked]);
+  }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, editCard, layout, positionsLocked]);
 
   // ---- keyboard -------------------------------------------------------------
   useEffect(() => {
@@ -1753,6 +1859,28 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                   ...(introDrop ? { animation: 'drop .7s cubic-bezier(.2,.9,.2,1) both', animationDelay: `${0.02 + index * 0.05}s` } : null),
                 }}
               >
+                {editing ? (
+                  <>
+                    <span
+                      className="card__resize-handle card__resize-handle--left"
+                      data-card-resize="left"
+                      data-nodrag
+                      role="separator"
+                      aria-orientation="vertical"
+                      aria-label={t('cardmenu.width')}
+                      title={t('cardmenu.width')}
+                    />
+                    <span
+                      className="card__resize-handle card__resize-handle--right"
+                      data-card-resize="right"
+                      data-nodrag
+                      role="separator"
+                      aria-orientation="vertical"
+                      aria-label={t('cardmenu.width')}
+                      title={t('cardmenu.width')}
+                    />
+                  </>
+                ) : null}
                 {/* The hero has no paper surface, so nothing fastens it. */}
                 {theme.cards.fastener !== 'none' && card.type !== 'hero' ? (
                   <span className={`card__fastener card__fastener--${theme.cards.fastener}`} aria-hidden="true" />

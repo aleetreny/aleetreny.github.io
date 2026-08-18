@@ -57,7 +57,9 @@ export function InventoryPanel({
       const order = entriesForGroup(entries, group).length;
       const entry: PortfolioEntry = {
         ...base,
-        version: 1,
+        // Version 0 tells save_content_entry that this is a new row. The RPC
+        // inserts it and returns the first persisted version (1).
+        version: 0,
         slug: slugify(clean) || `nota-${base.id.slice(0, 6)}`,
         title: clean,
         summary: '',
