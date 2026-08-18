@@ -14,6 +14,7 @@ import {
   parseLayout,
   parseTheme,
   patternLayers,
+  reorderGroupEntries,
   scalePatternSize,
   slateBackground,
   slateInk,
@@ -219,6 +220,13 @@ describe('board derivations', () => {
 
   it('orders drawer entries by their stored order', () => {
     expect(entriesForGroup(entries, 'work').map((item) => item.slug)).toEqual(['a', 'b']);
+  });
+
+  it('moves a drawer entry and normalises the stored order', () => {
+    const reordered = reorderGroupEntries(entries, 'work', 0, 1);
+    expect(reordered.map((item) => item.slug)).toEqual(['b', 'a']);
+    expect(reordered.map((item) => item.metadata.order)).toEqual([0, 1]);
+    expect(reordered[0].metadata.group).toBe('work');
   });
 
   it('builds a stable dossier order across drawers', () => {
