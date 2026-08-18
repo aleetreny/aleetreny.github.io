@@ -101,6 +101,7 @@ const CATALOGUE: Record<string, Entry> = {
 
   // ---------------------------------------------------------------- card menu
   'cardmenu.tone': { es: 'tono', en: 'tone' },
+  'cardmenu.width': { es: 'ancho', en: 'width' },
   'cardmenu.bg': { es: 'fondo', en: 'bg' },
   'cardmenu.ink': { es: 'tinta', en: 'ink' },
   'cardmenu.list': { es: 'lista', en: 'list' },
@@ -155,8 +156,8 @@ const CATALOGUE: Record<string, Entry> = {
   'dossier.translate': { es: '⇄ traducir este artículo', en: '⇄ translate this article' },
   'dossier.translating': { es: 'traduciendo…', en: 'translating…' },
   'dossier.translateTitle': {
-    es: 'Rellena las traducciones vacías de este artículo. Con Alt: rehace también las ya traducidas.',
-    en: 'Fill this article’s empty translations. Hold Alt to redo the ones already translated.',
+    es: 'Traduce este artículo desde el idioma seleccionado y actualiza las versiones existentes.',
+    en: 'Translate this article from the selected language and update existing versions.',
   },
 
   // ---------------------------------------------------------------- placeholders

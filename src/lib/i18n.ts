@@ -303,10 +303,10 @@ export type TranslateScope = 'fill' | 'refresh';
 
 /** The slots `to` still needs, each with the language to translate it from.
  *
- *  Direction is decided per slot rather than fixed: the primary language wins
- *  when it has the text, and otherwise whichever language does. That is what
- *  lets a board authored in one language be seeded into the other, in either
- *  direction, without a second button. */
+ *  The language currently being authored wins when it has the text; the
+ *  primary language is the dependable fallback. That lets an owner translate
+ *  a Spanish edit back into English (or the reverse) without first changing
+ *  the board-wide authoring setting. */
 export function missingAt(
   document: unknown,
   slots: Path[],
@@ -314,8 +314,9 @@ export function missingAt(
   to: string,
   primary: string,
   scope: TranslateScope = 'fill',
+  source: string = primary,
 ): TranslateJob[] {
-  const order = [primary, ...languages.filter((code) => code !== primary && code !== to)];
+  const order = [...new Set([source, primary, ...languages.filter((code) => code !== source && code !== primary && code !== to)])];
   const out: TranslateJob[] = [];
   for (const path of slots) {
     const value = readAt(document, path);
