@@ -483,8 +483,8 @@ export const ITEMS = {
   'podcast': {
     kicker: 'Making things', when: '2025 →', where: 'Málaga / Madrid',
     title: 'Un Poco Absurdo — the podcast',
-    lede: 'Tech and philosophy, named accurately. Two hundred-plus listeners an episode and five stars three months in.',
-    stats: [['200+', 'listeners / ep'], ['★★★★★', 'rating'], ['3 months', 'to get there']],
+    lede: 'Tech and philosophy, named accurately. One hundred-plus listeners an episode and five stars three months in.',
+    stats: [['100+', 'listeners / ep'], ['★★★★★', 'rating'], ['3 months', 'to get there']],
     bullets: [
       'The format I had wanted since I started recording voice notes into my diary instead of writing them.',
       'Constancy is the actual skill — I learned it from five years of a diary nobody was reading.',

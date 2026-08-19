@@ -321,6 +321,36 @@ function CardStats({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
   );
 }
 
+/** The compact footer on a spotlight is still owner-authored content. Keep its
+ *  small, single-line fields editable without making the card's click target
+ *  or drag gesture fire while someone is typing. */
+function SpotlightFooter({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const t = useUiText();
+  if (!Array.isArray(card.footer)) return null;
+
+  const setItem = (index: number, value: string) => {
+    const next = [...card.footer as string[]];
+    next[index] = value;
+    onCardEdit(card.id, { footer: next });
+  };
+
+  return (
+    <div className="spot__foot" {...(editing ? { 'data-nodrag': '' } : {})}>
+      {card.footer.map((item, index) => (
+        <CardField
+          as="span"
+          key={index}
+          editing={editing}
+          value={item}
+          placeholder={t('ph.text')}
+          multiline={false}
+          commit={(value) => setItem(index, value)}
+        />
+      ))}
+    </div>
+  );
+}
+
 function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   const tone = card.tone ?? 'paper';
   const style: CSSProperties | undefined = tone === 'custom'
@@ -414,7 +444,7 @@ export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, 
             </div>
           ) : null}
           {card.barCaption ? <div className="k" style={{ marginTop: 6, opacity: 0.6 }}>{card.barCaption}</div> : null}
-          {Array.isArray(card.footer) ? <div className="spot__foot">{card.footer.map((f, i) => <span key={i}>{f}</span>)}</div> : null}
+          <SpotlightFooter card={card} editing={editing} onCardEdit={onCardEdit} />
         </div>
       </Surface>
     );

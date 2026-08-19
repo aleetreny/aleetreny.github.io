@@ -187,8 +187,8 @@ export const CARDS = [
   {
     id: 'pod', type: 'spotlight', jump: 'pod', open: 'podcast', x: 790, y: 1730, rot: -0.9, w: 400, tone: 'paperWarm',
     kicker: 'drawer 06 — on the air', title: 'Un Poco\nAbsurdo',
-    blurb: 'Tech and philosophy, named accurately. 200+ listeners an episode, five stars, three months in.',
-    waveform: true, footer: ['200+ / ep', '★★★★★', 'read more →'],
+    blurb: 'Tech and philosophy, named accurately. 100+ listeners an episode, five stars, three months in.',
+    waveform: true, footer: ['100+ / ep', '★★★★★', 'read more →'],
   },
   {
     id: 'repos', type: 'drawer', jump: 'repos', group: 'repos', x: 1250, y: 120, rot: 1, w: 450, tone: 'paper',
