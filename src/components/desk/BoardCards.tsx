@@ -442,7 +442,7 @@ export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, 
         <div className="card__head">
           {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
         </div>
-        <div className="spot" data-open={card.open}>
+        <div className="spot" data-open={editing ? undefined : card.open}>
           {field('title', card.title, { className: 'spot__title', placeholder: t('ph.title') })}
           {field('blurb', card.blurb, { className: 'spot__blurb', placeholder: t('ph.text') })}
           <SpotlightGrid card={card} editing={editing} onCardEdit={onCardEdit} />
