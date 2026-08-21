@@ -8232,7 +8232,7 @@
     "version": 1,
     "slug": "podcast",
     "title": "Un Poco Absurdo — the podcast",
-    "summary": "Tech and philosophy, named accurately. Two hundred-plus listeners an episode and five stars three months in.",
+    "summary": "Tech and philosophy, named accurately. One hundred-plus listeners an episode and five stars three months in.",
     "entryType": "note",
     "status": "published",
     "publishedAt": "2026-08-05T00:00:00.000Z",
@@ -8253,7 +8253,7 @@
           "en": "Un Poco Absurdo — the podcast"
         },
         "summary": {
-          "en": "Tech and philosophy, named accurately. Two hundred-plus listeners an episode and five stars three months in."
+          "en": "Tech and philosophy, named accurately. One hundred-plus listeners an episode and five stars three months in."
         }
       }
     },
@@ -8295,7 +8295,7 @@
         "props": {
           "items": [
             [
-              "200+",
+              "100+",
               "listeners / ep"
             ],
             [

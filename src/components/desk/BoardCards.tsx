@@ -321,6 +321,61 @@ function CardStats({ card, editing, onCardEdit }: { card: BoardCard; editing: bo
   );
 }
 
+/** The compact footer on a spotlight is still owner-authored content. Keep its
+ *  small, single-line fields editable without making the card's click target
+ *  or drag gesture fire while someone is typing. */
+function SpotlightFooter({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const t = useUiText();
+  if (!Array.isArray(card.footer)) return null;
+
+  const setItem = (index: number, value: string) => {
+    const next = [...card.footer as string[]];
+    next[index] = value;
+    onCardEdit(card.id, { footer: next });
+  };
+
+  return (
+    <div className="spot__foot" {...(editing ? { 'data-nodrag': '' } : {})}>
+      {card.footer.map((item, index) => (
+        <CardField
+          as="span"
+          key={index}
+          editing={editing}
+          value={item}
+          placeholder={t('ph.text')}
+          multiline={false}
+          commit={(value) => setItem(index, value)}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** The two-column figures on a spotlight are content too. Keep both the value
+ *  and its label in place so the owner can correct a number without rebuilding
+ *  the card layout. */
+function SpotlightGrid({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const t = useUiText();
+  if (!card.grid?.length) return null;
+
+  const setPair = (index: number, part: 0 | 1, value: string) => {
+    const next = card.grid!.map((pair) => [...pair] as [string, string]);
+    next[index][part] = value;
+    onCardEdit(card.id, { grid: next });
+  };
+
+  return (
+    <div className="dgrid" {...(editing ? { 'data-nodrag': '' } : {})}>
+      {card.grid.map((pair, index) => (
+        <div key={index}>
+          <CardField className="dgrid__v" editing={editing} value={pair[0]} placeholder="0" multiline={false} commit={(value) => setPair(index, 0, value)} />
+          <CardField className="dgrid__l" editing={editing} value={pair[1]} placeholder={t('card.statLabel')} multiline={false} commit={(value) => setPair(index, 1, value)} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   const tone = card.tone ?? 'paper';
   const style: CSSProperties | undefined = tone === 'custom'
@@ -387,16 +442,10 @@ export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, 
         <div className="card__head">
           {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
         </div>
-        <div className="spot" data-open={card.open}>
+        <div className="spot" data-open={editing ? undefined : card.open}>
           {field('title', card.title, { className: 'spot__title', placeholder: t('ph.title') })}
           {field('blurb', card.blurb, { className: 'spot__blurb', placeholder: t('ph.text') })}
-          {card.grid ? (
-            <div className="dgrid">
-              {card.grid.map((pair, index) => (
-                <div key={index}><div className="dgrid__v">{pair[0]}</div><div className="dgrid__l">{pair[1]}</div></div>
-              ))}
-            </div>
-          ) : null}
+          <SpotlightGrid card={card} editing={editing} onCardEdit={onCardEdit} />
           {card.waveform ? (
             <div className="wave">
               {Array.from({ length: 24 }).map((_, index) => {
@@ -413,8 +462,8 @@ export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, 
               ))}
             </div>
           ) : null}
-          {card.barCaption ? <div className="k" style={{ marginTop: 6, opacity: 0.6 }}>{card.barCaption}</div> : null}
-          {Array.isArray(card.footer) ? <div className="spot__foot">{card.footer.map((f, i) => <span key={i}>{f}</span>)}</div> : null}
+          {card.barCaption || editing ? field('barCaption', card.barCaption, { className: 'k', style: { marginTop: 6, opacity: 0.6 }, placeholder: t('ph.text'), multiline: false }) : null}
+          <SpotlightFooter card={card} editing={editing} onCardEdit={onCardEdit} />
         </div>
       </Surface>
     );
