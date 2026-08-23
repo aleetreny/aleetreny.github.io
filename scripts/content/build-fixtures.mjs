@@ -99,9 +99,18 @@ const CARD_TEXT = [
 ];
 const BLOCK_TEXT = ['text', 'caption', 'alt', 'cite', 'label', 'title'];
 
-/** Written in `AUTHORED_IN`; tagged only when the board is bilingual. */
+/** The language a plain string in content/source is written in. A field may
+ *  instead be written as `{ es: '…', en: '…' }` when the owner has authored both
+ *  by hand — that is the case for anything they would rather not hand to a
+ *  machine translator, and it travels through untouched. */
 const AUTHORED_IN = 'en';
+const isLangMap = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const tag = (value) => (typeof value === 'string' && value.trim() ? { [AUTHORED_IN]: value } : value);
+
+/** The single string a text column — or a board built for one language — needs.
+ *  A map is projected through the authoring language, falling back to whichever
+ *  language it does carry so a field written only in Spanish is never blank. */
+const plain = (value) => (isLangMap(value) ? value[AUTHORED_IN] ?? Object.values(value)[0] ?? '' : value ?? '');
 
 function tagFields(item, fields) {
   const out = { ...item };
@@ -126,15 +135,15 @@ function tagEntry(entry) {
   const i18n = {};
   for (const field of ['title', 'summary']) {
     const tagged = tag(entry[field]);
-    if (tagged !== entry[field]) i18n[field] = tagged;
+    if (isLangMap(tagged)) i18n[field] = tagged;
   }
   const metadata = tagFields(entry.metadata, ['kicker', 'when', 'where']);
   if (Object.keys(i18n).length > 0) metadata.i18n = i18n;
 
   return {
     ...entry,
-    title: entry.title,
-    summary: entry.summary,
+    title: plain(entry.title),
+    summary: plain(entry.summary),
     metadata,
     blocks: entry.blocks.map((block) => {
       const props = tagFields(block.props, BLOCK_TEXT);
@@ -146,9 +155,32 @@ function tagEntry(entry) {
   };
 }
 
+/** A fork that ships one language still has to survive a source field the owner
+ *  authored in two: keep the authoring language and drop the rest, so no board
+ *  ever renders a `{ es, en }` object where a sentence belongs. */
+function flattenEntry(entry) {
+  return {
+    ...entry,
+    title: plain(entry.title),
+    summary: plain(entry.summary),
+    metadata: Object.fromEntries(
+      Object.entries(entry.metadata).map(([key, value]) => [key, isLangMap(value) ? plain(value) : value]),
+    ),
+    blocks: entry.blocks.map((block) => ({
+      ...block,
+      props: Object.fromEntries(
+        Object.entries(block.props).map(([key, value]) => [
+          key,
+          BLOCK_TEXT.includes(key) && isLangMap(value) ? plain(value) : value,
+        ]),
+      ),
+    })),
+  };
+}
+
 const bilingual = I18N.enabled === true;
 const boardValue = { size: BOARD, groups, cards: CARDS, polaroids: POLAROIDS, marginalia: MARGINALIA };
-const publicEntries = bilingual ? entries.map(tagEntry) : entries;
+const publicEntries = entries.map(bilingual ? tagEntry : flattenEntry);
 
 const settings = [
   { key: 'theme', value: THEME, is_public: true },

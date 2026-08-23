@@ -225,15 +225,20 @@ export const CARDS = [
   },
   {
     id: 'langs', type: 'sticker', open: 'languages', x: 2214, y: 1852, rot: -2.6, w: 300, tone: 'paperCream',
-    kicker: 'sticker — spoken', title: 'Three\nlanguages',
+    kicker: { es: 'pegatina — hablados', en: 'sticker — spoken' },
+    title: { es: 'Tres\nidiomas', en: 'Three\nlanguages' },
     // [code, level, filled marks out of five] — structure, not prose, so the
-    // translator leaves it alone exactly as it leaves `stats` alone.
+    // translator leaves it alone exactly as it leaves `stats` alone. Written in
+    // the language the board is read in.
     langs: [
-      ['ES', 'native · Málaga', 5],
-      ['FR', 'native · at home', 5],
+      ['ES', 'nativo · Málaga', 5],
+      ['FR', 'nativo · en casa', 5],
       ['EN', 'C1 Cambridge · 187', 4],
     ],
-    note: 'The Málaga humour does not survive the crossing. I rebuild the jokes in each one.',
+    note: {
+      es: 'El humor malagueño no sobrevive a la traducción. Reconstruyo los chistes en cada idioma.',
+      en: 'The Málaga humour does not survive the crossing. I rebuild the jokes in each one.',
+    },
   },
 ];
 

@@ -516,20 +516,22 @@
           "w": 300,
           "tone": "paperCream",
           "kicker": {
+            "es": "pegatina — hablados",
             "en": "sticker — spoken"
           },
           "title": {
+            "es": "Tres\nidiomas",
             "en": "Three\nlanguages"
           },
           "langs": [
             [
               "ES",
-              "native · Málaga",
+              "nativo · Málaga",
               5
             ],
             [
               "FR",
-              "native · at home",
+              "nativo · en casa",
               5
             ],
             [
@@ -539,6 +541,7 @@
             ]
           ],
           "note": {
+            "es": "El humor malagueño no sobrevive a la traducción. Reconstruyo los chistes en cada idioma.",
             "en": "The Málaga humour does not survive the crossing. I rebuild the jokes in each one."
           }
         }

@@ -382,102 +382,249 @@ export const ITEMS = {
     ], photos: 1, links: [['All repos', 'https://github.com/aleetreny']], tags: ['tooling', 'Whisper', 'Next.js']
   },
 
-  /* ───────────────── LAB BENCH ───────────────── */
+  /* ───────────────── LAB BENCH ─────────────────
+     Written by hand in both languages: these are the owner's own words, so the
+     translator never gets a turn at them. Structure follows the rewritten
+     workshop dossiers — running paragraphs, no metrics strip, no tag row. */
   'lab-l1': {
-    kicker: 'Lab bench · Physics', when: 'MSc', where: 'UC3M',
-    title: 'L1 Trigger anomaly detection',
-    lede: 'Quantised autoencoders finding the events nobody labelled, at a data rate that forbids second guesses.',
-    stats: [['Quantised', 'autoencoders'], ['Unlabelled', 'by construction'], ['μs', 'the entire budget']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Física de partículas', en: 'Particle physics' },
+    title: { es: 'Detección de anomalías en el Trigger L1', en: 'L1 Trigger anomaly detection' },
+    lede: {
+      es: 'Autoencoders cuantizados para encontrar sucesos raros en un colisionador, con un presupuesto de microsegundos.',
+      en: 'Quantised autoencoders finding rare events in a collider, on a budget of microseconds.',
+    },
     bullets: [
-      'A collider sees far more than anyone can store, so the trigger decides what survives in microseconds. Which means the interesting event has to be recognised before anybody has got around to naming it.',
-      'The model is an autoencoder trained only on ordinary events: compress, reconstruct, and let the reconstruction error do the accusing. Nothing is labelled because nothing can be — you are looking for the thing you did not write down.',
-      'Then the part that makes it real: quantising the weights so the network fits inside hardware with a fixed latency budget. Precision you cannot afford is not precision, it is a wish.',
-      'First project where the binding constraint was physical rather than statistical. You cannot ask a detector for another second, and I found that clarifying rather than annoying.'
-    ], photos: 0, tags: ['autoencoders', 'anomaly detection', 'quantisation', 'physics']
+      {
+        es: 'Este proyecto sale de una de las asignaturas del máster y de una obsesión que arrastro desde hace años con la física de partículas. El problema de partida es de los que me encantan porque no es estadístico, es físico: un colisionador genera muchísimos más datos de los que se pueden guardar, así que hay un sistema, el trigger, que decide en microsegundos qué se conserva y qué se tira para siempre. Lo que no pasa ese filtro no existe.',
+        en: 'This project comes out of one of the master\'s modules and an obsession with particle physics I have been carrying for years. The starting problem is the kind I love because it is not statistical, it is physical: a collider produces far more data than anyone can store, so a system called the trigger decides in microseconds what is kept and what is thrown away forever. Whatever does not pass that filter never existed.',
+      },
+      {
+        es: 'Aquí aparece la parte interesante. Si lo que buscas es un suceso que nadie ha visto todavía, no puedes entrenar un clasificador, porque no tienes etiquetas de algo que aún no tiene nombre. Estás buscando precisamente lo que no supiste anotar.',
+        en: 'And here is the interesting part. If what you are looking for is an event nobody has seen yet, you cannot train a classifier, because you have no labels for something that does not have a name yet. You are looking for exactly the thing you did not know how to write down.',
+      },
+      {
+        es: 'La solución es darle la vuelta al planteamiento: entrenas un autoencoder únicamente con sucesos normales, de los aburridos, y le pides que aprenda a comprimirlos y reconstruirlos. Cuando llega algo que no se parece a nada de lo que ha visto, la reconstrucción sale mal, y ese error es la propia señal de alarma. No detectas la anomalía, detectas que el modelo no sabe explicarla.',
+        en: 'The solution is to turn the framing around: you train an autoencoder only on ordinary, boring events and ask it to learn to compress and rebuild them. When something arrives that resembles nothing it has seen, the reconstruction comes out wrong, and that error is the alarm itself. You are not detecting the anomaly, you are detecting that the model cannot explain it.',
+      },
+      {
+        es: 'La parte que de verdad cuesta es la cuantización. El modelo tiene que caber en hardware con una latencia fija, así que hay que bajar la precisión de los pesos hasta que entre, sin perder por el camino la capacidad de distinguir lo raro. Es un tira y afloja constante entre lo que el modelo querría y lo que el silicio permite.',
+        en: 'The part that is genuinely hard is the quantisation. The model has to fit into hardware with a fixed latency, so you keep lowering the precision of the weights until it does, without losing the ability to tell odd from ordinary along the way. It is a constant tug of war between what the model would like and what the silicon allows.',
+      },
+      {
+        es: 'Me quedo con que fue el primer proyecto donde la restricción no era estadística sino física. A un detector no le puedes pedir un segundo más, y esa frontera tan clara, lejos de agobiarme, me ordenó bastante la cabeza.',
+        en: 'What I take from it is that this was the first project where the binding constraint was physical rather than statistical. You cannot ask a detector for another second, and that very clear boundary, far from stressing me out, tidied up my thinking quite a lot.',
+      },
+    ],
+    photos: 0,
   },
   'lab-flows': {
-    kicker: 'Lab bench · The pretty one', when: 'MSc', where: 'UC3M',
-    title: 'Neural phase integration with normalising flows',
-    lede: 'Bijective normalising flows to integrate where classical quadrature gives up.',
-    stats: [['Bijective', 'by construction'], ['Exact', 'likelihoods'], ['1 Jacobian', 'the whole trick']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Densidades', en: 'Densities' },
+    title: { es: 'Integración de fase neuronal con flujos normalizantes', en: 'Neural phase integration with normalising flows' },
+    lede: {
+      es: 'Flujos normalizantes biyectivos para integrar donde la cuadratura clásica se rinde.',
+      en: 'Bijective normalising flows to integrate where classical quadrature gives up.',
+    },
     bullets: [
-      'A normalising flow is a chain of invertible maps: start from a distribution you can sample in one line, push it through the transforms, and read the density on the other side exactly. No approximated normalising constant, no apology in the appendix.',
-      'The use case is integration in dimensions where quadrature is hopeless and plain Monte Carlo is merely patient. Learning the change of variables is really learning where the integrand bothers to live.',
-      'Everything depends on a determinant you must keep cheap, so the architecture is one long argument between expressive and tractable. Most of the reading was about who had lost that argument most usefully.',
-      'The most beautiful maths I have implemented. I understood it three times and lost it twice, which is roughly my ratio for anything with a Jacobian in it.'
-    ], photos: 0, tags: ['normalising flows', 'PyTorch', 'density estimation']
+      {
+        es: 'Este es probablemente el proyecto más bonito que he programado, y también el que más veces he tenido que volver a entender desde cero. Lo he comprendido tres veces y lo he perdido dos, que viene siendo mi ritmo habitual con cualquier cosa que lleve un jacobiano dentro.',
+        en: 'This is probably the most beautiful thing I have programmed, and also the one I have had to understand again from scratch the most times. I have grasped it three times and lost it twice, which is roughly my rate with anything that has a Jacobian inside it.',
+      },
+      {
+        es: 'Un flujo normalizante es una cadena de transformaciones invertibles. Partes de una distribución que sabes muestrear en una línea, una normal de toda la vida, la vas pasando por esas transformaciones y al otro lado obtienes algo mucho más complicado. Lo importante es que, como cada paso es biyectivo, puedes seguir el rastro y calcular la densidad exacta del resultado. Nada de aproximar la constante de normalización y pedir perdón en el apéndice.',
+        en: 'A normalising flow is a chain of invertible transformations. You start from a distribution you can sample in one line, a plain normal, push it through those transformations, and out the other side you get something far more complicated. The point is that because every step is bijective you can follow the trail back and compute the exact density of the result. No approximating the normalising constant and apologising in the appendix.',
+      },
+      {
+        es: 'El uso concreto era integrar en dimensiones donde la cuadratura clásica no llega y el Monte Carlo de toda la vida simplemente tiene mucha paciencia. Visto así, aprender el cambio de variable es en realidad aprender dónde se molesta en vivir el integrando, para no gastar esfuerzo en el vacío.',
+        en: 'The concrete use was integrating in dimensions where classical quadrature cannot reach and plain Monte Carlo is merely very patient. Seen that way, learning the change of variables is really learning where the integrand actually bothers to live, so you do not spend effort on empty space.',
+      },
+      {
+        es: 'Todo el diseño gira alrededor de un determinante que tiene que salir barato de calcular, y por eso las arquitecturas son una discusión larguísima entre ser expresivo y ser tratable. Buena parte de lo que leí era gente perdiendo esa discusión de formas muy ingeniosas.',
+        en: 'The whole design revolves around a determinant that has to stay cheap to compute, which is why the architectures are one long argument between being expressive and being tractable. A good part of what I read was people losing that argument in very ingenious ways.',
+      },
+    ],
+    photos: 0,
   },
   'lab-grayscott': {
-    kicker: 'Lab bench · Simulation', when: 'MSc', where: 'UC3M',
-    title: 'Gray–Scott simulation — Turing patterns',
-    lede: 'Two chemicals, one reaction–diffusion equation, and every spot on every animal.',
-    stats: [['2', 'species'], ['1', 'PDE'], ['4', 'parameters, endless outcomes']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Simulación', en: 'Simulation' },
+    title: { es: 'Simulación de Gray–Scott, patrones de Turing', en: 'Gray–Scott simulation — Turing patterns' },
+    lede: {
+      es: 'Dos químicos, una ecuación de reacción-difusión y las manchas de todos los animales.',
+      en: 'Two chemicals, one reaction–diffusion equation, and every spot on every animal.',
+    },
     bullets: [
-      'Gray–Scott is two reagents, one feeding on the other, diffusing at different speeds. Discretise it, run it forward, and stripes, spots, mazes and self-replicating blobs come out of a rule short enough to write on a napkin.',
-      'Turing proposed this in 1952 to explain how an undifferentiated embryo decides where to put its markings. Watching it happen on a laptop is the closest I have come to seeing an equation grow.',
-      'The implementation is a Laplacian per timestep and a great deal of patience with boundary conditions. The actual work is in the parameter plane, where a change in the fourth decimal quietly swaps one animal for another.',
-      'The clearest demonstration I know that complexity does not require a complicated rule. I go back to it whenever a model of mine starts getting baroque.'
-    ], photos: 0, tags: ['PDE', 'simulation', 'Turing patterns']
+      {
+        es: 'Este proyecto lo hice por puro gusto y sigue siendo al que vuelvo cuando quiero enseñarle a alguien por qué me dedico a esto. El modelo de Gray–Scott son dos reactivos, uno que alimenta al otro, difundiéndose a velocidades distintas. Nada más. Lo discretizas, lo dejas correr y de ahí salen rayas, lunares, laberintos y manchas que se replican solas.',
+        en: 'I did this one for the pure pleasure of it and it is still where I go when I want to show someone why I do this for a living. The Gray–Scott model is two reagents, one feeding on the other, diffusing at different speeds. That is all. You discretise it, let it run, and out come stripes, spots, mazes and blobs that replicate on their own.',
+      },
+      {
+        es: 'Lo propuso Turing en 1952 para explicar cómo un embrión, que empieza siendo una masa indiferenciada, decide dónde ponerse las marcas. Verlo pasar en un portátil es lo más parecido que he tenido nunca a ver crecer una ecuación.',
+        en: 'Turing proposed it in 1952 to explain how an embryo, which starts out as an undifferentiated mass, decides where to put its markings. Watching it happen on a laptop is the closest I have ever come to seeing an equation grow.',
+      },
+      {
+        es: 'La implementación en sí es un laplaciano por cada paso de tiempo y bastante paciencia con las condiciones de contorno. El trabajo de verdad está en el plano de parámetros: cambias el cuarto decimal de la tasa de alimentación y te sale otro animal completamente distinto. Te pasas las horas moviendo un número diminuto a ver qué bicho aparece.',
+        en: 'The implementation itself is one Laplacian per timestep and a fair amount of patience with boundary conditions. The real work is in the parameter plane: change the fourth decimal of the feed rate and a completely different animal comes out. You spend hours nudging a tiny number to see what creature shows up.',
+      },
+      {
+        es: 'Es la demostración más clara que conozco de que la complejidad no necesita una regla complicada. Vuelvo a este proyecto cada vez que un modelo mío se me está poniendo barroco.',
+        en: 'It is the clearest demonstration I know that complexity does not require a complicated rule. I come back to this project whenever a model of mine is getting baroque on me.',
+      },
+    ],
+    photos: 0,
   },
   'lab-epidemic': {
-    kicker: 'Lab bench · Simulation', when: 'MSc', where: 'UC3M',
-    title: 'Epidemic dynamics on a lattice',
-    lede: 'A vectorised 2D convolution model of contagion — geography as the real parameter.',
-    stats: [['2D', 'lattice'], ['1 convolution', 'per timestep'], ['R₀', 'emergent, not assumed']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Simulación', en: 'Simulation' },
+    title: { es: 'Dinámica epidémica sobre una malla', en: 'Epidemic dynamics on a lattice' },
+    lede: {
+      es: 'Un modelo de contagio en dos dimensiones vectorizado con convoluciones, donde la geografía es el parámetro de verdad.',
+      en: 'A vectorised 2D convolution model of contagion, where geography is the real parameter.',
+    },
     bullets: [
-      'Every cell is a person, every neighbourhood is a kernel, and contagion is simply what a convolution does when you let it run. The reproduction number stops being something you type in and becomes something you measure afterwards.',
-      'Vectorised on purpose: the whole epidemic is one convolution per step, which makes the experiment cheap enough to sweep the parameters instead of arguing about them.',
-      'What a lattice shows and a compartmental model hides is that space is not a nuisance term. The same infectiousness draws a completely different curve depending on how the people are arranged.',
-      '2020 turned everyone into an amateur epidemiologist, myself very much included. This was me going back and doing it properly, with the equations in front of me instead of a headline.'
-    ], photos: 0, tags: ['simulation', 'convolutions', 'epidemiology']
+      {
+        es: 'El 2020 nos convirtió a todos en epidemiólogos aficionados, yo el primero. Este proyecto es volver a aquello unos años después, pero con las ecuaciones delante en vez de un titular.',
+        en: '2020 turned all of us into amateur epidemiologists, myself first among them. This project is going back to that a few years later, but with the equations in front of me instead of a headline.',
+      },
+      {
+        es: 'El planteamiento es sencillo y por eso me gusta: cada celda de la malla es una persona, el vecindario es un kernel, y el contagio no es más que lo que hace una convolución cuando la dejas correr. Ya está, no hay más truco.',
+        en: 'The setup is simple, which is why I like it: every cell of the lattice is a person, the neighbourhood is a kernel, and contagion is nothing more than what a convolution does when you let it run. That is it, there is no further trick.',
+      },
+      {
+        es: 'Lo bonito es que el número reproductivo deja de ser algo que tú escribes en un parámetro y pasa a ser algo que mides después, cuando la epidemia ya ha ocurrido. Emerge de cómo está colocada la gente, no de lo que tú supongas.',
+        en: 'The lovely part is that the reproduction number stops being something you type into a parameter and becomes something you measure afterwards, once the epidemic has already happened. It emerges from how the people are arranged, not from what you assumed.',
+      },
+      {
+        es: 'Lo escribí vectorizado a propósito: toda la epidemia es una convolución por paso, así que sale barato de ejecutar y puedes barrer los parámetros en lugar de discutirlos. Y ahí es donde se ve lo que un modelo compartimental esconde, que el espacio no es un término molesto que quitarse de encima. La misma infecciosidad dibuja curvas completamente distintas según cómo esté distribuida la población.',
+        en: 'I wrote it vectorised on purpose: the whole epidemic is one convolution per step, so it is cheap to run and you can sweep the parameters instead of arguing about them. And that is where you see what a compartmental model hides, which is that space is not some nuisance term to get rid of. The same infectiousness draws completely different curves depending on how the population is laid out.',
+      },
+    ],
+    photos: 0,
   },
   'lab-kepler': {
-    kicker: 'Lab bench · Astro', when: 'MSc', where: 'UC3M',
-    title: 'Kepler PCA & MDS — clustering exoplanets',
-    lede: 'The astro-analytics obsession, finally with a marking rubric attached.',
-    stats: [['Kepler', 'catalogue'], ['PCA + MDS', 'two ways of looking'], ['Families', 'of worlds']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Astronomía', en: 'Astronomy' },
+    title: { es: 'PCA y MDS sobre Kepler, agrupando exoplanetas', en: 'Kepler PCA & MDS — clustering exoplanets' },
+    lede: {
+      es: 'Reducción de dimensionalidad sobre el catálogo de exoplanetas para ver qué mundos se parecen entre sí.',
+      en: 'Dimensionality reduction over the exoplanet catalogue, to see which worlds resemble each other.',
+    },
     bullets: [
-      'The Kepler catalogue hands you thousands of confirmed planets described by orbital period, radius, insolation and host star — far too many axes to hold in a head at once.',
-      'PCA finds the directions the data actually varies along; MDS keeps the distances between worlds and flattens everything else. Running both is a way of asking whether the structure is real or a souvenir of the method.',
-      'What falls out is families — the hot and enormous in one corner, the small and cold in another — and, written straight across the middle, the survey\'s own bias, because a transit telescope finds what a transit telescope is able to see. Half the interpretation is separating the universe from the instrument.',
-      'I had been pointing a telescope at things for fun for years before any of this counted for credits. This was the first time the looking produced a plot, and the hobby has not fully recovered.'
-    ], photos: 0, tags: ['PCA', 'MDS', 'astronomy', 'R']
+      {
+        es: 'Este proyecto me hizo especial ilusión porque llevo años sacando el telescopio por gusto, mucho antes de que nada de esto contase para una nota. Era la primera vez que mirar el cielo me producía un gráfico, y me temo que el hobby no se ha recuperado del todo.',
+        en: 'This project was a particular joy because I have been taking the telescope out for fun for years, long before any of this counted towards a mark. It was the first time that looking at the sky produced a plot, and I am afraid the hobby has not fully recovered.',
+      },
+      {
+        es: 'El catálogo de Kepler te entrega miles de planetas confirmados descritos por su periodo orbital, su radio, la insolación que reciben, la estrella que los acompaña y unas cuantas cosas más. Son demasiados ejes para sostenerlos en la cabeza a la vez, así que la única forma de mirarlos en conjunto es aplastarlos con cuidado.',
+        en: 'The Kepler catalogue hands you thousands of confirmed planets described by orbital period, radius, the insolation they receive, the star they belong to and a few more things. That is too many axes to hold in your head at once, so the only way to look at them together is to flatten them carefully.',
+      },
+      {
+        es: 'Usé dos métodos a propósito. El PCA busca las direcciones en las que los datos realmente varían, y el MDS intenta conservar las distancias entre mundos y aplastar todo lo demás. Hacer los dos no es redundante, es la forma de preguntarle a los datos si la estructura que ves es real o es un recuerdo del método que has elegido.',
+        en: 'I used two methods on purpose. PCA looks for the directions the data actually varies along, and MDS tries to preserve the distances between worlds and flatten everything else. Running both is not redundant, it is how you ask the data whether the structure you are seeing is real or a souvenir of the method you picked.',
+      },
+      {
+        es: 'Lo que sale son familias: los calientes y enormes en una esquina, los pequeños y fríos en otra. Pero cruzando el gráfico por el medio está también el sesgo del propio telescopio, porque un instrumento que detecta tránsitos encuentra lo que un instrumento que detecta tránsitos es capaz de ver. Media interpretación consiste en separar el universo del aparato con el que lo estás mirando.',
+        en: 'What comes out is families: the hot and enormous in one corner, the small and cold in another. But running straight across the middle of the plot is the telescope\'s own bias, because an instrument that detects transits finds what an instrument that detects transits is able to see. Half the interpretation is separating the universe from the device you are looking at it with.',
+      },
+    ],
+    photos: 0,
   },
   'lab-particles': {
-    kicker: 'Lab bench · Physics', when: 'MSc', where: 'UC3M',
-    title: 'Particle tracking with quantum graph networks',
-    lede: 'Reconstructing trajectories as a graph problem, with a quantum-flavoured twist.',
-    stats: [['Hits', '→ nodes'], ['Edges', 'the hypothesis'], ['QGNN', 'the method']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Grafos', en: 'Graphs' },
+    title: { es: 'Seguimiento de partículas con redes de grafos cuánticas', en: 'Particle tracking with quantum graph networks' },
+    lede: {
+      es: 'Reconstruir trayectorias como si fueran un problema de grafos, con una capa cuántica de por medio.',
+      en: 'Reconstructing trajectories as a graph problem, with a quantum layer in the middle.',
+    },
     bullets: [
-      'A detector gives you a cloud of hits and no idea which of them belonged to the same particle. Turn each hit into a node and each plausible link into an edge, and reconstructing tracks becomes classifying edges.',
-      'The network passes messages between neighbours until the surviving edges spell out trajectories. The quantum layer swaps part of that for a parameterised circuit — not because it is faster today, but because the encoding is worth understanding before it is.',
-      'Combinatorics is the real opponent: candidate edges explode long before the physics gets interesting, so most of the effort goes into building a sane graph rather than into training on it.',
-      'Graph networks were the moment I stopped picturing data as a table. Some things are relations first and rows never, and once you have seen that you cannot unsee it in a database schema.'
-    ], photos: 0, tags: ['GNN', 'quantum', 'physics', 'PyTorch']
+      {
+        es: 'Un detector no te da trayectorias, te da una nube de impactos y ninguna pista de cuál pertenece a qué partícula. La idea del proyecto es cambiar la forma de mirar el problema: cada impacto pasa a ser un nodo, cada enlace plausible entre dos impactos pasa a ser una arista, y de repente reconstruir trayectorias se convierte en clasificar aristas.',
+        en: 'A detector does not give you trajectories, it gives you a cloud of hits and no clue which belongs to which particle. The idea of the project is to change how you look at the problem: every hit becomes a node, every plausible link between two hits becomes an edge, and suddenly reconstructing tracks turns into classifying edges.',
+      },
+      {
+        es: 'La red va pasando mensajes entre nodos vecinos hasta que las aristas que sobreviven deletrean las trayectorias reales. Es un cambio de representación precioso, porque el problema físico no se ha movido, solo lo estás mirando desde otro sitio.',
+        en: 'The network passes messages between neighbouring nodes until the surviving edges spell out the real trajectories. It is a beautiful change of representation, because the physical problem has not moved at all, you are just looking at it from somewhere else.',
+      },
+      {
+        es: 'La parte cuántica sustituye un trozo de eso por un circuito parametrizado. No porque hoy sea más rápido, que no lo es, sino porque me parece que merece la pena entender cómo se codifica la información ahí dentro antes de que lo sea.',
+        en: 'The quantum part replaces a piece of that with a parameterised circuit. Not because it is faster today, because it is not, but because I think it is worth understanding how information gets encoded in there before it is.',
+      },
+      {
+        es: 'El enemigo real, en cualquier caso, es la combinatoria. El número de aristas candidatas explota muchísimo antes de que la física se ponga interesante, así que casi todo el esfuerzo se va en construir un grafo sensato, no en entrenar sobre él.',
+        en: 'The real enemy, in any case, is combinatorics. The number of candidate edges explodes long before the physics gets interesting, so almost all the effort goes into building a sane graph rather than training on it.',
+      },
+      {
+        es: 'Este fue el proyecto en el que dejé de imaginarme los datos como una tabla. Hay cosas que son relaciones antes que filas, y una vez lo ves ya no puedes dejar de verlo en cualquier esquema de base de datos.',
+        en: 'This was the project where I stopped picturing data as a table. Some things are relations before they are rows, and once you see that you cannot stop seeing it in any database schema.',
+      },
+    ],
+    photos: 0,
   },
   'lab-ica': {
-    kicker: 'Lab bench · Signals', when: 'MSc', where: 'UC3M',
-    title: 'Independent Component Analysis & the Fisher index',
-    lede: 'Pulling independent signals out of a mixture, then measuring how much information each one actually carries.',
-    stats: [['ICA', 'the decomposition'], ['Fisher', 'the index'], ['≠', 'uncorrelated']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Señales', en: 'Signals' },
+    title: { es: 'Análisis de Componentes Independientes y el índice de Fisher', en: 'Independent Component Analysis & the Fisher index' },
+    lede: {
+      es: 'Separar señales independientes de una mezcla y después medir cuánta información lleva cada una.',
+      en: 'Pulling independent signals out of a mixture, then measuring how much information each one carries.',
+    },
     bullets: [
-      'The cocktail-party problem done properly: several microphones, several sources, no labels, and an independence assumption strong enough to pull them apart.',
-      'PCA would have handed me uncorrelated components and stopped there. ICA goes after independence, which is only identifiable when the sources are non-Gaussian — the Gaussian case is the one place the whole method quietly fails, and knowing why is most of the lesson.',
-      'Then the Fisher information index on top, so the components are ranked by how much they actually tell you rather than by how loud they happen to be.',
-      '"Independent" is a far stronger claim than "uncorrelated", and almost everyone uses the two words interchangeably. I did too, until this.'
-    ], photos: 0, tags: ['ICA', 'signal processing', 'information']
+      {
+        es: 'El problema clásico de esto es el del cóctel: varias personas hablando a la vez, varios micrófonos repartidos por la sala, y ninguna etiqueta que te diga qué voz es cuál. Lo único que tienes es la mezcla, y aun así se pueden recuperar las voces originales.',
+        en: 'The classic version of this is the cocktail party problem: several people talking at once, several microphones around the room, and no label telling you which voice is which. All you have is the mixture, and even so the original voices can be recovered.',
+      },
+      {
+        es: 'Un PCA te habría dado componentes incorreladas y se habría parado ahí. El ICA va a por algo bastante más ambicioso, que es la independencia estadística de verdad. Y aquí está lo que más me gustó de la asignatura: eso solo es identificable si las fuentes no son gaussianas. El caso gaussiano es justo el único donde el método entero se cae, y entender por qué es prácticamente toda la lección.',
+        en: 'A PCA would have given me uncorrelated components and stopped there. ICA goes after something rather more ambitious, which is genuine statistical independence. And here is what I liked most about the module: that is only identifiable if the sources are non-Gaussian. The Gaussian case is precisely the one place where the whole method collapses, and understanding why is basically the entire lesson.',
+      },
+      {
+        es: 'Encima de eso añadí el índice de información de Fisher, para poder ordenar las componentes por lo que de verdad te cuentan y no por lo alto que suenan. Que una señal domine la mezcla no significa que sea la que lleva la información.',
+        en: 'On top of that I added the Fisher information index, so the components could be ranked by what they actually tell you rather than by how loud they are. A signal dominating the mixture does not mean it is the one carrying the information.',
+      },
+      {
+        es: 'Me llevé de aquí una manía que ya no se me ha quitado: "independiente" es una afirmación muchísimo más fuerte que "incorrelado", y casi todo el mundo los usa como sinónimos. Yo también lo hacía, hasta este proyecto.',
+        en: 'I came out of this with a pedantry I have not shaken since: "independent" is a far stronger claim than "uncorrelated", and almost everybody uses the two as synonyms. I did too, until this project.',
+      },
+    ],
+    photos: 0,
   },
   'lab-qtrading': {
-    kicker: 'Lab bench · Money', when: 'MSc', where: 'UC3M',
-    title: 'Deep Q-Trading',
-    lede: 'Reinforcement learning let loose on real tickers, by someone who has already lost money the manual way.',
-    stats: [['Deep Q', 'learning'], ['Real', 'tickers'], ['2021', 'the tuition fee']],
+    kicker: { es: 'Laboratorio', en: 'Lab bench' },
+    when: { es: 'Máster', en: 'MSc' },
+    where: { es: 'Refuerzo', en: 'Reinforcement' },
+    title: { es: 'Deep Q-Trading', en: 'Deep Q-Trading' },
+    lede: {
+      es: 'Aprendizaje por refuerzo suelto sobre tickers reales, hecho por alguien que ya perdió dinero a mano.',
+      en: 'Reinforcement learning let loose on real tickers, by someone who has already lost money the manual way.',
+    },
     bullets: [
-      'A trading agent that is never given the rule, only the reward: state in, action out, and a Q-function slowly working out what holding, buying and selling are worth.',
-      'The honest part of the project is the backtest. Transaction costs, no peeking at tomorrow, and buy-and-hold sitting there as a baseline that is much harder to beat than a lecture makes it look.',
-      'I started investing at 19 and learned the psychology of money the expensive way: losing hurts several times more than winning feels good, and it does not stop being true once you can name the bias.',
-      'Which is exactly why I trust a policy with a documented reward function more than I trust myself at 2am.'
-    ], photos: 0, tags: ['RL', 'finance', 'PyTorch']
+      {
+        es: 'Empecé a invertir a los 19, en el mercado más ruidoso posible, y aprendí la psicología del dinero por la vía cara. Este proyecto es la versión con supervisión académica de aquella curiosidad.',
+        en: 'I started investing at 19, in the loudest possible market, and learned the psychology of money the expensive way. This project is the academically supervised version of that curiosity.',
+      },
+      {
+        es: 'La gracia del aprendizaje por refuerzo es que al agente nunca le das la regla, solo la recompensa. Le pasas el estado del mercado, él elige una acción, y poco a poco va construyendo una función que estima lo que valen comprar, vender o quedarse quieto. Nadie le ha explicado qué es una tendencia, la deduce o no la deduce.',
+        en: 'The point of reinforcement learning is that you never give the agent the rule, only the reward. You hand it the state of the market, it picks an action, and little by little it builds a function estimating what buying, selling or sitting still are worth. Nobody has explained to it what a trend is; it works that out or it does not.',
+      },
+      {
+        es: 'La parte honesta del proyecto es el backtest, y es donde se cae la mitad de lo que uno lee por internet. Costes de transacción, prohibido mirar el día siguiente, y comprar y mantener ahí puesto como referencia, que es muchísimo más difícil de batir de lo que parece en una clase.',
+        en: 'The honest part of the project is the backtest, and it is where half of what you read online falls apart. Transaction costs, no peeking at tomorrow, and buy-and-hold sitting right there as the baseline, which is far harder to beat than a lecture makes it look.',
+      },
+      {
+        es: 'Lo que más me sirvió no fue el resultado sino la asimetría que ya conocía de antes: perder duele varias veces más de lo que gustan las ganancias, y no deja de ser verdad porque sepas ponerle nombre al sesgo. Que es exactamente el motivo por el que me fío más de una política con una función de recompensa escrita que de mí mismo a las dos de la mañana.',
+        en: 'What served me most was not the result but the asymmetry I already knew about: losing hurts several times more than winning feels good, and it does not stop being true just because you can name the bias. Which is exactly why I trust a policy with a written reward function more than I trust myself at two in the morning.',
+      },
+    ],
+    photos: 0,
   },
 
   /* ───────────────── WORLD ───────────────── */
