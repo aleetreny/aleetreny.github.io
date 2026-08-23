@@ -2024,6 +2024,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 <BoardCardView
                   card={card}
                   entries={entries}
+                  groupLabel={card.type === 'drawer' ? board.groups.find((group) => group.id === card.group)?.label : undefined}
                   editing={editing}
                   onCardEdit={editCard}
                   onAddEntry={addEntryToDrawer}

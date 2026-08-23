@@ -10,6 +10,8 @@ type CardEdit = (cardId: string, patch: Partial<BoardCard>) => void;
 type BoardCardViewProps = {
   card: BoardCard;
   entries: PortfolioEntry[];
+  /** The list label is owned by the board's list settings, not the card copy. */
+  groupLabel?: string;
   editing: boolean;
   onCardEdit: CardEdit;
   onAddEntry: (group: string) => void;
@@ -18,6 +20,13 @@ type BoardCardViewProps = {
 };
 
 type FieldTag = 'span' | 'div' | 'p';
+
+/** Older boards stored the whole drawer label in `kicker` (for example,
+ * "drawer 01 — paid work"). The card now owns only its number; the list name
+ * is always read from the drawer it represents. */
+export function drawerNumberFromKicker(kicker: string | undefined): string {
+  return kicker?.match(/\d+/)?.[0] ?? '';
+}
 
 /** One editable card field. It goes through the shared editable so a card
  *  title behaves exactly like article prose: Enter keeps its line break, a
@@ -436,7 +445,7 @@ function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   return <div className={`card__surface card__surface--${tone}`} style={style}>{children}</div>;
 }
 
-export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, onDeleteEntry, onReorderEntries }: BoardCardViewProps) {
+export function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, onAddEntry, onDeleteEntry, onReorderEntries }: BoardCardViewProps) {
   const t = useUiText();
   const field = (
     key: keyof BoardCard,
@@ -555,11 +564,25 @@ export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, 
 
   // drawer
   const count = entriesForGroup(entries, card.group ?? '').length;
+  const drawerNumber = drawerNumberFromKicker(card.kicker);
+  const drawerLabel = groupLabel ?? card.group ?? '';
   return (
     <Surface card={card}>
       {card.sweep ? <div className="sweep" /> : null}
       <div className="card__head">
-        {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
+        <span className="k drawer__kicker">
+          <CardField
+            as="span"
+            className="drawer__number"
+            editing={editing}
+            value={drawerNumber}
+            placeholder="00"
+            multiline={false}
+            commit={(value) => onCardEdit(card.id, { kicker: value.replace(/\D/g, '') })}
+          />
+          <span aria-hidden="true"> — </span>
+          <span className="drawer__list-name">{drawerLabel}</span>
+        </span>
         <span className="k">{count} {count === 1 ? t('card.entryOne') : t('card.entryMany')}</span>
       </div>
       {field('title', card.title, { className: 'card__title', placeholder: t('ph.title') })}

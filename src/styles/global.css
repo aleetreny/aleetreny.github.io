@@ -262,6 +262,9 @@ a { color: var(--c-accent); text-decoration: none; }
   color: color-mix(in oklch, currentColor 60%, transparent);
 }
 .card__head { display: flex; justify-content: space-between; gap: 12px; }
+.drawer__kicker { min-width: 0; }
+.drawer__number { display: inline-block; min-width: 2ch; }
+.drawer__list-name { white-space: nowrap; }
 .card__title {
   font-family: var(--font-display);
   font-weight: var(--font-display-weight, 700); font-size: 33px; line-height: .98;
