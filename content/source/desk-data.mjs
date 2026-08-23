@@ -384,60 +384,88 @@ export const ITEMS = {
 
   /* ───────────────── LAB BENCH ───────────────── */
   'lab-l1': {
-    kicker: 'Lab bench', when: 'MSc', where: 'UC3M',
+    kicker: 'Lab bench · Physics', when: 'MSc', where: 'UC3M',
     title: 'L1 Trigger anomaly detection',
     lede: 'Quantised autoencoders finding the events nobody labelled, at a data rate that forbids second guesses.',
-    stats: [['Quantised', 'autoencoders'], ['Anomalies', 'the target'], ['Real-time', 'constraint']],
-    bullets: ['Compressing a detector\'s reality into a latent space small enough to run inside a trigger.', 'The first project where "the model must fit in this much silicon" was a hard constraint.'],
-    photos: 1, tags: ['autoencoders', 'physics', 'quantisation']
+    stats: [['Quantised', 'autoencoders'], ['Unlabelled', 'by construction'], ['μs', 'the entire budget']],
+    bullets: [
+      'A collider sees far more than anyone can store, so the trigger decides what survives in microseconds. Which means the interesting event has to be recognised before anybody has got around to naming it.',
+      'The model is an autoencoder trained only on ordinary events: compress, reconstruct, and let the reconstruction error do the accusing. Nothing is labelled because nothing can be — you are looking for the thing you did not write down.',
+      'Then the part that makes it real: quantising the weights so the network fits inside hardware with a fixed latency budget. Precision you cannot afford is not precision, it is a wish.',
+      'First project where the binding constraint was physical rather than statistical. You cannot ask a detector for another second, and I found that clarifying rather than annoying.'
+    ], photos: 0, tags: ['autoencoders', 'anomaly detection', 'quantisation', 'physics']
   },
   'lab-flows': {
-    kicker: 'Lab bench', when: 'MSc', where: 'UC3M',
+    kicker: 'Lab bench · The pretty one', when: 'MSc', where: 'UC3M',
     title: 'Neural phase integration with normalising flows',
     lede: 'Bijective normalising flows to integrate where classical quadrature gives up.',
-    stats: [['Bijective', 'transforms'], ['Densities', 'learned'], ['Exact', 'likelihoods']],
-    bullets: ['Learning an invertible map so the hard integral becomes a change of variables.', 'The most beautiful maths I have implemented. I understood it three times and lost it twice.'],
-    photos: 1, tags: ['normalising flows', 'PyTorch']
+    stats: [['Bijective', 'by construction'], ['Exact', 'likelihoods'], ['1 Jacobian', 'the whole trick']],
+    bullets: [
+      'A normalising flow is a chain of invertible maps: start from a distribution you can sample in one line, push it through the transforms, and read the density on the other side exactly. No approximated normalising constant, no apology in the appendix.',
+      'The use case is integration in dimensions where quadrature is hopeless and plain Monte Carlo is merely patient. Learning the change of variables is really learning where the integrand bothers to live.',
+      'Everything depends on a determinant you must keep cheap, so the architecture is one long argument between expressive and tractable. Most of the reading was about who had lost that argument most usefully.',
+      'The most beautiful maths I have implemented. I understood it three times and lost it twice, which is roughly my ratio for anything with a Jacobian in it.'
+    ], photos: 0, tags: ['normalising flows', 'PyTorch', 'density estimation']
   },
   'lab-grayscott': {
-    kicker: 'Lab bench', when: 'MSc', where: 'UC3M',
+    kicker: 'Lab bench · Simulation', when: 'MSc', where: 'UC3M',
     title: 'Gray–Scott simulation — Turing patterns',
     lede: 'Two chemicals, one reaction–diffusion equation, and every spot on every animal.',
-    stats: [['2', 'species'], ['1', 'PDE'], ['∞', 'patterns']],
-    bullets: ['Simulating morphogenesis from the equations up.', 'The clearest demonstration I know that complexity does not require a complex rule.'],
-    photos: 1, tags: ['PDE', 'simulation', 'patterns']
+    stats: [['2', 'species'], ['1', 'PDE'], ['4', 'parameters, endless outcomes']],
+    bullets: [
+      'Gray–Scott is two reagents, one feeding on the other, diffusing at different speeds. Discretise it, run it forward, and stripes, spots, mazes and self-replicating blobs come out of a rule short enough to write on a napkin.',
+      'Turing proposed this in 1952 to explain how an undifferentiated embryo decides where to put its markings. Watching it happen on a laptop is the closest I have come to seeing an equation grow.',
+      'The implementation is a Laplacian per timestep and a great deal of patience with boundary conditions. The actual work is in the parameter plane, where a change in the fourth decimal quietly swaps one animal for another.',
+      'The clearest demonstration I know that complexity does not require a complicated rule. I go back to it whenever a model of mine starts getting baroque.'
+    ], photos: 0, tags: ['PDE', 'simulation', 'Turing patterns']
   },
   'lab-epidemic': {
-    kicker: 'Lab bench', when: 'MSc', where: 'UC3M',
+    kicker: 'Lab bench · Simulation', when: 'MSc', where: 'UC3M',
     title: 'Epidemic dynamics on a lattice',
     lede: 'A vectorised 2D convolution model of contagion — geography as the real parameter.',
-    stats: [['2D', 'lattice'], ['Vectorised', 'convolutions'], ['R₀', 'emergent, not assumed']],
-    bullets: ['Spatial contagion where the neighbourhood structure does the work instead of a single reproduction number.', 'Written for speed: the whole epidemic is a convolution per timestep.'],
-    photos: 1, tags: ['simulation', 'convolutions', 'epidemiology']
+    stats: [['2D', 'lattice'], ['1 convolution', 'per timestep'], ['R₀', 'emergent, not assumed']],
+    bullets: [
+      'Every cell is a person, every neighbourhood is a kernel, and contagion is simply what a convolution does when you let it run. The reproduction number stops being something you type in and becomes something you measure afterwards.',
+      'Vectorised on purpose: the whole epidemic is one convolution per step, which makes the experiment cheap enough to sweep the parameters instead of arguing about them.',
+      'What a lattice shows and a compartmental model hides is that space is not a nuisance term. The same infectiousness draws a completely different curve depending on how the people are arranged.',
+      '2020 turned everyone into an amateur epidemiologist, myself very much included. This was me going back and doing it properly, with the equations in front of me instead of a headline.'
+    ], photos: 0, tags: ['simulation', 'convolutions', 'epidemiology']
   },
   'lab-kepler': {
     kicker: 'Lab bench · Astro', when: 'MSc', where: 'UC3M',
     title: 'Kepler PCA & MDS — clustering exoplanets',
     lede: 'The astro-analytics obsession, finally with a marking rubric attached.',
-    stats: [['Kepler', 'catalogue'], ['PCA + MDS', 'methods'], ['Clusters', 'of worlds']],
-    bullets: ['Dimensionality reduction over the exoplanet catalogue to see which worlds resemble each other.', 'I have been looking through a telescope for fun for years. This was the first time the looking produced a plot.'],
-    photos: 2, tags: ['PCA', 'MDS', 'astronomy']
+    stats: [['Kepler', 'catalogue'], ['PCA + MDS', 'two ways of looking'], ['Families', 'of worlds']],
+    bullets: [
+      'The Kepler catalogue hands you thousands of confirmed planets described by orbital period, radius, insolation and host star — far too many axes to hold in a head at once.',
+      'PCA finds the directions the data actually varies along; MDS keeps the distances between worlds and flattens everything else. Running both is a way of asking whether the structure is real or a souvenir of the method.',
+      'What falls out is families — the hot and enormous in one corner, the small and cold in another — and, written straight across the middle, the survey\'s own bias, because a transit telescope finds what a transit telescope is able to see. Half the interpretation is separating the universe from the instrument.',
+      'I had been pointing a telescope at things for fun for years before any of this counted for credits. This was the first time the looking produced a plot, and the hobby has not fully recovered.'
+    ], photos: 0, tags: ['PCA', 'MDS', 'astronomy', 'R']
   },
   'lab-particles': {
-    kicker: 'Lab bench', when: 'MSc', where: 'UC3M',
+    kicker: 'Lab bench · Physics', when: 'MSc', where: 'UC3M',
     title: 'Particle tracking with quantum graph networks',
     lede: 'Reconstructing trajectories as a graph problem, with a quantum-flavoured twist.',
-    stats: [['Graphs', 'the representation'], ['Tracks', 'the output'], ['QGNN', 'the method']],
-    bullets: ['Hits become nodes, plausible trajectories become edges, and the network learns which edges are real.', 'Graph networks were the moment I stopped thinking of data as tables.'],
-    photos: 1, tags: ['GNN', 'quantum', 'physics']
+    stats: [['Hits', '→ nodes'], ['Edges', 'the hypothesis'], ['QGNN', 'the method']],
+    bullets: [
+      'A detector gives you a cloud of hits and no idea which of them belonged to the same particle. Turn each hit into a node and each plausible link into an edge, and reconstructing tracks becomes classifying edges.',
+      'The network passes messages between neighbours until the surviving edges spell out trajectories. The quantum layer swaps part of that for a parameterised circuit — not because it is faster today, but because the encoding is worth understanding before it is.',
+      'Combinatorics is the real opponent: candidate edges explode long before the physics gets interesting, so most of the effort goes into building a sane graph rather than into training on it.',
+      'Graph networks were the moment I stopped picturing data as a table. Some things are relations first and rows never, and once you have seen that you cannot unsee it in a database schema.'
+    ], photos: 0, tags: ['GNN', 'quantum', 'physics', 'PyTorch']
   },
   'lab-ica': {
-    kicker: 'Lab bench', when: 'MSc', where: 'UC3M',
+    kicker: 'Lab bench · Signals', when: 'MSc', where: 'UC3M',
     title: 'Independent Component Analysis & the Fisher index',
     lede: 'Pulling independent signals out of a mixture, then measuring how much information each one actually carries.',
-    stats: [['ICA', 'decomposition'], ['Fisher', 'index'], ['Signals', 'unmixed']],
-    bullets: ['Classic blind source separation, applied and then evaluated properly rather than eyeballed.', 'Taught me that "independent" is a much stronger claim than "uncorrelated", which most people use interchangeably.'],
-    photos: 1, tags: ['ICA', 'signal processing']
+    stats: [['ICA', 'the decomposition'], ['Fisher', 'the index'], ['≠', 'uncorrelated']],
+    bullets: [
+      'The cocktail-party problem done properly: several microphones, several sources, no labels, and an independence assumption strong enough to pull them apart.',
+      'PCA would have handed me uncorrelated components and stopped there. ICA goes after independence, which is only identifiable when the sources are non-Gaussian — the Gaussian case is the one place the whole method quietly fails, and knowing why is most of the lesson.',
+      'Then the Fisher information index on top, so the components are ranked by how much they actually tell you rather than by how loud they happen to be.',
+      '"Independent" is a far stronger claim than "uncorrelated", and almost everyone uses the two words interchangeably. I did too, until this.'
+    ], photos: 0, tags: ['ICA', 'signal processing', 'information']
   },
   'lab-qtrading': {
     kicker: 'Lab bench · Money', when: 'MSc', where: 'UC3M',
@@ -445,10 +473,11 @@ export const ITEMS = {
     lede: 'Reinforcement learning let loose on real tickers, by someone who has already lost money the manual way.',
     stats: [['Deep Q', 'learning'], ['Real', 'tickers'], ['2021', 'the tuition fee']],
     bullets: [
-      'A trading agent trained by reward instead of by rule.',
-      'I started investing at 19 and learned the psychology of money the expensive way: losing hurts several times more than winning feels good.',
+      'A trading agent that is never given the rule, only the reward: state in, action out, and a Q-function slowly working out what holding, buying and selling are worth.',
+      'The honest part of the project is the backtest. Transaction costs, no peeking at tomorrow, and buy-and-hold sitting there as a baseline that is much harder to beat than a lecture makes it look.',
+      'I started investing at 19 and learned the psychology of money the expensive way: losing hurts several times more than winning feels good, and it does not stop being true once you can name the bias.',
       'Which is exactly why I trust a policy with a documented reward function more than I trust myself at 2am.'
-    ], photos: 1, tags: ['RL', 'finance', 'PyTorch']
+    ], photos: 0, tags: ['RL', 'finance', 'PyTorch']
   },
 
   /* ───────────────── WORLD ───────────────── */

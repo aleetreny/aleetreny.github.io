@@ -4730,7 +4730,7 @@
     "publishedAt": "2026-08-05T00:00:00.000Z",
     "metadata": {
       "kicker": {
-        "en": "Lab bench"
+        "en": "Lab bench · Physics"
       },
       "when": {
         "en": "MSc"
@@ -4751,24 +4751,9 @@
     },
     "blocks": [
       {
-        "id": "a3f91b77-4df7-554d-93ed-c4ed3d308238",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "f161a0e4-da31-51a9-98b6-d0ec24b3e5fb",
+        "id": "7ff606fc-75ed-567e-9ac9-891dc3932c3c",
         "type": "metrics",
-        "position": 1,
+        "position": 0,
         "props": {
           "items": [
             [
@@ -4776,14 +4761,25 @@
               "autoencoders"
             ],
             [
-              "Anomalies",
-              "the target"
+              "Unlabelled",
+              "by construction"
             ],
             [
-              "Real-time",
-              "constraint"
+              "μs",
+              "the entire budget"
             ]
           ]
+        },
+        "layout": {}
+      },
+      {
+        "id": "79e0917f-b110-541e-9298-97bb2b4ada07",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "A collider sees far more than anyone can store, so the trigger decides what survives in microseconds. Which means the interesting event has to be recognised before anybody has got around to naming it."
+          }
         },
         "layout": {}
       },
@@ -4793,7 +4789,7 @@
         "position": 2,
         "props": {
           "text": {
-            "en": "Compressing a detector's reality into a latent space small enough to run inside a trigger."
+            "en": "The model is an autoencoder trained only on ordinary events: compress, reconstruct, and let the reconstruction error do the accusing. Nothing is labelled because nothing can be — you are looking for the thing you did not write down."
           }
         },
         "layout": {}
@@ -4804,25 +4800,39 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "The first project where \"the model must fit in this much silicon\" was a hard constraint."
+            "en": "Then the part that makes it real: quantising the weights so the network fits inside hardware with a fixed latency budget. Precision you cannot afford is not precision, it is a wish."
           }
         },
         "layout": {}
       },
       {
-        "id": "9626826c-128a-5255-8d74-40e1ede9fffc",
-        "type": "tags",
+        "id": "efc8ffdd-656e-52ad-8195-41eb490c016f",
+        "type": "text",
         "position": 4,
+        "props": {
+          "text": {
+            "en": "First project where the binding constraint was physical rather than statistical. You cannot ask a detector for another second, and I found that clarifying rather than annoying."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "bbfc908e-7a9e-59f5-a3f4-e8e91c5e3271",
+        "type": "tags",
+        "position": 5,
         "props": {
           "items": [
             {
               "en": "autoencoders"
             },
             {
-              "en": "physics"
+              "en": "anomaly detection"
             },
             {
               "en": "quantisation"
+            },
+            {
+              "en": "physics"
             }
           ]
         },
@@ -4841,7 +4851,7 @@
     "publishedAt": "2026-08-05T00:00:00.000Z",
     "metadata": {
       "kicker": {
-        "en": "Lab bench"
+        "en": "Lab bench · The pretty one"
       },
       "when": {
         "en": "MSc"
@@ -4862,39 +4872,35 @@
     },
     "blocks": [
       {
-        "id": "6047dc77-2b03-587c-a795-66d5266b4d5b",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "8240b911-16bc-5415-8348-6452f12d2267",
+        "id": "7d43bb90-64c6-5c72-9480-d385c32c9006",
         "type": "metrics",
-        "position": 1,
+        "position": 0,
         "props": {
           "items": [
             [
               "Bijective",
-              "transforms"
-            ],
-            [
-              "Densities",
-              "learned"
+              "by construction"
             ],
             [
               "Exact",
               "likelihoods"
+            ],
+            [
+              "1 Jacobian",
+              "the whole trick"
             ]
           ]
+        },
+        "layout": {}
+      },
+      {
+        "id": "2f73425d-dc30-5e39-9b9c-3e218da58bbf",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "A normalising flow is a chain of invertible maps: start from a distribution you can sample in one line, push it through the transforms, and read the density on the other side exactly. No approximated normalising constant, no apology in the appendix."
+          }
         },
         "layout": {}
       },
@@ -4904,7 +4910,7 @@
         "position": 2,
         "props": {
           "text": {
-            "en": "Learning an invertible map so the hard integral becomes a change of variables."
+            "en": "The use case is integration in dimensions where quadrature is hopeless and plain Monte Carlo is merely patient. Learning the change of variables is really learning where the integrand bothers to live."
           }
         },
         "layout": {}
@@ -4915,15 +4921,26 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "The most beautiful maths I have implemented. I understood it three times and lost it twice."
+            "en": "Everything depends on a determinant you must keep cheap, so the architecture is one long argument between expressive and tractable. Most of the reading was about who had lost that argument most usefully."
           }
         },
         "layout": {}
       },
       {
-        "id": "276c94ba-bf93-54c0-8029-0c4fef5a5aa5",
-        "type": "tags",
+        "id": "aa15c7f4-67f2-59f7-9393-06a452eafbfe",
+        "type": "text",
         "position": 4,
+        "props": {
+          "text": {
+            "en": "The most beautiful maths I have implemented. I understood it three times and lost it twice, which is roughly my ratio for anything with a Jacobian in it."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "ff3d44b7-b3be-58a0-bc81-053d39598e64",
+        "type": "tags",
+        "position": 5,
         "props": {
           "items": [
             {
@@ -4931,6 +4948,9 @@
             },
             {
               "en": "PyTorch"
+            },
+            {
+              "en": "density estimation"
             }
           ]
         },
@@ -4949,7 +4969,7 @@
     "publishedAt": "2026-08-05T00:00:00.000Z",
     "metadata": {
       "kicker": {
-        "en": "Lab bench"
+        "en": "Lab bench · Simulation"
       },
       "when": {
         "en": "MSc"
@@ -4970,24 +4990,9 @@
     },
     "blocks": [
       {
-        "id": "f6b9ef8f-0575-5b7a-bedc-a60d4b6d7d5c",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "ad058303-f162-5586-8439-8b1dcb2a45a7",
+        "id": "0eab2012-fa23-5d29-9550-92c806ed0485",
         "type": "metrics",
-        "position": 1,
+        "position": 0,
         "props": {
           "items": [
             [
@@ -4999,10 +5004,21 @@
               "PDE"
             ],
             [
-              "∞",
-              "patterns"
+              "4",
+              "parameters, endless outcomes"
             ]
           ]
+        },
+        "layout": {}
+      },
+      {
+        "id": "5cf08c19-d1d2-5f10-a1ce-cc545ca24b2f",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "Gray–Scott is two reagents, one feeding on the other, diffusing at different speeds. Discretise it, run it forward, and stripes, spots, mazes and self-replicating blobs come out of a rule short enough to write on a napkin."
+          }
         },
         "layout": {}
       },
@@ -5012,7 +5028,7 @@
         "position": 2,
         "props": {
           "text": {
-            "en": "Simulating morphogenesis from the equations up."
+            "en": "Turing proposed this in 1952 to explain how an undifferentiated embryo decides where to put its markings. Watching it happen on a laptop is the closest I have come to seeing an equation grow."
           }
         },
         "layout": {}
@@ -5023,15 +5039,26 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "The clearest demonstration I know that complexity does not require a complex rule."
+            "en": "The implementation is a Laplacian per timestep and a great deal of patience with boundary conditions. The actual work is in the parameter plane, where a change in the fourth decimal quietly swaps one animal for another."
           }
         },
         "layout": {}
       },
       {
-        "id": "c36cf265-d22b-5640-a106-87c348f5df3c",
-        "type": "tags",
+        "id": "79527f09-ee9f-5992-87d9-88bfd27f10cf",
+        "type": "text",
         "position": 4,
+        "props": {
+          "text": {
+            "en": "The clearest demonstration I know that complexity does not require a complicated rule. I go back to it whenever a model of mine starts getting baroque."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "1f2e9e96-5b33-5d75-a42b-149185521103",
+        "type": "tags",
+        "position": 5,
         "props": {
           "items": [
             {
@@ -5041,7 +5068,7 @@
               "en": "simulation"
             },
             {
-              "en": "patterns"
+              "en": "Turing patterns"
             }
           ]
         },
@@ -5060,7 +5087,7 @@
     "publishedAt": "2026-08-05T00:00:00.000Z",
     "metadata": {
       "kicker": {
-        "en": "Lab bench"
+        "en": "Lab bench · Simulation"
       },
       "when": {
         "en": "MSc"
@@ -5081,24 +5108,9 @@
     },
     "blocks": [
       {
-        "id": "d6cee312-5944-5000-9fbf-da992a3266b1",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "7d59e296-e487-5dac-8656-9a7a35bf43dd",
+        "id": "1bb252f0-3d3a-577c-a3db-39d0c1145c77",
         "type": "metrics",
-        "position": 1,
+        "position": 0,
         "props": {
           "items": [
             [
@@ -5106,8 +5118,8 @@
               "lattice"
             ],
             [
-              "Vectorised",
-              "convolutions"
+              "1 convolution",
+              "per timestep"
             ],
             [
               "R₀",
@@ -5118,12 +5130,23 @@
         "layout": {}
       },
       {
+        "id": "7dd4ca82-ce23-5854-8c70-dd23d558b5bf",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "Every cell is a person, every neighbourhood is a kernel, and contagion is simply what a convolution does when you let it run. The reproduction number stops being something you type in and becomes something you measure afterwards."
+          }
+        },
+        "layout": {}
+      },
+      {
         "id": "befd2b97-74d2-5960-8e9e-94648e21ef03",
         "type": "text",
         "position": 2,
         "props": {
           "text": {
-            "en": "Spatial contagion where the neighbourhood structure does the work instead of a single reproduction number."
+            "en": "Vectorised on purpose: the whole epidemic is one convolution per step, which makes the experiment cheap enough to sweep the parameters instead of arguing about them."
           }
         },
         "layout": {}
@@ -5134,15 +5157,26 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "Written for speed: the whole epidemic is a convolution per timestep."
+            "en": "What a lattice shows and a compartmental model hides is that space is not a nuisance term. The same infectiousness draws a completely different curve depending on how the people are arranged."
           }
         },
         "layout": {}
       },
       {
-        "id": "9f3e7593-2e35-58f1-8126-8b76df0f5c79",
-        "type": "tags",
+        "id": "11aeb274-fb0e-5ed6-a4bd-912e7fe9192f",
+        "type": "text",
         "position": 4,
+        "props": {
+          "text": {
+            "en": "2020 turned everyone into an amateur epidemiologist, myself very much included. This was me going back and doing it properly, with the equations in front of me instead of a headline."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "cc9dc074-f822-5f35-8f52-300c81c22f14",
+        "type": "tags",
+        "position": 5,
         "props": {
           "items": [
             {
@@ -5192,39 +5226,9 @@
     },
     "blocks": [
       {
-        "id": "b46049bc-6ef4-5568-9869-e887a19080c7",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M · 1"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "f59291af-aaa8-5d5d-a870-2fe4209fceb8",
-        "type": "image",
-        "position": 1,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M · 2"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "c65fd18b-56ad-5ab6-a577-5bd4b8019431",
+        "id": "538ad419-c68d-5d7b-b30e-1220b7aa9012",
         "type": "metrics",
-        "position": 2,
+        "position": 0,
         "props": {
           "items": [
             [
@@ -5233,13 +5237,35 @@
             ],
             [
               "PCA + MDS",
-              "methods"
+              "two ways of looking"
             ],
             [
-              "Clusters",
+              "Families",
               "of worlds"
             ]
           ]
+        },
+        "layout": {}
+      },
+      {
+        "id": "695a1f5a-f720-5916-83d1-396645c6c73a",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "The Kepler catalogue hands you thousands of confirmed planets described by orbital period, radius, insolation and host star — far too many axes to hold in a head at once."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "e463a39e-64f5-5773-bd66-cc5ca42cfa66",
+        "type": "text",
+        "position": 2,
+        "props": {
+          "text": {
+            "en": "PCA finds the directions the data actually varies along; MDS keeps the distances between worlds and flattens everything else. Running both is a way of asking whether the structure is real or a souvenir of the method."
+          }
         },
         "layout": {}
       },
@@ -5249,7 +5275,7 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "Dimensionality reduction over the exoplanet catalogue to see which worlds resemble each other."
+            "en": "What falls out is families — the hot and enormous in one corner, the small and cold in another — and, written straight across the middle, the survey's own bias, because a transit telescope finds what a transit telescope is able to see. Half the interpretation is separating the universe from the instrument."
           }
         },
         "layout": {}
@@ -5260,7 +5286,7 @@
         "position": 4,
         "props": {
           "text": {
-            "en": "I have been looking through a telescope for fun for years. This was the first time the looking produced a plot."
+            "en": "I had been pointing a telescope at things for fun for years before any of this counted for credits. This was the first time the looking produced a plot, and the hobby has not fully recovered."
           }
         },
         "layout": {}
@@ -5279,6 +5305,9 @@
             },
             {
               "en": "astronomy"
+            },
+            {
+              "en": "R"
             }
           ]
         },
@@ -5297,7 +5326,7 @@
     "publishedAt": "2026-08-05T00:00:00.000Z",
     "metadata": {
       "kicker": {
-        "en": "Lab bench"
+        "en": "Lab bench · Physics"
       },
       "when": {
         "en": "MSc"
@@ -5318,33 +5347,18 @@
     },
     "blocks": [
       {
-        "id": "791a4e72-1062-568c-a62a-59103334e735",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "920ce5bc-7d53-5895-bc11-baca37d48669",
+        "id": "64065c78-4b26-5061-beda-0a5ccf442c50",
         "type": "metrics",
-        "position": 1,
+        "position": 0,
         "props": {
           "items": [
             [
-              "Graphs",
-              "the representation"
+              "Hits",
+              "→ nodes"
             ],
             [
-              "Tracks",
-              "the output"
+              "Edges",
+              "the hypothesis"
             ],
             [
               "QGNN",
@@ -5355,12 +5369,23 @@
         "layout": {}
       },
       {
+        "id": "3c0f91f8-b50d-5aa8-ab1f-9067bba39e31",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "A detector gives you a cloud of hits and no idea which of them belonged to the same particle. Turn each hit into a node and each plausible link into an edge, and reconstructing tracks becomes classifying edges."
+          }
+        },
+        "layout": {}
+      },
+      {
         "id": "626aa51d-14b7-5155-9b24-33c984c13e5f",
         "type": "text",
         "position": 2,
         "props": {
           "text": {
-            "en": "Hits become nodes, plausible trajectories become edges, and the network learns which edges are real."
+            "en": "The network passes messages between neighbours until the surviving edges spell out trajectories. The quantum layer swaps part of that for a parameterised circuit — not because it is faster today, but because the encoding is worth understanding before it is."
           }
         },
         "layout": {}
@@ -5371,15 +5396,26 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "Graph networks were the moment I stopped thinking of data as tables."
+            "en": "Combinatorics is the real opponent: candidate edges explode long before the physics gets interesting, so most of the effort goes into building a sane graph rather than into training on it."
           }
         },
         "layout": {}
       },
       {
-        "id": "25f1e5d6-433b-5313-916c-084bad08dcc4",
-        "type": "tags",
+        "id": "9ce4c3b6-71c9-5df6-8481-3ab908a7e7d7",
+        "type": "text",
         "position": 4,
+        "props": {
+          "text": {
+            "en": "Graph networks were the moment I stopped picturing data as a table. Some things are relations first and rows never, and once you have seen that you cannot unsee it in a database schema."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "fd3404c7-6bbd-5873-8d13-f4bd961915a0",
+        "type": "tags",
+        "position": 5,
         "props": {
           "items": [
             {
@@ -5390,6 +5426,9 @@
             },
             {
               "en": "physics"
+            },
+            {
+              "en": "PyTorch"
             }
           ]
         },
@@ -5408,7 +5447,7 @@
     "publishedAt": "2026-08-05T00:00:00.000Z",
     "metadata": {
       "kicker": {
-        "en": "Lab bench"
+        "en": "Lab bench · Signals"
       },
       "when": {
         "en": "MSc"
@@ -5429,39 +5468,35 @@
     },
     "blocks": [
       {
-        "id": "961fb6c0-1e92-517e-8782-c009b0f9600f",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "12468f59-0e75-5125-8bed-0439659f4382",
+        "id": "431b4fdf-423f-5802-ac38-d18bbbf92212",
         "type": "metrics",
-        "position": 1,
+        "position": 0,
         "props": {
           "items": [
             [
               "ICA",
-              "decomposition"
+              "the decomposition"
             ],
             [
               "Fisher",
-              "index"
+              "the index"
             ],
             [
-              "Signals",
-              "unmixed"
+              "≠",
+              "uncorrelated"
             ]
           ]
+        },
+        "layout": {}
+      },
+      {
+        "id": "47c1cb84-c188-58d9-8b6e-21468a7d8037",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "The cocktail-party problem done properly: several microphones, several sources, no labels, and an independence assumption strong enough to pull them apart."
+          }
         },
         "layout": {}
       },
@@ -5471,7 +5506,7 @@
         "position": 2,
         "props": {
           "text": {
-            "en": "Classic blind source separation, applied and then evaluated properly rather than eyeballed."
+            "en": "PCA would have handed me uncorrelated components and stopped there. ICA goes after independence, which is only identifiable when the sources are non-Gaussian — the Gaussian case is the one place the whole method quietly fails, and knowing why is most of the lesson."
           }
         },
         "layout": {}
@@ -5482,15 +5517,26 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "Taught me that \"independent\" is a much stronger claim than \"uncorrelated\", which most people use interchangeably."
+            "en": "Then the Fisher information index on top, so the components are ranked by how much they actually tell you rather than by how loud they happen to be."
           }
         },
         "layout": {}
       },
       {
-        "id": "9c80b604-67c0-579e-815e-405b46bc7c64",
-        "type": "tags",
+        "id": "cfaf16a1-4349-5b37-868b-1a11823291e6",
+        "type": "text",
         "position": 4,
+        "props": {
+          "text": {
+            "en": "\"Independent\" is a far stronger claim than \"uncorrelated\", and almost everyone uses the two words interchangeably. I did too, until this."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "eab016c4-3428-5e00-a9d3-e89d3da445fc",
+        "type": "tags",
+        "position": 5,
         "props": {
           "items": [
             {
@@ -5498,6 +5544,9 @@
             },
             {
               "en": "signal processing"
+            },
+            {
+              "en": "information"
             }
           ]
         },
@@ -5537,24 +5586,9 @@
     },
     "blocks": [
       {
-        "id": "86dcb79c-b162-5448-860e-1fc9441f5e2d",
-        "type": "image",
-        "position": 0,
-        "props": {
-          "url": "",
-          "alt": {
-            "en": "UC3M"
-          },
-          "caption": {
-            "en": "UC3M"
-          }
-        },
-        "layout": {}
-      },
-      {
-        "id": "76db46d0-b94c-5430-9422-4fc718ddef85",
+        "id": "0857f071-1682-51f7-a5b3-1c664bdb27d7",
         "type": "metrics",
-        "position": 1,
+        "position": 0,
         "props": {
           "items": [
             [
@@ -5574,12 +5608,23 @@
         "layout": {}
       },
       {
+        "id": "0f0ce778-30b5-5d63-8d29-5a9ade2388ee",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "en": "A trading agent that is never given the rule, only the reward: state in, action out, and a Q-function slowly working out what holding, buying and selling are worth."
+          }
+        },
+        "layout": {}
+      },
+      {
         "id": "f05cd538-50a9-55a3-ae14-cb248a078db4",
         "type": "text",
         "position": 2,
         "props": {
           "text": {
-            "en": "A trading agent trained by reward instead of by rule."
+            "en": "The honest part of the project is the backtest. Transaction costs, no peeking at tomorrow, and buy-and-hold sitting there as a baseline that is much harder to beat than a lecture makes it look."
           }
         },
         "layout": {}
@@ -5590,7 +5635,7 @@
         "position": 3,
         "props": {
           "text": {
-            "en": "I started investing at 19 and learned the psychology of money the expensive way: losing hurts several times more than winning feels good."
+            "en": "I started investing at 19 and learned the psychology of money the expensive way: losing hurts several times more than winning feels good, and it does not stop being true once you can name the bias."
           }
         },
         "layout": {}

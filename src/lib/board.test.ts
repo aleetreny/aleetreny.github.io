@@ -64,6 +64,22 @@ describe('board settings parsing', () => {
     expect(fallback.groups).toEqual(DEFAULT_BOARD.groups);
   });
 
+  it('gives a stored board the shipped cards it has never seen', () => {
+    const [first, ...rest] = DEFAULT_BOARD.cards;
+    const board = parseBoard({ cards: [first], groups: DEFAULT_BOARD.groups });
+    expect(board.cards[0]).toEqual(first);
+    expect(board.cards.map((card) => card.id)).toEqual(DEFAULT_BOARD.cards.map((card) => card.id));
+    expect(rest.length).toBeGreaterThan(0);
+  });
+
+  it('leaves a shipped card the owner threw away thrown away', () => {
+    const [first, second] = DEFAULT_BOARD.cards;
+    const board = parseBoard({ cards: [first], groups: DEFAULT_BOARD.groups, dismissed: [second.id, 7] });
+    expect(board.cards.some((card) => card.id === second.id)).toBe(false);
+    // A non-string in the stored list is ignored rather than trusted.
+    expect(board.dismissed).toEqual([second.id]);
+  });
+
   it('exposes every colour as a CSS variable', () => {
     const vars = themeVars(DEFAULT_THEME);
     expect(vars['--c-accent']).toBe(DEFAULT_THEME.colors.accent);

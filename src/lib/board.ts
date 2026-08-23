@@ -160,7 +160,7 @@ export type TagChip = string | { label: string; accent?: boolean };
 
 export type BoardCard = {
   id: string;
-  type: 'hero' | 'now' | 'drawer' | 'spotlight' | 'contact';
+  type: 'hero' | 'now' | 'drawer' | 'spotlight' | 'sticker' | 'contact';
   jump?: string;
   open?: string;
   group?: string;
@@ -202,7 +202,15 @@ export type BoardCard = {
   ruled?: boolean;
   bars?: boolean;
   barCaption?: string;
+  /** Sticker rows: `[code, level, marks]` — a short label, what it means, and
+   *  how many of `STICKER_MARKS` are filled in. Structure, like `stats`, so it
+   *  is never handed to the translator. */
+  langs?: Array<[string, string, number]>;
 };
+
+/** How many marks a sticker row draws. Five reads as a level at a glance and
+ *  still fits inside a card narrow enough to be a sticker. */
+export const STICKER_MARKS = 5;
 
 export type Polaroid = {
   id: string;
@@ -238,6 +246,11 @@ export type BoardConfig = {
   cards: BoardCard[];
   polaroids: Polaroid[];
   marginalia: Marginal[];
+  /** Ids of shipped cards the owner has thrown away. A board is stored whole,
+   *  so without this list a card added to the shipped set after they first
+   *  saved theirs could never reach them — and merging one in blindly would
+   *  resurrect the ones they deleted on purpose. */
+  dismissed: string[];
 };
 
 export type LayoutOverride = { x: number; y: number; rot: number; w?: number };
@@ -339,7 +352,12 @@ export const DEFAULT_THEME = {
   dossier: { ...DEFAULT_DOSSIER, ...(fixtureTheme?.dossier ?? {}) },
   fonts: { ...DEFAULT_FONTS, ...(fixtureTheme?.fonts ?? {}) },
 } as ThemeConfig;
-export const DEFAULT_BOARD = fixtureByKey.board as BoardConfig;
+/** The fixture predates `dismissed` and never needs one: a board shipped as
+ *  the default has nothing thrown away yet. */
+export const DEFAULT_BOARD: BoardConfig = {
+  ...(fixtureByKey.board as Omit<BoardConfig, 'dismissed'>),
+  dismissed: [],
+};
 export const DEFAULT_LAYOUT = (fixtureByKey['board.layout'] ?? {}) as LayoutMap;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -716,17 +734,31 @@ function isBoardGroup(value: unknown): value is BoardGroup {
   return isRecord(value) && typeof value.id === 'string' && typeof value.label === 'string';
 }
 
+/** A stored board is a complete document, so a card that joins the shipped set
+ *  later would otherwise never appear on a board saved before it existed.
+ *  Append the shipped cards this board has never seen, skipping any the owner
+ *  removed — `dismissed` is what tells the two apart. */
+function withShippedCards(cards: BoardCard[], dismissed: string[]): BoardCard[] {
+  const known = new Set(cards.map((card) => card.id));
+  const missing = DEFAULT_BOARD.cards.filter((card) => !known.has(card.id) && !dismissed.includes(card.id));
+  return missing.length > 0 ? [...cards, ...missing] : cards;
+}
+
 export function parseBoard(value: unknown): BoardConfig {
   if (!isRecord(value) || !Array.isArray(value.cards)) return DEFAULT_BOARD;
   const groups = Array.isArray(value.groups) ? value.groups.filter(isBoardGroup) : [];
+  const dismissed = Array.isArray(value.dismissed)
+    ? value.dismissed.filter((id): id is string => typeof id === 'string')
+    : [];
   return {
     size: isRecord(value.size)
       ? { width: Number(value.size.width) || DEFAULT_BOARD.size.width, height: Number(value.size.height) || DEFAULT_BOARD.size.height }
       : DEFAULT_BOARD.size,
     groups: groups.length > 0 ? groups : DEFAULT_BOARD.groups,
-    cards: value.cards as BoardCard[],
+    cards: withShippedCards(value.cards as BoardCard[], dismissed),
     polaroids: Array.isArray(value.polaroids) ? (value.polaroids as Polaroid[]) : [],
     marginalia: Array.isArray(value.marginalia) ? (value.marginalia as Marginal[]) : [],
+    dismissed,
   };
 }
 

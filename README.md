@@ -332,6 +332,14 @@ fixtures change shape** — a new settings key, a renamed list, a new card field
 Changes made from the site itself never need one; they are already in the
 database.
 
+A full seed overwrites every dossier and every settings document from the
+versioned copy, which is right for a fresh database and wrong for a live one you
+have been writing in. `only_slugs` narrows a run to the dossiers you name —
+`lab-kepler,lab-ica` — and then nothing else is written: no other entry, no
+theme, no board, no trash sweep. Use it to publish a dossier rewritten in the
+repository without putting the rest of the catalogue back to what this
+repository last generated. Locally it is `SEED_ONLY=lab-kepler pnpm db:seed`.
+
 If Pages fails, download the Actions logs, re-run `pnpm check && pnpm build` from
 a clean clone, and dispatch the workflow again. The full rollback to the previous
 site is documented in [docs/recovery.md](docs/recovery.md).

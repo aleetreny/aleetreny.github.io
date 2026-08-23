@@ -3,12 +3,29 @@ import { resolve } from 'node:path';
 import { createDatabaseClient } from './client.mjs';
 
 const sql = createDatabaseClient();
-const entries = JSON.parse(await readFile(resolve('fixtures/demo-content.json'), 'utf8'));
-const settings = JSON.parse(await readFile(resolve('fixtures/site-settings.json'), 'utf8'));
+const catalogue = JSON.parse(await readFile(resolve('fixtures/demo-content.json'), 'utf8'));
+const documents = JSON.parse(await readFile(resolve('fixtures/site-settings.json'), 'utf8'));
 const ownerId = process.env.OWNER_AUTH_USER_ID || 'public-demo-fixture';
+
+// A full seed rewrites every dossier and every settings document from the
+// versioned copy, which is right for a fresh database and wrong for a live one
+// the owner has been writing in. `SEED_ONLY` names the slugs to write and
+// nothing else is touched: no other dossier, no theme, no board, no trash
+// sweep. It is how one rewritten dossier reaches Neon without putting a
+// hand-edited catalogue back to what this repository last generated.
+const only = (process.env.SEED_ONLY ?? '').split(',').map((slug) => slug.trim()).filter(Boolean);
+const targeted = only.length > 0;
+const unknown = only.filter((slug) => !catalogue.some((entry) => entry.slug === slug));
+if (unknown.length > 0) {
+  throw new Error(`SEED_ONLY names slugs that are not in the catalogue: ${unknown.join(', ')}`);
+}
+
+const entries = targeted ? catalogue.filter((entry) => only.includes(entry.slug)) : catalogue;
+const settings = targeted ? [] : documents;
 // When true, active entries that are not part of this catalogue are moved to the
-// recoverable trash — used to replace an older catalogue on first seed.
-const replace = process.env.SEED_REPLACE === 'true';
+// recoverable trash — used to replace an older catalogue on first seed. A
+// targeted run is never allowed to sweep: it does not know about the rest.
+const replace = !targeted && process.env.SEED_REPLACE === 'true';
 
 const keepIds = entries.map((entry) => entry.id);
 
@@ -93,7 +110,11 @@ try {
     }
 
   });
-  console.log(`Seeded ${entries.length} entries and ${settings.length} settings documents${replace ? ' (catalogue replaced)' : ''}.`);
+  console.log(
+    targeted
+      ? `Seeded ${entries.length} of ${catalogue.length} entries (${only.join(', ')}); nothing else was touched.`
+      : `Seeded ${entries.length} entries and ${settings.length} settings documents${replace ? ' (catalogue replaced)' : ''}.`,
+  );
 } finally {
   await sql.end();
 }

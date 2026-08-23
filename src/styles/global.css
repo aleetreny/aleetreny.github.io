@@ -355,6 +355,32 @@ a { color: var(--c-accent); text-decoration: none; }
 .bars span.is-peak { background: var(--c-accent); }
 .spot--ruled::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 1px; background: color-mix(in oklch, var(--c-accent) 35%, transparent); }
 
+/* sticker (languages) — the small stuck-on shape: a seal, level rows, one
+   line. Every colour comes from the palette, so it restyles with the theme
+   like every other card. */
+.sticker { position: relative; cursor: pointer; }
+.sticker__seal {
+  position: absolute; top: -2px; right: -2px; width: 34px; height: 34px;
+  display: grid; place-items: center; border-radius: 50%;
+  border: 1px dashed color-mix(in oklch, var(--c-accent2) 70%, transparent);
+  color: var(--c-accent2); font-family: var(--font-mono); font-size: 13px; line-height: 1;
+  transform: rotate(-9deg);
+}
+.sticker__title { font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: .98; letter-spacing: -.03em; margin: 8px 0 0; white-space: pre-line; }
+.sticker__rows { display: flex; flex-direction: column; gap: 7px; margin: 14px 0 0; }
+.sticker__row { display: flex; align-items: center; gap: 9px; }
+.sticker__code { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .1em; min-width: 2.4em; }
+.sticker__meter { display: inline-flex; gap: 3px; flex: none; }
+.sticker__meter > span { width: 7px; height: 12px; background: color-mix(in oklch, currentColor 22%, transparent); }
+.sticker__meter > span.is-on { background: var(--c-accent2); }
+.sticker__level { font-size: 11px; letter-spacing: .04em; opacity: .72; min-width: 0; }
+.sticker__ctrl { display: inline-flex; gap: 3px; margin-left: auto; }
+.sticker__ctrl button { font-family: var(--font-mono); font-size: 10px; line-height: 1; background: transparent; color: inherit; border: 1px solid color-mix(in oklch, currentColor 28%, transparent); padding: 3px 5px; cursor: pointer; opacity: .7; }
+.sticker__ctrl button:hover { opacity: 1; border-color: var(--c-accent2); }
+.sticker__add { font-family: var(--font-mono); font-size: 10px; background: transparent; border: 1px dashed color-mix(in oklch, currentColor 30%, transparent); color: inherit; padding: 4px 8px; margin-top: 4px; align-self: flex-start; cursor: pointer; opacity: .75; }
+.sticker__add:hover { opacity: 1; }
+.sticker__note { margin: 14px 0 0; font-size: 11px; line-height: 1.55; opacity: .62; }
+
 /* contact */
 .links { display: flex; flex-direction: column; gap: 9px; font-size: 13px; }
 .links a { color: inherit; border-bottom: 1px solid rgba(243, 236, 221, .25); padding-bottom: 3px; }

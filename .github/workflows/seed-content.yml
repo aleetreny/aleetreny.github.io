@@ -13,8 +13,12 @@ on:
         type: choice
         options: [development, production]
         default: development
+      only_slugs:
+        description: Comma-separated dossier slugs to write, e.g. lab-kepler,lab-ica. Blank seeds the whole catalogue and the board settings; a list touches nothing else
+        required: false
+        type: string
       replace_catalogue:
-        description: Move any entry not in this catalogue to the recoverable trash
+        description: Move any entry not in this catalogue to the recoverable trash. Ignored when only_slugs is set
         required: true
         type: boolean
         default: true
@@ -34,6 +38,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       OWNER_AUTH_USER_ID: ${{ vars.OWNER_AUTH_USER_ID }}
       SEED_REPLACE: ${{ inputs.replace_catalogue }}
+      SEED_ONLY: ${{ inputs.only_slugs }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6

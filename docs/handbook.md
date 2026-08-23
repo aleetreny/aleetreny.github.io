@@ -251,7 +251,7 @@ nothing is saved.
 | --- | --- |
 | `edit mode` | Toggles inline editing on the whole board. |
 | `🔒 positions` | Locks every card, photo and note in place. It starts locked; press it deliberately to enable dragging. |
-| `add: drawer / spotlight / photo / note` | Drops a new piece at the centre of the view. |
+| `add: drawer / spotlight / sticker / photo / note` | Drops a new piece at the centre of the view. |
 | `aspecto` / `theme` | [Appearance panel](#51-theme). |
 | `visita` / `tour` | [Guided tour panel](#54-boardtour). |
 | `artículos` / `entries` | [Inventory panel](#inventory). |
@@ -742,7 +742,7 @@ Common to every card:
 | Field | What it does |
 | --- | --- |
 | `id` | Stable identifier. Used by layout overrides and tour stops. |
-| `type` | `hero` `now` `drawer` `spotlight` `contact` |
+| `type` | `hero` `now` `drawer` `spotlight` `sticker` `contact` |
 | `x` `y` | Position in board pixels. |
 | `rot` | Tilt in degrees, multiplied by the theme's `chaos`. |
 | `w` | Width in board pixels. |
@@ -760,6 +760,7 @@ Per type:
 | `now` | `label`, `current`, `currentTitle`, `currentSub`, `nextLabel`, `next`, `nextTitle`, `nextSub` |
 | `drawer` | `group`, `layout` (`list` `compact` `grid` `notes` `atlas`), `maxItems`, `subtitle`, `intro`, `stats`, `tech`, `sweep`, `footer`, `footerLink` |
 | `spotlight` | `open` (the dossier slug), `blurb`, `grid`, `waveform`, `bars`, `barCaption`, `ruled`, `footer` |
+| `sticker` | `open` (the dossier slug), `langs`, `note` |
 | `contact` | `links` (`[label, url]` pairs), `note` |
 
 Drawer row layouts:
@@ -771,6 +772,22 @@ Drawer row layouts:
 | `grid` | Two columns, title over its first tag. |
 | `notes` | Title over the entry's opening line. |
 | `atlas` | A code column, the title, then the date. |
+
+#### Sticker rows
+
+A sticker is the smallest card: a seal, a few level rows and one line under
+them. Each row of `langs` is `[code, level, marks]` — a short label, what it
+means in words, and how many of the five marks are filled. Editing shows a
+`−` / `+` pair per row, an `×` to drop one and `+ row` to add another. Like
+`stats`, the rows are structure rather than prose, so the translator leaves them
+exactly as you typed them. `open` makes the whole sticker a link to a dossier.
+
+#### Cards added after your board was saved
+
+Your board is stored as one document, so a card added to the shipped set later
+would never reach a board you had already saved. It is merged in on load
+instead, and deleting it records the id in `dismissed` so it stays deleted. A
+card you never had and never want costs one deletion, once.
 
 #### Instant photos
 

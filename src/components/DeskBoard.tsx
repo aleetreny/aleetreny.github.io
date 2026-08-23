@@ -3,6 +3,7 @@ import type { PortfolioEntry, StoredPortfolioEntry } from '../types/content';
 import { demoEntries, demoSettings } from '../content/demo';
 import {
   BOARD_TEXTURES,
+  DEFAULT_BOARD,
   dossierOrder,
   entriesForGroup,
   parseBoard,
@@ -1219,13 +1220,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     return { x: Math.round((rect.width / 2 - v.x) / v.s - 150), y: Math.round((rect.height / 2 - v.y) / v.s - 90) };
   }, []);
 
-  const addCard = useCallback((type: 'drawer' | 'spotlight') => {
+  const addCard = useCallback((type: 'drawer' | 'spotlight' | 'sticker') => {
     const at = viewCenterWorld();
     const id = crypto.randomUUID();
-    const card: BoardCard = type === 'drawer'
-      ? { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: '', title: '', group: board.groups[0]?.id ?? 'random', layout: 'compact' }
-      : { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: '', title: '', blurb: '', open: entries[0]?.slug };
-    commitBoard({ ...rawBoard, cards: [...rawBoard.cards, card] });
+    const newCard: Record<typeof type, BoardCard> = {
+      drawer: { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: '', title: '', group: board.groups[0]?.id ?? 'random', layout: 'compact' },
+      spotlight: { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: '', title: '', blurb: '', open: entries[0]?.slug },
+      sticker: { id, type: 'sticker', x: at.x, y: at.y, rot: 0, w: 300, tone: 'paperCream', kicker: '', title: '', langs: [['', '', 5]], open: entries[0]?.slug },
+    };
+    commitBoard({ ...rawBoard, cards: [...rawBoard.cards, newCard[type]] });
     setCardMenu(id);
   }, [rawBoard, commitBoard, entries, board.groups, viewCenterWorld]);
 
@@ -1241,7 +1244,18 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     commitBoard({ ...rawBoard, marginalia: [...rawBoard.marginalia, note] });
   }, [rawBoard, commitBoard, viewCenterWorld]);
 
-  const removeCard = useCallback((id: string) => { commitBoard({ ...rawBoard, cards: rawBoard.cards.filter((c) => c.id !== id) }); setCardMenu(null); }, [rawBoard, commitBoard]);
+  // Removing a card the board ships with has to be remembered, or the merge in
+  // `parseBoard` — the one that lets a board gain a card added upstream — would
+  // put it straight back on the next load.
+  const removeCard = useCallback((id: string) => {
+    const shipped = DEFAULT_BOARD.cards.some((card) => card.id === id);
+    commitBoard({
+      ...rawBoard,
+      cards: rawBoard.cards.filter((c) => c.id !== id),
+      dismissed: shipped && !rawBoard.dismissed.includes(id) ? [...rawBoard.dismissed, id] : rawBoard.dismissed,
+    });
+    setCardMenu(null);
+  }, [rawBoard, commitBoard]);
   const removePolaroid = useCallback((id: string) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.filter((p) => p.id !== id) }); }, [rawBoard, commitBoard]);
   const removeNote = useCallback((id: string) => { commitBoard({ ...rawBoard, marginalia: rawBoard.marginalia.filter((n) => n.id !== id) }); }, [rawBoard, commitBoard]);
   const editPolaroid = useCallback((id: string, patch: Partial<Polaroid>) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === id ? patchText(p as unknown as Record<string, unknown>, patch as Record<string, unknown>, POLAROID_TEXT_FIELDS) as unknown as Polaroid : p)) }); }, [rawBoard, commitBoard, patchText]);
@@ -1943,7 +1957,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                             </label>
                           </>
                         ) : null}
-                        {card.type === 'spotlight' ? (
+                        {card.type === 'spotlight' || card.type === 'sticker' ? (
                           <label>{t('cardmenu.opens')}
                             <select value={card.open ?? ''} onChange={(e) => editCard(card.id, { open: e.target.value })}>
                               <option value="">—</option>
@@ -2068,6 +2082,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                       <span className="ownerbar__add">{t('owner.add')}</span>
                       <button className="tbtn" type="button" onClick={() => addCard('drawer')}>{t('owner.addDrawer')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>{t('owner.addSpotlight')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('sticker')}>{t('owner.addSticker')}</button>
                       <button className="tbtn" type="button" onClick={addPolaroid}>{t('owner.addPhoto')}</button>
                       <button className="tbtn" type="button" onClick={addNote}>{t('owner.addNote')}</button>
                     </>

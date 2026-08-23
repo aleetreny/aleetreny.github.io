@@ -197,7 +197,9 @@ describe('narrow screens', () => {
     // Nothing is dropped and nothing is reordered.
     expect(stops.flatMap((s) => s.items)).toEqual(DEFAULT_TOUR.stops.flatMap((s) => s.items));
     expect(stops.every((s) => s.items.length === 1)).toBe(true);
-    expect(stops).toHaveLength(20);
+    // One stop per piece, whatever the authored route currently holds — the
+    // count is the board's business, not this test's.
+    expect(stops).toHaveLength(DEFAULT_TOUR.stops.flatMap((s) => s.items).length);
     expect(stops[0].label).toBe('the person, first');
     expect(stops[1].label).toBe('the person, first');
     expect(new Set(stops.map((s) => s.id)).size).toBe(stops.length);

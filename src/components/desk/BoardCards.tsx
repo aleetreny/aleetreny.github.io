@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { BoardCard } from '../../lib/board';
-import { entriesForGroup, reorderGroupEntries } from '../../lib/board';
+import { entriesForGroup, reorderGroupEntries, STICKER_MARKS } from '../../lib/board';
 import type { PortfolioEntry } from '../../types/content';
 import { EditableText } from './EditableText';
 import { useUiText } from './ui-text-context';
@@ -376,6 +376,58 @@ function SpotlightGrid({ card, editing, onCardEdit }: { card: BoardCard; editing
   );
 }
 
+/** The rows on a sticker: `[code, level, marks]`. The meter is the whole point
+ *  of the shape — a level you read before you read anything — so the owner sets
+ *  it with a pair of steppers instead of typing a number into prose. */
+function StickerRows({ card, editing, onCardEdit }: { card: BoardCard; editing: boolean; onCardEdit: CardEdit }) {
+  const t = useUiText();
+  const rows = card.langs ?? [];
+  if (rows.length === 0 && !editing) return null;
+
+  const write = (next: Array<[string, string, number]>) => onCardEdit(card.id, { langs: next });
+  const copy = () => rows.map((row) => [...row] as [string, string, number]);
+  const setText = (index: number, part: 0 | 1, value: string) => {
+    const next = copy();
+    next[index][part] = value;
+    write(next);
+  };
+  const setMarks = (index: number, marks: number) => {
+    const next = copy();
+    next[index][2] = Math.max(0, Math.min(STICKER_MARKS, marks));
+    write(next);
+  };
+
+  return (
+    <div className="sticker__rows" {...(editing ? { 'data-nodrag': '' } : {})}>
+      {rows.map((row, index) => {
+        const code = row[0] ?? '';
+        const marks = Math.max(0, Math.min(STICKER_MARKS, Math.round(Number(row[2]) || 0)));
+        return (
+          <div className="sticker__row" key={index}>
+            <CardField className="sticker__code" editing={editing} value={code} placeholder={t('card.langCode')} multiline={false} commit={(value) => setText(index, 0, value)} />
+            <span className="sticker__meter" role="img" aria-label={t('card.langMeter', { code, marks, of: STICKER_MARKS })}>
+              {Array.from({ length: STICKER_MARKS }).map((_, mark) => (
+                <span key={mark} className={mark < marks ? 'is-on' : undefined} />
+              ))}
+            </span>
+            <CardField className="sticker__level" editing={editing} value={row[1]} placeholder={t('card.langLevel')} multiline={false} commit={(value) => setText(index, 1, value)} />
+            {editing ? (
+              <span className="sticker__ctrl">
+                <button type="button" onClick={() => setMarks(index, marks - 1)} aria-label={t('card.langDown', { code })} title={t('card.langDown', { code })}>−</button>
+                <button type="button" onClick={() => setMarks(index, marks + 1)} aria-label={t('card.langUp', { code })} title={t('card.langUp', { code })}>+</button>
+                <button type="button" onClick={() => write(rows.filter((_, rowIndex) => rowIndex !== index))} aria-label={t('card.removeLang', { code })} title={t('card.removeLang', { code })}>×</button>
+              </span>
+            ) : null}
+          </div>
+        );
+      })}
+      {editing ? (
+        <button className="sticker__add" type="button" onClick={() => write([...copy(), ['', '', STICKER_MARKS]])}>{t('card.addLang')}</button>
+      ) : null}
+    </div>
+  );
+}
+
 function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   const tone = card.tone ?? 'paper';
   const style: CSSProperties | undefined = tone === 'custom'
@@ -464,6 +516,23 @@ export function BoardCardView({ card, entries, editing, onCardEdit, onAddEntry, 
           ) : null}
           {card.barCaption || editing ? field('barCaption', card.barCaption, { className: 'k', style: { marginTop: 6, opacity: 0.6 }, placeholder: t('ph.text'), multiline: false }) : null}
           <SpotlightFooter card={card} editing={editing} onCardEdit={onCardEdit} />
+        </div>
+      </Surface>
+    );
+  }
+
+  // A sticker is the smallest thing on the board: a seal, a couple of level
+  // rows and one line underneath. It opens a dossier like a spotlight does,
+  // but it is meant to be read without opening anything.
+  if (card.type === 'sticker') {
+    return (
+      <Surface card={card}>
+        <div className="sticker" data-open={editing ? undefined : card.open}>
+          <span className="sticker__seal" aria-hidden="true">{(card.langs ?? []).length || '·'}</span>
+          {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
+          {field('title', card.title, { className: 'sticker__title', placeholder: t('ph.title') })}
+          <StickerRows card={card} editing={editing} onCardEdit={onCardEdit} />
+          {card.note || editing ? field('note', card.note, { className: 'sticker__note', placeholder: t('ph.text') }) : null}
         </div>
       </Surface>
     );

@@ -33,7 +33,7 @@
         "rowRule": 3
       },
       "dossier": {
-        "width": 1600,
+        "width": 860,
         "measure": 60,
         "bodyFace": "display",
         "bodySize": 16.5,
@@ -505,6 +505,42 @@
           "layout": "compact",
           "maxItems": 5,
           "footer": "Also: sci-fi and fantasy (Douglas Adams is non-negotiable), board games, Asian food, and one cricket eaten at a TEDx. I do not eat avocado."
+        },
+        {
+          "id": "langs",
+          "type": "sticker",
+          "open": "languages",
+          "x": 2214,
+          "y": 1852,
+          "rot": -2.6,
+          "w": 300,
+          "tone": "paperCream",
+          "kicker": {
+            "en": "sticker — spoken"
+          },
+          "title": {
+            "en": "Three\nlanguages"
+          },
+          "langs": [
+            [
+              "ES",
+              "native · Málaga",
+              5
+            ],
+            [
+              "FR",
+              "native · at home",
+              5
+            ],
+            [
+              "EN",
+              "C1 Cambridge · 187",
+              4
+            ]
+          ],
+          "note": {
+            "en": "The Málaga humour does not survive the crossing. I rebuild the jokes in each one."
+          }
         }
       ],
       "polaroids": [
@@ -636,7 +672,8 @@
           "label": "marks and trophies",
           "items": [
             "edu",
-            "hack"
+            "hack",
+            "langs"
           ]
         },
         {

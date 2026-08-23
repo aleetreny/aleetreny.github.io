@@ -223,6 +223,18 @@ export const CARDS = [
     kicker: 'drawer 11 — the drawer', title: 'Things with\nno CV line', layout: 'compact', maxItems: 5,
     footer: 'Also: sci-fi and fantasy (Douglas Adams is non-negotiable), board games, Asian food, and one cricket eaten at a TEDx. I do not eat avocado.',
   },
+  {
+    id: 'langs', type: 'sticker', open: 'languages', x: 2214, y: 1852, rot: -2.6, w: 300, tone: 'paperCream',
+    kicker: 'sticker — spoken', title: 'Three\nlanguages',
+    // [code, level, filled marks out of five] — structure, not prose, so the
+    // translator leaves it alone exactly as it leaves `stats` alone.
+    langs: [
+      ['ES', 'native · Málaga', 5],
+      ['FR', 'native · at home', 5],
+      ['EN', 'C1 Cambridge · 187', 4],
+    ],
+    note: 'The Málaga humour does not survive the crossing. I rebuild the jokes in each one.',
+  },
 ];
 
 // Instant photos — draggable, with a fillable photo slot each.
@@ -271,7 +283,7 @@ export const TOUR = {
   stops: [
     { id: 'stop-1', label: 'the person, first', items: ['hero', 'now'] },
     { id: 'stop-2', label: 'what pays · what does not', items: ['work', 'vol'] },
-    { id: 'stop-3', label: 'marks and trophies', items: ['edu', 'hack'] },
+    { id: 'stop-3', label: 'marks and trophies', items: ['edu', 'hack', 'langs'] },
     { id: 'stop-4', label: 'the bench · on the air', items: ['lab', 'pod'] },
     { id: 'stop-5', label: 'the workshop · the long diary', items: ['repos', 'diary', 'pola-2'] },
     { id: 'stop-6', label: 'the drawer with no CV line', items: ['random', 'pola-3', 'pola-4'] },
