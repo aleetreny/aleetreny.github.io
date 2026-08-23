@@ -1121,18 +1121,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     });
   }, [rawBoard, commitBoard, patchText]);
 
-  /** Width belongs to the card itself, but a card that has been moved also has
-   *  a layout override. Keep both in sync so the control always changes what
-   *  is on screen and a later layout reset still keeps the chosen width. */
-  const setCardWidth = useCallback((cardId: string, value: number) => {
-    const width = Math.max(CARD_WIDTH_MIN, Math.min(CARD_WIDTH_MAX, Math.round(value / CARD_WIDTH_STEP) * CARD_WIDTH_STEP));
-    editCard(cardId, { w: width });
-    const override = layout[cardId];
-    if (!override) return;
-    const next = { ...layout, [cardId]: { ...override, w: width } };
+  /** The rotate handle is primarily dragged, but a keyboard click also nudges
+   * the card by five degrees. It wraps after the practical visual limit. */
+  const nudgeCardRotation = useCallback((card: BoardCard, current: Geom) => {
+    const rotation = current.rot >= 30 ? -30 : current.rot + 5;
+    const next = {
+      ...layout,
+      [card.id]: { x: current.x, y: current.y, rot: rotation, w: current.w },
+    };
     if (authedRef.current) commitLayout(next);
     else setSettings((settings) => ({ ...settings, 'board.layout': next }));
-  }, [editCard, layout, commitLayout]);
+  }, [layout, commitLayout]);
 
   const moveEntryGroup = useCallback((entry: PortfolioEntry, group: string) => {
     const order = entriesForGroup(entries, group).length;
@@ -1356,6 +1355,61 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const target = event.target as HTMLElement;
       const card = target.closest<HTMLElement>('[data-card]');
       const resizeHandle = target.closest<HTMLElement>('[data-card-resize]');
+      const rotateHandle = target.closest<HTMLElement>('[data-card-rotate]');
+
+      // The circular-arrow handle sets the card's real rotation instead of
+      // merely changing its hover state. Its angle is measured around the
+      // rendered card centre, which keeps the gesture natural at every zoom.
+      if (rotateHandle && card) {
+        event.preventDefault();
+        didDrag.current = false;
+        const bounds = card.getBoundingClientRect();
+        const centerX = bounds.left + bounds.width / 2;
+        const centerY = bounds.top + bounds.height / 2;
+        const startPointerAngle = Math.atan2(event.clientY - centerY, event.clientX - centerX) * 180 / Math.PI;
+        const startRotation = parseFloat(card.dataset.rot || '0');
+        let rotation = startRotation;
+        card.style.zIndex = String(++zTop.current);
+        card.style.transition = 'none';
+        card.classList.add('is-rotating');
+
+        const move = (ev: PointerEvent) => {
+          if (pinchRef.current) return;
+          const pointerAngle = Math.atan2(ev.clientY - centerY, ev.clientX - centerX) * 180 / Math.PI;
+          let delta = pointerAngle - startPointerAngle;
+          if (delta > 180) delta -= 360;
+          if (delta < -180) delta += 360;
+          rotation = Math.max(-30, Math.min(30, startRotation + delta));
+          card.style.transform = `rotate(${rotation.toFixed(2)}deg)`;
+          if (!didDrag.current && Math.hypot(ev.clientX - event.clientX, ev.clientY - event.clientY) > 4) {
+            didDrag.current = true;
+          }
+        };
+        const up = () => {
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', up);
+          card.classList.remove('is-rotating');
+          card.style.transition = '';
+          rotation = Math.round(rotation * 2) / 2;
+          card.style.transform = `rotate(${rotation}deg)`;
+          if (didDrag.current && !pinchedRef.current) {
+            const id = card.dataset.card as string;
+            const geom: LayoutOverride = {
+              x: parseFloat(card.style.left || '0'),
+              y: parseFloat(card.style.top || '0'),
+              rot: rotation,
+            };
+            const width = parseFloat(card.style.width || '0');
+            if (width) geom.w = width;
+            const next = { ...layout, [id]: geom };
+            if (authedRef.current) commitLayout(next); else setSettings((s) => ({ ...s, 'board.layout': next }));
+          }
+          window.setTimeout(() => { didDrag.current = false; }, 60);
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', up);
+        return;
+      }
 
       // Resize from the card's own left/right edge. Pointer movement is
       // projected onto the card's local x-axis, so an inclined card keeps the
@@ -1875,6 +1929,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               >
                 {editing ? (
                   <>
+                    <button
+                      className="card__rotate-handle"
+                      type="button"
+                      data-card-rotate
+                      data-nodrag
+                      aria-label={t('cardmenu.rotation')}
+                      title={t('cardmenu.rotation')}
+                      onClick={() => nudgeCardRotation(card, geom)}
+                    >↻</button>
                     <span
                       className="card__resize-handle card__resize-handle--left"
                       data-card-resize="left"
@@ -1904,18 +1967,6 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                     <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label={t('owner.cardSettings')}>⚙</button>
                     {cardMenu === card.id ? (
                       <div className="card-ctrl__menu">
-                        <label className="card-ctrl__width">
-                          <span>{t('cardmenu.width')} <output>{Math.round(geom.w)} px</output></span>
-                          <input
-                            type="range"
-                            min={CARD_WIDTH_MIN}
-                            max={CARD_WIDTH_MAX}
-                            step={CARD_WIDTH_STEP}
-                            value={Math.max(CARD_WIDTH_MIN, Math.min(CARD_WIDTH_MAX, Math.round(geom.w / CARD_WIDTH_STEP) * CARD_WIDTH_STEP))}
-                            aria-label={t('cardmenu.width')}
-                            onChange={(event) => setCardWidth(card.id, Number(event.target.value))}
-                          />
-                        </label>
                         {card.type !== 'hero' ? (
                           <label>{t('cardmenu.tone')}
                             <select value={card.tone ?? 'paper'} onChange={(e) => editCard(card.id, { tone: e.target.value as CardTone })}>

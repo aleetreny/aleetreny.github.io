@@ -105,6 +105,7 @@ const CATALOGUE: Record<string, Entry> = {
   'cardmenu.width': { es: 'ancho', en: 'width' },
   'cardmenu.bg': { es: 'fondo', en: 'bg' },
   'cardmenu.ink': { es: 'tinta', en: 'ink' },
+  'cardmenu.rotation': { es: 'inclinar tarjeta', en: 'tilt card' },
   'cardmenu.list': { es: 'lista', en: 'list' },
   'cardmenu.layout': { es: 'diseño', en: 'layout' },
   'cardmenu.maxItems': { es: 'máximo', en: 'max items' },
