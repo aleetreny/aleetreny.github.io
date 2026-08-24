@@ -10,18 +10,25 @@ const ownerId = process.env.OWNER_AUTH_USER_ID || 'public-demo-fixture';
 // A full seed rewrites every dossier and every settings document from the
 // versioned copy, which is right for a fresh database and wrong for a live one
 // the owner has been writing in. `SEED_ONLY` names the slugs to write and
-// nothing else is touched: no other dossier, no theme, no board, no trash
-// sweep. It is how one rewritten dossier reaches Neon without putting a
-// hand-edited catalogue back to what this repository last generated.
-const only = (process.env.SEED_ONLY ?? '').split(',').map((slug) => slug.trim()).filter(Boolean);
-const targeted = only.length > 0;
+// `SEED_SETTINGS` the settings keys; with either set, nothing else is touched —
+// no other dossier, no other settings document, no trash sweep. It is how one
+// rewritten dossier, or the board layout on its own, reaches Neon without
+// putting a hand-edited catalogue back to what this repository last generated.
+const list = (name) => (process.env[name] ?? '').split(',').map((item) => item.trim()).filter(Boolean);
+const only = list('SEED_ONLY');
+const onlySettings = list('SEED_SETTINGS');
+const targeted = only.length > 0 || onlySettings.length > 0;
 const unknown = only.filter((slug) => !catalogue.some((entry) => entry.slug === slug));
 if (unknown.length > 0) {
   throw new Error(`SEED_ONLY names slugs that are not in the catalogue: ${unknown.join(', ')}`);
 }
+const unknownKeys = onlySettings.filter((key) => !documents.some((document) => document.key === key));
+if (unknownKeys.length > 0) {
+  throw new Error(`SEED_SETTINGS names keys that are not in the fixture: ${unknownKeys.join(', ')}`);
+}
 
 const entries = targeted ? catalogue.filter((entry) => only.includes(entry.slug)) : catalogue;
-const settings = targeted ? [] : documents;
+const settings = targeted ? documents.filter((document) => onlySettings.includes(document.key)) : documents;
 // When true, active entries that are not part of this catalogue are moved to the
 // recoverable trash — used to replace an older catalogue on first seed. A
 // targeted run is never allowed to sweep: it does not know about the rest.
@@ -110,11 +117,15 @@ try {
     }
 
   });
-  console.log(
-    targeted
-      ? `Seeded ${entries.length} of ${catalogue.length} entries (${only.join(', ')}); nothing else was touched.`
-      : `Seeded ${entries.length} entries and ${settings.length} settings documents${replace ? ' (catalogue replaced)' : ''}.`,
-  );
+  if (targeted) {
+    const wrote = [
+      entries.length > 0 ? `${entries.length} of ${catalogue.length} entries (${only.join(', ')})` : null,
+      settings.length > 0 ? `${settings.length} settings documents (${onlySettings.join(', ')})` : null,
+    ].filter(Boolean);
+    console.log(`Seeded ${wrote.join(' and ')}; nothing else was touched.`);
+  } else {
+    console.log(`Seeded ${entries.length} entries and ${settings.length} settings documents${replace ? ' (catalogue replaced)' : ''}.`);
+  }
 } finally {
   await sql.end();
 }

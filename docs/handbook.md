@@ -1069,6 +1069,17 @@ renamed list, a new card field — needs the seed workflow run again, developmen
 first. Changes you make from the site itself never need it: they are already in
 the database.
 
+A full seed puts **everything** back to what the repository last generated,
+which is wrong for a board you have been writing in. Narrow it instead:
+
+- `only_slugs` — the dossiers to write, e.g. `lab-kepler,lab-ica`.
+- `only_settings` — the settings keys to write, e.g. `board,board.layout,board.tour`.
+
+Either one on its own makes the run targeted: nothing outside the list is
+touched, and no entry is swept to the trash. Seeding `board.layout` resets the
+saved positions to the authored ones, so run it only when the layout in
+`content/source/board-spec.mjs` is the layout you want.
+
 ### Deploying
 
 Pushing to `main` builds and publishes to GitHub Pages. The workflow carries the

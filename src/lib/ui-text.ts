@@ -65,6 +65,9 @@ const CATALOGUE: Record<string, Entry> = {
   'jump.travel': { es: 'mundo', en: 'world' },
   'jump.random': { es: 'rarezas', en: 'odd' },
   'jump.contact': { es: 'contacto', en: 'reach' },
+  'jump.now': { es: 'ahora', en: 'now' },
+  'jump.diary': { es: 'frulogy', en: 'frulogy' },
+  'jump.pod': { es: 'podcast', en: 'podcast' },
 
   // ---------------------------------------------------------------- owner bar
   'owner.editOn': { es: 'editando · sí', en: 'editing · on' },

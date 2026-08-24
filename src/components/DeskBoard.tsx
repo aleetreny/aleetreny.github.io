@@ -123,9 +123,23 @@ function itemLabel(text: string | undefined, fallback: string): string {
   return clean.length > 34 ? `${clean.slice(0, 33)}…` : clean;
 }
 
-/** The jump buttons, in bar order. Their words come from the wording
- *  catalogue (`jump.<id>`), so they follow the language and stay editable. */
+/** The jump buttons a board falls back to when no card names one. Their words
+ *  come from the wording catalogue (`jump.<id>`), so they follow the language
+ *  and stay editable. */
 const JUMPS = ['me', 'work', 'edu', 'vol', 'hack', 'repos', 'lab', 'travel', 'random', 'contact'];
+
+/** The bar follows the board: one button per card that names a jump, in the
+ *  order the cards are laid out. A hardcoded list outlives the cards it points
+ *  at — it kept offering a stop that had been deleted, and said nothing about
+ *  the ones added since. */
+function jumpsFor(cards: BoardCard[]): string[] {
+  const out: string[] = [];
+  for (const card of cards) {
+    const name = card.jump;
+    if (name && !out.includes(name)) out.push(name);
+  }
+  return out.length > 0 ? out : JUMPS;
+}
 
 const TONES: CardTone[] = ['paper', 'paperWarm', 'paperCream', 'dark', 'slate', 'amber', 'custom'];
 
@@ -228,8 +242,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     [rawBoard, i18n.enabled, i18n.primary, activeLang],
   );
   const tour = useMemo<TourConfig>(() => {
-    const parsed = parseTour(settings['board.tour']);
-    return i18n.enabled ? localise(parsed, activeLang, i18n.primary) : parsed;
+    // Localise the stored document, then parse it. The other way round loses
+    // every bilingual field the tour carries: parsing coerces a value to the
+    // shape the tour expects, and a `{ es, en }` heading is not a string yet.
+    const stored = settings['board.tour'];
+    return parseTour(i18n.enabled ? localise(stored, activeLang, i18n.primary) : stored);
   }, [settings, i18n.enabled, i18n.primary, activeLang]);
   // The one place the stored and rendered shapes meet: after this, prose is a
   // plain string and nothing below knows a second language exists.
@@ -515,6 +532,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const node = boardRef.current?.querySelector<HTMLElement>(`[data-jump="${name}"]`);
     if (node) centerNode(node);
   }, [centerNode]);
+  const jumps = useMemo(() => jumpsFor(board.cards), [board.cards]);
 
   /** Where the board comes to rest: on load and when the tour ends.
    *
@@ -2256,7 +2274,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 <button className="tbtn tbtn--on" type="button" onClick={replayTour} title={t('board.tourTitle')}>{t('board.tour')}</button>
               ) : null}
               <span className="toolbar__sep" />
-              {JUMPS.map((name) => (
+              {jumps.map((name) => (
                 <button key={name} className="tbtn tbtn--ghost" type="button" onClick={() => jump(name)}>{t(`jump.${name}`)}</button>
               ))}
               {i18n.enabled && i18n.languages.length > 1 ? (

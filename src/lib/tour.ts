@@ -239,7 +239,15 @@ function bool(value: unknown, fallback: boolean): boolean {
 }
 
 function text(value: unknown, fallback: string): string {
-  return typeof value === 'string' ? value : fallback;
+  if (typeof value === 'string') return value;
+  // A stored tour is localised before it reaches the parser, so a language map
+  // here means nobody has picked a language yet — the module-level default.
+  // Project it through the first language it carries, which is the one the
+  // board is authored in, rather than dropping the heading entirely.
+  if (isRecord(value)) {
+    for (const item of Object.values(value)) if (typeof item === 'string' && item) return item;
+  }
+  return fallback;
 }
 
 function parseStops(value: unknown, fallback: TourStop[]): TourStop[] {

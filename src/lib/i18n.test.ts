@@ -255,18 +255,20 @@ describe('the i18n document', () => {
   });
 
   it('ships the seeded language setup', () => {
-    // This board is authored in English and published in both.
+    // This board is authored in Spanish and published in both.
     expect(DEFAULT_I18N.enabled).toBe(true);
-    expect(DEFAULT_I18N.primary).toBe('en');
-    expect(DEFAULT_I18N.languages.map((l) => l.code)).toEqual(['en', 'es']);
-    expect(DEFAULT_I18N.followBrowser).toBe(false);
+    expect(DEFAULT_I18N.primary).toBe('es');
+    expect(DEFAULT_I18N.languages.map((l) => l.code)).toEqual(['es', 'en']);
+    expect(DEFAULT_I18N.followBrowser).toBe(true);
     expect(parseI18n(null)).toEqual(DEFAULT_I18N);
   });
 
-  it('starts in English instead of following a Spanish browser locale', () => {
+  it('opens in the visitor\u2019s own language when the board has it', () => {
     vi.stubGlobal('window', { localStorage: { getItem: () => null, setItem: () => {} } });
-    vi.stubGlobal('navigator', { languages: ['es-ES'] });
+    vi.stubGlobal('navigator', { languages: ['en-GB'] });
     expect(initialLanguage(DEFAULT_I18N)).toBe('en');
+    vi.stubGlobal('navigator', { languages: ['es-ES'] });
+    expect(initialLanguage(DEFAULT_I18N)).toBe('es');
   });
 
   it('turns off cleanly for a fork that wants one language', () => {

@@ -340,6 +340,14 @@ theme, no board, no trash sweep. Use it to publish a dossier rewritten in the
 repository without putting the rest of the catalogue back to what this
 repository last generated. Locally it is `SEED_ONLY=lab-kepler pnpm db:seed`.
 
+`only_settings` does the same for the settings documents — `board,board.layout,
+board.tour` republishes the cover, the positions and the guided tour without
+touching a single dossier. The two combine, and either one on its own makes the
+run targeted. Locally it is `SEED_SETTINGS=board,board.tour pnpm db:seed`.
+Note that seeding `board.layout` resets it to what `content/source` says, which
+is deliberate: the authored positions become the board again, and any drag saved
+since is dropped.
+
 If Pages fails, download the Actions logs, re-run `pnpm check && pnpm build` from
 a clean clone, and dispatch the workflow again. The full rollback to the previous
 site is documented in [docs/recovery.md](docs/recovery.md).

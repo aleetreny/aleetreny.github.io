@@ -35,11 +35,16 @@ function seeded(seed: number): () => number {
 }
 
 describe('tour config parsing', () => {
-  it('ships the eight authored stops from the fixture', () => {
+  it('ships the authored route from the fixture, one card to a stop', () => {
     expect(DEFAULT_TOUR.route).toBe('custom');
-    expect(DEFAULT_TOUR.stops).toHaveLength(8);
-    expect(DEFAULT_TOUR.stops[0]).toEqual({ id: 'stop-1', label: 'the person, first', items: ['hero', 'now'] });
-    expect(DEFAULT_TOUR.stops[7].items).toContain('note-3');
+    // The route walks the board in its numbered order and ends on the contact
+    // card; how many stops that takes is the board's business, not this test's.
+    expect(DEFAULT_TOUR.stops.length).toBeGreaterThan(8);
+    expect(DEFAULT_TOUR.stops[0].id).toBe('stop-1');
+    expect(DEFAULT_TOUR.stops[0].items[0]).toBe('hero');
+    // Headings are authored in both languages; unlocalised they read as Spanish.
+    expect(DEFAULT_TOUR.stops[0].label).toBe('Quién soy');
+    expect(DEFAULT_TOUR.stops.at(-1)?.items).toContain('contact');
   });
 
   it('keeps the handoff timings as defaults', () => {
@@ -200,8 +205,8 @@ describe('narrow screens', () => {
     // One stop per piece, whatever the authored route currently holds — the
     // count is the board's business, not this test's.
     expect(stops).toHaveLength(DEFAULT_TOUR.stops.flatMap((s) => s.items).length);
-    expect(stops[0].label).toBe('the person, first');
-    expect(stops[1].label).toBe('the person, first');
+    expect(stops[0].label).toBe(DEFAULT_TOUR.stops[0].label);
+    expect(stops[1].label).toBe(DEFAULT_TOUR.stops[0].label);
     expect(new Set(stops.map((s) => s.id)).size).toBe(stops.length);
   });
 

@@ -17,8 +17,12 @@ on:
         description: Comma-separated dossier slugs to write, e.g. lab-kepler,lab-ica. Blank seeds the whole catalogue and the board settings; a list touches nothing else
         required: false
         type: string
+      only_settings:
+        description: Comma-separated settings keys to write, e.g. board,board.layout,board.tour. Combines with only_slugs; either one makes the run targeted
+        required: false
+        type: string
       replace_catalogue:
-        description: Move any entry not in this catalogue to the recoverable trash. Ignored when only_slugs is set
+        description: Move any entry not in this catalogue to the recoverable trash. Ignored when only_slugs or only_settings is set
         required: true
         type: boolean
         default: true
@@ -39,6 +43,7 @@ jobs:
       OWNER_AUTH_USER_ID: ${{ vars.OWNER_AUTH_USER_ID }}
       SEED_REPLACE: ${{ inputs.replace_catalogue }}
       SEED_ONLY: ${{ inputs.only_slugs }}
+      SEED_SETTINGS: ${{ inputs.only_settings }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
