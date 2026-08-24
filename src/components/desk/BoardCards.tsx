@@ -500,33 +500,16 @@ export function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, 
   if (card.type === 'spotify') {
     const embedUrl = spotifyTrackEmbedUrl(card.spotifyUrl);
     return (
-      <Surface card={card}>
-        {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('card.spotifyKicker'), multiline: false })}
-        {field('title', card.title, { className: 'spotify__title', placeholder: t('card.spotifyTitle') })}
-        {editing ? (
-          <label className="spotify__input" data-nodrag>
-            <span>{t('card.spotifyLink')}</span>
-            <input
-              type="url"
-              inputMode="url"
-              value={card.spotifyUrl ?? ''}
-              placeholder="https://open.spotify.com/track/…"
-              aria-invalid={Boolean(card.spotifyUrl) && !embedUrl}
-              onChange={(event) => onCardEdit(card.id, { spotifyUrl: event.target.value })}
-            />
-          </label>
-        ) : null}
-        {embedUrl ? (
-          <iframe
-            className="spotify__player"
-            src={embedUrl}
-            title={card.title || t('card.spotifyTitle')}
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            data-nodrag
-          />
-        ) : editing ? <p className="spotify__empty">{t('card.spotifyPaste')}</p> : null}
-      </Surface>
+      embedUrl ? (
+        <iframe
+          className="spotify__player"
+          src={embedUrl}
+          title={card.title || t('card.spotifyTitle')}
+          loading="lazy"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          data-nodrag
+        />
+      ) : editing ? <p className="spotify__empty">{t('card.spotifyPaste')}</p> : null
     );
   }
 

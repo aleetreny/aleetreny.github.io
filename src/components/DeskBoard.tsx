@@ -1236,7 +1236,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       drawer: { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: '', title: '', group: board.groups[0]?.id ?? 'random', layout: 'compact' },
       spotlight: { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: '', title: '', blurb: '', open: entries[0]?.slug },
       sticker: { id, type: 'sticker', x: at.x, y: at.y, rot: 0, w: 300, tone: 'paperCream', kicker: '', title: '', langs: [['', '', 5]], open: entries[0]?.slug },
-      spotify: { id, type: 'spotify', x: at.x, y: at.y, rot: 0, w: 420, tone: 'dark', kicker: '', title: '', spotifyUrl: '' },
+      spotify: { id, type: 'spotify', x: at.x, y: at.y, rot: 0, w: 420, spotifyUrl: '' },
     };
     commitBoard({ ...rawBoard, cards: [...rawBoard.cards, newCard[type]] });
     setCardMenu(id);
@@ -1971,7 +1971,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                   </>
                 ) : null}
                 {/* The hero has no paper surface, so nothing fastens it. */}
-                {theme.cards.fastener !== 'none' && card.type !== 'hero' ? (
+                {theme.cards.fastener !== 'none' && card.type !== 'hero' && card.type !== 'spotify' ? (
                   <span className={`card__fastener card__fastener--${theme.cards.fastener}`} aria-hidden="true" />
                 ) : null}
                 {editing ? (
@@ -1979,14 +1979,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                     <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label={t('owner.cardSettings')}>⚙</button>
                     {cardMenu === card.id ? (
                       <div className="card-ctrl__menu">
-                        {card.type !== 'hero' ? (
+                        {card.type !== 'hero' && card.type !== 'spotify' ? (
                           <label>{t('cardmenu.tone')}
                             <select value={card.tone ?? 'paper'} onChange={(e) => editCard(card.id, { tone: e.target.value as CardTone })}>
                               {TONES.map((t) => <option key={t} value={t}>{t}</option>)}
                             </select>
                           </label>
                         ) : null}
-                        {card.type !== 'hero' && card.tone === 'custom' ? (
+                        {card.type !== 'hero' && card.type !== 'spotify' && card.tone === 'custom' ? (
                           <>
                             <label>{t('cardmenu.bg')}
                               <input type="color" value={card.bg ?? '#fbf7ef'} onChange={(e) => editCard(card.id, { bg: e.target.value })} />
@@ -2026,6 +2026,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                               <option value="">—</option>
                               {entries.map((entry) => <option key={entry.id} value={entry.slug}>{entry.title}</option>)}
                             </select>
+                          </label>
+                        ) : null}
+                        {card.type === 'spotify' ? (
+                          <label>{t('card.spotifyLink')}
+                            <input
+                              type="url"
+                              inputMode="url"
+                              value={card.spotifyUrl ?? ''}
+                              placeholder="https://open.spotify.com/track/…"
+                              onChange={(event) => editCard(card.id, { spotifyUrl: event.target.value })}
+                            />
                           </label>
                         ) : null}
                         <button className="card-ctrl__del" type="button" onClick={() => removeCard(card.id)}>{t('cardmenu.delete')}</button>
