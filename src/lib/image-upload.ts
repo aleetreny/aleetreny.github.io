@@ -22,6 +22,9 @@ export const VIDEO_CONTENT_TYPES = new Set([
   'video/x-m4v',
 ]);
 
+export const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_VIDEO_UPLOAD_BYTES = 250 * 1024 * 1024;
+
 const TYPE_BY_EXTENSION: Record<string, string> = {
   avif: 'image/avif',
   gif: 'image/gif',
@@ -52,6 +55,12 @@ export function mediaContentType(file: MediaFile): string | null {
 
 export function isSupportedMediaFile(file: MediaFile): boolean {
   return mediaContentType(file) !== null;
+}
+
+export function maxUploadBytesForMediaType(mediaType: string): number | null {
+  if (IMAGE_CONTENT_TYPES.has(mediaType)) return MAX_IMAGE_UPLOAD_BYTES;
+  if (VIDEO_CONTENT_TYPES.has(mediaType)) return MAX_VIDEO_UPLOAD_BYTES;
+  return null;
 }
 
 /** Identify videos using metadata for new uploads, with an extension fallback

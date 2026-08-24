@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isSupportedMediaFile, isVideoMedia, mediaContentType } from './image-upload';
+import { MAX_VIDEO_UPLOAD_BYTES, isSupportedMediaFile, isVideoMedia, maxUploadBytesForMediaType, mediaContentType } from './image-upload';
 
 describe('media upload type detection', () => {
   it('accepts HEIC from Photos and a HEIF extension with no browser MIME type', () => {
@@ -11,6 +11,7 @@ describe('media upload type detection', () => {
     expect(mediaContentType({ name: 'semillero.mov', type: '' })).toBe('video/quicktime');
     expect(mediaContentType({ name: 'riego.mp4', type: 'video/mp4' })).toBe('video/mp4');
     expect(isVideoMedia(undefined, 'https://assets.example/riego.webm?version=1')).toBe(true);
+    expect(maxUploadBytesForMediaType('video/quicktime')).toBe(MAX_VIDEO_UPLOAD_BYTES);
   });
 
   it('keeps the upload allowlist explicit', () => {

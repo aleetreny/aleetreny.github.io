@@ -84,7 +84,7 @@ import {
   signOutOwner,
   uploadMedia,
 } from '../lib/content-repository';
-import { mediaContentType } from '../lib/image-upload';
+import { isVideoMedia, maxUploadBytesForMediaType, mediaContentType } from '../lib/image-upload';
 import { BoardCardView } from './desk/BoardCards';
 import { DossierErrorBoundary, DossierPlate, type SaveState } from './desk/DossierPlate';
 import { GroupOverflowPanel } from './desk/GroupOverflowPanel';
@@ -1193,7 +1193,13 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   // original bytes: files are never converted or recompressed in the editor.
   const uploadMediaFile = useCallback(async (file: File): Promise<{ url: string; mimeType: string }> => {
     const mimeType = mediaContentType(file);
-    if (!mimeType) throw new Error(tRef.current('msg.uploadFailed'));
+    if (!mimeType) throw new Error('Solo se pueden subir imágenes AVIF, GIF, HEIC, HEIF, JPEG, PNG o WebP, o vídeos MP4, MOV, M4V y WebM.');
+    const maxBytes = maxUploadBytesForMediaType(mimeType);
+    if (!maxBytes || file.size > maxBytes) {
+      const kind = isVideoMedia(mimeType) ? 'vídeo' : 'imagen';
+      const limit = Math.round((maxBytes ?? 0) / (1024 * 1024));
+      throw new Error(`El ${kind} supera el límite de ${limit} MB.`);
+    }
     if (!remoteDataEnabled) {
       return new Promise<{ url: string; mimeType: string }>((resolve, reject) => {
         const reader = new FileReader();

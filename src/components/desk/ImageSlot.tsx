@@ -1,5 +1,5 @@
 import { useRef, useState, type DragEvent } from 'react';
-import { isSupportedMediaFile, isVideoMedia, MEDIA_INPUT_ACCEPT } from '../../lib/image-upload';
+import { isVideoMedia, MEDIA_INPUT_ACCEPT } from '../../lib/image-upload';
 import { useUiText } from './ui-text-context';
 
 type ImageSlotProps = {
@@ -22,8 +22,8 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
   const [over, setOver] = useState(false);
 
   function handleFiles(files: FileList | null) {
-    const file = files ? Array.from(files).find(isSupportedMediaFile) : undefined;
-    if (file && onPick) onPick(file);
+    const file = files ? Array.from(files)[0] : undefined;
+    if (file && onPick) void onPick(file);
   }
 
   function isFileDrag(event: DragEvent) {

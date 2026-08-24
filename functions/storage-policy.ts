@@ -1,5 +1,5 @@
 export const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
-export const MAX_VIDEO_UPLOAD_BYTES = 100 * 1024 * 1024;
+export const MAX_VIDEO_UPLOAD_BYTES = 250 * 1024 * 1024;
 /** Retained for callers checking the image limit. */
 export const MAX_UPLOAD_BYTES = MAX_IMAGE_UPLOAD_BYTES;
 
