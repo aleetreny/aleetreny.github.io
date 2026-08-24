@@ -214,6 +214,15 @@ export type BoardCard = {
  *  still fits inside a card narrow enough to be a sticker. */
 export const STICKER_MARKS = 5;
 
+/** The focal point and enlargement for a photo inside its fixed board frame.
+ * Missing values deliberately mean the original, centred `object-fit: cover`
+ * treatment, so boards saved before reframing existed keep their exact look. */
+export type MediaFrame = {
+  x?: number;
+  y?: number;
+  scale?: number;
+};
+
 export type Polaroid = {
   id: string;
   x: number;
@@ -228,6 +237,7 @@ export type Polaroid = {
   assetId?: string;
   assetUrl?: string;
   assetMediaType?: string;
+  imageFrame?: MediaFrame;
 };
 
 export type Marginal = {

@@ -1215,7 +1215,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const pickPolaroidMedia = useCallback((polaroidId: string, file: File) => {
     setPolBusy(polaroidId);
     uploadMediaFile(file)
-      .then((media) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: media.url, assetMediaType: media.mimeType } : p)) }); })
+      .then((media) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: media.url, assetMediaType: media.mimeType, imageFrame: undefined } : p)) }); })
       .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : tRef.current('msg.uploadFailed'), true))
       .finally(() => setPolBusy(null));
   }, [rawBoard, commitBoard, flash, uploadMediaFile]);
@@ -2067,7 +2067,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 <div className="polaroid__frame">
                   {p.tape ? <div className="polaroid__tape" /> : null}
                   <div style={{ position: 'relative', width: '100%', height: p.h }}>
-                    <ImageSlot url={p.assetUrl} mediaType={p.assetMediaType} alt={p.caption} placeholder={p.placeholder || undefined} editable={editing} busy={polBusy === p.id} onPick={(file) => pickPolaroidMedia(p.id, file)} />
+                    <ImageSlot
+                      url={p.assetUrl}
+                      mediaType={p.assetMediaType}
+                      alt={p.caption}
+                      placeholder={p.placeholder || undefined}
+                      editable={editing}
+                      busy={polBusy === p.id}
+                      onPick={(file) => pickPolaroidMedia(p.id, file)}
+                      frame={p.imageFrame}
+                      onFrameChange={(imageFrame) => editPolaroid(p.id, { imageFrame })}
+                    />
                   </div>
                   <EditableText
                     as="div"
