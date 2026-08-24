@@ -661,6 +661,10 @@ export const I18N = {
 // trailing "the rest" stop, so a card added later is never left invisible.
 export const TOUR = {
   route: 'custom',
+  // The framing left 55px of empty slate under the walking bar and
+  // 38px of air around every stop, which on a 1280x800 laptop was
+  // enough to shrink a full-height drawer below its own type size.
+  camera: { padTop: 50, padBottom: 112, inflate: 22 },
   // The walking bar speaks the board's languages too.
   bar: {
     backLabel: { es: '← atrás', en: '← back' },

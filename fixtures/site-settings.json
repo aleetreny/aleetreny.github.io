@@ -890,6 +890,11 @@
     "key": "board.tour",
     "value": {
       "route": "custom",
+      "camera": {
+        "padTop": 50,
+        "padBottom": 112,
+        "inflate": 22
+      },
       "bar": {
         "backLabel": {
           "es": "← atrás",

@@ -66,8 +66,9 @@ describe('tour config parsing', () => {
     expect(DEFAULT_TOUR.camera.padX).toBeLessThanOrEqual(60);
     expect(DEFAULT_TOUR.mobile.inflate).toBeLessThan(DEFAULT_TOUR.camera.inflate);
     expect(DEFAULT_TOUR.mobile.padX).toBeLessThan(DEFAULT_TOUR.camera.padX);
-    // Bottom padding still has to clear the tour bar on each.
-    expect(DEFAULT_TOUR.camera.padBottom).toBeGreaterThan(120);
+    // Bottom padding still has to clear the tour bar on each: the bar measures
+    // 95px on a desktop viewport and wraps to two rows on a phone.
+    expect(DEFAULT_TOUR.camera.padBottom).toBeGreaterThan(95);
     expect(DEFAULT_TOUR.mobile.padBottom).toBeGreaterThan(120);
   });
 
