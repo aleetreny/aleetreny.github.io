@@ -91,7 +91,7 @@ export const THEME = {
 export const GROUPS = {
   work: ['siemens', 'accenture', 'tropical', 'ey', 'frulogy'],
   edu: ['ucl', 'uc3m', 'uma', 'erasmus-sk', 'languages'],
-  lab: ['lab-l1', 'lab-flows', 'lab-grayscott', 'lab-epidemic', 'lab-kepler', 'lab-particles', 'lab-ica', 'lab-qtrading'],
+  lab: ['lab-l1', 'lab-flows', 'lab-grayscott', 'lab-epidemic', 'lab-kepler', 'lab-particles', 'lab-ica', 'lab-cancer', 'lab-physarum', 'lab-beans'],
   vol: ['alda', 'eye2025', 'tedx', 'startup-summit', 'erasmus-lt', 'erasmus-bg', 'small-vol'],
   hack: ['hack-malaga', 'hack-diputacion', 'hack-madrid', 'hack-accenture', 'photo-prize', 'mvp-hidro', 'mvp-recycling'],
   repos: ['localizate', 'arraigo', 'vexillology', 'mapping-science', 'scholar-pulse', 'hollywood', 'cabicity', 'atlas', 'small-repos'],
