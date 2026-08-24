@@ -89,45 +89,61 @@ export const THEME = {
 // Which drawer each dossier belongs to, in display order. Drives the cover
 // lists and each entry's metadata.group / metadata.order.
 export const GROUPS = {
-  work: ['siemens', 'accenture', 'tropical', 'ey', 'frulogy'],
-  edu: ['ucl', 'uc3m', 'uma', 'erasmus-sk', 'languages'],
-  lab: ['lab-l1', 'lab-flows', 'lab-grayscott', 'lab-epidemic', 'lab-kepler', 'lab-particles', 'lab-ica', 'lab-cancer', 'lab-physarum', 'lab-beans'],
-  vol: ['alda', 'eye2025', 'tedx', 'startup-summit', 'erasmus-lt', 'erasmus-bg', 'small-vol'],
-  hack: ['hack-malaga', 'hack-diputacion', 'hack-madrid', 'hack-accenture', 'photo-prize', 'mvp-hidro', 'mvp-recycling'],
-  repos: ['localizate', 'arraigo', 'vexillology', 'mapping-science', 'scholar-pulse', 'hollywood', 'cabicity', 'atlas', 'small-repos'],
-  travel: ['w-paraguay', 'w-norway', 'w-slovakia', 'w-nordics', 'w-uk', 'w-usa', 'w-austria', 'w-czech', 'w-hungary', 'w-lithuania', 'w-bulgaria', 'w-france', 'w-benelux', 'w-italy', 'w-croatia', 'w-greece', 'w-portugal', 'w-morocco', 'w-canarias', 'w-nevada', 'w-andalucia'],
-  random: ['garden', 'telescope', 'racket', 'apocalypse', 'genome', 'investing', 'lasik', 'podcast', 'diary'],
-  contact: ['contact'],
+  "work": ["siemens", "accenture", "tropical", "ey"],
+  "edu": ["ucl", "uc3m", "uma"],
+  "lab": ["lab-l1", "lab-flows", "lab-grayscott", "lab-epidemic", "lab-kepler", "lab-particles", "lab-ica", "lab-cancer", "lab-physarum", "lab-beans"],
+  "vol": ["alda", "eye2025", "startup-summit", "small-vol", "tedx"],
+  "hack": ["hackathon-de-cabify", "hack-malaga", "hack-madrid", "hack-accenture", "hack-diputacion", "photo-prize", "mvp-hidro", "mvp-recycling"],
+  "repos": ["atlas", "mapping-science", "localizate", "scholar-pulse", "vexillology", "hollywood", "cabicity", "small-repos", "c2-practice-log"],
+  "travel": [],
+  "random": ["garden", "telescope", "racket", "genome", "apocalypse"],
+  "contact": ["contact"],
+  "experiencias-internacionales": ["erasmus-programme", "traineeship-programme", "youth-exchange", "intercambio-de-idiomas"],
 };
 
 // Human label for each default list — the owner can rename or delete any of
 // these, and add new ones, once the board is live.
 export const GROUP_LABELS = {
-  work: 'Paid work', edu: 'Schooling', lab: 'Lab bench', vol: 'Unpaid',
-  hack: 'Hackathons & prizes', repos: 'The workshop', travel: 'Field log',
-  random: 'The drawer', contact: 'Reachable',
+  "work": "Trabajo",
+  "edu": "Estudios",
+  "lab": "Laboratorio",
+  "vol": "Voluntariado",
+  "hack": "Competiciones",
+  "repos": "Proyectos",
+  "travel": "Viajes",
+  "random": "Hobbies",
+  "contact": "Contacto",
+  "experiencias-internacionales": "Movilidad",
 };
 
 // The list names are part of the board copy too. Keep the English source above
 // for single-language forks, and provide the authored Spanish labels when the
 // bilingual fixture is built so overflow panels never fall back to English.
 export const GROUP_LABELS_ES = {
-  work: 'Trabajo remunerado', edu: 'Estudios', lab: 'Laboratorio', vol: 'Voluntariado',
-  hack: 'Hackatones y premios', repos: 'El taller', travel: 'Bitácora de viajes',
-  random: 'El cajón', contact: 'Contacto',
+  "work": "Trabajo",
+  "edu": "Estudios",
+  "lab": "Laboratorio",
+  "vol": "Voluntariado",
+  "hack": "Competiciones",
+  "repos": "Proyectos",
+  "travel": "Viajes",
+  "random": "Hobbies",
+  "contact": "Contacto",
+  "experiencias-internacionales": "Movilidad",
 };
 
 // entry_type per group (DB constraint: project|case-study|experience|education|note|custom)
 export const GROUP_ENTRY_TYPE = {
-  work: 'experience',
-  edu: 'education',
-  lab: 'project',
-  vol: 'experience',
-  hack: 'project',
-  repos: 'project',
-  travel: 'note',
-  random: 'note',
-  contact: 'note',
+  "work": "experience",
+  "edu": "education",
+  "lab": "project",
+  "vol": "experience",
+  "hack": "project",
+  "repos": "project",
+  "travel": "note",
+  "random": "note",
+  "contact": "note",
+  "experiencias-internacionales": "experience",
 };
 export const ENTRY_TYPE_OVERRIDE = { frulogy: 'project' };
 

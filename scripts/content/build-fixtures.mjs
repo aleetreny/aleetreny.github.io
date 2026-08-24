@@ -34,7 +34,10 @@ const PUBLISHED_AT = '2026-08-05T00:00:00.000Z';
 const entries = ORDER.map((slug) => {
   const item = ITEMS[slug];
   if (!item) throw new Error(`ORDER references missing item: ${slug}`);
-  const group = groupOf[slug] ?? 'random';
+  // A dossier normally takes its list and its position from GROUPS. One that
+  // names its own keeps them, which is how an entry that lives outside every
+  // list on the board survives a round trip through this file.
+  const group = item.group ?? groupOf[slug] ?? 'random';
   const entryType = ENTRY_TYPE_OVERRIDE[slug] ?? GROUP_ENTRY_TYPE[group] ?? 'note';
 
   const metadata = {
@@ -42,12 +45,40 @@ const entries = ORDER.map((slug) => {
     when: item.when ?? '',
     where: item.where ?? '',
     group,
-    order: orderOf[slug] ?? 0,
+    order: item.order ?? orderOf[slug] ?? 0,
   };
   if (TRAVEL_CODES[slug]) metadata.code = TRAVEL_CODES[slug];
 
   // The dossier body is a plain ordered list of blocks — the same palette the
-  // owner edits with. Existing rich fields become their block equivalents.
+  // owner edits with. An item may either describe its body with the shorthand
+  // below (photos / stats / bullets / tags / links), or carry the blocks
+  // outright. The second form is what a dossier written on the board itself
+  // needs: it keeps uploaded photo URLs, dividers and the exact order, none of
+  // which the shorthand can express.
+  if (Array.isArray(item.blocks)) {
+    return {
+      // A dossier created on the board carries a random id, not one derived
+      // from its slug. Keeping it is what makes the seed update that row
+      // instead of colliding with its globally unique slug.
+      id: item.id ?? uuidv5(slug),
+      version: 1,
+      slug,
+      title: item.title,
+      summary: item.lede ?? '',
+      entryType,
+      status: item.status ?? 'published',
+      publishedAt: PUBLISHED_AT,
+      metadata,
+      blocks: item.blocks.map((block, position) => ({
+        id: block.id ?? uuidv5(`${slug}#${block.type}#${position}`),
+        type: block.type,
+        position,
+        props: block.props ?? {},
+        layout: block.layout ?? {},
+      })),
+    };
+  }
+
   const blocks = [];
   const push = (type, props) => {
     blocks.push({ id: uuidv5(`${slug}#${type}#${blocks.length}`), type, position: blocks.length, props, layout: {} });
@@ -103,7 +134,7 @@ const BLOCK_TEXT = ['text', 'caption', 'alt', 'cite', 'label', 'title'];
  *  instead be written as `{ es: '…', en: '…' }` when the owner has authored both
  *  by hand — that is the case for anything they would rather not hand to a
  *  machine translator, and it travels through untouched. */
-const AUTHORED_IN = 'en';
+const AUTHORED_IN = 'es';
 const isLangMap = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const tag = (value) => (typeof value === 'string' && value.trim() ? { [AUTHORED_IN]: value } : value);
 

@@ -13,10 +13,18 @@ describe('demo content', () => {
     }
   });
 
-  it('assigns every entry to a documented drawer and keeps link URLs valid', () => {
-    const groups = new Set<string>(parseBoard(demoSettings.board).groups.map((g) => g.id));
+  it('keeps every entry reachable from the board and its link URLs valid', () => {
+    const board = parseBoard(demoSettings.board);
+    const groups = new Set<string>(board.groups.map((g) => g.id));
+    // A dossier reaches the board either through a drawer's list or through a
+    // card that opens it directly — a spotlight, a sticker, the `now` lines.
+    // Belonging to no list is a real state, not a broken one, so the invariant
+    // is reachability rather than membership.
+    const opened = new Set<string>(
+      board.cards.flatMap((card) => [card.open, card.current, card.next].filter(Boolean) as string[]),
+    );
     for (const entry of demoEntries) {
-      expect(groups.has(String(entry.metadata.group))).toBe(true);
+      expect(groups.has(String(entry.metadata.group)) || opened.has(entry.slug)).toBe(true);
       for (const block of entry.blocks) {
         if (block.type !== 'links') continue;
         const items = block.props.items;

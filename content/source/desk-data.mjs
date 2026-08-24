@@ -1,704 +1,851 @@
-// Content of the desk. Plain data — the cover board is markup; this feeds the detail sheets.
+// Contenido del tablero. Es el reflejo fiel de lo que hay publicado: cada
+// dosier lleva sus bloques tal cual, con las fotos subidas, los separadores y
+// el orden exacto, porque la forma abreviada (photos / stats / bullets) no
+// puede expresarlos. El español es el idioma de autoría; el inglés va al lado.
 export const ITEMS = {
-  /* ───────────────── WORK ───────────────── */
-  'siemens': {
-    kicker: 'Work · Master\'s thesis project', when: 'Nov 2025 → now', where: 'Madrid',
-    title: 'Data Scientist at Siemens Energy',
-    lede: 'Predicting cash flow for the Spanish HQ. Half of the job is the model, the other half is making a director trust it in eight seconds.',
-    stats: [['GAMs vs XGBoost', 'benchmarked'], ['Power BI', 'the delivery layer'], ['€bn', 'scale of the P&L']],
-    bullets: [
-      'Benchmarking flexible inference (GAMs) against high-precision gradient boosting on real treasury data — the interesting part is where they disagree.',
-      'Turning forecasts into a Power BI layer with an expansion roadmap to other countries.',
-      'The recurring lesson: a model nobody can read is a model nobody uses. I now spend as long on the reporting as on the fit.',
-      'Also my MSc thesis, so the deadline is enforced by two institutions at once.'
-    ], photos: 2, tags: ['Python', 'GAMs', 'XGBoost', 'Power BI', 'forecasting']
-  },
-  'accenture': {
-    kicker: 'Work · Internship', when: 'Jan → May 2026', where: 'Madrid',
-    title: 'Data Science & AI at Accenture',
-    lede: 'Multi-agent systems for Spanish banks, back when "agent" still needed explaining in every meeting.',
-    stats: [['AWS Bedrock', 'model layer'], ['MCP', 'servers built'], ['Synthetic data', 'main use case']],
-    bullets: [
-      'Built Python multi-agent pipelines for synthetic data generation and financial analysis.',
-      'Configured models through AWS Bedrock, wired S3 storage and Lambda triggers.',
-      'Wrote MCP servers before half the room knew the acronym.',
-      'Learned the consultancy dialect: the same result lands very differently depending on which slide it arrives on.'
-    ], photos: 2, tags: ['Python', 'AWS Bedrock', 'Lambda', 'S3', 'agents']
-  },
-  'tropical': {
-    kicker: 'Work · Operations', when: 'Nov 2024 → Jun 2025', where: 'Málaga',
-    title: 'Data Analyst at Tropical Millenium',
-    lede: 'Fruit. Twelve million kilos of it, €44M a year, and a price that moves every single week.',
-    stats: [['+7%', 'EBITDA in 8 months'], ['€470k', 'improvement fund'], ['12M kg', 'volume modelled']],
-    bullets: [
-      'Built time-series price forecasting for a €44M distributor — the first time my output had a truck attached to it.',
-      'Worked directly with the CEO on a €470k operational improvement fund, dashboards included.',
-      'EBITDA up 7% across eight months.',
-      'Sitting inside a supply chain taught me more about incentives than three econometrics courses. Everybody optimises something; almost nobody optimises the same thing.'
-    ], photos: 2, tags: ['time series', 'pricing', 'Power BI', 'supply chain']
-  },
-  'ey': {
-    kicker: 'Work · Finance', when: 'Sep 2024 → Jan 2025', where: 'Málaga',
-    title: 'Data Analyst at EY, contracted to ING',
-    lede: 'Chasing irregularities through corporate accounts worth up to €90M, one reconciliation at a time.',
-    stats: [['€90M', 'accounts reviewed'], ['×2', 'cases per day'], ['Power Query', 'the weapon']],
-    bullets: [
-      'Investigated financial irregularities in corporate accounts for ING, via consultancy.',
-      'Replaced the team\'s manual Excel ritual with a Power Query workflow — daily throughput doubled.',
-      'First real lesson in automation politics: people defend the process, not the outcome. Show them their afternoon back and they change sides.'
-    ], photos: 1, tags: ['Power Query', 'audit', 'Excel', 'finance']
-  },
-  'frulogy': {
-    kicker: 'Venture · First company', when: '2020 → 2022', where: 'Málaga / online',
-    title: 'Frulogy — an online fruit business, at 19',
-    lede: 'My first company, built partly out of envy that other teenagers were building things. It worked technically and failed emotionally, which turned out to be the useful version.',
-    stats: [['DE + ES', 'translated store'], ['19', 'years old'], ['1st', 'business, and a lesson']],
-    bullets: [
-      'Ran the whole stack alone: web design, tech, logistics, ads, marketing, supplier deals, German translation.',
-      'It gave me the foundations to launch anything online. It also taught me that a business you don\'t love becomes a weight you carry.',
-      'Diary, August 2021: "if I ever want to quit Frulogy I quit and that\'s it" — I did, and it was the right call.',
-      'Everything since has passed one filter first: would I still do this if it made no money?'
-    ], photos: 2, tags: ['e-commerce', 'ads', 'logistics', 'failure']
-  },
-
-  /* ───────────────── STUDY ───────────────── */
-  'ucl': {
-    kicker: 'Study · Incoming', when: 'Oct 2026 → Jun 2027', where: 'London',
-    title: 'MSc Data Science & Machine Learning, UCL',
-    lede: 'Next chapter, funded. Fundación Kareema Excellence Grant, €45k.',
-    stats: [['€45k', 'excellence grant'], ['UCL', 'Gower Street'], ['2026/27', 'academic year']],
-    bullets: [
-      'The plan: go deeper into the machine-learning side while keeping the statistician\'s suspicion of shortcuts.',
-      'London has been on the list since I was 18 and writing about wanting to live in another culture "for a limited time, then come home to Andalucía".',
-      'Applications elsewhere are still open in my head — Imperial complementary grant, CERN. I keep a checkpoint list.'
-    ], photos: 2, tags: ['UCL', 'MSc', 'grant']
-  },
-  'uc3m': {
-    kicker: 'Study', when: 'Sep 2025 → Jun 2026', where: 'Madrid',
-    title: 'MSc Statistics for Data Science, UC3M',
-    lede: 'The year the maths got serious and I stopped pretending intuition scales.',
-    stats: [['8.95', 'GPA / 10'], ['Top 10%', 'cohort'], ['R', 'primary language']],
-    bullets: [
-      'Key modules: stochastic processes, advanced programming, statistical learning, advanced regression models.',
-      'R became my main language here — Quarto for reporting, Positron as the IDE.',
-      'Bayesian coursework recorded on video, regression finals in the same week as a hackathon. Worth it.'
-    ], photos: 1, tags: ['R', 'stochastic processes', 'Quarto', 'Bayesian']
-  },
-  'uma': {
-    kicker: 'Study', when: 'Sep 2020 → Jun 2025', where: 'Málaga',
-    title: 'Double BSc Economics + Business Administration',
-    lede: 'Five years, two degrees, and a running argument with the education system that I decided to win from the inside.',
-    stats: [['8.56', 'GPA / 10'], ['13.43/14', 'admission grade'], ['Top 10%', 'cohort']],
-    bullets: [
-      'Key modules: econometrics, statistics, financial mathematics, mathematical programming, game theory.',
-      'Diary, 2021: "the goal is to cram the book, recite it and forget it". I spent the next four years proving you could learn properly and still get the mark.',
-      'Game theory and micro were where economics stopped being vocabulary and started being a lens.'
-    ], photos: 2, tags: ['econometrics', 'game theory', 'statistics']
-  },
-  'erasmus-sk': {
-    kicker: 'Study · Erasmus', when: '2023', where: 'Bratislava, Slovakia',
-    title: 'Erasmus year at Comenius University',
-    lede: 'A whole year abroad, which I had wanted since I first read the word Erasmus, and which I chased by finally studying properly.',
-    stats: [['1 year', 'abroad'], ['Comenius', 'university'], ['~15', 'countries reachable by train']],
-    bullets: [
-      'The reason I went from "I study to pass" to "I study to get the Erasmus" to, embarrassingly, "I study because it\'s interesting".',
-      'Base camp for Vienna, Prague, Budapest, Kraków and every cheap flight out of Central Europe.',
-      'Living in another language full-time recalibrated how I meet people — you become the one who starts conversations, or you eat alone.'
-    ], photos: 3, tags: ['Erasmus', 'Slovakia', 'Central Europe']
-  },
-  'languages': {
-    kicker: 'Study · Languages', when: 'ongoing', where: 'everywhere',
-    title: 'Three languages, one accent problem',
-    lede: 'Spanish native, French native, English C1 Cambridge (187) — and a permanent project to sound less Andalusian in all three.',
-    stats: [['187', 'Cambridge C1'], ['3', 'languages'], ['C2', 'the current target']],
-    bullets: [
-      'French from home, Spanish from Málaga, English from years of podcasts, papers and stubbornness.',
-      'Built a C2 practice log app for myself rather than pay for a course — real exam banks, guided correction, adaptive review.',
-      'The Málaga humour does not translate. I have stopped trying and started rebuilding the jokes in each language.'
-    ], photos: 1, tags: ['ES', 'FR', 'EN', 'Cambridge']
-  },
-
-  /* ───────────────── VOLUNTEERING ───────────────── */
-  'alda': {
-    kicker: 'Volunteering', when: '3 months, 2025', where: 'Asunción, Paraguay',
-    title: 'Fundación Alda — three months in Paraguay',
-    lede: 'The longest and least comfortable thing on this board, and the one that changed the most.',
-    stats: [['3 months', 'on the ground'], ['Children', 'the work'], ['1', 'recalibrated scale of "problem"']],
-    bullets: [
-      'Working with children through Fundación Alda, living where the project is instead of visiting it.',
-      'Diary: "the volunteering has added robustness and global openness — I go into anything now with full normality, however strange the clash."',
-      'Training sessions where other volunteers described Honduras: which bus you cannot take, why you walk accompanied for the first month. Perspective arrives fast in a room like that.',
-      'Also the trip that made me distrust the word "hippy volunteer" — I did it for the work and the shift in scale, not for the identity.',
-      'Photos from the market in Asunción and the Bolivian stalls are among my favourite things I own.'
-    ], photos: 3, tags: ['Paraguay', 'children', 'cooperation', '3 months']
-  },
-  'eye2025': {
-    kicker: 'Volunteering · Leadership', when: '2025', where: 'Strasbourg / Brussels',
-    title: 'European Parliament — EYE2025 coordinator',
-    lede: 'Ten thousand young Europeans, one hemicycle, a schedule that could not slip.',
-    stats: [['10k+', 'participants'], ['Coordinator', 'my role'], ['1 cm', 'from the Parliament VP']],
-    bullets: [
-      'Coordinating groups and logistics at the European Youth Event inside the Parliament.',
-      'Saw the machine from the inside: a demonstration outside the building and the vice-president of the Parliament a centimetre away, on the same afternoon.',
-      'Best possible argument against cynicism about institutions: watching ten thousand people who care show up on time.'
-    ], photos: 3, tags: ['European Parliament', 'EYE2025', 'coordination']
-  },
-  'tedx': {
-    kicker: 'Volunteering', when: '2022 →', where: 'Málaga / Cádiz',
-    title: 'TEDx — from fan in the audience to the team',
-    lede: 'I had watched TED talks obsessively for years. Then I went to a TEDx in Cádiz, ate a cricket, and signed up as a volunteer for the Málaga one.',
-    stats: [['1', 'cricket eaten'], ['1000+', 'seats in the theatre'], ['31 €', 'ticket, amortised in free magazines']],
-    bullets: [
-      'Drove to TEDx Cádiz on the theme of weirdness — insect tasting, clown noses in the goodie bag, a red logo I had only ever seen on a screen.',
-      'Came back and joined TEDxMálaga as a volunteer: "you have to say yes to life, I don\'t want to reach old age regretting the times I didn\'t."',
-      'First meeting was in a school assembly hall in a neighbourhood too pretty to be real. I have said yes to almost everything since.'
-    ], photos: 2, tags: ['TEDx', 'volunteer', 'events']
-  },
-  'startup-summit': {
-    kicker: 'Volunteering · Organising', when: '2025', where: 'Málaga',
-    title: 'EU Start-up Summit — organising team',
-    lede: 'On the other side of the badge for once: building the event instead of networking through it.',
-    stats: [['EU', 'scope'], ['Organising', 'team'], ['∞', 'pitch decks read']],
-    bullets: [
-      'Part of the organising team for the EU Start-up Summit.',
-      'Also went to Outstanding as an attendee, which produced the single best lesson in my diary: an exhibitor who visibly wanted to escape my questions killed my interest in a product I had liked five minutes earlier.',
-      'Conclusion I now apply to myself at every event: how you behave in the last five minutes of a conversation is the whole brand.'
-    ], photos: 2, tags: ['startups', 'events', 'EU']
-  },
-  'erasmus-lt': {
-    kicker: 'Volunteering · Erasmus+', when: '2023', where: 'Lithuania',
-    title: 'Erasmus+ youth exchange, Lithuania',
-    lede: 'A week of structured cultural collision with people from six countries, in a place I could not have found on a map at 18.',
-    stats: [['6+', 'nationalities'], ['1 week', 'immersion'], ['LT', 'country #?']],
-    bullets: [
-      'Youth exchange: workshops, national evenings, the specific intimacy of a group that will never be in the same room again.',
-      'Kaunas and Vilnius stayed with me more than the programme did.',
-      'The template for how I now travel: go where nobody you know has been.'
-    ], photos: 2, tags: ['Erasmus+', 'Lithuania', 'youth exchange']
-  },
-  'erasmus-bg': {
-    kicker: 'Volunteering · Erasmus+', when: '2023', where: 'Bulgaria',
-    title: 'Erasmus+ youth exchange, Bulgaria',
-    lede: 'Sofia, sangria that should not have been sangria, and a fortnight of arguing about Europe in a second language.',
-    stats: [['Sofia', 'base'], ['2 weeks', 'duration'], ['BG', 'stamp']],
-    bullets: [
-      'Second Erasmus+ exchange in a year — by then I knew how to use these programmes properly.',
-      'The cheapest possible way to meet people whose assumptions do not match yours.',
-      'Half the things I now believe about the EU come from these rooms, not from a class.'
-    ], photos: 2, tags: ['Erasmus+', 'Bulgaria']
-  },
-  'small-vol': {
-    kicker: 'Volunteering · The small ones', when: '2022 → now', where: 'Málaga',
-    title: 'The unglamorous volunteering',
-    lede: 'The ones that never make a CV: 7:15am starts, pedestrian crossings, university open days, film festivals.',
-    stats: [['7:15', 'am, for an 11am race'], ['1', 'pedestrian crossing, defended'], ['n', 'friends dragged along']],
-    bullets: [
-      'Volunteered at a city race where our entire job was controlling a crossing that everyone ignored. Talked two friends into it at 7:15 in the morning.',
-      'University open days, guiding people around Teatinos.',
-      'Málaga Film Festival is on the list, and researcher\'s night at the Google cybersecurity centre already happened.',
-      'I keep doing these because tangible help is the only kind that satisfies me — I am bad at donating money I cannot follow.'
-    ], photos: 2, tags: ['local', 'races', 'open days']
-  },
-
-  /* ───────────────── HACKATHONS & PRIZES ───────────────── */
-  'hack-malaga': {
-    kicker: 'Prize · Winner', when: '2026', where: 'Málaga',
-    title: 'Málaga City Council data challenge — won it',
-    lede: 'Open municipal data, a weekend, and a jury that had to be convinced twice.',
-    stats: [['1st', 'place'], ['48h', 'build'], ['Open data', 'the raw material']],
-    bullets: [
-      'Winner of the Málaga City Council data hackathon.',
-      'Afterwards the council\'s own data lead — not even on the jury — came over to say he loved the idea and wanted to develop it further together.',
-      'That conversation is the reason a side project turned into an actual meeting with an institution.'
-    ], photos: 2, tags: ['hackathon', 'open data', 'winner']
-  },
-  'hack-diputacion': {
-    kicker: 'Prize · Runner-up', when: 'May 2026', where: 'Málaga',
-    title: 'Diputación hackathon — came back with a Mac',
-    lede: 'Took a train down on a Sunday during exam week because the prize was per person, not per team. Correct decision.',
-    stats: [['2nd', 'place'], ['1 Mac', 'per participant'], ['Exam week', 'the timing']],
-    bullets: [
-      'Two-day data hackathon run by the provincial council; first prize €2k Amazon per person, second a MacBook per person.',
-      'Went with my partner, who is genuinely better at presenting than I am — the split of model and pitch is the actual reason we place.',
-      'Booked the trip on the assumption we would win something. We did.'
-    ], photos: 2, tags: ['hackathon', 'runner-up', 'data']
-  },
-  'hack-accenture': {
-    kicker: 'Hackathon', when: 'Nov 2025', where: 'Madrid',
-    title: 'Accenture hackathon — the shopping chatbot',
-    lede: 'One of 100 selected. They waited for the hundredth person to arrive before starting, which tells you everything about the energy in the room.',
-    stats: [['100', 'selected'], ['2 days', 'non-consecutive'], ['1', 'chatbot shipped']],
-    bullets: [
-      'Built a shopping assistant chatbot under corporate mentorship.',
-      'Best part was the social experiment: getting on well enough with the mentors that one of them photographed my phone case.',
-      'Presented the following Friday. Turned an internship application into a conversation.'
-    ], photos: 1, tags: ['chatbot', 'hackathon', 'LLM']
-  },
-  'hack-madrid': {
-    kicker: 'Competition', when: '2026', where: 'Madrid',
-    title: 'Madrid open-data competition & Localízate',
-    lede: 'The city publishes the data; almost nobody uses it. I built the tool I wished existed and entered it.',
-    stats: [['€4k', 'first prize'], ['Madrid', 'the dataset'], ['ML', 'under the hood']],
-    bullets: [
-      'Entered the Madrid open-data challenge with a tool predicting whether a new business survives on a given street.',
-      'Became Localízate, developed for the Madrid City Council.',
-      'I would have built it anyway. The prize just added a deadline, which is the only thing that reliably finishes my projects.'
-    ], photos: 2, links: [['Repo', 'https://github.com/aleetreny/Localizate']], tags: ['open data', 'ML', 'Madrid']
-  },
-  'mvp-hidro': {
-    kicker: 'Hackathon · MVP', when: '2022', where: 'Málaga',
-    title: 'Rooftop hydroponics MVP',
-    lede: 'Every city has thousands of square metres of empty roof. We built the business around filling them with food.',
-    stats: [['MVP', 'in 48h'], ['Rooftops', 'the asset'], ['Hydroponics', 'the method']],
-    bullets: [
-      'Startup MVP built at a university hackathon: urban farming on unused rooftops.',
-      'Explained it to my father over a long afternoon and he actually liked it, which at the time was the highest available validation.',
-      'The coworking space was full of random objects. Half my memory of the weekend is objects I should have stolen.'
-    ], photos: 1, tags: ['hackathon', 'urban farming', 'MVP']
-  },
-  'mvp-recycling': {
-    kicker: 'Hackathon · MVP', when: '2022', where: 'Málaga',
-    title: 'Recycling startup MVP',
-    lede: 'Second MVP of the same era: making recycling behaviour legible enough to reward.',
-    stats: [['MVP', 'shipped'], ['48h', 'again'], ['2', 'ventures in one year']],
-    bullets: [
-      'Built with a team in a university innovation hackathon.',
-      'The mentors kicked us out of the building at closing time and I finally got to sleep.',
-      'Neither MVP became a company. Both taught me how fast an idea can be made touchable.'
-    ], photos: 1, tags: ['hackathon', 'recycling', 'MVP']
-  },
-  'photo-prize': {
-    kicker: 'Prize · Twice', when: 'Nov–Dec 2025', where: 'Málaga',
-    title: 'International cooperation photo contest — 2nd and 3rd',
-    lede: 'I brought photos back from Paraguay. Friends entered one of them for me. I won two categories and a very small bottle.',
-    stats: [['2nd', 'one category'], ['3rd', 'the other'], ['1 bottle', '+ 1 notebook']],
-    bullets: [
-      'University of Málaga international cooperation photography prize, two categories.',
-      'Travelled back to Málaga, paid by the cooperation office, to collect it in the botanical garden. Half the winners did not show up.',
-      'Diary: "we said it enough times that we made it real."'
-    ], photos: 3, tags: ['photography', 'Paraguay', 'prize']
-  },
-
-  /* ───────────────── CODE ───────────────── */
-  'localizate': {
-    kicker: 'Code · For a city', when: '2026', where: 'Madrid',
-    title: 'Localízate',
-    lede: 'Open data plus machine learning to predict whether a new business will survive its street.',
-    stats: [['Madrid', 'city council'], ['ML', 'survival prediction'], ['Open data', 'input']],
-    bullets: [
-      'Analytical platform: pick a location and a sector, get an evidence-backed answer instead of a hunch.',
-      'Built for the Madrid City Council after the open-data competition.',
-      'The genuinely hard part is not the model — it is convincing a shopkeeper that a probability is useful.'
-    ], photos: 2, links: [['GitHub', 'https://github.com/aleetreny/Localizate']], tags: ['Python', 'ML', 'open data']
-  },
-  'vexillology': {
-    kicker: 'Code · Pure curiosity', when: '2025', where: 'the sofa',
-    title: 'Computational Vexillology',
-    lede: '250 sovereign flags converted into mathematical fingerprints, then asked whether flag design remembers colonial history, geography and economics.',
-    stats: [['250', 'flags'], ['n-dim', 'fingerprints'], ['Yes', 'it partly does']],
-    bullets: [
-      'Every flag reduced to quantitative features — colour distributions, symmetry, symbol density.',
-      'Then correlated against real-world variables: colonial history, latitude, GDP, culture.',
-      'My favourite kind of project: absolutely nobody asked for it, and the answer is genuinely interesting.'
-    ], photos: 2, links: [['GitHub', 'https://github.com/aleetreny/Computational-Vexillology']], tags: ['R', 'clustering', 'culture']
-  },
-  'mapping-science': {
-    kicker: 'Code · Thesis', when: '2026', where: 'Madrid',
-    title: 'Mapping Science',
-    lede: 'The shape of science itself: how research fields form, drift and collide over time.',
-    stats: [['Embeddings', 'method'], ['Decades', 'of papers'], ['MSc', 'thesis']],
-    bullets: [
-      'Mapping the structure of research output and tracking how fields move.',
-      'Half bibliometrics, half dimensionality reduction, entirely the kind of thing I would do unpaid.',
-      'Feeds directly into Scholar Pulse — one project explains the map, the other makes it usable daily.'
-    ], photos: 2, links: [['GitHub', 'https://github.com/aleetreny/Mapping-Science']], tags: ['NLP', 'embeddings', 'bibliometrics']
-  },
-  'hollywood': {
-    kicker: 'Code', when: '2025', where: 'the sofa',
-    title: 'Hollywood Mirror',
-    lede: 'How much do film scripts copy each other? Embeddings say: quite a lot, and predictably so.',
-    stats: [['NLP', 'embeddings'], ['1', 'interactive app'], ['Quarto', 'full analysis']],
-    bullets: [
-      'Narrative similarity across a corpus of movie scripts, with an interactive web app on top.',
-      'Full reproducible analysis written in Quarto, because a result you cannot re-run is an anecdote.',
-      'Started as an argument about whether a film was derivative. It was.'
-    ], photos: 2, links: [['GitHub', 'https://github.com/aleetreny/Hollywood-Mirror']], tags: ['NLP', 'Quarto', 'film']
-  },
-  'scholar-pulse': {
-    kicker: 'Code', when: '2026', where: 'Madrid',
-    title: 'Scholar Pulse',
-    lede: 'A living showroom for recent science — daily papers, thematic collections, discovery that does not require already knowing what you want.',
-    stats: [['Daily', 'refresh'], ['Collections', 'thematic'], ['1', 'firehose, tamed']],
-    bullets: [
-      'arXiv is a firehose with no taste. This is the reading room I wanted.',
-      'Thematic collections and clear discovery paths instead of an endless reverse-chronological list.',
-      'The most-used thing I have ever built, by me, on a Sunday morning.'
-    ], photos: 2, links: [['GitHub', 'https://github.com/aleetreny/Scholar-Pulse']], tags: ['science', 'discovery', 'web']
-  },
-  'arraigo': {
-    kicker: 'Code · Going somewhere', when: '2026', where: 'Málaga',
-    title: 'Arraigo',
-    lede: 'Residential intelligence: compare Málaga neighbourhoods with public data, real maps and a recommendation that matches how you actually want to live.',
-    stats: [['Idealista', 'API granted'], ['€14.9k', 'prototype ask'], ['Ayuntamiento', 'in the room']],
-    bullets: [
-      'Built a working prototype and pitched it to Málaga City Council — they liked it, and Idealista giving us their API data genuinely surprised them.',
-      'Next step is the housing institute. There is a real budget conversation happening for the full six-month build.',
-      'This is the project where the hobby stopped being a hobby.'
-    ], photos: 2, tags: ['maps', 'housing', 'public data', 'Málaga']
-  },
-  'cabicity': {
-    kicker: 'Code', when: '2026', where: 'Madrid',
-    title: 'Cabicity & mad_plan',
-    lede: 'Two attempts to make one city legible: every route, and every event.',
-    stats: [['5', 'transport modes'], ['20+', 'event portals scraped'], ['1', 'city']],
-    bullets: [
-      'Cabicity: intermodal routing across Cabify, Metro, Cercanías, EMT buses, BiciMAD and walking.',
-      'mad_plan: every event in Madrid pulled from more than twenty portals into one place.',
-      'Both exist because I got annoyed on a specific Tuesday.'
-    ], photos: 2, links: [['Cabicity', 'https://github.com/aleetreny/Cabicity'], ['mad_plan', 'https://github.com/aleetreny/mad_plan']], tags: ['routing', 'scraping', 'Madrid']
-  },
-  'atlas': {
-    kicker: 'Code · Reference', when: 'ongoing', where: 'everywhere',
-    title: 'ATLAS & the Data Science Ecosystem',
-    lede: 'My own textbook. Classical methods through to generative AI, each one with a real case study, written so future-me can trust it.',
-    stats: [['1', 'growing atlas'], ['Classical → GenAI', 'coverage'], ['∞', 'rewrites']],
-    bullets: [
-      'A practical collection of algorithmic techniques for learning and statistics, with worked real-world cases.',
-      'Data Science Ecosystem is the sibling: maths, stats and computation applied to actual problems.',
-      'My father calls this the third brain. He is not wrong and it stings.'
-    ], photos: 1, links: [['Ecosystem', 'https://github.com/aleetreny/Data-Science-Ecosystem']], tags: ['R', 'Python', 'teaching']
-  },
-  'small-repos': {
-    kicker: 'Code · The rest', when: 'nights, various', where: 'github.com/aleetreny',
-    title: 'Grabaciones, c2-practice-log, finanzas, Present, Development',
-    lede: 'The utilities. Each one exists because paying for the alternative annoyed me more than building it.',
-    stats: [['20', 'repos total'], ['1', 'audio transcriber'], ['0', 'subscriptions replaced by choice']],
-    bullets: [
-      'Grabaciones: a macOS Whisper transcriber that organises my diary audio and outputs clean text. This site partly exists because of it.',
-      'c2-practice-log: Cambridge C2 simulator with real exam banks, guided correction and adaptive review.',
-      'finanzas: a private personal-finance PWA (Next.js + Supabase).',
-      'Present: a personalised star chart, made as a gift. Not everything has to scale.',
-      'Development: fast one-page apps for whatever the current obsession is.'
-    ], photos: 1, links: [['All repos', 'https://github.com/aleetreny']], tags: ['tooling', 'Whisper', 'Next.js']
-  },
-
-  /* ───────────────── LAB BENCH ─────────────────
-     Written by hand in both languages. The Spanish is the owner's own,
-     copied back from the live board verbatim; the English is kept in step
-     with it. `where` names the branch of science each project explores. */
-  "lab-l1": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Física de partículas", en: "Particle physics" },
-    title: { es: "Detección de anomalías en el Trigger L1", en: "L1 Trigger anomaly detection" },
-    lede: { es: "Autoencoders cuantizados para encontrar sucesos raros en un colisionador, con un presupuesto de microsegundos.", en: "Quantised autoencoders finding rare events in a collider, on a budget of microseconds." },
-    bullets: [
-      { es: "Este proyecto sale de una idea de proyecto en el CERN openlab y de una obsesión que arrastro desde hace años con la física de partículas. El problema de partida es que un colisionador genera muchísimos más datos de los que se pueden guardar, así que hay un sistema, el trigger, que decide en microsegundos qué se conserva y qué se tira para siempre. Lo que no pasa ese filtro no existe.",
-        en: "This project comes out of a project idea at CERN openlab and an obsession with particle physics I have been carrying for years. The starting problem is that a collider produces far more data than anyone can store, so there is a system, the trigger, that decides in microseconds what is kept and what is thrown away forever. Whatever does not pass that filter never existed." },
-      { es: "Aquí aparece interesante. Si lo que buscas es un suceso que nadie ha visto todavía, no puedes entrenar un clasificador, porque no tienes etiquetas de algo que aún no tiene nombre. Estás buscando precisamente lo que no pudiste anotar.",
-        en: "This is where it gets interesting. If what you are looking for is an event nobody has seen yet, you cannot train a classifier, because you have no labels for something that does not have a name yet. You are looking for exactly what you could not annotate." },
-      { es: "La solución es darle la vuelta al planteamiento: entrenas un autoencoder únicamente con sucesos normales, de los aburridos, y le pides que aprenda a comprimirlos y reconstruirlos. Cuando llega algo que no se parece a nada de lo que ha visto, la reconstrucción sale mal, y ese error es la propia señal de alarma. No detectas la anomalía, detectas que el modelo no sabe explicarla.",
-        en: "The solution is to turn the framing around: you train an autoencoder only on ordinary, boring events and ask it to learn to compress and rebuild them. When something arrives that resembles nothing it has seen, the reconstruction comes out wrong, and that error is the alarm itself. You are not detecting the anomaly, you are detecting that the model cannot explain it." },
-      { es: "La parte que de verdad cuesta es la cuantización. El modelo tiene que caber en hardware con una latencia fija, así que hay que bajar la precisión de los pesos hasta que entre, sin perder por el camino la capacidad de distinguir lo raro. Es un tira y afloja constante entre lo que el modelo querría y lo que el silicio permite.",
-        en: "The part that is genuinely hard is the quantisation. The model has to fit into hardware with a fixed latency, so you keep lowering the precision of the weights until it does, without losing the ability to tell odd from ordinary along the way. It is a constant tug of war between what the model would like and what the silicon allows." },
+  "siemens": {
+    id: "9879f539-3b3e-584c-8c91-8d8aac8537d1",
+    kicker: {"es": "Part-Time", "en": "Part-Time"},
+    when: {"es": "Nov 2025 → ahora", "en": "Nov 2025 → now"},
+    where: {"es": "Madrid", "en": "Madrid"},
+    title: {"es": "Científico de Datos en Siemens Energy", "en": "Data Scientist at Siemens Energy"},
+    lede: {"es": "Predicción del flujo de caja para la sede española.", "en": "Cash flow forecasting for the Spanish headquarters."},
+    group: "work", order: 0,
+    blocks: [
+      { id: "3c4a1520-dc72-4a5a-b43e-4b2725b2fd30", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/0c57edcb-7b3c-4c0b-89c8-143322c59dd2-siemens-energy-logo.png", "caption": ""} },
+      { id: "e21229dc-3383-45b0-adb5-b7d93b4dac4c", type: "text", props: {"text": {"es": "Siemens Energy es un gigante de las infraestructuras energéticas. No se dedica a la venta de energía sino a proveer la infraestructura necesaria para generarla y transportarla. Tiene más de 100k empleados, opera en más de 90 países, 30.000 millones de € de facturación, y aproximadamente 1 de cada 6 kWh de electricidad generados en el mundo utiliza su tecnología.", "en": "Siemens Energy is a giant of energy infrastructure. It is not in the business of selling energy but of providing the infrastructure needed to generate and transport it. It has more than 100k employees, operates in more than 90 countries, €30 billion in revenue, and roughly 1 in every 6 kWh of electricity generated in the world uses its technology."}, "textLinks": {"es": []}} },
+      { id: "dd2a3ddb-ab18-4040-8b71-7e02b5ba9437", type: "divider", props: {} },
+      { id: "628b0141-1ee2-5b94-ae9c-53fb2aabdd78", type: "text", props: {"text": {"es": "Entré en Siemens a través de una colaboración con U4Impact para hacer mi TFM en un entorno profesional. Sin embargo, dado el alto nivel de practicismo, al final lo enfocamos como una relación laboral convencional, y centré mi tesis en un caso más metodológico.", "en": "I got into Siemens through a collaboration with U4Impact, to do my master's thesis in a professional setting. However, given how hands-on it turned out to be, in the end we treated it as a conventional job, and I focused my thesis on a more methodological case."}, "textLinks": {"es": [{"end": 259, "href": "article:mapping-science", "start": 247}]}} },
+      { id: "db9a68a0-10d7-4de1-ac77-2e1c6d7f2441", type: "text", props: {"text": {"es": "Durante un año hemos estado desarrollando una herramienta de predicción pionera. El gran problema de las empresas de este sector es la liquidez, cada proyecto requiere millones de inversión y el cobro viene entre uno y varios meses después.", "en": "For a year we have been developing a pioneering forecasting tool. The big problem for companies in this sector is liquidity: every project needs millions in investment and the payment arrives anywhere from one to several months later."}, "textLinks": {"es": []}} },
+      { id: "26e488ed-3bbe-45f2-91ae-6a03e57df2a8", type: "text", props: {"text": {"es": "Es importante saber cuándo será este ingreso porque la capacidad financiera depende de ello, y una buena gestión de caja permite llevar a cabo más proyectos.", "en": "Knowing when that payment will come in matters, because the company's financial capacity depends on it, and good cash management means you can take on more projects."}} },
+      { id: "09cded97-a8fb-4899-9632-daaf28890c66", type: "text", props: {"text": {"es": "Junto con un compañero y el equipo financiero, estudiamos todas las variables involucradas. Siemens usa SAP para registrar todos sus datos y hasta ahora se anticipaba por intuición la fecha de cobro.", "en": "Together with a colleague and the finance team, we studied every variable involved. Siemens uses SAP to record all of its data, and until now the payment date was anticipated on intuition."}} },
+      { id: "43e2dae8-8caa-4f50-92ee-5a71b974b80a", type: "text", props: {"text": {"es": "El proyecto se dividió en tres partes:", "en": "The project was split into three parts:"}, "textLinks": {"es": []}} },
+      { id: "30797c3e-0e94-4e35-9247-d9c9d1b8c01e", type: "list", props: {"items": [{"es": "Crear un nuevo datalake para tener todas las variables relevantes en un mismo entorno, así como la implementación de un pipeline de ETL automático con cada nuevo registro en SAP.", "en": "Build a new datalake to have every relevant variable in one place, plus an automatic ETL pipeline triggered by each new record in SAP."}, {"es": "Entrenamiento y comparación de diferentes modelos para predecir la variable objetivo \"fecha de cobro\", contabilizada como días desde finalización del proyecto.", "en": "Train and compare different models to predict the target variable, \"payment date\", counted as days from the end of the project."}, {"es": "Crear un dashboard con refresh dinámico para visualizar un gran set de kpis financieros y esta nueva métrica de predicción que hemos creado.", "en": "Build a dashboard with dynamic refresh to visualise a large set of financial KPIs and this new prediction metric we created."}], "itemTextLinks": {"es": [[], []]}} },
+      { id: "90fd48d4-7aea-4397-b5ef-ec01049268f5", type: "text", props: {"text": {"es": "Para el datalake y el ETL usamos Azure. Para la predicción, mi base en estadística nos llevó primero a probar modelos tradicionales como regresiones lineales, ridge, lasso o arboles, que en ciertos entornos con pocas observaciones como este funcionan sorprendentemente bien. Y a continuación probamos con otros más sofisticados como Random Forest, Gradient Boosting o GAM.", "en": "For the datalake and the ETL we used Azure. For the prediction, my background in statistics led us to try traditional models first — linear regressions, ridge, lasso or trees — which in certain settings with few observations like this one work surprisingly well. And then we tried more sophisticated ones like Random Forest, Gradient Boosting or GAM."}} },
+      { id: "047d2f30-6370-49c4-bf95-cb20e724e509", type: "text", props: {"text": {"es": "Incluso probamos modelos de supervivencia como Cox, que yo ya había usado en otros proyectos, pero no funcionaron bien.", "en": "We even tried survival models like Cox, which I had already used in other projects, but they did not work well."}} },
+      { id: "0c11bb64-728a-4bcd-b8fa-1b389242c5f7", type: "text", props: {"text": {"es": "Como era de esperar, el GAM salió como vencedor en los benchmarks, en entornos reales las relaciones no lineales parecen ser la norma. Dada la sensibilidad de la unidad de estudio (días), usamos métricas de rendimiento flexibles que ponderan accuracy por cercanía al día exacto.", "en": "As expected, the GAM came out on top in the benchmarks; in real settings non-linear relationships seem to be the norm. Given how sensitive the unit of study is (days), we used flexible performance metrics that weight accuracy by how close you land to the exact day."}} },
+      { id: "af699925-001d-41cd-b921-9a2453368978", type: "text", props: {"text": {"es": "Por último, implementamos la visualización de los resultados en un dashboard de Power BI, donde conectamos bloques de python a los modelos que hicimos en Azure. Hemos estado integrando la nueva herramienta en la operativa habitual del equipo financiero y descubierto muchos patrones.", "en": "Finally, we implemented the visualisation of the results in a Power BI dashboard, where we connected python blocks to the models we had built in Azure. We have been integrating the new tool into the finance team's day-to-day work and have discovered a lot of patterns."}} },
+      { id: "ffa72024-4832-49dc-bf79-81a9759f0cb4", type: "text", props: {"text": {"es": "Al parecer ciertos clientes pagan siempre más tarde en algunas épocas del año, y los materiales empleados en el proyecto también parecen ser determinantes.", "en": "Apparently certain clients always pay later at some times of the year, and the materials used on the project also seem to be decisive."}} },
+      { id: "f05df3f5-6a9c-4ebe-8156-7252e1815694", type: "text", props: {"text": {"es": "Al final no solo ha servido para hacer más robusto el flujo de caja, sino para orientar la toma de decisiones con diferentes clientes. A los jefes españoles les ha gustado tanto que hemos tenido varias reuniones con los jefes supremos y puede que se implemente a nivel de la operativa europea al completo!!", "en": "In the end it has not only made the cash flow more robust, it has also helped steer decision-making with different clients. The Spanish bosses liked it so much that we have had several meetings with the top bosses and it might get rolled out across the whole European operation!!"}} },
     ],
-    links: [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/CERN%20OpenLab/Extreme-Scale%20Anomaly%20Detection"]],
-    photos: 0,
+  },
+  "accenture": {
+    id: "6efbceb2-517f-5bf6-874b-c66cbe82dc03",
+    kicker: {"es": "Prácticas", "en": "Internship"},
+    when: {"es": "Ene 2026 → Mayo 2026", "en": "Jan 2026 → May 2026"},
+    where: {"es": "Madrid", "en": "Madrid"},
+    title: {"es": "Ciencia de datos e IA en Accenture", "en": "Data Science and AI at Accenture"},
+    lede: {"es": "Sistemas multiagente para bancos españoles.", "en": "Multi-agent systems for Spanish banks."},
+    group: "work", order: 1,
+    blocks: [
+      { id: "caeb7a7e-1e63-4730-9854-2c029c1fa733", type: "text", props: {"text": {"es": "Accenture es la consultora tecnológica más grande del mundo, básicamente se dedica a ofrecer servicios IT a otras empresas, y lo hace a lo grande. El departamento de Ciencia de Datos e IA de Madrid es pionero en soluciones agénticas y LLMs, con un equipo super joven del que he tenido la suerte de formar parte. ", "en": "Accenture is the largest technology consultancy in the world; basically it provides IT services to other companies, and it does it on a grand scale. The Data Science and AI department in Madrid is a pioneer in agentic solutions and LLMs, with a super young team I have been lucky to be part of."}, "textLinks": {"es": []}} },
+      { id: "acff0719-b798-4df8-a495-9550639774aa", type: "text", props: {"text": {"es": "Conocí la empresa en un Hackathon y posteriormente apliqué a la famosa beca Dixcover para hacer prácticas durante los 6 meses que me quedaban del Máster de Estadística. Unos días antes de navidad me dieron la buena noticia.", "en": "I came across the company at a Hackathon and later applied for the famous Dixcover scholarship, to do an internship during the 6 months I had left of the Statistics master's. A few days before Christmas they gave me the good news."}, "textLinks": {"es": [{"end": 34, "href": "article:hack-accenture", "start": 24}, {"end": 167, "href": "article:uc3m", "start": 146}]}} },
+      { id: "ab528315-015b-461b-8fc7-1567a077d52f", type: "text", props: {"text": {"es": "La verdad es que he aprendido más que nunca, la dinámica de la beca es meterte en 4 proyectos a la vez para tocar muchas ramas distintas dentro de LLMs. Desde el día uno estás programando y aportando, normalmente equipos de 5 - 10 personas para cada proyecto y tú gestionas el tiempo que dedicas a cada uno. La propia división de tareas la hacemos los becarios con la supervisión de un tutor. Además, tenemos reuniones semanales para asegurarnos que la dirección es la correcta y sacar puntos positivos/negativos del proyecto. Plena autonomía. ", "en": "Honestly, I have learned more than ever. The way the scholarship works is that they put you on 4 projects at once so you touch many different branches within LLMs. From day one you are coding and contributing, usually teams of 5 - 10 people per project and you manage the time you give to each one. We interns divide the tasks up ourselves, with a tutor supervising. On top of that, we have weekly meetings to make sure the direction is the right one and to pull out the positives and negatives of the project. Full autonomy."}, "textLinks": {"es": []}} },
+      { id: "7e946d5f-e7e3-4ae1-a802-38d931a37f2e", type: "text", props: {"text": {"es": "Mis proyectos destacados han sido:", "en": "My standout projects have been:"}, "textLinks": {"es": []}} },
+      { id: "399d5895-e24e-48a5-83bb-17f1038cd178", type: "list", props: {"items": [{"es": "DataForge: este proyecto ha sido el que más hemos avanzado, consiste en un flujo de anonimización de documentos para un gran banco español. Dada la sensibilidad de los datos personales de los clientes, no se pueden entrenar modelos de crédito con los valores originales, así que implementamos un pipeline agéntico donde en base a un documento original en pdf o imagen, podemos sacar un duplicado con datos sintéticos, pero manteniendo el patrón y coherencia. El flujo se basaba en un OCR, un agente anonimizador, uno sintético, uno de posicionamiento y un orquestador, todo implementado con Langchain y Langfuse para medir rendimiento.  ", "en": "DataForge: this is the project we took furthest. It is a document anonymisation flow for a big Spanish bank. Given how sensitive the clients' personal data is, credit models cannot be trained on the original values, so we implemented an agentic pipeline where, starting from an original document as a pdf or an image, we can produce a duplicate with synthetic data while keeping the pattern and the coherence. The flow was built on an OCR, an anonymising agent, a synthetic one, a positioning one and an orchestrator, all implemented with Langchain and Langfuse to measure performance."}, {"es": "VibeCoding: en este tratamos de replicar Google AI Studio pero como herramienta interna para empresas. En base a un prompt de diseño, generábamos un backend completo y un frontend sencillo. Un agente identificaba el prompt y hacía un plan, otro sacaba el stack tecnológico puntero para el diseño, otro escribía la aplicación, otro la desplegaba en un contenedor de Docker y la probaba (entrando en loop con un agente corrector hasta quedar satisfecho), y otro la entregaba.   ", "en": "VibeCoding: here we tried to replicate Google AI Studio but as an internal tool for companies. From a design prompt, we generated a complete backend and a simple frontend. One agent read the prompt and made a plan, another pulled out the cutting-edge tech stack for the design, another wrote the application, another deployed it in a Docker container and tested it (looping with a fixer agent until it was satisfied), and another delivered it."}, {"es": "MCP: uno de los grandes problemas en las tecnológicas con decenas de proyectos es que no hay un repositorio centralizado de tools repetitivas para los agentes. Creamos este proyecto desde 0 para solucionarlo. Básicamente, diseñamos cientos de tools versátiles que se usan en muchos casos, y creamos un servidor MCP padre con todas ellas. Cuando un nuevo proyecto surge, va a una interfaz sencilla y describe el proyecto. Entonces, un flujo de agentes escoge las tools útiles para el caso, levantándolas en un servidor MCP hijo para que los participantes puedan tenerlas rápido al alcance, ahorrando tiempo a toda la empresa. Este es el que más ilusión me hizo por estar completamente en las manos de 4 becarios desde el principio, y usar nuevos frameworks como StrandAgents. ", "en": "MCP: one of the big problems at tech companies with dozens of projects is that there is no centralised repository of repetitive tools for the agents. We built this project from scratch to solve it. Basically, we designed hundreds of versatile tools that get used across many cases, and we created a parent MCP server holding all of them. When a new project comes up, it goes to a simple interface and describes itself. Then a flow of agents picks the tools useful for that case and spins them up in a child MCP server so the people on it have them to hand quickly, saving time for the whole company. This is the one that excited me most, because it was entirely in the hands of 4 interns from the start, and because we used new frameworks like StrandAgents."}, {"es": "Iniciativa X: el proyecto de mayor alcance que tuvimos en mi opinión. Un grupo de 8 becarios exploramos las dinámicas de trabajo de los empleados de otro gran banco español, para identificar tareas automatizables y diseñar workflows que mejorasen su productividad. Dividimos las tareas por área, yo me encargué de hacer una herramienta de transcripción de entrevistas y posterior interpretación por LLM en diferentes criterios, acelerando el trabajo del departamento de recursos humanos. No solo tuve que aprender a usar Whisper, sino que impartí formaciones al equipo para usar correctamente la herramienta, enfrentándome a transmitir ideas complejas de forma simple. ", "en": "Initiative X: the project with the widest reach we had, in my opinion. A group of 8 interns explored the working dynamics of the employees of another big Spanish bank, to identify automatable tasks and design workflows that would improve their productivity. We divided the tasks by area; I took on building a tool for transcribing interviews and then interpreting them with an LLM against different criteria, speeding up the work of the HR department. Not only did I have to learn to use Whisper, I also ran training sessions for the team so they would use the tool properly, which meant facing up to getting complex ideas across simply."}], "itemTextLinks": {"es": [[], [], [], []]}} },
+      { id: "b9f4d37b-fea9-4de0-99f6-9836efd97d65", type: "text", props: {"text": {"es": "Usamos AWS durante todas las prácticas tanto para APIs de modelos IA, a través de Bedrock; para almacenamiento, con S3; y para colaboración e historial, con CodeCommit.", "en": "We used AWS throughout the internship: for AI model APIs, through Bedrock; for storage, with S3; and for collaboration and history, with CodeCommit."}, "textLinks": {"es": []}} },
+      { id: "441537c3-77b9-45c1-b1b3-4ad7e55d331d", type: "text", props: {"text": {"es": "He aprendido muchísimo y me llevo muchas amistades con un talento infinito. Me ha sorprendido mucho ver cómo una empresa con tanto protocolo nos daba tanta libertad a los becarios. ", "en": "I have learned a huge amount and I am taking away many friendships with infinite talent. It really surprised me to see a company with so much protocol give us interns so much freedom."}, "textLinks": {"es": []}} },
+      { id: "16672183-a247-4d64-a000-cec76a21ff6d", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/096b53fb-3e57-4404-9343-b358d1e51663-img_2710.jpeg", "caption": {"es": "Equipo de IA!!", "en": "AI team!!"}} },
+    ],
+  },
+  "tropical": {
+    id: "4223cad4-2da1-5b4d-a98e-f5eb06d5ce7b",
+    kicker: {"es": "Full-time", "en": "Work · Operations"},
+    when: {"es": "Nov 2024 → Jun 2025", "en": "Nov 2024 → Jun 2025"},
+    where: {"es": "Málaga", "en": "Málaga"},
+    title: {"es": "Analista de datos en Tropical Millenium", "en": "Data Analyst at Tropical Millenium"},
+    lede: {"es": "Exploración de patrones en el sector del aguacate y el mango", "en": "Fruit. Twelve million kilos of it, €44M a year, and a price that moves every single week."},
+    group: "work", order: 2,
+    blocks: [
+      { id: "6fd9192b-d1f6-4ee2-9e6f-7e268613b5e1", type: "text", props: {"text": {"es": "Tropical Millenium es un distribuidor muy reconocido a nivel europeo en el sector de las frutas tropicales, generando alrededor de 30M€ anuales con +100 empleados. Ahora forma parte del grupo San José Farms, de Chile. ", "en": "Tropical Millennium is a well-known European distributor in the tropical fruit sector, generating around €30M per year with +100 employees."}, "textLinks": {"es": [{"end": 204, "href": "https://www.sanjosefarms.com/", "start": 190}]}} },
+      { id: "06287803-2f7c-4304-b1a8-7098c94df2af", type: "divider", props: {} },
+      { id: "a79ad05e-1465-41fb-83ea-73f49b290d8c", type: "text", props: {"text": {"es": "La Axarquia (pequeña región malagueña) es el mayor productor de aguacate y mango de toda europa, dando lugar a muchas empresas sólidas que se dedican a exportar tanto la cosecha regional como la internacional. El modelo de negocio se basa en comprar fruta al productor o a otro distribuidor (ya sea en España o en cualquier otro país), para seleccionarla, madurarla y distribuirla a los supermercados europeos. ", "en": "It's a tough market because the margins are minuscule. Most avocados and mangoes are produced in Latin America, so when there is no regional harvest, these companies in the Axarquia are dedicated to buying products from Colombia, Chile, Ecuador... Latin American distribution companies do not usually sell directly to the European supermarket because ripening is very important and can only be done at destination. It's a tough market because the margins are minuscule. Most avocados and mangoes are produced in Latin America, so when there is no regional harvest, these companies in the Axarquia are dedicated to buying products from Colombia, Chile, Ecuador... Latin American distribution companies do not usually sell directly to the European supermarket because ripening is very important and can only be done at destination."}, "textLinks": {"es": []}} },
+      { id: "f4e777e9-5e96-42e4-ab02-d409e841692d", type: "text", props: {"text": {"es": "Es un mercado difícil porque los márgenes son minúsculos. La mayoría de los aguacates y mangos se producen en Latinoamérica, por lo que cuando no hay cosecha regional estas empresas de la Axarquia se dedican a comprar los productos de Colombia, Chile, Ecuador... Las empresas distribuidoras latinoamericanas no suelen vender directamente al supermercado europeo porque la maduración es muy importante y solo se puede hacer en destino. ", "en": "Many of the companies in the sector are family-owned, and I loved being able to be part of a less corporate team. Information flows more easily, you lead initiatives without so much bureaucracy, and fresh ideas are taken into account. I was really able to feel at home, putting in more hours than usual for pure pleasure. Many of the companies in the sector are family-owned, and I loved being able to be part of a less corporate team. Information flows more easily, you lead initiatives without so much bureaucracy, and fresh ideas are taken into account. I was really able to feel at home, putting in more hours than usual for pure pleasure."}, "textLinks": {"es": []}} },
+      { id: "b9469f64-cccf-4b18-a234-0a5c597e19dd", type: "text", props: {"text": {"es": "Muchas de las empresas del sector son familiares, y me encantó poder formar parte de un equipo menos corporativo. La información fluye más fácilmente, lideras iniciativas sin tanta burocracia, y se tiene mucho en cuenta las ideas frescas. Realmente fui capaz de sentirme en casa, echando más horas de las habituales por puro placer.", "en": "My Tasks"}, "textLinks": {"es": []}} },
+      { id: "3bc59282-165b-4d70-a1f7-218f3964dfc8", type: "text", props: {"text": {"es": "Conocí a la Head de Recursos Humanos en un proyecto de AECOC y me invitó a una entrevista para conocernos. La compañía acababa de ser adquirida por el grupo chileno y buscaban modernizar la empresa, como buen friki de los datos le conté lo mucho que se puede mejorar la operativa de conocer los patrones del negocio, y nos encajamos bastante bien. ", "en": "It was great because I had full freedom, my position was not \"do this\" but \"how can we improve?\" And under that premise I went on to internalize the success of the company as my own, so I gave my all to examine every detail of the processes."}, "textLinks": {"es": []}} },
+      { id: "2fbe3b27-98d4-488e-91ad-22e0c2f14854", type: "text", props: {"text": {"es": "Fue genial porque tenía plena libertad, mi puesto no era \"haz esto\" sino \"¿cómo podemos mejorar?\" Y bajo esa premisa pasé a internalizar el éxito de la empresa como propio, así que di todo mi ser por examinar cada detalle de los procesos. ", "en": "I learned how to use Power BI, as well as the other Microsoft tools for data analysis on my own, I was very motivated to draw useful conclusions."}, "textLinks": {"es": []}} },
+      { id: "b2ce69b8-2a78-46fc-99fa-c63fc4846277", type: "text", props: {"text": {"es": "La empresa ya recogía sus datos en un CRM básico para lidiar con entregas pendientes o pedidos históricos, pero no se analizaban en conjunto. Aprendí a usar Power BI por mi cuenta para visualizar las tendencias. Estaba motivadísimo. No fue mucho después que empecé a sacar conclusiones de los clientes, los dividí en 4 niveles en función de los kilos que les vendíamos y el margen que sacábamos. Nos centramos especialmente en los clientes con pocos kg y margen muy positivo, potenciando la relación. Estudié también posibles escenarios donde perdíamos o incorporábamos a un cliente importante y cómo habría que ajustar las dinámicas del almacén para lidiar con ello, derivando en un modelo de contingencia donde se ajustaban y localizaban las horas necesarias de trabajo en función de la demanda prevista las próximas semanas. Todo en Dashboards de PBI. ", "en": "I was given more responsibilities and started working as a separate “continuous improvement” department with the new CEO. This is exactly what I love about small businesses, meritocracy is instantaneous and you feel responsibility in each of your actions. I learned a lot with him, he was an expert in abstraction and shared that value for the objectivity of the data that I like so much. I am overwhelmed when I allocate a budget of €420k for initiatives, I was not even able to assimilate that figure. Looking at it in perspective, it is precisely this rhythm of responsibilities that forced me to learn so quickly and leave no room for fear, I wanted to meet expectations."}, "textLinks": {"es": []}} },
+      { id: "76823ea3-6d39-4cc7-8dff-75228f3d4b1a", type: "text", props: {"alt": {"es": "Málaga", "en": "Málaga"}, "text": {"es": "Se me empezó a dar más responsabilidades y empecé a trabajar como un departamento aparte de \"mejora continua\" con el nuevo CEO. Es justo esto lo que me encanta de las pequeñas empresas, la meritocracia es instantánea y sientes responsabilidad en cada una de tus acciones. Aprendí mucho con él, era un experto en abstraerse y compartía ese valor por la objetividad de los datos que tanto me gusta. Me abrumé cuando me asignó un presupuesto de 420k € para iniciativas, no era capaz ni de asimilar esa cifra. Viéndolo en perspectiva, es justamente este ritmo de responsabilidades lo que me obligaba a aprender tan rápido y no dejar hueco para el miedo, quería cumplir expectativas. ", "en": "Some led initiatives:"}, "caption": {"es": "Family BBQ", "en": "Family BBQ"}, "textLinks": {"es": []}} },
+      { id: "37e79908-2661-4061-bbcb-10f753948fcc", type: "text", props: {"text": {"es": "Algunas iniciativas lideradas: ", "en": "Some led initiatives:"}, "textLinks": {"es": []}} },
+      { id: "ca98c4ff-6835-4d5e-b2da-4b4403730491", type: "list", props: {"items": [{"es": "Tras estudiar las rutas habituales de la fruta por el almacén, introduje cambios en la distribución de las cámaras de maduración y de frío porque acortábamos un 10% los tiempos de transporte. Hasta el momento no se había mirado el tiempo de recorrido habitual desde que entra el producto hasta que sale y pude estudiarlo al identificar los posibles caminos que hay en función del cliente, la prisa y el producto. La gran mayoría repetía trayecto innecesariamente y aunque conllevó una obra importante, ganamos casi una hora extra al día de trabajo efectivo. ", "en": "After studying the usual routes of the fruit through the warehouse, I introduced changes in the distribution of the ripening and cold chambers because we shortened transport times by 10%. Until now, the usual travel time from when the product enters to when it leaves had not been looked at and I was able to study it by identifying the possible paths that there are depending on the customer, the hurry and the product. The vast majority repeated the journey unnecessarily and although it involved an important work, we earned almost an extra hour a day of effective work."}, {"es": "También cambié los rangos de kg/precio para la compra de fruta de la cosecha española, ya que al estudiar la distribución de los kg me di cuenta de que una porción importante caía justo en el extremo superior de dos tramos, y reduciendo este extremo en apenas un 3% podíamos facturar esa fruta con el tramo superior a 30 cents más por kg", "en": "I also changed the ranges of kg/price for the purchase of fruit from the Spanish harvest, since when studying the distribution of the kg I realized that a significant portion fell just at the upper end of two sections, and reducing this end by just 3% we could invoice that fruit with the section higher than 30 cents more per kg"}, {"es": "Por otro lado, usé series temporales y regresiones sencillas para planificar la compra de fruta en origen. El beneficio en este mercado surge de lograr el timing perfecto entre la compra y la venta, siendo especialmente difícil cuando esta viene de barcos de Latinoamérica que tardan alrededor de 3 semanas. Mi esfuerzo estuvo en dos focos, por un lado estimar un tiempo de entrega desde el pedido para los diferentes proveedores de Latam, y por otro lado anticipar la demanda de los clientes europeos. El primero se basaba en un modelo de gradient boosting que cogía todas las variables pertinentes del CRM del cliente, así como el histórico de entregas y los datos meteorológicos durante el trayecto, para sacar una estimación del día de entrega. Y el segundo eran series temporales que aprendí en clase de econometría para saber los kilos demandados por cada cliente antes de la cosecha. Haciendo un match de ambos, un dashboard nos arrojaba el tiempo óptimo de pedido.   ", "en": "On the other hand, use time series and simple regressions to plan the purchase of fruit at source. The benefit in this market comes from achieving the perfect timing between the purchase and sale, being especially difficult when it comes from Latin American ships that take around 3 weeks. My effort was in two focuses, on the one hand estimating a delivery time from the order for the different LATAM suppliers, and on the other hand anticipating the demand from European customers. The first was based on a gradient boosting model that takes all the relevant variables from the customer's CRM, as well as the delivery history and weather data during the trip, to obtain an estimate of the delivery day. And the second were time series that I learned in econometrics class to know the kilos demanded by each client before the harvest. Matching the two, a dashboard showed us the optimal order time."}], "itemTextLinks": {"es": [[], [], []]}} },
+      { id: "a15894c0-841c-4fec-ac7a-9adeb46b2256", type: "text", props: {"text": {"es": "Tuve la suerte de tocar muchas áreas diferentes del negocio y aprender transversalmente, estaba muy lejos de conocer todos los matices diarios de la gestión del negocio pero pude aportar mi granito de arena mirando excels y sacando gráficas. ", "en": "It was my last year of my career and I had to make an important decision about my future, whether to continue at Tropical Millenium or continue training with a Master's degree. I opted for the second because I felt that the time was now, that I wanted to continue exploring this branch of data, and that I would already have a lifetime to settle down and work. Take advantage of the following summer to volunteer in Paraguay before a Master's Degree in Statistics for Data Science in Madrid"}, "textLinks": {"es": []}} },
+      { id: "2b5f93d6-31bf-4c4b-b467-16a4f1def9ec", type: "text", props: {"text": {"es": "Era mi último año de carrera y tenía que tomar una decisión importante sobre mi futuro, si seguir en Tropical Millenium o continuar formándome con un Máster. Opté por la segunda porque sentía que el momento era ahora, que quería seguir explorando esta rama de los datos, y que ya tendría toda una vida para asentarme y trabajar. Aproveché el verano siguiente para hacer un voluntariado en Paraguay antes de un Máster en Estadística para Ciencia de Datos en Madrid. Recuerdo este puesto con enorme cariño, aquí os dejo una fotito de despedida.", "en": "It was my last year of my career and I had to make an important decision about my future, whether to continue at Tropical Millenium or continue training with a Master's degree. I opted for the second because I felt that the time was now, that I wanted to continue exploring this branch of data, and that I would already have a lifetime to settle down and work. Take advantage of the following summer to volunteer in Paraguay before a Master's Degree in Statistics for Data Science in Madrid. I remember this position with enormous affection, here I leave you a little farewell photo."}, "textLinks": {"es": [{"end": 397, "href": "article:alda", "start": 373}, {"end": 463, "href": "article:uc3m", "start": 410}]}} },
+      { id: "12f67704-059a-5916-b533-9b7e371e5d99", type: "image", props: {"alt": {"es": "Málaga", "en": "Málaga"}, "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/2119453c-db34-48e1-9d44-33f6bc2546f8-img_2024.jpeg", "caption": {"es": "BBQ familiar", "en": "Family BBQ"}} },
+    ],
+  },
+  "ey": {
+    id: "a640d547-5211-566f-8158-88b4817bafab",
+    kicker: {"es": "Prácticas", "en": "Work · Finance"},
+    when: {"es": "Sep 2024 – Jan 2025", "en": "Sep 2024 → Jan 2025"},
+    where: {"es": "Málaga", "en": "Málaga"},
+    title: {"es": "Analista de datos en EY", "en": "Data Analyst at EY, contracted to ING"},
+    lede: {"es": "Persiguiendo irregularidades en cuentas financieras.", "en": "Chasing irregularities through corporate accounts worth up to €90M, one reconciliation at a time."},
+    group: "work", order: 3,
+    blocks: [
+      { id: "2dd98696-07d0-447c-b356-be695b19b476", type: "text", props: {"text": {"es": "EY (Ernst & Young) es una de las Big Four, una de las 4 mayores firmas de servicios profesionales en el mundo. Tiene alrededor de 53 Billones de $ de facturación y opera en más de 150 países. ", "en": "EY (Ernst & Young) is one of the Big Four, one of the 4 largest professional services firms in the world. It has around $53 billion in turnover and operates in more than 150 countries. EY (Ernst & Young) is one of the Big Four, one of the 4 largest professional services firms in the world. It has around $53 billion in turnover and operates in more than 150 countries."}, "items": {"0": "Power Query", "1": "audit", "2": "Excel", "3": "finance"}, "textLinks": {"es": []}} },
+      { id: "2bb19ff7-9d8f-4092-8046-c9db0437d702", type: "divider", props: {} },
+      { id: "99dc7774-6146-4165-92a1-2299e61d5abd", type: "text", props: {"text": {"es": "En Málaga tenemos una oficina de EY en el Parque Tecnológico y es un sitio genial para hacer las prácticas de la carrera. A mi parecer, las consultoras tienen el inconveniente de hacerte sentir un pequeño granito en una estructura rígida infinita: pocas libertades y mucha monotonía. Sin embargo, para empezar en el mundo laboral es perfecto, porque tienes un colchón grande de procesos que evita errores grandes, y se recompensa el esfuerzo por lo que echas más horas que un reloj, aprendiendo el doble. Además te permiten exponerte al mayor pragmatismo posible ya que todo son casos reales para clientes.", "en": "In Malaga we have an EY office in the Technology Park and it is a great place to do the practice of the race. In my opinion, consultants have the inconvenience of making you feel like a small granite in an infinite rigid structure: few freedoms and a lot of monotony. However, to start in the world of work is perfect, because you have a large cushion of processes that prevents you from screwing up a lot, and the effort is rewarded for what you put in more hours than a clock, learning twice as much. They also allow you to expose yourself to the greatest possible pragmatism since they are all real cases for customers. In Malaga we have an EY office in the Technology Park and it is a great place to do the practice of the race. In my opinion, consultants have the inconvenience of making you feel like a small granite in an infinite rigid structure: few freedoms and a lot of monotony. However, to start in the world of work is perfect, because you have a large cushion of processes that prevents you from screwing up a lot, and the effort is rewarded for what you put in more hours than a clock, learning twice as much. They also allow you to expose yourself to the greatest possible pragmatism since they are all real cases for customers."}, "textLinks": {"es": []}} },
+      { id: "4648fb4f-e89a-422c-a5bf-af32dcc61888", type: "text", props: {"text": {"es": "Tuve la suerte de trabajar con uno de los grandes bancos españoles, que había delegado toda su operativa de detección de fraude fiscal en EY. Mi trabajo consistía en analizar los movimientos de cuentas bancarias en busca de irregularidades. Suena aburrido pero en realidad era bastante interesante. Básicamente exportaba la operativa a Excel y creaba tablas dinámicas para ver picos de actividad o grandes movimientos en categorías inusuales.", "en": "I was lucky enough to work with one of the big Spanish banks, which had delegated all its tax fraud detection operations to EY. My job was to analyze corporate account movements for irregularities. It sounds boring but it was actually quite interesting. It basically exported operations to excel and created dynamic tables to see peaks in activity or large movements in unusual categories."}, "textLinks": {"es": []}} },
+      { id: "d508b97f-8b69-4817-9a29-906dcbc11409", type: "text", props: {"text": {"es": "Veía cómo se repetían muchos patrones, por ejemplo, cuando había una venta de una casa solía haber un traspaso grande seguido de la compra de otra. Teníamos varios criterios para dar una alarma, como que el monto total de ingreso en cajeros fue superior a x, o que hubiese un envío internacional de tal cantidad. Sentía que gran parte de mi trabajo manual era completamente automatizable porque siempre revisaba las mismas combinaciones en tablas dinámicas, así que empecé a explorar Power Query y Power Pivot para hacer estos checks automáticos con cada base de datos que entrase. ", "en": "I saw a lot of repeating patterns, when there was a sale of a property there used to be a large transfer followed by a large purchase, or when"}, "textLinks": {"es": []}} },
+      { id: "974e9405-7d10-4519-8d05-df3a6ddc4865", type: "text", props: {"text": {"es": "Conseguí abarcar varios casos al mismo tiempo gracias a tener un dashboard improvisado que centralizaba todas las alertas que yo había fijado como sospechosas para las cuentas que me llegasen, superé con creces el número de casos diarios exigidos e implementamos la herramienta a nivel de equipo en mi departamento. Fue mi primer éxito laboral y me sentí muy orgulloso.", "en": "I managed to cover several cases at the same time thanks to having an improvised dashboard that centralized all the alerts that I had set as suspicious for the accounts that came to me, far exceeded the number of daily cases required and we implemented the tool at the team level in my department. It was my first job success and I felt very proud."}, "textLinks": {"es": []}} },
+      { id: "e515fe21-0ef3-4883-a6ac-9f4662315805", type: "text", props: {"text": {"es": "Sin embargo, al intentar extenderla al resto de equipos y formalizarla, la burocracia y permisos necesarios hacían infinitamente lento el proceso, y finalmente desistí. Había firmado ya contrato con otra empresa y estaba trabajando por las mañanas en EY y por las tardes en Tropical Millenium. Decidí no renovar el contrato y centrarme en el otro puesto de trabajo porque me gustaba y aportaba mucho más. Aún así, fue una primera experiencia laboral intensa y gratificante, con un ambiente juvenil e intelectual inigualable.", "en": "However, when trying to implement"}, "textLinks": {"es": [{"end": 292, "href": "article:tropical", "start": 274}]}} },
+      { id: "c70fbad5-9a16-4a6e-8beb-377befe63bcf", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/4dd9aded-6743-4df5-9697-0366c19c37cd-img_1734651837541.jpeg", "caption": {"es": "Cena de Despedida con mi equipito.", "en": "Farewell Dinner with my team."}} },
+    ],
+  },
+  "ucl": {
+    id: "71efc249-15a1-5691-8435-af45db7fe091",
+    kicker: {"es": "Estudio", "en": "Study · Incoming"},
+    when: {"es": "Sep 2026 → Sep 2027", "en": "Oct 2026 → Jun 2027"},
+    where: {"es": "Londres", "en": "London"},
+    title: {"es": "Máster en Ciencia de Datos & Machine Learning, UCL", "en": "MSc Data Science & Machine Learning, UCL"},
+    lede: {"es": "Serios con la programación y los algoritmos más punteros", "en": "Serious about programming and cutting-edge theory"},
+    group: "edu", order: 0,
+    blocks: [
+      { id: "a896f281-e34f-4882-b323-1edc2a445d57", type: "text", props: {"text": {"es": "Mientras acababa el Máster en Estadística en Madrid sentía que había abordado todas las matemáticas que hay detrás de la ciencia de datos moderna,  pero me quedaba corto en algoritmos y aplicabilidad de estos. Es por ello que decidí aprovechar la carrerilla para seguir formándome, y esta vez salir de España para exponerme a nuevos retos. ", "en": "I start at the end of September, I really want to get out of the comfort zone and expose myself to new"}, "textLinks": {"es": [{"end": 51, "href": "article:uc3m", "start": 20}]}} },
+      { id: "7cf67c6d-96b7-4ef2-8773-80da384ee291", type: "text", props: {"text": {"es": "Elegí Londres porque tiene las mejores universidades de Europa, conexión directa y barata con Málaga, e inglés como lengua. Dentro de Londres investigué a fondo los programas del Imperial College, la LSE y la UCL, y finalmente apliqué a un máster en cada una. La decisión se puso difícil porque me cogieron en los 3 y todos eran mis programas idílicos:", "en": "In my focus was the LSE"}, "textLinks": {"es": []}} },
+      { id: "8532a707-4cc0-461f-82c2-ba4651d8e1f5", type: "list", props: {"items": [{"es": "MSc in Business Analytics and AI en el Imperial College, el cuarto mejor programa del mundo en su categoría, y en la segunda mejor universidad del planeta. Desde la primera vez que visité Londres, el Imperial College había sido mi universidad soñada. Coincidí con una jornada de puertas abiertas al salir del Museo de Historia Natural y pude ver la esencia de curiosidad genuina que desprendían los estudiantes, como contaban sus investigaciones y como explicaban conceptos abstractos con tanta sencillez. El único inconveniente de este Máster era que se impartía en el Departamento de Business, y yo quería algo más técnico.  ", "en": "MSc in Business Analytics and AI at Imperial College, the fourth best program in the world in its category, and the second best university on the planet."}, {"es": "MSc in Data Science en la LSE, un ratio de aceptación de 13:1, en una de las instituciones más selectivas y rigurosas matemáticamente del planeta. La LSE es la meca en lo que respecta a las ciencias sociales y la estadística aplicada, sin embargo, al ser impartido el máster por el Departamento de Estadística, muchas asignaturas se solapaban con cosas que ya había dado en Madrid, y aunque aún así el programa era brutal, me decante por la tercera opción:", "en": "MSc"}, {"es": "MSc in Data Science and Machine Learning en la UCL. Me da la sensación de que esta universidad es un poco más desconocida para el estudiante español, aunque su nivel educativo está a la par o por encima de las dos anteriores. Sin embargo, lo que realmente me hizo decidirme por este programa fue que lo impartía el Departamento de Computer Science, que además de ser de reconocido prestigio mundial es el entorno perfecto que necesito para desarrollar la competencia en la que más flojo me siento: la programación. Y más que a sintaxis me refiero al pensamiento lógico que lleva aparejado, a esa extrapolación de un problema a su fórmula lógico-matemática. Además, se imparte en colaboración con Google Deepmind, ya que la UCL es su cuna, y tenemos módulos bestiales.  ", "en": "MSc in Data Science and Machine Learning at UCL. It seems to me that this university is a little more unknown to the Spanish student, although their educational level is at or above the previous two. However, what really made me decide on this program was that it was taught by the Department of Computer Science, which in addition to being of recognized worldwide prestige is the perfect environment I need to develop the competence in which I feel weakest: programming. And more than syntax, I refer to the logical thinking that goes with it, to that extrapolation of a problem to its logical-mathematical formula. In addition, it is taught in collaboration with Google Deepmind, since UCL is its cradle, and we have beastly modules."}], "itemTextLinks": {"es": [[], [], []]}} },
+      { id: "401c4317-35ec-4e51-9ae3-e090165ce73c", type: "text", props: {"text": {"es": "Empiezo a finales de septiembre, así que ya os contaré cuando saque conclusiones.", "en": "I start at the end of September, so I'll tell you when I drew conclusions."}, "textLinks": {"es": []}} },
+    ],
+  },
+  "uc3m": {
+    id: "7bf7bb34-2aec-5319-b7a5-47ddfb15c781",
+    kicker: {"es": "Estudio", "en": "Study"},
+    when: {"es": "Sep 2025 → Jun 2026", "en": "Sep 2025 → Jun 2026"},
+    where: {"es": "Madrid", "en": "Madrid"},
+    title: {"es": "Máster en Estadística para la Ciencia de Datos, UC3M", "en": "MSc Statistics for Data Science, UC3M"},
+    lede: {"es": "Un año de matemáticas serias.", "en": "The year the maths got serious and I stopped pretending intuition scales."},
+    group: "edu", order: 1,
+    blocks: [
+      { id: "3a13d587-6116-4636-a8be-c66f89b076e8", type: "text", props: {"text": {"es": "Esta aventura empieza con la pequeña obsesión por la econometría y la estadística que desarrolle en la carrera. Sentía que había descubierto mi pasión, y el uso de datos para anticipar decisiones tenía que ser mi foco laboral. La cosa es que me veía bastante primerizo en esta rama y quería aprender más. Me aceptaron en algunos programas de estadística a los que había aplicado en Ginebra, Copenhague y Londres, pero los tiempos se me echaron encima y recibí la noticia después de los plazos para aplicar a becas para el extranjero. ", "en": "This adventure begins with the small obsession with econometrics and statistics that you develop in the race. I felt that I had discovered my passion, and the use of data to anticipate decisions had to be my work focus. The thing is that I was quite new to this branch and wanted to learn more. I was accepted into various statistics programs in Geneva, Lund, Copenhagen and London, but the times came over me and I received the news sooner"}, "textLinks": {"es": []}} },
+      { id: "aaad448c-76e3-4464-9344-be5208748d43", type: "text", props: {"text": {"es": "Me decanté por Madrid porque me dieron una Beca del Ministerio y porque se dio la casuística de que mis 3 amigos más cercanos se iban a Madrid a estudiar también. Cogimos un piso juntos y fue un año espectacular, tanto académico como personal. ", "en": "I opted for Madrid because I was given a Ministry Scholarship and because there was the circumstance that my 3 closest friends were also going to Madrid to study. We took an apartment together and it was an amazing year, both academic and personal."}, "textLinks": {"es": []}} },
+      { id: "d4909b88-17da-43c8-9ee4-df1751db3e21", type: "text", props: {"text": {"es": "La Carlos III es la mejor universidad pública de españa y la exigencia lo avala. Yo recién llegaba de un voluntariado en Paraguay y un par de semanas tarde a clase. Esos primeros días fueron intensos a más no poder, matemática pura para sentar las bases de los métodos estadísticos que veríamos posteriormente. Solo eramos 2 chicos de economía (que justo coincidía que era mi compañero de piso, mi amigo y mi compañero de carrera), mientras que el resto de la clase venia de Mates o Física. ", "en": "Carlos III is the best public university in Spain and the requirement guarantees it. I had just arrived from volunteering in Paraguay and a couple of weeks late for class,"}, "textLinks": {"es": [{"end": 129, "href": "article:alda", "start": 105}]}} },
+      { id: "4ab739df-b845-4af5-a0db-50293c360541", type: "text", props: {"text": {"es": "Teníamos 5 asignaturas cada bimestre, jornadas de 5 horas seguidas con la misma materia, pero aprendíamos como locos. Siento que he desarrollado especialmente la formulación matemática y la capacidad de abstracción para demostrar teorías, algo que me quedaba bastante lejos en la carrera. Además, la peculiaridad de la educación española es esa combinación de exámenes durísimos con muchos trabajos en grupo, lo que te refuerza tanto en habilidades de colaboración como en rigurosidad teórica. Normalmente la competencia en las aulas es brutal pero en este Máster me sentí un equipo con mis compañeros, encima era completamente en ingles por lo que había estudiantes de todo el mundo. ", "en": "We had 5 subjects every two months, 5-hour days in a row with the same subject, but we learned like crazy. I feel that I have specially developed the mathematical formulation and the ability of abstraction to demonstrate theories, something that was quite far away in my career. In addition, the peculiarity of Spanish education is that combination of tough exams with many group work, which reinforces both collaboration skills and theoretical rigor. Normally the competition in the classrooms is brutal but in this Master I felt a team with my classmates, it was completely in English so there were students from all over the world."}, "textLinks": {"es": []}} },
+      { id: "9a4cd278-3ce5-4cbb-a0de-6149098d0ee4", type: "text", props: {"text": {"es": "En cuanto a asignaturas, aunque me gustan las mates puras, suelo preferir las más aplicadas al ver su utilidad real. Mis favoritas fueron:", "en": "As for subjects, although I like pure maths, I usually prefer the most applied ones when seeing their real usefulness. My favorites were:As for subjects, although I like pure maths, I usually prefer the most applied ones when seeing their real usefulness. My favorites were:"}, "textLinks": {"es": []}} },
+      { id: "9fa5b78d-cf97-442d-a509-a27d4f5c67f4", type: "list", props: {"items": [{"es": "Estadística No Paramétrica: está fue completamente teórica pero aún así me encantó por la exigencia del profesor Eduardo García Portugués. Es la persona más competente en su materia que he conocido y la dificultad del contenido te obligaba a comprender cada detalle del proceso. Solo a posteriori aprecias lo muchisisimo que has aprendido de formas alternativas de estimar distribuciones, de versiones no paramétricas de algoritmos de clustering o de regresiones multivariantes. Además su examen era completamente en R y sin ningún recurso externo, obligándonos a aprender toda la sintaxis y detalles.   ", "en": "Non-parametric statistics: this was completely theoretical but I still loved it because of the teacher's requirement."}, {"es": "Statistical Learning: viendo mi recorrido no es de extrañar que me volviese loco aprendiendo los algoritmos clásicos y modernos de Machine Learning que dimos en esta asignatura. Pablo Morala Miguélez fue un profesor verdaderamente actualizado que nos explico desde arboles simples hasta interpretabilidad de Black Boxes con SHAP y LIME. Siempre sugería recursos adicionales con papers de actualidad, que como buen friki ya me había leído, pero me hizo empatizar mucho con el y tener conversaciones muy interesantes sobre LLMs.  ", "en": "Statistical Learning: seeing my journey, it is not surprising that I went crazy learning the classic and modern Machine Learning algorithms that we gave in this subject."}, {"es": "Modelos de Regresión: aquí todo se lo debo a María Luz Durbán, que luego se convertiría en mi tutora del TFM. No solo abordó los fundamentos e historia desde las regresiones lineales hasta los GAMs, sino que relacionaba cada concepto con casos reales en la industria, gracias a sus diversos proyectos con empresas. Prestar atención en clase no solo era fácil, sino casi inspirador al pensar que podíamos predecir scoring financiero con GLMs.  ", "en": "Regression Models: here I owe everything to María Luz Durbán, who would later become my TFM tutor."}], "itemTextLinks": {"es": [[], [], []]}} },
+      { id: "93e31c68-2cad-4bd9-ab3a-b0b3e3fcfa64", type: "text", props: {"text": {"es": "En conjunto, el máster se ha centrado sobre todo en los fundamentos matemáticos detrás de los modelos y algoritmos más conocidos. Sobre todo hemos usado R, pero también Python e incluso C++. Me ha gustado tanto que me he replanteado hasta empezar la carrera de Matemáticas de 0. ", "en": "Overall, the master's degree has focused mainly on the mathematical foundations behind the best-known models and algorithms. Above all we have used R, but also Python and even C ++. I liked it so much that I rethought myself until I started my degree in Mathematics from 0."}, "textLinks": {"es": []}} },
+      { id: "60a3d68c-44ac-41fc-9222-5e046d26f9b6", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/64e6229c-3839-4f97-bfe7-ee57f92173c1-4024a3d8-bd58-445e-b1bc-68f5b820b1d0.jpg", "caption": {"es": "Last day", "en": "Last day"}} },
+    ],
+  },
+  "uma": {
+    id: "76f50f47-fac5-5a0d-9e3c-74927b6f77a6",
+    kicker: {"es": "Estudio", "en": "Study"},
+    when: {"es": "Sep 2020 → Jun 2025", "en": "Sep 2020 → Jun 2025"},
+    where: {"es": "Málaga", "en": "Málaga"},
+    title: {"es": "Doble Grado en Economía + ADE, UMA", "en": "Double BSc Economics + Business Administration"},
+    lede: {"es": "El mercado, la empresa, y los modelos que los rigen.", "en": "Five years, two degrees, and a running argument with the education system that I decided to win from the inside."},
+    group: "edu", order: 2,
+    blocks: [
+      { id: "1c93fcbf-e3c3-4278-a0f8-0735a3d66bcc", type: "text", props: {"text": {"es": "Como todo estudiante de 17 años, yo no tenía ni idea de que hacer con mi vida.  Había hecho el bachillerato de ciencias y tocaba empezar a prepararse para selectividad (prueba de acceso a la universidad). A pesar de gustarme las ciencias naturales, me encantaba la inversión y las finanzas, había comprado mis primeras acciones y lo vi claro: economía. El problema era que no tenía esa asignatura en clase y tuve que prepararme por mi cuenta la materia para el examen de selectividad, igual que las matemáticas de sociales. La prueba salió muy bien, saqué un 13.5/14 y pude elegir la carrera que quería, prefería no hacer solo economía sino optar por un doble grado, así que hice el doble de ECO + ADE. ", "en": "Like every high school student, I had no idea what to do with my life.  He had completed his bachelor's degree in science and it was time to start preparing for selectivity (university entrance exam). Despite liking natural sciences, I loved investing and finance"}, "textLinks": {"es": []}} },
+      { id: "acdf9196-b0f2-49b1-8ce5-731b761c6cea", type: "text", props: {"text": {"es": "La verdad es que 5 años dan para mucho, era un buen estudiante pero no me lo tomaba muy en serio porque tenía claro que emprendería. Participaba en todos los hackathones de la universidad y me apuntaba a mil cursos transversales por pura curiosidad. ", "en": "A torus past I can see how university careers have a"}, "textLinks": {"es": []}} },
+      { id: "c4a35eb4-e0e8-4f66-9b10-33d5fe575e5f", type: "text", props: {"text": {"es": "La economía me gustó mucho más que la empresa, más que nada porque se erigía como la ciencia que estudia la interacción humana y la toma de decisiones, un generalismo atractivo. Mientras tanto, las asignaturas de empresa las veía demasiado diferentes entre ellas y solo me gustaban cuando se aplicaba estadística o datos. Una gran frustración que sentí con la economía era la poca utilidad que tenían sus formulas en el contexto real, estaban cerca de ser preciosas y omnipresentes pero se sujetaban en millones de supuestos para poder aplicarse. Claro que después aprendí que cualquier ciencia que se base en el comportamiento humano tiene variables incontrolables y por ende un componente aleatorio. ", "en": "I liked the economy much more than the company, more than anything because it stands as the science that studies human interaction and decision-making, an attractive generalism. Meanwhile, the business subjects looked too different from each other and I only liked them when statistics or data were applied. A great frustration I felt with the economy was how little use its formulas had in the real context, they were close to being precious and omnipresent but were subject to millions of assumptions to be applied. Of course, I later learned that any science that is based on human behavior has uncontrollable variables and therefore a random component. I liked the economy much more than the company, more than anything because it stands as the science that studies human interaction and decision-making, an attractive generalism. Meanwhile, the business subjects looked too different from each other and I only liked them when statistics or data were applied. A great frustration I felt with the economy was how little use its formulas had in the real context, they were close to being precious and omnipresent but were subject to millions of assumptions to be applied. Of course, I later learned that any science that is based on human behavior has uncontrollable variables and therefore a random component."}, "textLinks": {"es": []}} },
+      { id: "f67164dd-3da5-4261-88b7-52370323be3f", type: "text", props: {"text": {"es": "Me gusta la objetividad de los datos, mis asignaturas favoritas fueron las 3 Estadísticas y las 2 Econometrías, era brutal ver cómo podía anticipar el valor futuro de una variable con su registro histórico. Aunque también me encantaron las más teóricas y lógicas como Teoría de Juegos o Microeconomía. ", "en": "I like the objectivity of the data, my favorite subjects were the 3 Statistics and the 2 Econometrics, it was brutal to see how I could anticipate the future value of a variable with its historical record. Although I also loved the more theoretical and logical ones such as Game Theory or Microeconomics. I like the objectivity of the data, my favorite subjects were the 3 Statistics and the 2 Econometrics, it was brutal to see how I could anticipate the future value of a variable with its historical record. Although I also loved the more theoretical and logical ones such as Game Theory or Microeconomics."}, "textLinks": {"es": []}} },
+      { id: "76c23369-2d61-449f-a861-99dc905e517d", type: "text", props: {"text": {"es": "La universidad es una etapa fantástica, no solo aprendí economía sino que desperté una curiosidad inmensa por casi todo, me gustaba devorar libros de física, botánica o lo que fuese. Hice un grupo de amigos que perdura a día de hoy, y pasé los mejores momentos de mi vida. Incluso me fui de Erasmus en cuarto de carrera a Bratislava.", "en": "College is a fantastic stage, not only did I learn economics but I aroused an immense curiosity for almost everything, I liked to devour books on physics, botany or whatever. I made a group of friends that lasts today, and I spent the best moments of my life. I went eramus in 4 years to Bratislava, to Comenius University, where I met my future roommates from Madrid."}, "textLinks": {"es": []}} },
+      { id: "fa1aa861-65cd-40e0-87f2-43e793d54595", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/78ee5f36-837f-4554-aa32-b709d97b21b3-img_0165.jpg", "caption": {"es": "Graduados!!!!", "en": "Alumni"}} },
+    ],
+  },
+  "lab-l1": {
+    id: "20709931-c9b0-5b81-b119-37a120f16898",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Física de partículas", "en": "Particle physics"},
+    title: {"es": "Detección de anomalías en el Trigger L1", "en": "L1 Trigger anomaly detection"},
+    lede: {"es": "Autoencoders cuantizados para encontrar sucesos raros en un colisionador, con un presupuesto de microsegundos.", "en": "Quantised autoencoders finding rare events in a collider, on a budget of microseconds."},
+    group: "lab", order: 0,
+    blocks: [
+      { id: "6750a5e7-c79c-52c9-9d59-112c4f3c8439", type: "text", props: {"text": {"es": "Este proyecto sale de una idea de proyecto en el CERN openlab y de una obsesión que arrastro desde hace años con la física de partículas. El problema de partida es que un colisionador genera muchísimos más datos de los que se pueden guardar, así que hay un sistema, el trigger, que decide en microsegundos qué se conserva y qué se tira para siempre. Lo que no pasa ese filtro no existe.", "en": "This project comes out of a project idea at CERN openlab and an obsession with particle physics I have been carrying for years. The starting problem is that a collider produces far more data than anyone can store, so there is a system, the trigger, that decides in microseconds what is kept and what is thrown away forever. Whatever does not pass that filter never existed."}} },
+      { id: "79e0917f-b110-541e-9298-97bb2b4ada07", type: "text", props: {"text": {"es": "Aquí aparece interesante. Si lo que buscas es un suceso que nadie ha visto todavía, no puedes entrenar un clasificador, porque no tienes etiquetas de algo que aún no tiene nombre. Estás buscando precisamente lo que no pudiste anotar.", "en": "This is where it gets interesting. If what you are looking for is an event nobody has seen yet, you cannot train a classifier, because you have no labels for something that does not have a name yet. You are looking for exactly what you could not annotate."}} },
+      { id: "f67afae6-2029-5864-b346-5b322e91df0b", type: "text", props: {"text": {"es": "La solución es darle la vuelta al planteamiento: entrenas un autoencoder únicamente con sucesos normales, de los aburridos, y le pides que aprenda a comprimirlos y reconstruirlos. Cuando llega algo que no se parece a nada de lo que ha visto, la reconstrucción sale mal, y ese error es la propia señal de alarma. No detectas la anomalía, detectas que el modelo no sabe explicarla.", "en": "The solution is to turn the framing around: you train an autoencoder only on ordinary, boring events and ask it to learn to compress and rebuild them. When something arrives that resembles nothing it has seen, the reconstruction comes out wrong, and that error is the alarm itself. You are not detecting the anomaly, you are detecting that the model cannot explain it."}} },
+      { id: "c62c7623-3fff-50bc-8cd6-8050c98c2a9f", type: "text", props: {"text": {"es": "La parte que de verdad cuesta es la cuantización. El modelo tiene que caber en hardware con una latencia fija, así que hay que bajar la precisión de los pesos hasta que entre, sin perder por el camino la capacidad de distinguir lo raro. Es un tira y afloja constante entre lo que el modelo querría y lo que el silicio permite.", "en": "The part that is genuinely hard is the quantisation. The model has to fit into hardware with a fixed latency, so you keep lowering the precision of the weights until it does, without losing the ability to tell odd from ordinary along the way. It is a constant tug of war between what the model would like and what the silicon allows."}} },
+      { id: "6aba58f2-65bd-5a07-86ef-c759487ba67f", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/CERN%20OpenLab/Extreme-Scale%20Anomaly%20Detection"]]} },
+    ],
   },
   "lab-flows": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Física de partículas", en: "Particle physics" },
-    title: { es: "Integración de fase neuronal con flujos normalizantes", en: "Neural phase integration with normalising flows" },
-    lede: { es: "Flujos normalizantes biyectivos para integrar donde la cuadratura clásica se rinde.", en: "Bijective normalising flows to integrate where classical quadrature gives up." },
-    bullets: [
-      { es: "Este es probablemente de los proyecto más bonitos que he programado, y también el que más veces he tenido que volver a entender desde cero. ",
-        en: "This is probably one of the most beautiful things I have programmed, and also the one I have had to understand again from scratch the most times." },
-      { es: "Un flujo normalizante es una cadena de transformaciones invertibles. Partes de una distribución que sabes muestrear en una línea, una normal de toda la vida, la vas pasando por esas transformaciones y al otro lado obtienes algo mucho más complicado. Lo importante es que, como cada paso es biyectivo (reversible sin perder información), puedes seguir el rastro y calcular la densidad exacta del resultado. Nada de aproximar la constante de normalización y pedir perdón en el apéndice.",
-        en: "A normalising flow is a chain of invertible transformations. You start from a distribution you can sample in one line, a plain normal, push it through those transformations and out the other side you get something far more complicated. The point is that because every step is bijective (reversible without losing information) you can follow the trail back and compute the exact density of the result. No approximating the normalising constant and apologising in the appendix." },
-      { es: "El uso concreto era integrar en dimensiones donde la cuadratura clásica no llega y el Monte Carlo de toda la vida simplemente tiene mucha paciencia. Visto así, aprender el cambio de variable es en realidad aprender dónde se molesta en vivir el integrando, para no gastar esfuerzo en el vacío.",
-        en: "The concrete use was integrating in dimensions where classical quadrature cannot reach and plain Monte Carlo is merely very patient. Seen that way, learning the change of variables is really learning where the integrand bothers to live, so you do not spend effort on empty space." },
-      { es: "Todo el diseño gira alrededor de un determinante que tiene que salir barato de calcular, y por eso las arquitecturas son una discusión larguísima entre ser expresivo y ser tratable. Buena parte de lo que leí era gente perdiendo esa discusión de formas muy ingeniosas.",
-        en: "The whole design revolves around a determinant that has to stay cheap to compute, which is why the architectures are one long argument between being expressive and being tractable. A good part of what I read was people losing that argument in very ingenious ways." },
+    id: "7a821bf5-ae5a-5958-8393-a5d8b889fb23",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Física de partículas", "en": "Particle physics"},
+    title: {"es": "Integración de fase neuronal con flujos normalizantes", "en": "Neural phase integration with normalising flows"},
+    lede: {"es": "Flujos normalizantes biyectivos para integrar donde la cuadratura clásica se rinde.", "en": "Bijective normalising flows to integrate where classical quadrature gives up."},
+    group: "lab", order: 1,
+    blocks: [
+      { id: "85de13a6-ddf0-5460-896a-e0a524e0f88e", type: "text", props: {"text": {"es": "Este es probablemente de los proyectos más bonitos que he programado, y también el que más veces he tenido que volver a entender desde cero. ", "en": "This is probably one of the most beautiful things I have programmed, and also the one I have had to understand again from scratch the most times."}} },
+      { id: "2f73425d-dc30-5e39-9b9c-3e218da58bbf", type: "text", props: {"text": {"es": "Un flujo normalizante es una cadena de transformaciones invertibles. Partes de una distribución que sabes muestrear en una línea, una normal de toda la vida, la vas pasando por esas transformaciones y al otro lado obtienes algo mucho más complicado. Lo importante es que, como cada paso es biyectivo (reversible sin perder información), puedes seguir el rastro y calcular la densidad exacta del resultado. Nada de aproximar la constante de normalización y pedir perdón en el apéndice.", "en": "A normalising flow is a chain of invertible transformations. You start from a distribution you can sample in one line, a plain normal, push it through those transformations and out the other side you get something far more complicated. The point is that because every step is bijective (reversible without losing information) you can follow the trail back and compute the exact density of the result. No approximating the normalising constant and apologising in the appendix."}} },
+      { id: "46adf531-9cd6-576a-a92d-10d11d385104", type: "text", props: {"text": {"es": "El uso concreto era integrar en dimensiones donde la cuadratura clásica no llega y el Monte Carlo de toda la vida simplemente tiene mucha paciencia. Visto así, aprender el cambio de variable es en realidad aprender dónde se molesta en vivir el integrando, para no gastar esfuerzo en el vacío.", "en": "The concrete use was integrating in dimensions where classical quadrature cannot reach and plain Monte Carlo is merely very patient. Seen that way, learning the change of variables is really learning where the integrand bothers to live, so you do not spend effort on empty space."}} },
+      { id: "4cc908ba-e2cd-5718-bb8b-157a09d698e5", type: "text", props: {"text": {"es": "Todo el diseño gira alrededor de un determinante que tiene que salir barato de calcular, y por eso las arquitecturas son una discusión larguísima entre ser expresivo y ser tratable. Buena parte de lo que leí era gente perdiendo esa discusión de formas muy ingeniosas.", "en": "The whole design revolves around a determinant that has to stay cheap to compute, which is why the architectures are one long argument between being expressive and being tractable. A good part of what I read was people losing that argument in very ingenious ways."}} },
+      { id: "7a0d24a3-0970-56f3-a42b-403378ef269b", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/CERN%20OpenLab/Neural%20Phase%20Integration"]]} },
     ],
-    links: [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/CERN%20OpenLab/Neural%20Phase%20Integration"]],
-    photos: 0,
   },
   "lab-grayscott": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Biología del desarrollo", en: "Developmental biology" },
-    title: { es: "Simulación de Gray–Scott, patrones de Turing", en: "Gray–Scott simulation, Turing patterns" },
-    lede: { es: "Dos químicos, una ecuación de reacción-difusión y manchas bonitas", en: "Two chemicals, one reaction–diffusion equation and pretty patterns" },
-    bullets: [
-      { es: "Este proyecto fue puro arte. El modelo de Gray–Scott son dos reactivos, uno que alimenta al otro, difundiéndose a velocidades distintas, nada más. Lo discretizas, lo dejas correr y de ahí salen rayas, lunares, laberintos y manchas que se replican solas.",
-        en: "This project was pure art. The Gray–Scott model is two reagents, one feeding on the other, diffusing at different speeds, and nothing else. You discretise it, let it run, and out come stripes, spots, mazes and blobs that replicate on their own." },
-      { es: "Lo propuso Turing en 1952 para explicar cómo un embrión, que empieza siendo una masa indiferenciada, decide dónde ponerse las marcas. Verlo pasar en un portátil es lo más parecido que he tenido nunca a ver crecer una ecuación.",
-        en: "Turing proposed it in 1952 to explain how an embryo, which starts out as an undifferentiated mass, decides where to put its markings. Watching it happen on a laptop is the closest I have ever come to seeing an equation grow." },
-      { es: "La implementación en sí es un laplaciano por cada paso de tiempo y bastante paciencia con las condiciones de contorno. El trabajo de verdad está en el plano de parámetros: cambias el cuarto decimal de la tasa de alimentación y te sale otro animal completamente distinto. Te pasas las horas moviendo un número diminuto a ver qué bicho aparece.",
-        en: "The implementation itself is one Laplacian per timestep and a fair amount of patience with boundary conditions. The real work is in the parameter plane: change the fourth decimal of the feed rate and a completely different animal comes out. You spend hours nudging a tiny number to see what creature shows up." },
+    id: "08d4be5e-6624-51ea-9d36-05dcbe83e7d7",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Biología del desarrollo", "en": "Developmental biology"},
+    title: {"es": "Simulación de Gray–Scott, patrones de Turing", "en": "Gray–Scott simulation, Turing patterns"},
+    lede: {"es": "Dos químicos, una ecuación de reacción-difusión y manchas bonitas", "en": "Two chemicals, one reaction–diffusion equation and pretty patterns"},
+    group: "lab", order: 2,
+    blocks: [
+      { id: "fd652964-c8f5-5f12-a5da-046187b8ea23", type: "text", props: {"text": {"es": "Este proyecto fue puro arte. El modelo de Gray–Scott son dos reactivos, uno que alimenta al otro, difundiéndose a velocidades distintas, nada más. Lo discretizas, lo dejas correr y de ahí salen rayas, lunares, laberintos y manchas que se replican solas.", "en": "This project was pure art. The Gray–Scott model is two reagents, one feeding on the other, diffusing at different speeds, and nothing else. You discretise it, let it run, and out come stripes, spots, mazes and blobs that replicate on their own."}} },
+      { id: "5cf08c19-d1d2-5f10-a1ce-cc545ca24b2f", type: "text", props: {"text": {"es": "Lo propuso Turing en 1952 para explicar cómo un embrión, que empieza siendo una masa indiferenciada, decide dónde ponerse las marcas. Verlo pasar en un portátil es lo más parecido que he tenido nunca a ver crecer una ecuación.", "en": "Turing proposed it in 1952 to explain how an embryo, which starts out as an undifferentiated mass, decides where to put its markings. Watching it happen on a laptop is the closest I have ever come to seeing an equation grow."}} },
+      { id: "489f3770-eeff-55d8-853d-2843d0192015", type: "text", props: {"text": {"es": "La implementación en sí es un laplaciano por cada paso de tiempo y bastante paciencia con las condiciones de contorno. El trabajo de verdad está en el plano de parámetros: cambias el cuarto decimal de la tasa de alimentación y te sale otro animal completamente distinto. Te pasas las horas moviendo un número diminuto a ver qué bicho aparece.", "en": "The implementation itself is one Laplacian per timestep and a fair amount of patience with boundary conditions. The real work is in the parameter plane: change the fourth decimal of the feed rate and a completely different animal comes out. You spend hours nudging a tiny number to see what creature shows up."}} },
+      { id: "8ef6fd25-0926-5fc7-bd11-73279da72da7", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Turing%20Patterns"]]} },
     ],
-    links: [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Turing%20Patterns"]],
-    photos: 0,
   },
   "lab-epidemic": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Epidemiología", en: "Epidemiology" },
-    title: { es: "Dinámica epidémica sobre una malla", en: "Epidemic dynamics on a lattice" },
-    lede: { es: "Un modelo de contagio en dos dimensiones vectorizado con convoluciones.", en: "A two-dimensional contagion model vectorised with convolutions." },
-    bullets: [
-      { es: "El 2020 nos convirtió a todos. Este proyecto es volver a aquello unos años después, pero con las ecuaciones en la mano.",
-        en: "2020 turned all of us into epidemiologists. This project is going back to that a few years later, but with the equations in hand." },
-      { es: "El planteamiento es sencillo: cada celda de la malla es una persona, el vecindario es un kernel, y el contagio no es más que lo que hace una convolución cuando la dejas correr. ",
-        en: "The setup is simple: every cell of the lattice is a person, the neighbourhood is a kernel, and contagion is nothing more than what a convolution does when you let it run." },
-      { es: "Lo bonito es que el número reproductivo deja de ser algo que tú escribes en un parámetro y pasa a ser algo que mides después, cuando la epidemia ya ha ocurrido. Emerge de cómo está colocada la gente, no de lo que supongamos.",
-        en: "The lovely part is that the reproduction number stops being something you type into a parameter and becomes something you measure afterwards, once the epidemic has already happened. It emerges from how the people are arranged, not from what we assume." },
-      { es: "Lo escribí vectorizado a propósito: toda la epidemia es una convolución por paso, así que sale barato de ejecutar. La misma infecciosidad dibuja curvas completamente distintas según cómo esté distribuida la población.",
-        en: "I wrote it vectorised on purpose: the whole epidemic is one convolution per step, so it is cheap to run. The same infectiousness draws completely different curves depending on how the population is laid out." },
+    id: "34ef2807-5d45-5cde-9504-80269544d207",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Epidemiología", "en": "Epidemiology"},
+    title: {"es": "Dinámica epidémica sobre una malla", "en": "Epidemic dynamics on a lattice"},
+    lede: {"es": "Un modelo de contagio en dos dimensiones vectorizado con convoluciones.", "en": "A two-dimensional contagion model vectorised with convolutions."},
+    group: "lab", order: 3,
+    blocks: [
+      { id: "34c8024a-2cbd-5064-92d2-b7d5bc92a99c", type: "text", props: {"text": {"es": "El 2020 nos convirtió a todos. Este proyecto es volver a aquello unos años después, pero con las ecuaciones en la mano.", "en": "2020 turned all of us into epidemiologists. This project is going back to that a few years later, but with the equations in hand."}} },
+      { id: "7dd4ca82-ce23-5854-8c70-dd23d558b5bf", type: "text", props: {"text": {"es": "El planteamiento es sencillo: cada celda de la malla es una persona, el vecindario es un kernel, y el contagio no es más que lo que hace una convolución cuando la dejas correr. ", "en": "The setup is simple: every cell of the lattice is a person, the neighbourhood is a kernel, and contagion is nothing more than what a convolution does when you let it run."}} },
+      { id: "befd2b97-74d2-5960-8e9e-94648e21ef03", type: "text", props: {"text": {"es": "Lo bonito es que el número reproductivo deja de ser algo que tú escribes en un parámetro y pasa a ser algo que mides después, cuando la epidemia ya ha ocurrido. Emerge de cómo está colocada la gente, no de lo que supongamos.", "en": "The lovely part is that the reproduction number stops being something you type into a parameter and becomes something you measure afterwards, once the epidemic has already happened. It emerges from how the people are arranged, not from what we assume."}} },
+      { id: "4a7adb08-46c8-59bc-89da-ce8ef11836ae", type: "text", props: {"text": {"es": "Lo escribí vectorizado a propósito: toda la epidemia es una convolución por paso, así que sale barato de ejecutar. La misma infecciosidad dibuja curvas completamente distintas según cómo esté distribuida la población.", "en": "I wrote it vectorised on purpose: the whole epidemic is one convolution per step, so it is cheap to run. The same infectiousness draws completely different curves depending on how the population is laid out."}} },
+      { id: "551f4f25-23d0-54f6-b02c-7573e79f9124", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Epidemic%20Dynamics%20Simulation"]]} },
     ],
-    links: [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Epidemic%20Dynamics%20Simulation"]],
-    photos: 0,
   },
   "lab-kepler": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Astronomía", en: "Astronomy" },
-    title: { es: "PCA y MDS sobre Kepler, agrupando exoplanetas", en: "Kepler PCA & MDS, clustering exoplanets" },
-    lede: { es: "Reducción de dimensionalidad sobre el catálogo de exoplanetas para ver qué mundos se parecen entre sí.", en: "Dimensionality reduction over the exoplanet catalogue, to see which worlds resemble each other." },
-    bullets: [
-      { es: "El catálogo de Kepler te entrega miles de planetas confirmados descritos por su periodo orbital, su radio, la insolación que reciben, la estrella que los acompaña y unas cuantas cosas más. Son demasiados ejes para sostenerlos en la cabeza a la vez, así que para mirarlos en conjunto podemos comprimir su información en menos ejes.",
-        en: "The Kepler catalogue hands you thousands of confirmed planets described by orbital period, radius, the insolation they receive, the star they belong to and a few more things. That is too many axes to hold in your head at once, so to look at them together we can compress their information into fewer axes." },
-      { es: "Usé dos métodos. El PCA busca las direcciones en las que los datos realmente varían, y el MDS intenta conservar las distancias entre mundos y aplastar todo lo demás. Hacer los dos es especialmente util porque es la forma de preguntarle a los datos si la estructura que ves es real o es un recuerdo del método que has elegido.",
-        en: "I used two methods. PCA looks for the directions the data actually varies along, and MDS tries to preserve the distances between worlds and flatten everything else. Running both is especially useful because it is how you ask the data whether the structure you are seeing is real or a souvenir of the method you picked." },
-      { es: "Lo que sale son familias: los calientes y enormes en una esquina, los pequeños y fríos en otra. Media interpretación consiste evaluar el error que puede cometer el telescopio en la extracción de los datos.",
-        en: "What comes out is families: the hot and enormous in one corner, the small and cold in another. Half the interpretation is assessing the error the telescope may make when the data is extracted." },
+    id: "7a57fa01-8890-56b4-a92f-c0a2cf258596",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Astronomía", "en": "Astronomy"},
+    title: {"es": "PCA y MDS sobre Kepler, agrupando exoplanetas", "en": "Kepler PCA & MDS, clustering exoplanets"},
+    lede: {"es": "Reducción de dimensionalidad sobre el catálogo de exoplanetas para ver qué mundos se parecen entre sí.", "en": "Dimensionality reduction over the exoplanet catalogue, to see which worlds resemble each other."},
+    group: "lab", order: 4,
+    blocks: [
+      { id: "de730eb7-5f87-542f-8392-59c9cf8683ab", type: "text", props: {"text": {"es": "El catálogo de Kepler te entrega miles de planetas confirmados descritos por su periodo orbital, su radio, la insolación que reciben, la estrella que los acompaña y unas cuantas cosas más. Son demasiados ejes para sostenerlos en la cabeza a la vez, así que para mirarlos en conjunto podemos comprimir su información en menos ejes.", "en": "The Kepler catalogue hands you thousands of confirmed planets described by orbital period, radius, the insolation they receive, the star they belong to and a few more things. That is too many axes to hold in your head at once, so to look at them together we can compress their information into fewer axes."}} },
+      { id: "695a1f5a-f720-5916-83d1-396645c6c73a", type: "text", props: {"text": {"es": "Usé dos métodos. El PCA busca las direcciones en las que los datos realmente varían, y el MDS intenta conservar las distancias entre mundos y aplastar todo lo demás. Hacer los dos es especialmente útil porque es la forma de preguntarle a los datos si la estructura que ves es real o es un recuerdo del método que has elegido.", "en": "I used two methods. PCA looks for the directions the data actually varies along, and MDS tries to preserve the distances between worlds and flatten everything else. Running both is especially useful because it is how you ask the data whether the structure you are seeing is real or a souvenir of the method you picked."}} },
+      { id: "e463a39e-64f5-5773-bd66-cc5ca42cfa66", type: "text", props: {"text": {"es": "Lo que sale son familias: los calientes y enormes en una esquina, los pequeños y fríos en otra. Media interpretación consiste en evaluar el error que puede cometer el telescopio en la extracción de los datos.", "en": "What comes out is families: the hot and enormous in one corner, the small and cold in another. Half the interpretation is assessing the error the telescope may make when the data is extracted."}} },
+      { id: "7ef175d9-1832-543e-b7ba-954ee8165924", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/MDS%20and%20Clustering%20Kepler%20Dataset"]]} },
     ],
-    links: [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/MDS%20and%20Clustering%20Kepler%20Dataset"]],
-    photos: 0,
   },
   "lab-particles": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Física de partículas", en: "Particle physics" },
-    title: { es: "Seguimiento de partículas con redes de grafos cuánticas", en: "Particle tracking with quantum graph networks" },
-    lede: { es: "Reconstruir trayectorias como si fueran un problema de grafos, con una capa cuántica de por medio.", en: "Reconstructing trajectories as a graph problem, with a quantum layer in the middle." },
-    bullets: [
-      { es: "Un detector no te da trayectorias, te da una nube de impactos y ninguna pista de cuál pertenece a qué partícula. La idea del proyecto es cambiar la forma de mirar el problema: cada impacto pasa a ser un nodo, cada enlace plausible entre dos impactos pasa a ser una arista, y de repente reconstruir trayectorias se convierte en clasificar aristas.",
-        en: "A detector does not give you trajectories, it gives you a cloud of hits and no clue which belongs to which particle. The idea of the project is to change how you look at the problem: every hit becomes a node, every plausible link between two hits becomes an edge, and suddenly reconstructing tracks turns into classifying edges." },
-      { es: "La red va pasando mensajes entre nodos vecinos hasta que las aristas que sobreviven derivan en las trayectorias reales. Es un cambio de representación curioso, porque el problema físico sigue estando pero lo intentas solucionar desde otro angulo.",
-        en: "The network passes messages between neighbouring nodes until the surviving edges lead to the real trajectories. It is a curious change of representation, because the physical problem is still there but you are trying to solve it from another angle." },
-      { es: "La parte cuántica sustituye un trozo de eso por un circuito parametrizado. No porque hoy sea más rápido, que no lo es, sino porque me parece que merece la pena entender cómo se codifica la información ahí dentro antes de que lo sea.",
-        en: "The quantum part replaces a piece of that with a parameterised circuit. Not because it is faster today, because it is not, but because I think it is worth understanding how information gets encoded in there before it is." },
-      { es: "El verdadero problema es la combinatoria. El número de aristas candidatas explota muchísimo antes de que la física se ponga interesante, así que casi todo el esfuerzo se va en construir un grafo decente.",
-        en: "The real problem is combinatorics. The number of candidate edges explodes long before the physics gets interesting, so almost all the effort goes into building a decent graph." },
+    id: "1827be58-11c7-557c-8a37-d28faab45b33",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Física de partículas", "en": "Particle physics"},
+    title: {"es": "Seguimiento de partículas con redes de grafos cuánticas", "en": "Particle tracking with quantum graph networks"},
+    lede: {"es": "Reconstruir trayectorias como si fueran un problema de grafos, con una capa cuántica de por medio.", "en": "Reconstructing trajectories as a graph problem, with a quantum layer in the middle."},
+    group: "lab", order: 5,
+    blocks: [
+      { id: "af8162ea-6f72-5ae4-820d-9d2ca6ff9843", type: "text", props: {"text": {"es": "Un detector no te da trayectorias, te da una nube de impactos y ninguna pista de cuál pertenece a qué partícula. La idea del proyecto es cambiar la forma de mirar el problema: cada impacto pasa a ser un nodo, cada enlace plausible entre dos impactos pasa a ser una arista, y de repente reconstruir trayectorias se convierte en clasificar aristas.", "en": "A detector does not give you trajectories, it gives you a cloud of hits and no clue which belongs to which particle. The idea of the project is to change how you look at the problem: every hit becomes a node, every plausible link between two hits becomes an edge, and suddenly reconstructing tracks turns into classifying edges."}} },
+      { id: "3c0f91f8-b50d-5aa8-ab1f-9067bba39e31", type: "text", props: {"text": {"es": "La red va pasando mensajes entre nodos vecinos hasta que las aristas que sobreviven derivan en las trayectorias reales. Es un cambio de representación curioso, porque el problema físico sigue estando pero lo intentas solucionar desde otro angulo.", "en": "The network passes messages between neighbouring nodes until the surviving edges lead to the real trajectories. It is a curious change of representation, because the physical problem is still there but you are trying to solve it from another angle."}} },
+      { id: "626aa51d-14b7-5155-9b24-33c984c13e5f", type: "text", props: {"text": {"es": "La parte cuántica sustituye un trozo de eso por un circuito parametrizado. No porque hoy sea más rápido, que no lo es, sino porque me parece que merece la pena entender cómo se codifica la información ahí dentro antes de que lo sea.", "en": "The quantum part replaces a piece of that with a parameterised circuit. Not because it is faster today, because it is not, but because I think it is worth understanding how information gets encoded in there before it is."}} },
+      { id: "e1cf8eeb-0cce-55f6-af40-d48a3b6570ff", type: "text", props: {"text": {"es": "El verdadero problema es la combinatoria. El número de aristas candidatas explota muchísimo antes de que la física se ponga interesante, así que casi todo el esfuerzo se va en construir un grafo decente.", "en": "The real problem is combinatorics. The number of candidate edges explodes long before the physics gets interesting, so almost all the effort goes into building a decent graph."}} },
+      { id: "64a46d9f-0dc9-538a-ae8e-3cd33d492fb5", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/CERN%20OpenLab/Quantum%20GNN%20Tracking"]]} },
     ],
-    links: [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/CERN%20OpenLab/Quantum%20GNN%20Tracking"]],
-    photos: 0,
   },
   "lab-ica": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Dermatología", en: "Dermatology" },
-    title: { es: "Análisis de Componentes Independientes y el índice de Fisher", en: "Independent Component Analysis and the Fisher index" },
-    lede: { es: "Separar señales independientes de una mezcla y después medir cuánta información lleva cada una.", en: "Pulling independent signals out of a mixture, then measuring how much information each one carries." },
-    bullets: [
-      { es: "El problema clásico de esto es el del cóctel: varias personas hablando a la vez, varios micrófonos repartidos por la sala, y ninguna etiqueta que te diga qué voz es cuál. Lo único que tienes es la mezcla, y aun así se pueden recuperar las voces originales. En este caso, el proyecto va sobre distinguir en un jpg que es melanoma y que es piel, usando la matriz RGB.",
-        en: "The classic version of this is the cocktail party problem: several people talking at once, several microphones around the room, and no label telling you which voice is which. All you have is the mixture, and even so the original voices can be recovered. In this case the project is about telling melanoma from skin in a jpg, using the RGB matrix." },
-      { es: "Un PCA te habría dado componentes incorreladas y se habría parado ahí. El ICA va a por algo bastante más ambicioso, que es la independencia estadística de verdad. Y lo curioso es que necesita que las fuentes no sean gaussianas porque sino salen infinitas soluciones",
-        en: "A PCA would have given me uncorrelated components and stopped there. ICA goes after something rather more ambitious, which is genuine statistical independence. And the curious part is that it needs the sources to be non-Gaussian, because otherwise there are infinitely many solutions" },
-      { es: "Después de ICA, el índice de Fisher permite ordenar componentes no por su varianza, como haría una lógica tipo PCA, sino por la riqueza/no-gaussianidad de su distribución.",
-        en: "After ICA, the Fisher index makes it possible to rank components not by their variance, as a PCA-style logic would, but by the richness / non-Gaussianity of their distribution." },
+    id: "b7552aeb-9e02-53f5-bae5-843482bca484",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Dermatología", "en": "Dermatology"},
+    title: {"es": "Análisis de Componentes Independientes y el índice de Fisher", "en": "Independent Component Analysis and the Fisher index"},
+    lede: {"es": "Separar señales independientes de una mezcla y después medir cuánta información lleva cada una.", "en": "Pulling independent signals out of a mixture, then measuring how much information each one carries."},
+    group: "lab", order: 6,
+    blocks: [
+      { id: "403c3a69-e6c5-5302-8329-5c0eeb2120fd", type: "text", props: {"text": {"es": "El problema clásico de esto es el del cóctel: varias personas hablando a la vez, varios micrófonos repartidos por la sala, y ninguna etiqueta que te diga qué voz es cuál. Lo único que tienes es la mezcla, y aun así se pueden recuperar las voces originales. En este caso, el proyecto va sobre distinguir en un jpg qué es melanoma y qué es piel, usando la matriz RGB.", "en": "The classic version of this is the cocktail party problem: several people talking at once, several microphones around the room, and no label telling you which voice is which. All you have is the mixture, and even so the original voices can be recovered. In this case the project is about telling melanoma from skin in a jpg, using the RGB matrix."}} },
+      { id: "47c1cb84-c188-58d9-8b6e-21468a7d8037", type: "text", props: {"text": {"es": "Un PCA te habría dado componentes incorreladas y se habría parado ahí. El ICA va a por algo bastante más ambicioso, que es la independencia estadística de verdad. Y lo curioso es que necesita que las fuentes no sean gaussianas porque si no salen infinitas soluciones", "en": "A PCA would have given me uncorrelated components and stopped there. ICA goes after something rather more ambitious, which is genuine statistical independence. And the curious part is that it needs the sources to be non-Gaussian, because otherwise there are infinitely many solutions"}} },
+      { id: "d4718fc9-f1df-5f3b-99d6-8a6fb195a313", type: "text", props: {"text": {"es": "Después de ICA, el índice de Fisher permite ordenar componentes no por su varianza, como haría una lógica tipo PCA, sino por la riqueza/no-gaussianidad de su distribución.", "en": "After ICA, the Fisher index makes it possible to rank components not by their variance, as a PCA-style logic would, but by the richness / non-Gaussianity of their distribution."}} },
+      { id: "897c74a5-5860-5db6-a5c0-9feb462974fc", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Independent%20Component%20Analysis"]]} },
     ],
-    links: [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Independent%20Component%20Analysis"]],
-    photos: 0,
   },
   "lab-cancer": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Genómica", en: "Genomics" },
-    title: { es: "Clasificación probabilística de tumores con RNA-Seq", en: "Probabilistic tumour classification from RNA-Seq data" },
-    lede: { es: "Identificar de qué tejido salió un tumor mirando solo qué genes tiene encendidos.", en: "Identifying which tissue a tumour came from by looking only at which genes it has switched on." },
-    bullets: [
-      { es: "Los datos son una extracción del TCGA Pan-Cancer: 801 pacientes con tumor y, para cada uno, la expresión de 20.531 genes medida por RNA-Seq. Cinco tipos de tumor: mama, riñón, colon, pulmón y próstata. La pregunta del proyecto es si el perfil de expresión basta por sí solo para saber de qué tejido salió.",
-        en: "The data is an extraction of TCGA Pan-Cancer: 801 patients with a tumour and, for each of them, the expression of 20,531 genes measured by RNA-Seq. Five tumour types: breast, kidney, colon, lung and prostate. The question of the project is whether the expression profile alone is enough to tell which tissue it came from." },
-      { es: "El problema estadístico está en las dimensiones. Hay 20.531 variables y 801 observaciones, muchas más variables que muestras, y ahí casi ningún modelo clásico funciona directamente. La solución es un PCA primero, para bajar a unas pocas componentes, y encima de esas componentes los modelos probabilísticos.",
-        en: "The statistical problem is in the dimensions. There are 20,531 variables and 801 observations, far more variables than samples, and almost no classical model works directly there. The solution is a PCA first, to come down to a few components, and the probabilistic models on top of those components." },
-      { es: "Comparé cuatro: análisis discriminante lineal, discriminante cuadrático, Naive Bayes y regresión logística multinomial. LDA y QDA clasifican el 100% del conjunto de test, la logística un 98,7% y Naive Bayes un 98,1%.",
-        en: "I compared four: linear discriminant analysis, quadratic discriminant analysis, Naive Bayes and multinomial logistic regression. LDA and QDA classify 100% of the test set, the logistic 98.7% and Naive Bayes 98.1%." },
-      { es: "Un 100% no es para celebrarlo, es para desconfiar. Lo que dice el resultado no es que el modelo sea bueno, sino que estos cinco tumores tienen perfiles de expresión muy separados entre sí. Una vez reducida la dimensión el problema es fácil, y con 801 muestras conviene mirar bien cómo se ha partido el conjunto antes de creerse la cifra.",
-        en: "A 100% is not something to celebrate, it is something to distrust. What the result says is not that the model is good, but that these five tumours have expression profiles that sit far apart from each other. Once the dimension is reduced the problem is easy, and with 801 samples it is worth looking hard at how the set was split before believing the number." },
+    id: "8bca0252-0692-5926-9e2f-4262852fc540",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Genómica", "en": "Genomics"},
+    title: {"es": "Clasificación probabilística de tumores con RNA-Seq", "en": "Probabilistic tumour classification from RNA-Seq data"},
+    lede: {"es": "Identificar de qué tejido salió un tumor mirando solo qué genes tiene encendidos.", "en": "Identifying which tissue a tumour came from by looking only at which genes it has switched on."},
+    group: "lab", order: 7,
+    blocks: [
+      { id: "5ae050b0-e9f6-55b2-80c9-e3d7a62df8d5", type: "text", props: {"text": {"es": "Los datos son una extracción del TCGA Pan-Cancer: 801 pacientes con tumor y, para cada uno, la expresión de 20.531 genes medida por RNA-Seq. Cinco tipos de tumor: mama, riñón, colon, pulmón y próstata. La pregunta del proyecto es si el perfil de expresión basta por sí solo para saber de qué tejido salió.", "en": "The data is an extraction of TCGA Pan-Cancer: 801 patients with a tumour and, for each of them, the expression of 20,531 genes measured by RNA-Seq. Five tumour types: breast, kidney, colon, lung and prostate. The question of the project is whether the expression profile alone is enough to tell which tissue it came from."}} },
+      { id: "adc137c5-cc00-556c-ae6b-a9b4aa81af0b", type: "text", props: {"text": {"es": "El problema estadístico está en las dimensiones. Hay 20.531 variables y 801 observaciones, muchas más variables que muestras, y ahí casi ningún modelo clásico funciona directamente. La solución es un PCA primero, para bajar a unas pocas componentes, y encima de esas componentes los modelos probabilísticos.", "en": "The statistical problem is in the dimensions. There are 20,531 variables and 801 observations, far more variables than samples, and almost no classical model works directly there. The solution is a PCA first, to come down to a few components, and the probabilistic models on top of those components."}} },
+      { id: "b9fb1ee5-ed22-52e2-950d-6df5fe214f33", type: "text", props: {"text": {"es": "Comparé cuatro: análisis discriminante lineal, discriminante cuadrático, Naive Bayes y regresión logística multinomial. LDA y QDA clasifican el 100% del conjunto de test, la logística un 98,7% y Naive Bayes un 98,1%.", "en": "I compared four: linear discriminant analysis, quadratic discriminant analysis, Naive Bayes and multinomial logistic regression. LDA and QDA classify 100% of the test set, the logistic 98.7% and Naive Bayes 98.1%."}} },
+      { id: "3916af9d-faff-5ceb-8ff0-d2c14b982650", type: "text", props: {"text": {"es": "Un 100% no es para celebrarlo, es para desconfiar. Lo que dice el resultado no es que el modelo sea bueno, sino que estos cinco tumores tienen perfiles de expresión muy separados entre sí. Una vez reducida la dimensión el problema es fácil, y con 801 muestras conviene mirar bien cómo se ha partido el conjunto antes de creerse la cifra.", "en": "A 100% is not something to celebrate, it is something to distrust. What the result says is not that the model is good, but that these five tumours have expression profiles that sit far apart from each other. Once the dimension is reduced the problem is easy, and with 801 samples it is worth looking hard at how the set was split before believing the number."}} },
+      { id: "9a2d5373-76d4-5328-91ee-5862aad1337c", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Probabilistic%20Cancer%20Classification%20via%20RNA-Seq%20Data"]]} },
     ],
-    links: [['Github', "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Probabilistic%20Cancer%20Classification%20via%20RNA-Seq%20Data"]],
-    photos: 0,
   },
   "lab-physarum": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Biología", en: "Biology" },
-    title: { es: "Simulación de Physarum polycephalum", en: "Physarum polycephalum simulation" },
-    lede: { es: "Cinco mil agentes sin cerebro que acaban dibujando una red de transporte.", en: "Five thousand agents with no brain that end up drawing a transport network." },
-    bullets: [
-      { es: "El Physarum polycephalum es un moho mucilaginoso, un organismo sin sistema nervioso que, puesto en un plato con comida repartida en varios puntos, termina conectándolos por rutas cortas. Hay un experimento conocido en el que reprodujo de forma aproximada el trazado del ferrocarril de Tokio.",
-        en: "Physarum polycephalum is a slime mould, an organism with no nervous system that, put in a dish with food spread over several points, ends up connecting them along short routes. There is a well-known experiment in which it roughly reproduced the layout of the Tokyo rail network." },
-      { es: "La simulación no dibuja la red, programa el instinto de cada agente. Cinco mil partículas, cada una con tres sensores hacia delante (izquierda, centro y derecha) que leen la intensidad del rastro químico. Cada agente gira hacia donde el rastro es más fuerte, deposita el suyo al avanzar, y el entorno lo va evaporando.",
-        en: "The simulation does not draw the network, it programs the instinct of each agent. Five thousand particles, each with three forward sensors (left, centre and right) reading the intensity of the chemical trail. Every agent turns towards wherever the trail is strongest, deposits its own as it moves, and the environment slowly evaporates it." },
-      { es: "Con esas cuatro reglas basta. Al principio es ruido, después los rastros se cruzan y se refuerzan entre ellos, y al final quedan autopistas gruesas entre los grupos de comida. La evaporación es la pieza importante: es lo que borra las rutas que nadie vuelve a pisar.",
-        en: "Those four rules are enough. At first it is noise, then the trails cross and reinforce each other, and in the end thick motorways are left between the clusters of food. The evaporation is the important piece: it is what erases the routes nobody walks again." },
-      { es: "Está todo vectorizado en NumPy, sin un solo bucle sobre los agentes: las posiciones, los ángulos y las lecturas de los cinco mil se calculan a la vez con operaciones matriciales. El mundo es toroidal, se sale por un borde y se entra por el contrario.",
-        en: "It is all vectorised in NumPy, without a single loop over the agents: the positions, angles and readings of all five thousand are computed at once with matrix operations. The world is toroidal, you leave by one edge and come back in through the opposite one." },
+    id: "cd98e603-4c72-59f1-9c44-0908b168d323",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Biología", "en": "Biology"},
+    title: {"es": "Simulación de Physarum polycephalum", "en": "Physarum polycephalum simulation"},
+    lede: {"es": "Cinco mil agentes sin cerebro que acaban dibujando una red de transporte.", "en": "Five thousand agents with no brain that end up drawing a transport network."},
+    group: "lab", order: 8,
+    blocks: [
+      { id: "8dc37b62-66f7-5d90-b362-748b2472f765", type: "text", props: {"text": {"es": "El Physarum polycephalum es un moho mucilaginoso, un organismo sin sistema nervioso que, puesto en un plato con comida repartida en varios puntos, termina conectándolos por rutas cortas. Hay un experimento conocido en el que reprodujo de forma aproximada el trazado del ferrocarril de Tokio.", "en": "Physarum polycephalum is a slime mould, an organism with no nervous system that, put in a dish with food spread over several points, ends up connecting them along short routes. There is a well-known experiment in which it roughly reproduced the layout of the Tokyo rail network."}} },
+      { id: "750e757d-abde-5824-a759-f4d7aa3ff408", type: "text", props: {"text": {"es": "La simulación que he hecho no dibuja la red, sino que programa el instinto de cada agente. Cinco mil partículas, cada una con tres sensores hacia delante (izquierda, centro y derecha) que leen la intensidad del rastro químico. Cada agente gira hacia donde el rastro es más fuerte, deposita el suyo al avanzar, y el entorno lo va evaporando.", "en": "The simulation does not draw the network, it programs the instinct of each agent. Five thousand particles, each with three forward sensors (left, centre and right) reading the intensity of the chemical trail. Every agent turns towards wherever the trail is strongest, deposits its own as it moves, and the environment slowly evaporates it."}, "textLinks": {"es": []}} },
+      { id: "6bac0f09-0ebf-54d7-817b-b5f5c11f6760", type: "text", props: {"text": {"es": "Con esas cuatro reglas basta. Al principio es ruido, después los rastros se cruzan y se refuerzan entre ellos, y al final quedan autopistas gruesas entre los grupos de comida. La evaporación es la pieza importante: es lo que borra las rutas que nadie vuelve a pisar.", "en": "Those four rules are enough. At first it is noise, then the trails cross and reinforce each other, and in the end thick motorways are left between the clusters of food. The evaporation is the important piece: it is what erases the routes nobody walks again."}} },
+      { id: "130cf83c-4fa3-5ba1-bb2a-e857e1e01ab5", type: "text", props: {"text": {"es": "Está todo vectorizado en NumPy, sin un solo bucle sobre los agentes: las posiciones, los ángulos y las lecturas de los cinco mil se calculan a la vez con operaciones matriciales. El mundo es toroidal, se sale por un borde y se entra por el contrario.", "en": "It is all vectorised in NumPy, without a single loop over the agents: the positions, angles and readings of all five thousand are computed at once with matrix operations. The world is toroidal, you leave by one edge and come back in through the opposite one."}} },
+      { id: "010a8d39-8b4e-565d-a3c2-e2c70ec107be", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Physarum%20Polycephalum%20Simulation"]]} },
     ],
-    links: [['Github', "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Physarum%20Polycephalum%20Simulation"]],
-    photos: 0,
   },
   "lab-beans": {
-    kicker: { es: 'Laboratorio', en: 'Lab bench' },
-    when: { es: '2025', en: '2025' },
-    where: { es: "Agronomía", en: "Agronomy" },
-    title: { es: "Clasificar variedades de alubia por su forma", en: "Classifying dry bean varieties by shape" },
-    lede: { es: "Trece mil granos fotografiados, dieciséis medidas de forma y siete variedades que separar.", en: "Thirteen thousand photographed grains, sixteen shape measurements and seven varieties to tell apart." },
-    bullets: [
-      { es: "El conjunto son 13.611 granos de alubia fotografiados uno a uno. De cada imagen se extraen 16 descriptores morfológicos (área, perímetro, excentricidad, elongación y varios índices de forma compuestos) y la tarea es decir a cuál de las siete variedades pertenece cada grano. El interés es el control de calidad de la semilla: separar variedades a mano es lento y un lote mezclado vale menos.",
-        en: "The set is 13,611 bean grains photographed one by one. From each image 16 morphological descriptors are extracted (area, perimeter, eccentricity, elongation and several composite shape indices) and the task is to say which of the seven varieties each grain belongs to. The interest is seed quality control: separating varieties by hand is slow and a mixed batch is worth less." },
-      { es: "Comparé KNN, SVM, árboles de decisión, random forest y un perceptrón multicapa, ajustando los hiperparámetros por validación cruzada dentro del entrenamiento para no tocar el conjunto de test. La red neuronal saca la mejor precisión, un 92,8%, y la SVM con kernel RBF se queda en 92,6%. Me quedo con la SVM: la misma cifra y mucho más fácil de justificar delante de quien la va a usar.",
-        en: "I compared KNN, SVM, decision trees, random forest and a multilayer perceptron, tuning the hyperparameters by cross-validation inside the training partition so the test set was never touched. The neural network takes the best accuracy, 92.8%, and the RBF-kernel SVM comes in at 92.6%. I would take the SVM: the same number and far easier to justify in front of whoever has to use it." },
-      { es: "Más interesante que el ranking es dónde falla cada uno. BOMBAY sale perfecta con cualquier método (F1 = 1) porque es la variedad más grande y ocupa una zona del espacio que no comparte con nadie. SIRA y DERMASON se confunden entre ellas siempre, unos cincuenta granos por modelo, da igual lo sofisticado que sea. Ese techo no está en el algoritmo.",
-        en: "More interesting than the ranking is where each one fails. BOMBAY comes out perfect with any method (F1 = 1) because it is the largest variety and occupies a region of the space it shares with nobody. SIRA and DERMASON are always confused with each other, some fifty grains per model, however sophisticated it is. That ceiling is not in the algorithm." },
-      { es: "Los coeficientes de la SVM lineal enseñan además algo que no esperaba: las variables de elongación (ShapeFactor1, AspectRation, Eccentricity) discriminan mejor que el tamaño en bruto.",
-        en: "The linear SVM coefficients also show something I was not expecting: the elongation variables (ShapeFactor1, AspectRation, Eccentricity) discriminate better than raw size." },
+    id: "386e4be9-e943-5f7b-bd16-0ed9c22f66e2",
+    kicker: {"es": "Laboratorio", "en": "Lab bench"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Agronomía", "en": "Agronomy"},
+    title: {"es": "Clasificar variedades de alubia por su forma", "en": "Classifying dry bean varieties by shape"},
+    lede: {"es": "Trece mil granos fotografiados, dieciséis medidas de forma y siete variedades que separar.", "en": "Thirteen thousand photographed grains, sixteen shape measurements and seven varieties to tell apart."},
+    group: "lab", order: 9,
+    blocks: [
+      { id: "cdccbdb6-3a0f-5867-8db2-8d084ded66d7", type: "text", props: {"text": {"es": "El conjunto son 13.611 granos de alubia fotografiados uno a uno. De cada imagen se extraen 16 descriptores morfológicos (área, perímetro, excentricidad, elongación y varios índices de forma compuestos) y la tarea es decir a cuál de las siete variedades pertenece cada grano.", "en": "The set is 13,611 bean grains photographed one by one. From each image 16 morphological descriptors are extracted (area, perimeter, eccentricity, elongation and several composite shape indices) and the task is to say which of the seven varieties each grain belongs to. The interest is seed quality control: separating varieties by hand is slow and a mixed batch is worth less."}, "textLinks": {"es": []}} },
+      { id: "0cdc5444-359d-5465-abdf-9639f8d55815", type: "text", props: {"text": {"es": "Comparé KNN, SVM, árboles de decisión, random forest y un perceptrón multicapa, ajustando los hiperparámetros por validación cruzada dentro del entrenamiento para no tocar el conjunto de test. La red neuronal saca la mejor precisión, un 92,8%, y la SVM con kernel RBF se queda en 92,6%. Me quedo con la SVM: la misma cifra y mucho más fácil de justificar delante de quien la va a usar.", "en": "I compared KNN, SVM, decision trees, random forest and a multilayer perceptron, tuning the hyperparameters by cross-validation inside the training partition so the test set was never touched. The neural network takes the best accuracy, 92.8%, and the RBF-kernel SVM comes in at 92.6%. I would take the SVM: the same number and far easier to justify in front of whoever has to use it."}} },
+      { id: "17211c12-4590-581d-9d39-47d7acfdb153", type: "text", props: {"text": {"es": "Más interesante que el ranking es dónde falla cada uno. BOMBAY sale perfecta con cualquier método (F1 = 1) porque es la variedad más grande y ocupa una zona del espacio que no comparte con nadie. SIRA y DERMASON se confunden entre ellas siempre, unos cincuenta granos por modelo, da igual lo sofisticado que sea. Ese techo no está en el algoritmo.", "en": "More interesting than the ranking is where each one fails. BOMBAY comes out perfect with any method (F1 = 1) because it is the largest variety and occupies a region of the space it shares with nobody. SIRA and DERMASON are always confused with each other, some fifty grains per model, however sophisticated it is. That ceiling is not in the algorithm."}} },
+      { id: "118f5dc7-f882-5f48-9686-42d76a1074af", type: "text", props: {"text": {"es": "Los coeficientes de la SVM lineal enseñan además algo curioso: las variables de elongación (ShapeFactor1, AspectRation, Eccentricity) discriminan mejor que el tamaño en bruto.", "en": "The linear SVM coefficients also show something I was not expecting: the elongation variables (ShapeFactor1, AspectRation, Eccentricity) discriminate better than raw size."}, "textLinks": {"es": []}} },
+      { id: "89d1bc69-c7b0-5814-961c-57cd15f0c480", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Classifying%20Dry%20Beans%20with%20Machine%20Learning"]]} },
     ],
-    links: [['Github', "https://github.com/aleetreny/Data-Science-Ecosystem/tree/main/Classifying%20Dry%20Beans%20with%20Machine%20Learning"]],
-    photos: 0,
   },
-
-  /* ───────────────── WORLD ───────────────── */
-  'w-paraguay': { kicker: 'World · The big one', when: '2025', where: 'Paraguay', title: 'Paraguay', lede: 'Three months, not three weeks. The difference between the two is the whole point.', stats: [['3 months', 'lived'], ['Asunción', 'base'], ['Mercado 4', 'best afternoon']], bullets: ['Volunteering with Fundación Alda, working with children.', 'The market where you can dress yourself for ten euros, the food, the heat, the way plans dissolve.', 'Came back with photographs that won a prize and a much less fragile sense of what is difficult.'], photos: 3, tags: ['South America', 'volunteering'] },
-  'w-norway': { kicker: 'World', when: '2026', where: 'Norway', title: 'Fjords, aurora and a snowboard', lede: 'Bergen, the fjords, the northern lights and a week of light behaving wrongly.', stats: [['Aurora', 'seen'], ['Fjords', 'plural'], ['Snowboard', 'survived']], bullets: ['The trip I had been describing in my diary since 2021: green cliffs, blue water, brine on the face.', 'Snowboarding lesson of the year, courtesy of a friend: falling is the prize. Stop standing on the little slope.'], photos: 3, tags: ['Nordics', 'winter'] },
-  'w-slovakia': { kicker: 'World · A year', when: '2023', where: 'Slovakia', title: 'Bratislava', lede: 'Erasmus base camp, and the first place that was mine rather than my family\'s.', stats: [['1 year', 'resident'], ['Danube', 'commute'], ['Comenius', 'university']], bullets: ['Living, not visiting: a flat, a supermarket, a routine, a group.', 'The launchpad for every Central European trip on this board.'], photos: 3, tags: ['Erasmus', 'Central Europe'] },
-  'w-austria': { kicker: 'World', when: '2023 · 2024', where: 'Austria', title: 'Vienna & Tirol', lede: 'The most repeated destination on the board: Vienna for the city, Tirol for the mountains.', stats: [['Vienna', '×4 at least'], ['Tirol', 'the Alps'], ['Coffee', 'the excuse']], bullets: ['Vienna in every season, mostly by cheap bus from Bratislava.', 'Tirol for snow, valleys and the specific silence of a mountain in the morning.'], photos: 2, tags: ['Alps', 'cities'] },
-  'w-czech': { kicker: 'World', when: '2023', where: 'Czechia & Poland', title: 'Prague, Kraków, Warsaw', lede: 'The interrail spine of the Erasmus year.', stats: [['3', 'capitals'], ['1', 'night bus too many'], ['Kraków', 'the favourite']], bullets: ['Prague repeatedly, Kraków and Warsaw once and properly.', 'Where I learned that a city at 6am after a bus is a completely different city.'], photos: 2, tags: ['Central Europe', 'rail'] },
-  'w-hungary': { kicker: 'World', when: '2023', where: 'Hungary', title: 'Budapest', lede: 'Baths, ruin bars, a parliament lit up at night that stopped a conversation dead.', stats: [['Danube', 'again'], ['Baths', 'mandatory'], ['1', 'lit parliament']], bullets: ['One of the trips where the group made the city rather than the reverse.', 'Diary entry from Budapest is mostly laughter transcribed badly.'], photos: 2, tags: ['Central Europe'] },
-  'w-lithuania': { kicker: 'World', when: '2023', where: 'Lithuania', title: 'Vilnius & Kaunas', lede: 'Erasmus+ exchange, and the Baltic surprise nobody warns you about.', stats: [['Erasmus+', 'programme'], ['2', 'cities'], ['LT', 'stamp']], bullets: ['Youth exchange with six nationalities in one building.', 'Kaunas stayed with me longer than Vilnius, which nobody believes.'], photos: 2, tags: ['Baltics', 'Erasmus+'] },
-  'w-bulgaria': { kicker: 'World', when: '2023', where: 'Bulgaria', title: 'Sofia', lede: 'The second Erasmus+ exchange, and my first proper look at Europe\'s edges.', stats: [['Sofia', 'base'], ['2 weeks', 'stay'], ['BG', 'stamp']], bullets: ['Workshops by day, arguments about the EU by night, in English, badly, brilliantly.'], photos: 2, tags: ['Balkans', 'Erasmus+'] },
-  'w-nordics': { kicker: 'World', when: '2025 · 2026', where: 'Sweden, Denmark, Norway', title: 'Copenhagen, Lund, Oslo, Stockholm', lede: 'The Nordic research trip that produced my private index of student cities.', stats: [['4', 'cities'], ['10', 'indicators invented'], ['Lund', 'the winner]']], bullets: ['Copenhagen for self-organised events, Lund for the nations and the open notebooks, Oslo for everything working, Stockholm for the archipelago.', 'This is where the Treny Index of Urban Student Epicness™ comes from. Zones of vibe, micro-plans, picnic-ability, weekly re-enchantment.'], photos: 2, tags: ['Nordics', 'cities'] },
-  'w-uk': { kicker: 'World', when: '2023 → now', where: 'UK', title: 'London & Edinburgh', lede: 'The city I keep returning to and the one that surprised me most. Next year one of them becomes home.',
-    stats: [['London', 'next home'], ['Edinburgh', 'best walk'], ['Dean Village', 'the specific spot']], bullets: ['London in pubs, which is where the best random conversations in Europe happen.', 'Edinburgh for the day-after-a-long-night calm — the exact thing I score cities on.'], photos: 2, tags: ['UK', 'cities'] },
-  'w-france': { kicker: 'World', when: 'various', where: 'France', title: 'Strasbourg, Paris and the family side', lede: 'Half my mother tongue lives here. Strasbourg for the Parliament, the rest for the language.', stats: [['FR', 'native tongue'], ['Strasbourg', 'EYE2025'], ['Paris', 'the obvious one']], bullets: ['Strasbourg for the European Youth Event.', 'French is native but France is still foreign to me, which is a strange and useful position.'], photos: 2, tags: ['France', 'EU'] },
-  'w-benelux': { kicker: 'World', when: '2023 · 2025', where: 'Belgium', title: 'Brussels', lede: 'The institutional Europe trip: buildings where the acronyms live.', stats: [['EU', 'quarter'], ['Waffles', 'obviously'], ['2', 'visits']], bullets: ['Between EYE2025 and Erasmus+ paperwork, I have seen more of the EU quarter than most tourists.'], photos: 1, tags: ['Belgium', 'EU'] },
-  'w-italy': { kicker: 'World', when: 'various', where: 'Italy', title: 'Rome, Venice, Sardinia', lede: 'Italy in three modes: the museum, the impossible city and the island.', stats: [['Rome', 'the classic'], ['Venice', 'the strange one'], ['Sardinia', 'the swim']], bullets: ['Sardinia is the one I would go back to tomorrow: cliffs, water, no plan.', 'Venice as a place that should not work and does.'], photos: 2, tags: ['Italy', 'Mediterranean'] },
-  'w-croatia': { kicker: 'World', when: '2024', where: 'Croatia', title: 'Croatia', lede: 'Coast, islands, water clear enough to be suspicious.', stats: [['Adriatic', 'the sea'], ['Islands', 'hopped'], ['1', 'sunburn']], bullets: ['The Mediterranean I grew up on, rearranged into a different alphabet.'], photos: 2, tags: ['Balkans', 'coast'] },
-  'w-greece': { kicker: 'World', when: '2023', where: 'Greece', title: 'Greece', lede: 'Where half the words in my degree come from.', stats: [['Athens', 'base'], ['Islands', 'the reason'], ['Feta', 'volume']], bullets: ['The trip that made ancient history feel like geography instead of a syllabus.'], photos: 1, tags: ['Mediterranean'] },
-  'w-portugal': { kicker: 'World', when: '2025', where: 'Portugal', title: 'Lisbon & Porto', lede: 'The neighbours. Same peninsula, entirely different temperature of melancholy.', stats: [['Lisbon', 'hills'], ['Porto', 'the river'], ['Pastéis', 'many']], bullets: ['Closest thing to home that still surprises me.'], photos: 1, tags: ['Iberia'] },
-  'w-morocco': { kicker: 'World', when: '2021 → 2026', where: 'Morocco', title: 'Morocco', lede: 'An hour from Andalucía and a different world. Repeatedly.', stats: [['1h', 'from Tarifa'], ['Tangier', 'entry point'], ['n', 'teas']], bullets: ['The most consequential short trip available from Málaga.', 'The reason I stopped rating distance as a proxy for adventure.'], photos: 2, tags: ['Africa'] },
-  'w-usa': { kicker: 'World', when: '2022', where: 'USA', title: 'Vegas → Palm Springs → Miami → New York',
-    lede: 'The road trip I had been writing about wanting: a van, a desert, and a plan invented daily.',
-    stats: [['36h', 'awake, flying home'], ['4', 'cities'], ['1', 'desert crossed']], bullets: ['Vegas to Palm Springs by road, then the east coast.', 'Manhattan food courts with views of Jersey City, talking about volunteering with strangers in matching shirts.', 'Flew home for 36 hours without sleeping and went straight into a week of existential clarity.'], photos: 3, tags: ['USA', 'road trip'] },
-  'w-canarias': { kicker: 'World', when: 'recurring', where: 'Canary Islands', title: 'Canarias', lede: 'A colour that exists nowhere else on the Spanish spectrum. My most repeated non-mainland destination.', stats: [['4', 'islands'], ['Recurring', 'frequency'], ['1', 'flag in the bio']], bullets: ['Tenerife, Gran Canaria, Lanzarote — volcano, water, wind.', 'Enough of a habit that the Canarian flag ended up in my bio as a running joke.'], photos: 2, tags: ['Spain', 'islands'] },
-  'w-andalucia': { kicker: 'World · Home', when: 'always', where: 'Andalucía', title: 'Málaga, Ronda, Tarifa, Sevilla, Granada',
-    lede: 'The base. World-class climate, food and people, and the only humour I fully understand.',
-    stats: [['1', 'vegetable patch'], ['Tarifa', 'the wind'], ['Ronda', 'the drive']], bullets: ['Valdevaquero and Tarifa for wind and water, Ronda for the road, Sierra Nevada for snow, Granada and Sevilla for everything else.', 'Almayate and Torre del Mar are where the diary was mostly written — a mountain path behind the urbanisation that I found by refusing to follow the map.', 'Diary, 2022: "I want to live somewhere with countryside, with a vegetable patch." Still the plan. London is a chapter, not a destination.'], photos: 3, tags: ['Spain', 'home'] },
-  'w-nevada': { kicker: 'World · Snow', when: 'yearly', where: 'Sierra Nevada', title: 'Sierra Nevada & the Alps', lede: 'The annual snowboard pilgrimage, plus Andorra and Tirol when the budget allows.', stats: [['Yearly', 'ritual'], ['3', 'ranges'], ['1', 'goal: bigger falls']], bullets: ['Snowboarding as the one sport where I am happy to be visibly bad and improving.', 'Sierra Nevada is two hours from the beach, which is a fact I use in arguments about where to live.'], photos: 2, tags: ['snow', 'sport'] },
-
-  /* ───────────────── ELSE ───────────────── */
-  'podcast': {
-    kicker: 'Making things', when: '2025 →', where: 'Málaga / Madrid',
-    title: 'Un Poco Absurdo — the podcast',
-    lede: 'Tech and philosophy, named accurately. One hundred-plus listeners an episode and five stars three months in.',
-    stats: [['100+', 'listeners / ep'], ['★★★★★', 'rating'], ['3 months', 'to get there']],
-    bullets: [
-      'The format I had wanted since I started recording voice notes into my diary instead of writing them.',
-      'Constancy is the actual skill — I learned it from five years of a diary nobody was reading.',
-      'Recording is also why I built Grabaciones, a Whisper transcriber that cleans up audio into text.'
-    ], photos: 2, tags: ['podcast', 'philosophy', 'tech']
+  "alda": {
+    id: "1da868fd-8f6f-5c34-84ab-7b21bf487106",
+    kicker: {"es": "Voluntariado", "en": "Volunteering"},
+    when: {"es": "2025", "en": "3 months, 2025"},
+    where: {"es": "Asunción, Paraguay", "en": "Asunción, Paraguay"},
+    title: {"es": "Fundación Alda", "en": "Fundación Alda — three months in Paraguay"},
+    lede: {"es": "Voluntariado en Paraguay enseñando a niños en comunidades desfavorecidas", "en": "The longest and least comfortable thing on this board, and the one that changed the most."},
+    group: "vol", order: 0,
+    blocks: [
+      { id: "3874b713-febc-489a-9655-ba7d61202608", type: "text", props: {"text": {"es": "Durante el último año de carrera apliqué a una beca de la Universidad de Málaga que financiaba a 4 estudiantes el vuelo a Paraguay para hacer 3 meses de cooperación internacional en el país guaraní.", "en": "During the last year of my degree I applied for a scholarship from the University of Malaga that financed 4 students to fly to Paraguay to do 3 months of volunteering in the Guaraní country. During the last year of my degree I applied for a scholarship from the University of Malaga that financed 4 students to fly to Paraguay to do 3 months of volunteering in the Guaraní country."}, "textLinks": {"es": []}} },
+      { id: "1f815a2e-0ea4-4015-ab32-8a79391e9bf6", type: "text", props: {"text": {"es": "Fuimos Álvaro, Paloma, Vanesa y yo los seleccionados, y llegamos a Asunción a principios del verano. Nuestro trabajo consistía en ir todas las mañanas a Limpio, una región de las afueras, para trabajar de diferentes maneras con niños de pocos recursos", "en": "At first I wasn't sure and I applied because"}, "textLinks": {"es": []}} },
+      { id: "e1c64f1f-e31f-412b-9b93-394dd5f151cc", type: "text", props: {"text": {"es": "Trabajamos de la mano de la Fundación Alda, una empresa sin ánimo de lucro fundada en 2003 por dos españoles. Ellos tenían abiertas varias iniciativas con el ministerio de educación y cada uno nos sumamos a varias. La principal actividad consistía en impartir un taller de \"Aprender Jugando\" en 5 comunidades diferentes a lo largo de la semana, una por día. Aquí participábamos todos y consistía en crear juegos donde los niños pudieran aprender mientras se divertían, por ejemplo, experimentos químicos, papiroflexia, juegos con números... ", "en": "We work hand in hand with the Alda Foundation, a non-profit company founded in 2003 by two Spaniards. They had several initiatives open with the ministry of education and each of us joined several. The main"}, "textLinks": {"es": []}} },
+      { id: "bb386e73-7215-4862-8666-d03f1488fb93", type: "text", props: {"text": {"es": "Aparte de esto, yo participé en dos iniciativas más:", "en": "Apart from this, I participated in two more initiatives:"}, "textLinks": {"es": []}} },
+      { id: "928d1840-e088-45ec-9c67-e99624495504", type: "list", props: {"items": [{"es": "Clases de emprendimiento y economía:  Impartía clases para la gestión del dinero en un pequeño negocio de peluquería, cómo elegir los precios, cómo calcular márgenes, qué productos comprar, cómo tributar, cómo crecer... El público eran normalmente las madres de los niños de estas comunidades, que querían sacar un pequeño sueldo extra, aunque también había algunos jóvenes veinteañeros ", "en": "Entrepreneurship and economics classes with adults who wanted to set up their own hairdresser:  I taught money management classes in a small hairdressing business, how to choose prices, how to calculate margins, what products to buy, how to pay taxes, how to grow... The public were usually the mothers of the children of these communities, who wanted to get a small extra salary, although there were also some young people in their twenties"}, {"es": "Refuerzo de matemáticas y ciencias: La educación secundaria en Limpio era bastante precaria, muchas horas muertas y poco esfuerzo de los profesores. Implementamos una serie de clases de refuerzo donde abordábamos conceptos de matemáticas y ciencias a los niños de bachillerato, orientábamos sus habilidades y los preparábamos para hacer un grado universitario.  ", "en": "Math and Science Workshops:"}, {"es": "Talleres de robótica: colaboramos con una empresa de energía renovables que tenía pequeñas maquetas eléctricas de molinos, motores y otros artilugios. Aprendimos a montarlos y a crear circuitos para hacerlos funcionar desde un ordenador, para posteriormente impartir talleres educativos en los colegios y que los niños se divirtieran y aprendiesen. Se trataba de crear mentes curiosas para promover que continuaran estudiando, dada la alta tasa de absentismo escolar.", "en": "Robotics workshops: we collaborated with a renewable energy company that had small electrical models of mills, motors and other gadgets. We learned to assemble them and create circuits to make them work from a computer, to later give educational workshops in schools and for the children to have fun and learn. It was about creating curious minds to encourage them to continue studying, given the high rate of school absenteeism."}], "itemTextLinks": {"es": [[], [], []]}} },
+      { id: "97061a67-304d-4667-8626-3b8507ae1111", type: "text", props: {"text": {"es": "Fueron 3 meses de contacto continuo con niños, más de 300 chicos diferentes recurrentes y cientos de actividades. Volví a casa bastante cambiado, fui pensando que ayudaría a niños y más bien fueron ellos los que me ayudaron a mí a ver la vida de otra manera. Somos tremendamente afortunados de tener lo que tenemos en Europa, en Paraguay era común ver a los chicos sin zapatos o cuidando a sus hermanos pequeños porque los padres habían desaparecido. Valoraban un rato contigo más que nada en el mundo, el cariño era sincero, abrazos genuinos.", "en": "There were 3 months of continuous contact with children, more than 300 different recurring children and hundreds of activities. I came home quite changed, I was thinking that I would help children and rather they were the ones who helped me to see life differently. We are tremendously fortunate to have what we have in Europe, in Paraguay it was common to see children without shoes or taking care of their little siblings because the parents had disappeared. They valued you for a while more than anything in the world, the affection was sincere, genuine hugs."}, "textLinks": {"es": []}} },
+      { id: "c3b61ec8-3609-4ff3-b844-55101524e539", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/6c1610ac-b2ad-4893-9846-6f4e2f9be78e-img_6610.jpeg", "caption": {"es": "Día de relojes solares", "en": "Sundial day."}} },
+      { id: "4a8b84fe-2a42-44e6-8bdb-2612063df4dc", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/c57c632f-0544-470e-8893-0d20416bbca2-img_1755715344133.jpeg", "caption": {"es": "Grita que te oigan!!", "en": "2 prize in the international cooperation photography contest."}} },
+    ],
   },
-  'diary': {
-    kicker: 'The long project', when: '2021 → now', where: 'everywhere',
-    title: 'Five years of a weekly diary',
-    lede: 'Around 480 entries, each dated and star-rated, from a Sunday in April 2021 to this week. The longest-running dataset I own and the reason this site sounds like me.',
-    stats: [['~480', 'entries'], ['5', 'years unbroken'], ['⭐️–⭐️⭐️⭐️', 'own rating scale']],
-    bullets: [
-      'Started as daily, became weekly, became audio, became a system: a running to-do list of interesting moments so Sunday-me is not staring at a blank page.',
-      'It is where the quantified-life habit comes from: I once scored money, mental health, physical health and relationships from −1 to 1 and wrote myself a corrective plan. The plan was "see friends three days a week". It worked.',
-      'Not published, and not going to be. It is the source, not the product.',
-      'Constancy learned here is the only reason anything else on this board got finished.'
-    ], photos: 1, tags: ['writing', 'systems', 'Notion']
+  "eye2025": {
+    id: "690a13c9-4d1e-57c4-b70d-245210f0c3e3",
+    kicker: {"es": "Voluntariado · Liderazgo", "en": "Volunteering · Leadership"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Estrasburgo, Francia", "en": "Strasbourg / Brussels"},
+    title: {"es": "Parlamento Europeo - EYE2025", "en": "European Parliament — EYE2025 coordinator"},
+    lede: {"es": "Equipo de coordinación del Evento Europeo de la Juventud 2025", "en": "Ten thousand young Europeans, one hemicycle, a schedule that could not slip."},
+    group: "vol", order: 1,
+    blocks: [
+      { id: "f4f3d5c6-38fe-4dd3-a854-da2c0cb5c281", type: "text", props: {"text": {"es": "El EYE es el encuentro juvenil más grande de Europa, se celebra cada dos años y reúne a más de 10 mil jóvenes de 160 nacionalidades diferentes para abordar cuestiones de política europea, democracia, innovación y liderazgo.  Se hacen talleres, charlas con eurodiputados, networking, actuaciones y debates. ", "en": "The "}, "textLinks": {"es": []}} },
+      { id: "c9c66355-14ec-4caf-9541-4e8921e8543a", type: "text", props: {"text": {"es": "Este año participé como organizador del evento, formé parte de un equipo de unas 60 personas para coordinar las sesiones, moderar los debates y ayudar en las incidencias. ", "en": "This year participate as an organizer of the event, be part of a team of about 60 people to coordinate the sessions, moderate the debates and help with the incidents. This year participate as an organizer of the event, be part of a team of about 60 people to coordinate the sessions, moderate the debates and help with the incidents."}, "textLinks": {"es": []}} },
+      { id: "66e6020f-57a5-4a04-a10d-8643aa526e8a", type: "text", props: {"text": {"es": "Fue una semana increíble, gente muy inteligente y con ideas asombrosas, conversaciones infinitas y mucho de exponerse a situaciones completamente nuevas.  Siento que estos proyectos me hacen ver otra perspectiva en los asuntos y problemas diarios que escuchamos en las noticias, puedes probar tus argumentos y crecer juntos en busca de la mejor forma de hacer las cosas. Estrasburgo, mi ciudad soñada, por cierto. ", "en": "It was an incredible week, very intelligent people with amazing ideas, endless conversations and a lot of exposure to completely new situations.  I feel that these projects make me see another perspective on the daily issues and problems we hear about in the news, you can test your arguments and grow together in search of the best way to do things. Strasbourg my dream city by the way,"}, "textLinks": {"es": []}} },
+      { id: "daa0b3fb-4593-4a67-9ab2-d05bb5bc4368", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/7b2a0d64-1799-4df7-b37a-da5320f711d6-48d0d6c2-7d0e-4d4f-837b-0db43a3454ad.jpg", "caption": {"es": "Arriba Europa!", "en": "Europe is coming!"}} },
+    ],
   },
-  'garden': {
-    kicker: 'Obsessions', when: 'ongoing', where: 'Almayate',
-    title: 'The vegetable patch',
-    lede: 'The least abstract thing I own. I plant it, it grows, I eat it, no dashboard required.',
-    stats: [['1', 'huerto'], ['0', 'models fitted'], ['∞', 'patience required']],
-    bullets: ['Horticulture as the counterweight to a job made entirely of abstractions.', 'Part of a longer plan: countryside, not just a green urbanisation.'],
-    photos: 2, tags: ['horticulture', 'slow']
+  "startup-summit": {
+    id: "49908bfe-0e24-59ff-8a6a-29727bccc53e",
+    kicker: {"es": "Voluntariado · Organización", "en": "Volunteering · Organising"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "La valeta, Malta", "en": "Málaga"},
+    title: {"es": "EU Startups Summit ", "en": "EU Start-up Summit — organising team"},
+    lede: {"es": "Equipo de coordinación del evento de Startups más grande de EU", "en": "On the other side of the badge for once: building the event instead of networking through it."},
+    group: "vol", order: 2,
+    blocks: [
+      { id: "b7cc427a-cc3c-4a91-b9f3-51d4f1a51e5c", type: "text", props: {"text": {"es": "EU-Startups es un medio especializado en novedades de las startups europeas, y organizan un Summit anual que reúne a las pequeñas empresas más innovadoras y a venture capital. La idea es crear un entorno de networking para hacer posible el crecimiento de estas empresas gracias a nuevos fondos, además de presentar los avances más recientes. ", "en": "EU-Startups is a specialized medium"}, "textLinks": {"es": [{"end": 11, "href": "https://www.eu-startups.com/?utm_source=chatgpt.com", "start": 0}]}} },
+      { id: "45eac014-869f-4084-9205-71b1a8e52050", type: "text", props: {"text": {"es": "Acuden alrededor de 2000 personas, de más de 1200 compañías, y unos 70 inversores. Además hay un concurso de pitch con 750k€ en premios. ", "en": "Around 2000 people, from more than 1200 companies, and about 70 investors attend. There is also a pitch contest with €750k in prizes. Around 2000 people, from more than 1200 companies, and about 70 investors attend. There is also a pitch contest with €750k in prizes."}, "textLinks": {"es": []}} },
+      { id: "b974b3f6-4f13-4d5a-9d43-4fa8446c5882", type: "text", props: {"text": {"es": "Yo me dedicaba a gestionar las actividades y el timing, pero también pude participar en muchos eventos. Conocí a gente tan relevante como los fundadores de Fever, Clue o Payhawk, y aprendí un montón en materia de rondas, financiación y etapas de una startup. ", "en": "I was dedicated to managing the activities and timing, but I was also able to participate in many events. I met people as relevant as the founders of Fever, Clue or Payhawk, and I learned a lot about rounds, financing and stages of a startup."}, "textLinks": {"es": []}} },
+      { id: "c5c37f70-35d6-4a5d-9e5e-5d4ed1ca44e6", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/219840e1-5c41-47cc-87a2-2714772fa566-013266df-f8c8-46d3-b79b-b6b4777880e0.jpg", "caption": ""} },
+    ],
   },
-  'telescope': {
-    kicker: 'Obsessions', when: 'ongoing', where: 'dark skies',
-    title: 'Astro-analytics',
-    lede: 'Telescope out, patterns in. I studied the cosmos for pleasure years before it appeared on a transcript.',
-    stats: [['1', 'telescope'], ['Kepler', 'catalogue read for fun'], ['0', 'credits, originally']],
-    bullets: ['The hobby that quietly turned into a coursework project and then into a research interest.', 'Also want to be able to navigate by stars without a phone. See: apocalypse notebook.'],
-    photos: 2, tags: ['astronomy', 'curiosity']
+  "small-vol": {
+    id: "c1a8c250-4ccf-5319-8440-a698a14a9072",
+    kicker: {"es": "Voluntariado", "en": "Volunteering · The small ones"},
+    when: {"es": "2025", "en": "2022 → now"},
+    where: {"es": "Málaga, España", "en": "Málaga"},
+    title: {"es": "Festival de Málaga", "en": "The unglamorous volunteering"},
+    lede: {"es": "Jurado documental del Festival de Cine", "en": "Film Festival Documentary Jury"},
+    group: "vol", order: 3,
+    blocks: [
+      { id: "409fb98e-4eb9-41de-8009-f6fc7a999281", type: "text", props: {"text": {"es": "Esto se sale algo de mis competencias habituales pero me encanta el cine, en concreto los documentales, son un calco más realista de la realidad que las películas pero manteniendo la esencia creativa y narrativa que rodea a una historia de ficción. ", "en": "This is out of my usual skills but I love cinema, in particular documentaries, they are a more realistic version of reality than films but maintaining the creative and narrative essence that surrounds a fictional story."}, "textLinks": {"es": []}} },
+      { id: "465861cb-40cc-41ce-a536-1ed5ef828129", type: "text", props: {"text": {"es": "Eramos 12 jóvenes que tenían que pasar 2 semanas viendo todos los documentales presentados al festival. Había que tomar notas y detalles porque los primeros se te iban olvidando, nos pasamos horas y horas en una sala de cine reservada para nosotros. ", "en": "We were 12 young people who had to spend 2 weeks watching all the documentaries presented at the festival. We had to take notes and details because the first ones were forgotten, we spent hours and hours in a cinema reserved for us."}, "textLinks": {"es": []}} },
+      { id: "2bed7aa0-5884-43a7-b321-7fe5a2c587aa", type: "text", props: {"text": {"es": "Los documentales abordaban todas las temáticas y siento que me expuse a un montón de cuestiones que nunca me había planteado: la arquitectura como expresión del ser humano, inmigración dentro de África, tribus de Mongolia. Fue ALUCINANTE, piezas que te hacían llorar, sufrir, gritar, reír. ", "en": "It has been one of the most intense periods of m"}, "textLinks": {"es": []}} },
+      { id: "878ac320-18fa-400b-a16b-b7be1ec3a911", type: "text", props: {"text": {"es": "Seleccionamos a las nominadas y al ganador entre todos, conocimos a muchos directores emergentes, y fuimos invitados a la gala de premios. Un placer. ", "en": "We selected the nominees and the winner among all, we met many emerging directors, and we were invited to the awards gala. A pleasure."}, "textLinks": {"es": []}} },
+      { id: "129f2bef-19cf-4c30-ae0f-445fbdc133ff", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/3bcb4c1c-a6f8-40e9-8268-c3ada058a682-8d3d5a3f-8889-457e-b092-6e17b0ba6c29.jpg", "caption": {"es": "Los del móvil en blanco y negro.", "en": "Those on the black and white mobile."}} },
+    ],
   },
-  'racket': {
-    kicker: 'Obsessions', when: 'weekly', where: 'any court',
-    title: 'Padel, pickleball and an unreasonable competitive streak',
-    lede: 'Racket sports weekly, plus volleyball, spikeball, bowling, billiards and any game with a scoreboard.',
-    stats: [['169', 'best bowling game'], ['Weekly', 'padel'], ['1', 'problem: I want to win]']],
-    bullets: ['Padel and pickleball are the fixed points of my week.', 'Also volleyball on the beach, spikeball, table football, and a Catan habit that is starting to cost me friendships.'],
-    photos: 2, tags: ['sport', 'padel', 'games']
+  "tedx": {
+    id: "dc9186f1-1102-5cce-9096-6eb5a05c1e00",
+    kicker: {"es": "Voluntariado", "en": "Volunteering"},
+    when: {"es": "2022", "en": "2022 →"},
+    where: {"es": "Málaga, España", "en": "Málaga / Cádiz"},
+    title: {"es": "TEDxMálaga", "en": "TEDx — from fan in the audience to the team"},
+    lede: {"es": "Organizador en esta edición independiente de charlas TED", "en": "Organizer in this independent edition of TED TALKS"},
+    group: "vol", order: 7,
+    blocks: [
+      { id: "35ea7688-bcb9-58ae-8b3e-0609bf7e28ab", type: "text", props: {"text": {"es": "No sé si conocéis las famosas charlas TED, son un minimonólogo de entre 5 y 30 minutos donde un experto aborda un tema concreto. Se hicieron muy populares cuando la matriz liberó los vídeos de forma gratuita y permitió las creaciones \"franquiciadas\" de TEDx para todo el que tuviera algo relevante que expresar.", "en": "The first meeting was in the assembly hall of a school in a neighborhood too pretty to be real. I've said yes to almost everything since then."}, "textLinks": {"es": []}} },
+      { id: "1c1b1168-c0ce-45f2-a715-ab434136e222", type: "text", props: {"text": {"es": "Bien pues en Málaga tenemos una de esas maravillosas versiones independientes y somos MUY buenos. Este año trajimos a más de 1000 asistentes a deleitarse con 13 charlas y múltiples talleres artísticos y culturales.", "en": "Well, in Malaga we have one of those wonderful independent versions and we are VERY good. This year we brought more than 1000 attendees to enjoy 13 talks and multiple artistic and cultural workshops."}, "textLinks": {"es": []}} },
+      { id: "e0795929-1c92-4118-a2ac-397f6f370352", type: "text", props: {"text": {"es": "Destacaría 2:", "en": "I would highlight 2:"}, "textLinks": {"es": []}} },
+      { id: "d201b368-b9b2-4ddb-a2c5-b0d06fecc357", type: "list", props: {"items": [{"es": "Jorge Macías - “Adelantarnos al tsunami”. En mi opinión fue la más potente. Es doctor en Matemáticas y profesor de Matemática Aplicada en la UMA, especializado en análisis numérico y simulación de tsunamis; su grupo recibió el NVIDIA Global Impact Award por este trabajo. La charla explica cómo los modelos matemáticos, simulación y probabilidades pueden anticipar el impacto de un tsunami y ayudar a salvar vidas.", "en": "Jorge Macías — \"Anticipate the tsunami\". In my opinion it was the most powerful. He is a PhD in Mathematics and Professor of Applied Mathematics at the Uma, specializing in numerical analysis and tsunami simulation; his group received the NVIDIA Global Impact Award for this work. The talk explains how mathematical models, simulation and probabilities can anticipate the impact of a tsunami and help save lives."}, {"es": "Sergio Banderas -  “Creación de videojuegos, un recurso educativo multidisciplinar”. Esta mezclaba tecnología + educación. El ponente era ingeniero informático, profesor de FP y Premio Educa ABANCA al Mejor Docente de España de FP 2019. La idea era utilizar la creación de videojuegos no solo como entretenimiento, sino como herramienta pedagógica multidisciplinar.", "en": "Sergio Banderas — \"Creation of video games, a multidisciplinary educational resource\". Technology + education. Flags also came with quite a lot of credibility: computer engineer, VET teacher and ABANCA Educa Award for the Best Teacher in Spain for VET 2019, in addition to other educational innovation awards. The idea was to use the creation of video games not only as entertainment, but as a multidisciplinary pedagogical tool."}], "itemTextLinks": {"es": [[], []]}} },
+      { id: "2503a7cc-f1fc-424a-ba4a-10a216be0677", type: "text", props: {"text": {"es": "Mi labor fue el montaje de todos los talleres en los días previos, la revisión del contenido de las charlas y el apoyo a los ponentes en el día del evento. Disfrutamos como niños. ", "en": "My job was to set up all the workshops in the previous days, review the content of the talks and support the speakers on the day of the event. We enjoyed ourselves as children."}, "textLinks": {"es": []}} },
+      { id: "49a6f15f-d442-486e-8194-337366d966c7", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/85bc83e1-b0f0-4121-9587-2293ca745028-img_3848.jpg", "caption": {"es": "Aletheia.", "en": "Aletheia. "}} },
+    ],
   },
-  'apocalypse': {
-    kicker: 'Obsessions', when: 'ongoing', where: 'a real notebook',
-    title: 'The apocalypse notebook',
-    lede: 'A genuine document I keep. Partly a survival plan, mostly an excuse to learn things that do not need electricity.',
-    stats: [['8', 'phases'], ['1', 'fish caught (seaweed)'], ['0', 'panic']],
-    bullets: [
-      'Water sourcing, non-perishables, wooden construction with hand tools, maps of reservoirs and pharmacies, card games for morale.',
-      'Phase eight of the plan is "learn, read, study, enjoy life", which tells you it was never really about the apocalypse.',
-      'I want to fish, shoot, and navigate by stars for the same reason: every skill that does not depend on a device is a hedge, and hedges are fun.'
-    ], photos: 1, tags: ['survival', 'skills', 'sci-fi']
+  "hackathon-de-cabify": {
+    id: "596df48d-4f14-4be0-b2f6-842491934ef6",
+    kicker: {"es": "HackatHon", "en": "Hackathons & Prizes"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "Madrid", "en": "Madrid"},
+    title: {"es": "Hackathon de Cabify", "en": "Cabify Hackathon"},
+    group: "hack", order: 0,
+    blocks: [
+      { id: "d6eddb7a-9cf1-4c56-87fb-125b3564e239", type: "text", props: {"text": {"es": "Aproveché mi último día en Madrid después de la graduación del Máster para apuntarme con mi pareja a un Hackathon que Cabify organizaba en su sede. La dinámica era un poco diferente, en vez de explorar mejoras libremente de la aplicación, teníamos varias propuestas y había que escoger una. ", "en": "My last day in Madrid"}, "textLinks": {"es": []}} },
+      { id: "bc7962ef-8410-43e3-aeeb-b2c21ec51ba3", type: "text", props: {"text": {"es": "Formamos equipo con dos compañeros de Cabify que también participaban y escogimos el reto de multimodalidad. Tenían de partners a Eleven Labs y Lovable así que pudimos probarlos de forma ilimitada para hacer nuestros prototipos. La idea era hacer el producto completo y presentarlo al final del día, se buscaba funcionalidad, originalidad y viabilidad económica.", "en": "We teamed up with two Cabify colleagues who were also participating and chose the multimodality challenge. Our differentiating proposal focused on offering a combination of types of transport from point A to point B when it was most optimal, for example, take a cabify before the Principe Pio station and then line 10 to Tribunal."}, "textLinks": {"es": []}} },
+      { id: "a737b036-3e5d-4d2a-b4fa-a5f4bbc20aa3", type: "text", props: {"text": {"es": "Nuestra propuesta diferenciadora se enfocó en ofrecer una combinación de tipos de transportes desde el punto A al punto B cuando esta fuese más óptima, por ejemplo, coge un cabify hasta la estación Príncipe Pío y después la linea 10 hasta Tribunal. ", "en": "In this way,"}, "textLinks": {"es": []}} },
+      { id: "883904e5-844d-48fa-811a-b32cbc5dd603", type: "text", props: {"text": {"es": "Estas combinaciones se basaban en las preferencias del usuario: sostenibilidad, velocidad, coste.. Y se ofrecían en conjunto con opciones unimodales clásicas. La idea era hacer de cabify una aplicación de movilidad completa, e incentivar el uso de las opciones cabify con puntos de canjeo en viajes normales. ", "en": "The ranking of options was given by an algorithm of weights based on preferences. We did a massive extraction of bus, metro, commuter, long-distance, bike and electric scooters lines, in addition to APIs for schedules and prices in real time, it was great."}, "textLinks": {"es": []}} },
+      { id: "08157af8-9b10-40b2-8596-65a6132c7506", type: "text", props: {"text": {"es": "El rankeo de opciones lo daba un algoritmo de pesos en función de las preferencias. Hicimos una extracción masiva de lineas de bus, metro, cercanías, larga distancia, bicimad y patinetes eléctricos, además de APIs para horarios y precios en tiempo real, quedó genial. ", "en": "We are finalists!!"}, "textLinks": {"es": []}} },
+      { id: "b70523ec-051a-4ace-a78a-539b833a3de8", type: "text", props: {"text": {"es": "Quedamos finalistas!! Os dejo el proyecto por aquí", "en": "We are finalists! I leave the project here"}, "textLinks": {"es": [{"end": 50, "href": "article:cabicity", "start": 42}]}} },
+    ],
   },
-  'genome': {
-    kicker: 'Obsessions', when: '2023', where: 'Málaga',
-    title: 'I sequenced my own DNA to settle an argument',
-    lede: 'Bought a test, downloaded the raw data, ran it through a second service for the interesting reports. My father called it a scam. It is not.',
-    stats: [['1%', 'of DNA that differs'], ['14', 'reports read'], ['1', 'sceptical father']],
-    bullets: [
-      'Ancestry, behavioural genetics, fitness and injury risk, nutrition, pharmacogenetics, sleep, longevity.',
-      'The point was not the results, it was understanding the inference: correlate a trait against a sequence across enough people and you get a propensity, not a destiny.',
-      'Same instinct as everything else here — if a claim is quantifiable, I want to see the estimator.'
-    ], photos: 1, tags: ['genetics', 'quantified self']
+  "hack-malaga": {
+    id: "62bcd397-3573-5991-add0-798b3ea2aa39",
+    kicker: {"es": "Hackathon", "en": "Prize · Winner"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "Málaga", "en": "Málaga"},
+    title: {"es": "Desafio de Datos del Ayuntamiento de Málaga", "en": "Málaga City Council data challenge — won it"},
+    group: "hack", order: 1,
+    blocks: [
+      { id: "a0578b80-944a-401f-b149-d8057e5460b8", type: "text", props: {"text": {"es": "Este fue un poco precipitado, mi equipo vivía en Madrid y justo era el día de antes del examen final de Regresión Avanzada. Pero las prioridades están claras, así que cogimos un tren por la mañana, y pasamos todo el día construyendo el producto, y nos volvimos por la noche.", "en": "This was a bit rushed, my team lived in Madrid and it was just the day before the final exam of Advanced Regression. But the priorities are clear, so we took a train in the morning, and we spent the whole day building the product, and we turned around at night. This was a bit rushed, my team lived in Madrid and it was just the day before the final exam of Advanced Regression. But the priorities are clear, so we took a train in the morning, and we spent the whole day building the product, and we turned around at night."}, "textLinks": {"es": []}} },
+      { id: "c315ba05-d3b9-407c-9850-0e781da1fd1b", type: "text", props: {"text": {"es": "El reto era usar los datos abiertos de la plataforma de Edint del Ayuntamiento para construir una herramienta de utilidad para el ciudadano. Nos costaba elegir la base de datos, así que las cogimos todas. Hicimos un visor con granularidad de distrito, barrio o sección censal donde dábamos puntuaciones a diferentes criterios como \"Zonas Verdes\", \"Ruido\", \"Trafico\" o \"Educación\", en función de otras variables como hectáreas de parques, decibelios, numero de coches por hora, numero de instituciones educativas... ", "en": "The challenge was to use the open data of the City Council's Edint platform to build a useful tool for the citizen. We had a hard time choosing the database, so we took them all. We made a viewer with granularity of district, neighborhood or census section where we gave scores to different criteria such as \"Green Zones\", \"Noise\", \"Traffic\" or \"Education\", depending on other variables such as hectares of parks, decibels, number of cars per hour, number of educational institutions..."}, "textLinks": {"es": []}} },
+      { id: "717ef16c-8dce-4af1-a98d-a51a49d7b56b", type: "text", props: {"text": {"es": "El proyecto gustó mucho porque explora una perspectiva diferente a la hora de buscar dónde vivir. Solemos centrarnos en el precio, que lógicamente es lo más importante, pero también lo son variables del entorno que hacen de ese barrio el perfecto para ese tipo de persona. Es por ello que ponderamos las puntuaciones en función del perfil que busca dónde alojarse, más peso para las instituciones educativas cuando se trata de familias, o para las zonas verdes cuando tienes perro.  ", "en": "The project was very popular because it explores a different perspective when looking for where to live. We tend to focus on the price, which is logically the most important thing, but so are the variables of the environment that make that neighborhood the perfect for the type of person. That is why we weigh the scores according to the profile you are looking for where to stay, more weight for educational institutions when it comes to families, or for green areas when you have a dog."}, "textLinks": {"es": []}} },
+      { id: "421d3239-2fbf-46c4-ad72-e25fb38d9a0a", type: "text", props: {"text": {"es": "En conjunto, construimos una plataforma que agrupa datos abiertos, pero que están dispersos en muchas fuentes publicas y en formatos no accesibles para los ciudadanos habituales. ", "en": "Together, we built a platform that aggregates data that is open, but dispersed across many public sources and in formats not accessible to regular citizens."}, "textLinks": {"es": []}} },
+      { id: "bd42f551-6459-4c4c-a271-0dd78e82cfcd", type: "text", props: {"text": {"es": "Quedamos segundos, salimos en las noticias, y nos dieron un Mac de regalo :)", "en": "We were second, we were on the news, and they gave us a Mac as a gift :)"}, "textLinks": {"es": []}} },
+      { id: "d655853a-e74e-467e-9825-dc82545ecb82", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/97a03dc5-5d0a-4988-9a71-51de28fce88a-img_1779120490925.jpeg", "caption": {"es": "UEEE", "en": "UEEE"}} },
+    ],
   },
-  'investing': {
-    kicker: 'Obsessions', when: '2021 →', where: 'a screen',
-    title: 'Investing, and the psychology of money',
-    lede: 'Started at 19 in the loudest possible market. Learned that losing hurts several times more than winning feels good, with real money, on schedule.',
-    stats: [['2021', 'tuition year'], ['−30%', 'the week that taught me'], ['1', 'rule: strategy first']],
-    bullets: [
-      'Crypto and equities from 19, including a week where everything fell 30% and my account was still up — and I felt terrible anyway.',
-      'That asymmetry is now the single most useful thing I know about human behaviour, and it shows up in every risk model I build.',
-      'Quantitative finance is still the itch: stochastic processes, algorithmic strategies, and Deep Q-Trading as the sanctioned version.'
-    ], photos: 1, tags: ['finance', 'behaviour', 'risk']
+  "hack-madrid": {
+    id: "ad58fc15-84ee-52e1-aa9f-b52e347647b5",
+    kicker: {"es": "Concurso", "en": "Competition"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "Madrid", "en": "Madrid"},
+    title: {"es": "Concurso de datos abiertos del Ayuntamiento de Madrid ", "en": "Madrid open-data competition & Localízate"},
+    group: "hack", order: 2,
+    blocks: [
+      { id: "d683d069-09d3-454e-aee7-ea28930a40c4", type: "text", props: {"text": {"es": "De este aún tengo poco que contar, los resultados son en octubre del 26', y el proyecto os lo explico en este post. ", "en": "Of this I still have little to say, the results are in October of the 26', and the project I explain in this post."}, "textLinks": {"es": [{"end": 114, "href": "article:localizate", "start": 105}]}} },
+      { id: "562f5e89-b15d-47a5-8d8d-26eb81a25c8d", type: "text", props: {"text": {"es": "Es un concurso de 2 meses, el Ayuntamiento de Madrid nos pone sus datos públicos a disposición y abre 2 categorías de premios: visualizaciones y estudios. Yo he participado en la primera, con una herramienta para predecir la supervivencia de un tipo de local concreto en cada zona de Madrid.", "en": "It is a 2-month contest, the Madrid City Council makes its public data available to us and opens 2 categories of prizes: visualizations and studies. I participated in the first one, with a tool to predict the survival of a specific type of premises in each area of Madrid. It is a 2-month contest, the Madrid City Council makes its public data available to us and opens 2 categories of prizes: visualizations and studies. I participated in the first one, with a tool to predict the survival of a specific type of premises in each area of Madrid."}, "textLinks": {"es": []}} },
+      { id: "bd2eb31e-7704-4879-a517-aec744941375", type: "text", props: {"text": {"es": "He puesto mucho trabajo y esfuerzo pero los proyectos del año pasado fueron increíbles, y espero lo mismo para este año. Ya os contaré. ", "en": "I have put a lot of work and effort but last year's projects were incredible, and I hope the same for this year. I'll tell you."}, "textLinks": {"es": []}} },
+    ],
   },
-  'lasik': {
-    kicker: 'Obsessions · Body', when: 'Sep 2023', where: 'Málaga',
-    title: '−5.75 to 110% vision in five minutes',
-    lede: 'Had my eyes lasered. Walked out seeing. Spent the recovery week listening to audio drama and appreciating my most important organ.',
-    stats: [['−5.75', 'before'], ['110%', 'at the check-up'], ['5 min', 'in theatre']],
-    bullets: [
-      'Stressful, not painful. Best trade-off I have ever accepted.',
-      'Diary: "I would rather lose hearing, touch, an arm, taste or smell than lose sight." Eyes are the main input channel and I now treat them that way.'
-    ], photos: 1, tags: ['body', 'decisions']
+  "hack-accenture": {
+    id: "70c53fa4-576b-50bb-9a2a-80b9ea6f3463",
+    kicker: {"es": "HACKATHON", "en": "Hackathon"},
+    when: {"es": "2025", "en": "Nov 2025"},
+    where: {"es": "Madrid", "en": "Madrid"},
+    title: {"es": "Hackathon de Accenture", "en": "Accenture hackathon — the shopping chatbot"},
+    lede: {"es": "Gen AI Mavericks", "en": "Gen AI Mavericks"},
+    group: "hack", order: 3,
+    blocks: [
+      { id: "caf8f30c-06b1-4d49-b003-35a3ac5234b3", type: "text", props: {"text": {"es": "Fuimos 100 seleccionados en Madrid para participar en un Hackathon de 2 semanas en su sede de Castellana. El reto era hacer una solución completa con IA y había varias temáticas que podían tocarte como equipo. ", "en": "We were 100 selected in Madrid to participate in a 2-week Hackathon at their headquarters in Castellana. The challenge was to make a complete solution with AI and there were several themes that could touch you as a team."}, "textLinks": {"es": []}} },
+      { id: "6a72a0b1-67d2-4086-8020-52d88481e771", type: "text", props: {"text": {"es": "Yo fui solo y a mi equipo nos tocó desarrollar un chatbot para las empresas de moda. La idea era integrar todo el catalogo de una web como Pull and Bear en un asistente para poder encontrar lo que quieres más rápido. El bot era proactivo, te hacia unas cuantas preguntas, o bien tú podías interrumpirle y darle sugerencias. ", "en": "I went alone and my team had to develop a chatbot for fashion companies. The idea was to integrate the entire catalogue of a website like Pull and Bear into a wizard to be able to find what you want faster. The bot was proactive, asking you a few questions, or you could interrupt and give suggestions."}, "textLinks": {"es": []}} },
+      { id: "4b3a0b0a-0255-4c77-a58e-d127e79dae89", type: "text", props: {"text": {"es": "El nuestro funcionaba con embeddings, el catalogo era una base de datos tabular, con las mismas columnas predefinidas para cada prenda: corte, color, categoría... entonces normalizamos los valores a números y situamos a cada prenda en el mismo espacio n-dimensional. La consulta al bot creaba otro punto en ese espacio y se escogían los puntos de prendas que quedasen más cerca. ", "en": "Ours worked with embeddings, the catalog was a tabular database, with the same predefined columns for each garment: cut, color, category... then we normalized the values to numbers and placed each garment in the same n-dimensional space. The query to the bot created another point in that space and the garment points that were closest were chosen."}, "textLinks": {"es": []}} },
+      { id: "43fa2ee4-a81d-4127-915d-31b2b0a3bcf5", type: "text", props: {"text": {"es": "Quedamos finalistas, nos pusimos nerviosos en el pitch. ", "en": "We were finalists, we got nervous at the pitch."}, "textLinks": {"es": []}} },
+      { id: "2823477e-13dc-411f-810b-d31dbe84428b", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/c1b6d4b7-5cf4-46af-b335-f2ab69ebe242-img_8379.jpeg", "caption": ""} },
+    ],
   },
-  'contact': {
-    kicker: 'Reachable', when: 'always', where: 'Madrid → London',
-    title: 'Say something strange',
-    lede: 'Fastest reply if your message contains a question nobody has asked me before.',
-    stats: [['ES / FR / EN', 'languages'], ['Madrid', 'now'], ['London', 'Oct 2026']],
-    bullets: ['Email is best. GitHub if it is about code. LinkedIn if it must be formal.'],
-    links: [['alejandrotreny100@gmail.com', 'mailto:alejandrotreny100@gmail.com'], ['github.com/aleetreny', 'https://github.com/aleetreny'], ['linkedin.com/in/aleetreny', 'https://linkedin.com/in/aleetreny']],
-    photos: 0, tags: ['contact']
-  }
+  "hack-diputacion": {
+    id: "4283aa4f-f904-5592-b9d7-623c2648c323",
+    kicker: {"es": "HACKATHON", "en": "Prize · Runner-up"},
+    when: {"es": "2024", "en": "May 2026"},
+    where: {"es": "Madrid", "en": "Málaga"},
+    title: {"es": "Hackathon ThePower", "en": "Diputación hackathon — came back with a Mac"},
+    group: "hack", order: 4,
+    blocks: [
+      { id: "b7725d1c-64ab-4355-9a62-1907950fb7d9", type: "text", props: {"text": {"es": "ThePower es una escuela de negocios en Madrid muy popular, tiene una rama de IA y Ciencia de Datos con la Academia Hackio. Organizaron este Hackathon de 3 días donde te daban una base de datos de clientes por grupo y tenias que desarrollar una idea de negocio en el sector del calzado. ", "en": "ThePower is a very popular business school in Madrid, it has an AI and Data Science branch with the Hackio Academy. They organized this 3-day Hackathon where they gave you a database of customers per group and you had to develop a business idea in the footwear sector."}, "textLinks": {"es": []}} },
+      { id: "6ca624b2-7095-44b1-82da-1afdf7fc47dc", type: "text", props: {"text": {"es": "Aquí fue al revés que con el Hackathon del Ayuntamiento de Málaga, el equipo vivía en Málaga y teníamos que ir a Madrid antes de la temporada de exámenes. Pasamos el finde colaborando con gente nueva para hacer el pitch perfecto del producto, escogimos un nicho muy concreto, una plantilla con texturas diferentes en cada parte del pie para aplicar los conceptos asiáticos de la reflexología (conexiones entre diferentes partes del cuerpo) en nuestro marketing. Básicamente una plantilla que te ayuda a dejar de fumar. ", "en": "Here it was the opposite of the Málaga City Council Hackathon; the team lived in Málaga and we had to go to Madrid before exam season. We spent the weekend collaborating with new people to create the perfect product pitch. We chose a very specific niche: an insole with different textures on each part of the foot to apply Asian reflexology concepts (connections between different parts of the body) to our marketing. Here it was the other way around that with the Malaga City Council Hackathon, the team lived in Malaga and we had to go to Madrid before the exam season. We spent the weekend collaborating with new people to make the perfect product pitch, we chose a very specific niche, an insole with different textures on each part of the foot to apply the Asian concepts of reflexology (connections between different parts of the body) in our marketing."}, "textLinks": {"es": []}} },
+      { id: "dd0f17d2-89eb-4649-a716-4e9b7707b5a9", type: "text", props: {"text": {"es": "Queríamos salirnos un poco de la norma y nos ceñimos a la idea de que hay un mercado potencial para todo. Quedamos finalistas y pasamos un finde increíble. Estos periodos de no dormir y esfuerzo conjunto en una idea son energizantes y fáciles de recordar. ", "en": "We wanted to go a little outside the norm and stick to the idea that there is a potential market for everything. We were finalists and had an incredible weekend. These periods of not sleeping and joint effort on an idea are energizing and easy to remember."}, "textLinks": {"es": []}} },
+      { id: "8d1d2a82-5e5d-4a3a-a529-a3e96321d479", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/45f2faee-369d-44d8-ba74-70329a64eabb-img_4417.jpeg", "caption": ""} },
+      { id: "bb5953d2-5849-4a80-a9e8-e2e796597d84", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/9d24777f-47bb-44d3-abb4-1375367276e5-img_1731848658042.jpeg", "caption": {"es": "Trabajando pero disfrutando", "en": "Working but enjoying"}} },
+    ],
+  },
+  "photo-prize": {
+    id: "8c84dccf-0ba2-53b5-adcd-f3c6ababdd2a",
+    kicker: {"es": "Concurso", "en": "Prize · Twice"},
+    when: {"es": "2025", "en": "Nov–Dec 2025"},
+    where: {"es": "Málaga", "en": "Málaga"},
+    title: {"es": "Concurso fotográfico de cooperación internacional", "en": "International cooperation photo contest — 2nd and 3rd"},
+    group: "hack", order: 5,
+    blocks: [
+      { id: "fe925a8a-81f3-4c98-8d50-fddefdb1d66a", type: "text", props: {"text": {"es": "Entre todos los cooperantes internacionales de los programas que organiza la oficina de cooperación española, se otorgan 3 premios a las mejores fotografías  en dos categorías distintas: Voluntariado y Vida de los Locales", "en": "Among all the international cooperators of the programs organized by the Spanish cooperation office, 3 awards are given to the best photographs that capture the essence of volunteering."}, "textLinks": {"es": []}} },
+      { id: "5027235c-7b5d-4b05-8d05-eb4878130865", type: "text", props: {"text": {"es": "Este año tuve la suerte de conseguir el segundo premio en la primera categoría, y el tercer premio en la segunda categoría. Las fotos son una forma artística curiosa, inmortalizan emociones reales. Os dejo por aquí las dos ganadoras:", "en": "This year I was lucky enough to get the second and third prizes of the contest. Photos are a curious art form, immortalizing real emotions. Here are the two winners:"}, "textLinks": {"es": []}} },
+      { id: "4e452658-df56-4d2d-91f0-f5b2074621a3", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/c4aaffaf-9f4b-4f07-81b5-25286344a059-img_1755868630145.jpeg", "caption": {"es": "2 premio categoría de Voluntariado", "en": "2 prize"}} },
+      { id: "9809d7cc-35b7-43c2-8ee0-2df2ec6a7494", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/d32098dc-b048-48fe-849e-1d7069db848c-img_6344.jpg", "caption": {"es": "3 premio categoría Vida de los Locales", "en": "3 prize"}} },
+    ],
+  },
+  "mvp-hidro": {
+    id: "6aab898c-4646-511b-a46d-30cd2c8bab64",
+    kicker: {"es": "Hackathon", "en": "Hackathon · MVP"},
+    when: {"es": "2022", "en": "2022"},
+    where: {"es": "Málaga", "en": "Málaga"},
+    title: {"es": "Hackathon 2º Flash Session UMA", "en": "Rooftop hydroponics MVP"},
+    lede: {"es": "Segunda edición del Concurso de Ideas de la Universidad de Málaga", "en": "Every city has thousands of square metres of empty roof. We built the business around filling them with food."},
+    group: "hack", order: 6,
+    blocks: [
+      { id: "8a06030b-19e9-48ca-a8bb-c79c456615ff", type: "text", props: {"text": {"es": "Esta vez el problema que detectamos es que no hay incentivo para reciclar más que la moral. Todos sabemos que es lo correcto pero la barrera del esfuerzo solo se supera con concienciación absoluta o con algún tipo de premio. Es por ello que diseñamos un contenedor inteligente (de los que ahora se pueden ver por las universidades, pero en ese momento eran innovadores jajaja)", "en": "This time the problem we detected in that there is no incentive to recycle other than morale. We all know that it is the right thing to do, but the barrier of effort can only be overcome with absolute awareness or with some kind of reward. That's why we designed a smart container (one that can now be seen by universities, but at that time they were innovative haha)"}, "textLinks": {"es": []}} },
+      { id: "ba63f8bb-4f97-4dc8-bce6-add0309dc6b8", type: "text", props: {"text": {"es": "El concepto era situarlos en los focos de generación de plásticos, vidrio y cartón, como las cafeterías de las universidades, y dar premios por envase reciclado. Los premios, para hacer viable el modelo de negocio, eran descuentos en empresas asociadas, por ejemplo: en la propia cafetería, en la primera cuota del gym, en un helado. De esa forma, al mismo tiempo creábamos una plataforma de captación de usuarios para estos negocios, que ya estaban dispuestos a hacer descuentos por su cuenta pero ahora les hacemos el match con el usuario premiado. ", "en": "The concept was to place them in the foci of plastic, glass and cardboard generation, such as university cafeterias, and give prizes for recycled packaging. The prizes, to make the business model viable, were discounts in associated companies, for example: in the cafeteria itself, in the first installment of the gim, in an ice cream. That way, at the same time we created a user acquisition platform for these businesses, which were already willing to make discounts on their own but now we match them with the winning user."}, "textLinks": {"es": []}} },
+      { id: "1321f5db-d5b8-4be7-a5a3-6c501b9e8934", type: "text", props: {"text": {"es": "Había ideas increíbles pero logramos quedar segundos. Aquí una fotito de la celebración:", "en": "There were incredible ideas but we managed to finish second."}, "textLinks": {"es": []}} },
+      { id: "d72b375b-9701-448f-ac12-f2bdfaea8296", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/96e1872f-2053-49bc-9a10-dd92d547d457-img_3215.jpeg", "caption": ""} },
+    ],
+  },
+  "mvp-recycling": {
+    id: "2fb3c406-b259-5e41-b895-03e63b9cd5ce",
+    kicker: {"es": "Hackathon", "en": "Hackathon · MVP"},
+    when: {"es": "2022", "en": "2022"},
+    where: {"es": "Málaga", "en": "Málaga"},
+    title: {"es": "Hackathon 1º Flash Session UMA", "en": "Recycling startup MVP"},
+    lede: {"es": "Primera edición del Concurso de Ideas de la Universidad de Málaga", "en": "First edition of the Contest of Ideas of the University of Malaga"},
+    group: "hack", order: 7,
+    blocks: [
+      { id: "1430206c-da40-4697-8d34-e24ddc2e0481", type: "text", props: {"text": {"es": "Este concepto consistía en crear y trabajar en el plan de negocio de una empresa durante un fin de semana, presentándola el domingo en un pitch ante todos los demás grupos. ", "en": "This concept consisted of creating and working on a company's business plan over a weekend, presenting it on Sunday in a pitch before all the other groups."}, "textLinks": {"es": []}} },
+      { id: "3924f295-333a-4b05-ba5f-201b1f7548cf", type: "text", props: {"text": {"es": "El problema que buscamos resolver era el uso de las azoteas en Málaga. En su mayoría están siendo desaprovechadas y de transformarlas correctamente en zonas verdes podrían servir a 3 fines diferentes:", "en": "The problem we sought to solve was the use of rooftops in Malaga. For the most part they are being wasted and to transform them correctly they could serve 3 different purposes:"}, "textLinks": {"es": []}} },
+      { id: "9c4e1eb8-a937-400f-9456-74e3266a32ed", type: "list", props: {"items": [{"es": "Combatir la contaminación en la ciudad al mismo tiempo que se regula la temperatura.", "en": "Tackling pollution"}, {"es": "Revitalizar de naturaleza un núcleo urbano bastante seco. Sobre todo en vista aérea.", "en": "Revitalize nature in a fairly dry urban area. Especially in aerial view."}, {"es": "Crear lugares de encuentro para vecinos de una misma comunidad, donde poder llevar a cabo actividades hortofrutícolas como un huerto o jardines. ", "en": "Create meeting places for residents of the same community, where they can carry out horticultural activities such as an orchard or gardens."}], "itemTextLinks": {"es": [[], [], []]}} },
+      { id: "a2ad04ff-de6d-45d9-9cbd-4fdc3f539590", type: "text", props: {"text": {"es": "La idea era la creación de una empresa especializada en la creación de estos espacios verdes a medida en función de las prioridades de las comunidades de vecinos.", "en": "The idea was to create a company specialized in the creation of these green spaces tailored to the priorities of the neighboring communities."}, "textLinks": {"es": []}} },
+      { id: "8abc96d8-8663-4925-a793-60cabd6ca6bf", type: "text", props: {"text": {"es": "Había muy buenos proyectos y no logramos ganar. ", "en": "There were very good projects and we couldn't win."}, "textLinks": {"es": []}} },
+      { id: "5f33f460-6871-4bb1-a3c5-53ef3d99df16", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/7180f084-ce60-4444-a69a-3d1447ad9a47-img_2643.jpeg", "caption": ""} },
+    ],
+  },
+  "atlas": {
+    id: "a803e309-5771-5fb1-a1d6-91dcb2b3b16a",
+    kicker: {"es": "CÓDIGO", "en": "Code · Reference"},
+    when: {"es": "2026", "en": "ongoing"},
+    where: {"es": "Didáctica", "en": "everywhere"},
+    title: {"es": "ATLAS", "en": "ATLAS & the Data Science Ecosystem"},
+    lede: {"es": "Un recopilatorio de métodos de Machine Learning, desde lo más clásico hasta modelos generativos.", "en": "My own textbook. Classical methods through to generative AI, each one with a real case study, written so future-me can trust it."},
+    group: "repos", order: 0,
+    blocks: [
+      { id: "f8025a74-f615-479b-8222-492a93b4af8c", type: "text", props: {"text": {"es": "Mi proyecto favorito. En un intento de aprender por mi cuenta todos los algoritmos modernos, empecé hace unos años a crear pequeñas notebooks de python para probar con casos reales, que acabaron convirtiéndose sin querer en una especie de articulo en markdown explicando el algoritmo. Este año he recopilado todas estas libretas y las he agrupado bajo el paraguas de ATLAS: Algorithmic Techniques for Learning And Statistics. ", "en": "My favorite project. In an attempt to learn all the modern algorithms on my own, I started a few years ago to create small python notebooks to test with real cases, which ended up inadvertently becoming a kind of article in markdown explaining the algorithm. This year I have collected all these notebooks and grouped them under the ATLAS umbrella: Algorithmic Techniques for Learning And Statistics."}, "textLinks": {"es": []}} },
+      { id: "9279367f-d221-41e3-8159-489eed3d9eb8", type: "text", props: {"text": {"es": "El diseño se basa en los blogs de MLU-Explain de AWS. Siempre he adorado su simplicidad y practicidad visual. El contenido está estructurado en artículos para cada técnica, con ejemplos reales y agrupación por categorías. ", "en": "I will always remember AWS MLU-Explain blogs, and I loved that aesthetics and simplicity"}, "textLinks": {"es": []}} },
+      { id: "96282ba7-48e2-4807-b447-686008d23211", type: "text", props: {"text": {"es": "Creo que es extremadamente útil para iniciarse en este mundo del Machine Learning y es divertido de leer.", "en": "I think it is extremely useful to delve into what this world of Machine Learning is and its real usefulness."}, "textLinks": {"es": []}} },
+      { id: "b4264e5f-7aeb-4324-84d6-d83c8f741691", type: "links", props: {"items": [["Github", "https://aleetreny.github.io/ATLAS/"], ["Web", "https://aleetreny.github.io/ATLAS/"]]} },
+      { id: "74488d0e-8e79-4508-96ea-991ec27c3db5", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/eadbd034-b4d1-4787-a276-3dc6d94d3838-screenshot-2026-08-22-at-19.13.58.png", "caption": ""} },
+    ],
+  },
+  "mapping-science": {
+    id: "4339eddf-208b-5edf-a06d-700019dc03c8",
+    kicker: {"es": "CÓDIGO", "en": "Code · Thesis"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "Embeddings", "en": "Madrid"},
+    title: {"es": "Mapping Science", "en": "Mapping Science"},
+    lede: {"es": "Un nuevo enfoque para comparar campos científicos basado en crear nubes de papers con embeddings. ", "en": "The shape of science itself: how research fields form, drift and collide over time."},
+    group: "repos", order: 1,
+    blocks: [
+      { id: "ba866ddc-0b00-4563-9218-273162cde45d", type: "text", props: {"text": {"es": "Este proyecto es mi TFM del Máster en Estadística para la Ciencia de Datos. En el repositorio de Github se puede encontrar todo el procedimiento, los hallazgos y la memoria, además, he creado una web con un enfoque más artístico que científico para visualizar las representaciones en 2d de todas las ramas científicas.", "en": "This project is my master's thesis on statistics"}, "textLinks": {"es": [{"end": 74, "href": "article:uc3m", "start": 28}]}} },
+      { id: "45df5f91-1667-4c67-a737-ce3b20d87234", type: "text", props: {"text": {"es": "Bueno, este proyecto se basa en encontrar un nuevo eje para examinar un campo de investigación en conjunto. Actualmente nos fijamos en citas, autores, numero de publicaciones... pero no podemos comparar más profundamente dos disciplinas totalmente dispares. ", "en": "Well, this project is based on finding a new axis to examine a field of research as a whole. Currently we look at citations, authors, number of publications... but we can not compare more deeply two totally disparate disciplines."}, "textLinks": {"es": []}} },
+      { id: "37d121fa-120d-4649-aca0-668e3490166d", type: "text", props: {"text": {"es": "Por ello, pensé que podríamos usar embeddings una vez más para cuantificar lo abstracto. ¿Cómo? Bien pues una disciplina no es más que un conjunto de papers, cada uno de estos puede ser transformado a un vector de cientos de variables usando algoritmos como SPECTER2, y al representar todos estos vectores de una misma disciplina en el mismo espacio n-dimensional, podemos obtener una nube de puntos de esa misma disciplina. ", "en": "So I thought we could use embeddings once again to quantify the abstract. How? Well, since a discipline is nothing more than a set of papers, each of these papers can be transformed into a vector of 728 variables using algorithms such as"}, "textLinks": {"es": []}} },
+      { id: "2108f39b-520c-44cf-bef6-9c9a16ba736f", type: "text", props: {"text": {"es": "Pero lo verdaderamente interesante está en sacar métricas de cada una de estas nubes y compararlas entre ellas. Así por ejemplo, podemos aplicar principios cartográficos para calcular agregación, localidad, compactación, dimensionalidad... y tener un mapa con medidas objetivas para cada ciencia. Con estas métricas, que fueron seleccionadas con un riguroso estudio de prueba y error evitando correlaciones y  buscando significatividad, podemos estudiar cómo ha evolucionado una ciencia a lo largo del tiempo, cómo de diferente es de otra, o cuáles se están acercando o alejando en cuanto a forma.", "en": "But the really interesting thing is to take metrics from each of these clouds and compare them to each other. For example, we can apply cartographic principles to calculate aggregation, locality, compaction, dimensionality... and have a map with objective measurements for each science. With these metrics, which were selected with a rigorous trial and error study avoiding correlations and  looking for significance, we can study how one science has evolved over time, how different it is from another, or which ones are approaching or moving away in terms of form."}, "textLinks": {"es": []}} },
+      { id: "1d71d952-ddda-4dff-be0e-4d5de459088b", type: "text", props: {"text": {"es": "Lo bonito de esto es que podemos apreciar resultados intuitivos, como la similitud en forma entre ciencias de la agricultura y ciencias del medio ambiente; pero también resultados sorprendentes, como el cambio de forma radical que ha tenido la psicología, una ciencia muy establecida. ", "en": "The beauty of this is that we can appreciate intuitive results, such as the similarity in form between agricultural sciences and environmental sciences; but also surprising results, such as the radical change that psychology has had, a very established science."}, "textLinks": {"es": []}} },
+      { id: "2c8d7eb2-46e3-45cb-828d-d0e773779dee", type: "text", props: {"text": {"es": "El proyecto ha sido un reto continuo, he probado mil cosas como usar esos embeddings para hacer regresiones con el crecimiento del campo (y entonces poder predecir crecimiento de un campo únicamente con el texto de los papers que lo forman), hacer clusterings de tipos de ciencia, usar otras categorías de subdivisión de ciencias... Pero creo que ha quedado una forma final bastante interesante. ", "en": "The project has been a continuous challenge, I have tried a thousand things such as using those embeddings to make regressions with the growth of the field (and then being able to predict the growth of a field solely with the text of the papers that make it up), making clusterings of types of science, using other categories of science subdivision... But I think there is a final form that has been quite interesting."}, "textLinks": {"es": []}} },
+      { id: "e3e48886-9d4a-569a-89a9-61c360b3a9c5", type: "links", props: {"items": [["GitHub", "https://github.com/aleetreny/Mapping-Science"], ["Web", "https://aleetreny.github.io/Mapping-Science/"]]} },
+      { id: "0dcf739c-fdd9-4769-b3a2-801493de9e98", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/0115a4ca-9980-44dd-96c1-51db542c4bae-field__30__pharmacology_toxicology_and_pharmaceutics.png", "caption": {"es": "Field 30: Pharmacology, Toxicology and Pharmaceutics", "en": "Field 30: Pharmacology, Toxicology and Pharmaceutics"}} },
+    ],
+  },
+  "localizate": {
+    id: "dee7042b-1d1f-5cab-a90d-b74fc7da9927",
+    kicker: {"es": "Código", "en": "Code · For a city"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "ML", "en": "Madrid"},
+    title: {"es": "Localízate", "en": "Localízate"},
+    lede: {"es": "Machine Learning y modelos de supervivencia para predecir si un nuevo negocio sobrevivirá en su calle.", "en": "Open data plus machine learning to predict whether a new business will survive its street."},
+    group: "repos", order: 2,
+    blocks: [
+      { id: "2416a3af-32e0-4f01-b784-efecb37f4774", type: "text", props: {"text": {"es": "Este proyecto surge como candidatura para el Concurso de Datos Abiertos del Ayuntamiento de Madrid. El reto era utilizar su portal de datos para crear una herramienta de utilidad para la sociedad. ", "en": "This project emerges as a candidate for the Open Data Contest of the Madrid City Council"}, "textLinks": {"es": [{"end": 98, "href": "article:hack-madrid", "start": 45}]}} },
+      { id: "f039efd3-203b-426d-8fd5-79e64ad0e8d1", type: "text", props: {"text": {"es": "Yo preferí tirar por una herramienta innovadora que no existiese y que además incorporase algunos algoritmos que estaba aprendiendo en clase de Bioestadística. Resulta que cuando se quiere predecir el tiempo hasta que ocurre un evento x, se usan unos algoritmos específicos llamados \"Modelos de Supervivencia\", y se me ocurrió aplicar esto para predecir cuánta esperanza de vida tienen diferentes actividades económicas en las diferentes partes de Madrid. ", "en": "I preferred to use an innovative tool that did not exist and that also incorporated some algorithms that I was learning in Biostatistics class. It turns out that when you want to predict the time until an event x occurs, you use specific algorithms called \"Survival Models\", and it occurred to me to apply this to predict how much life expectancy different economic activities have in different parts of Madrid."}, "textLinks": {"es": []}} },
+      { id: "b2468aa1-41f7-4672-a6ca-251d094f5a37", type: "text", props: {"text": {"es": "Para este fin, usé el registro histórico de actividades inscritas en el Ayuntamiento, que no es más que una csv mensual con los locales inscritos, códigos de referencia, ubicación... Con un poco de procesamiento, pude sacar muchas observaciones de locales que habían desaparecido del registro, junto con sus categorías, y entonces poder entrenar a un modelo con millones de ejemplos reales en función de la zona donde habría el local y qué actividad tenía. ", "en": "For this purpose, I used the historical register of activities registered with the City Council, which is no longer a monthly csv with the registered premises, reference codes, location... With a little processing, I was able to take many observations of premises that had disappeared from the register, along with their categories, and then be able to train a model with millions of real examples depending on the area where the premises would be and what activity they had."}, "textLinks": {"es": []}} },
+      { id: "8a5884ad-c7e0-438b-a6c8-c8d099c3350d", type: "text", props: {"text": {"es": "El resultado fue una probabilidad de supervivencia para diferentes umbrales en meses (12, 24, 48...), que pude representar en un grid de Madrid usando como unidad de estudio los hexágonos que usa Uber para calcular su demanda por zona. En conjunto, tenía un grid de Madrid con miles de hexágonos, y para cada uno, una probabilidad de supervivencia x meses para cada actividad posible. ", "en": "The result was a probability of survival for different thresholds in months (12, 24, 48...), which I was able to represent in a grid in Madrid using as a unit of study the hexagons that Uber uses to calculate its demand by area. Altogether, it had a grid of madrid with thousands of haxagons, and for each, a probability of survival x months for each possible activity."}, "textLinks": {"es": []}} },
+      { id: "82318c64-c762-4125-bf63-36c8fffd6915", type: "text", props: {"text": {"es": "Para que el modelo fuera robusto, incorporé otras muchas bases de datos que describen mejor cada hexágono. Renta y demografía del INE, metro y bus con la EMT, transito con Datos Abiertos... Al final tenias cientos de variables para cada hexágono.", "en": "To make the model robust, incorporate many other databases that best describe each hexagon. Income and demographics of the INE, metro and bus with the EMT, transit with Open Data... In the end you had hundreds of variables for each hexagon."}, "textLinks": {"es": []}} },
+      { id: "ded4e776-cea9-4d42-a607-577d5418ac6d", type: "text", props: {"text": {"es": "Lo chulo de esto es que al incorporar los locales en alquiler desde Idealista o Locales.es, podía crear una herramienta de recomendación de actividad para cada espacio disponible. Básicamente un mapa donde cada punto es un local disponible y te da un ranking de las actividades que más probabilidad tienen de durar x meses. ", "en": "The cool thing about this is that by incorporating the premises for rent from Idealista or Locales.es, I could create an activity recommendation tool for each available space. Basically a map where each point is an available place and gives you a ranking of the activities that are most likely to last x months."}, "textLinks": {"es": []}} },
+      { id: "cd430d16-5dfd-5fcd-8466-80a5c5130963", type: "links", props: {"items": [["GitHub", "https://github.com/aleetreny/Localizate"], ["Web", "https://localizate.pages.dev"]]} },
+      { id: "d6606e7a-b0ec-4b49-9fcf-25b8df21119d", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/62393f0b-6479-4cc6-a0a2-c22fb28e6eb1-preview.png", "caption": ""} },
+    ],
+  },
+  "scholar-pulse": {
+    id: "8c7c235d-403d-5a07-a058-b2537a39cc62",
+    kicker: {"es": "Código", "en": "Code"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "ML", "en": "Madrid"},
+    title: {"es": "ScholarPulse", "en": "Scholar Pulse"},
+    lede: {"es": "Actualidad científica desde arXiv, con un recomendador sobre papers potencialmente importantes.", "en": "A living showroom for recent science — daily papers, thematic collections, discovery that does not require already knowing what you want."},
+    group: "repos", order: 3,
+    blocks: [
+      { id: "ac35cbf1-c0d7-4de8-b1dd-5c80e429485a", type: "text", props: {"text": {"es": "Este proyecto es sencillo, agrupar en un mismo sitio un feed de últimos papers de arXiv por disciplinas, y además poder ordenarlos por probabilidad de volverse importantes. ", "en": "This project is simple, grouping in the same place a feed of latest papers by disciplines, and also being able to sort them by probability of becoming important."}, "textLinks": {"es": []}} },
+      { id: "478285bd-7e76-45fe-ac0b-4a50289a3383", type: "text", props: {"text": {"es": "El problema básico es que en los primeros días de un nuevo paper la señal es bastante baja como para decidir cuáles van a ser más importantes que otros, sin embargo, usando variables como el tamaño del equipo, la periodicidad de publicación de sus autores, la longitud del titulo y otros factores, podemos predecir importancia futura.", "en": "The basic problem is that in the first days of a new paper the signal is low enough to decide which ones will be more important than others, however, using variables such as the size of the team, the periodicity of publication of its authors, the length of the title and other factors, we can predict future importance with an AUC of 0.79."}, "textLinks": {"es": []}} },
+      { id: "cd9956df-e865-4d8d-b86f-3e8afd1abd2d", type: "text", props: {"text": {"es": "Es lo que uso yo personalmente para ponerme al día.", "en": "It's what I personally use to catch up."}, "textLinks": {"es": []}} },
+      { id: "308cec03-48ff-5eca-a12e-dc823a14315f", type: "links", props: {"items": [["GitHub", "https://github.com/aleetreny/Scholar-Pulse"], ["Web", "https://aleetreny.github.io/Scholar-Pulse/"]]} },
+    ],
+  },
+  "vexillology": {
+    id: "3c27af8d-c4d6-5011-a1cc-9864db3ce032",
+    kicker: {"es": "Código", "en": "Code · Pure curiosity"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Computer Visión", "en": "the sofa"},
+    title: {"es": "Vexilología Computacional", "en": "Computational Vexillology"},
+    lede: {"es": "Exploración de la correlación entre el diseño de las banderas y otros factores contextuales.", "en": "Quantify the design of flags to look for correlations with other contextual factors."},
+    group: "repos", order: 4,
+    blocks: [
+      { id: "598e1f0c-fbb6-44c6-939f-034b9565f22f", type: "text", props: {"text": {"es": "Este proyecto me hace especial ilusión. Siempre me ha gustado como las banderas, a pesar de ser diseños relativamente sencillos, representan naciones enteras. Surgieron como estandartes para diferenciar las tropas en las batallas, pero han evolucionado hasta convertirse en signos políticos que identifican a la patria. ", "en": "This project makes me especially excited. I have always liked geography but especially towards a branch that I am passionate about: the study of flags, vexillology"}, "textLinks": {"es": []}} },
+      { id: "967a5292-d31f-4d78-9a74-809a88a6f760", type: "text", props: {"text": {"es": "Como reglas de diseño generales tenemos la simplicidad, la unicidad y el simbolismo, pero dentro de estos margenes hay mucho margen de decisiones en cuanto a colores, angulación, trazados, iconos... Este estudio propio de la Vexilología (ciencia que estudia las banderas) comenzó en respuesta a una pregunta: ¿existe algún patrón en el diseño de las banderas en función del contexto social, climático, político o económico? La respuesta intuitiva debería de ser que sí, pero es difícil demostrarlo de forma objetiva y general ya que cada diseño es único.", "en": "As general design rules we have simplicity, uniqueness and symbolism,"}, "textLinks": {"es": []}} },
+      { id: "701642df-fc2e-485a-9f0e-fbc275c889d3", type: "text", props: {"text": {"es": "Para poder estudiar este caso, transformamos todas las banderas en vectores numéricos. Esto lo hacemos creando variables de características de las banderas, como su componente de blanco, numero de colores, contraste... De esta forma conseguimos una representación en números que poder correlacionar con otros factores como el PIB, la temperatura promedio u otros factores. ", "en": "In order to study this case, we transformed all the numerical vector flags. We do this by creating variables of characteristics of the flags, such as their white component, number of colors, contrast... In this way we get a representation in numbers that can be correlated with other factors such as GDP, average temperature or other factors."}, "textLinks": {"es": []}} },
+      { id: "fce448ad-24ac-4bdb-919d-9ee0ba119478", type: "text", props: {"text": {"es": "Además, para no sobredepender en mi juicio a la hora de crear variables, hacemos que el 50% del peso del vector sean los valores numéricos resultantes de un algoritmo de computer visión, que saca una representación en embeddings de las banderas sin sesgos de interpretabilidad de variables. ", "en": "In addition, in order not to over-depend on my judgment when creating variables, we make 50% of the weight of the vector be the numerical values resulting from a computer vision algorithm, which takes an embeddings representation of the flags without biases of interpretability of variables."}, "textLinks": {"es": []}} },
+      { id: "a533a14a-8d87-4389-861c-ee6b428b3c5e", type: "text", props: {"text": {"es": "Con ello conseguimos algo examinable, medible y estudiable, espero que os guste :)", "en": "With this we get something examinable, measurable and studyable, I hope you like it :)"}, "textLinks": {"es": []}} },
+      { id: "ba930d0d-4efb-57da-97cc-7b58e2a118f2", type: "links", props: {"items": [["GitHub", "https://github.com/aleetreny/Computational-Vexillology"], ["Report", "https://aleetreny.github.io/Computational-Vexillology/?v=force_refresh_1"]]} },
+      { id: "53eedf48-041e-451f-bc8f-ffa4fc5a5c7e", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/9c4b8503-13d4-4097-bb27-3994e71f47d5-cover_preview.png", "caption": ""} },
+    ],
+  },
+  "hollywood": {
+    id: "d595c82c-0661-5edf-8122-a9916b5abd5a",
+    kicker: {"es": "Código", "en": "Code"},
+    when: {"es": "2025", "en": "2025"},
+    where: {"es": "Embeddings", "en": "Embeddings"},
+    title: {"es": "Hollywood Mirror", "en": "Hollywood Mirror"},
+    lede: {"es": "¿Cuánto se copian entre sí los guiones de películas? ¿A qué película se parece tu guión?", "en": "How much do film scripts copy each other? Embeddings say: quite a lot, and predictably so."},
+    group: "repos", order: 5,
+    blocks: [
+      { id: "4e972bc8-f55d-4b84-94e5-76e4b8c265ee", type: "text", props: {"text": {"es": "Los embeddings son un recurso maravilloso para estudiar relaciones entre formatos originalmente distintos al numérico. En este caso he cogido una base de datos de miles de películas y sus guiones para comparar cuáles son las objetivamente similares en texto. ", "en": "Embeddings are a wonderful resource for studying relational between formats originally other than numeric. In this case I have taken a database of thousands of films and their scripts to compare which are objectively similar in text."}, "textLinks": {"es": []}} },
+      { id: "f6cb6059-5281-4f1c-b12f-17bd04e7d292", type: "text", props: {"text": {"es": "Lo complicado en este caso estaba en hacer un embedding de un input tan extenso, no quería perder contenido y hacer solo una parte porque es el todo lo que simboliza una película. Es por ello que dividí en chunks de texto el guión, hice un embedding para cada chunk y después la media de todos esos embeddings para sacar un vector para toda la película. Evidentemente se suavizaba la temática pero se guardaba la esencia general. ", "en": "The complicated thing in this case was to embed such an extensive input, I did not want to lose content and do only one part because it is the whole thing that symbolizes a film. That is why I divided the script into text chucks, made an embedding for each chunck and then the average of all those embeddings to get a vector for the entire film. Obviously the theme was softened but the general essence was kept."}, "textLinks": {"es": []}} },
+      { id: "15694abf-1a2a-40b4-a9eb-3e33c4221117", type: "text", props: {"text": {"es": "Una película es mucho más que su texto, pero es interesante ver cómo se cumplen relaciones esperadas entre sagas, y cómo se crean clusters en 2D de cada género.", "en": "A film is much more than its text, but it is interesting to see how expected relationships between sagas are fulfilled, and how 2d clusters of each genre are created."}, "textLinks": {"es": []}} },
+      { id: "00350449-ae9d-4d0a-8d6b-5bc1cea7d4a2", type: "text", props: {"text": {"es": "Este proyecto consta de un Quarto estudiando las curiosidades que iban surgiendo, así como una web donde poder jugar un poco: introduces tu guion o sinopsis de una idea de película que tengas, y recibes una lista de las películas existentes más parecidas a tu argumento, por similitud coseno. ", "en": "This project consists of a room studying the curiosities that were emerging as well as a website"}, "textLinks": {"es": []}} },
+      { id: "9a465824-7d6e-55f0-be67-964358750f7f", type: "links", props: {"items": [["GitHub", "https://github.com/aleetreny/Hollywood-Mirror"], ["Web", "https://hollywood-mirror.vercel.app"]]} },
+    ],
+  },
+  "cabicity": {
+    id: "dbf5edd5-0f8b-5d2a-b5ea-0d567e957e7e",
+    kicker: {"es": "Código", "en": "Code"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "ML", "en": "Madrid"},
+    title: {"es": "Cabicity", "en": "Cabicity & mad_plan"},
+    lede: {"es": "Incorporar rutas de transportes combinados en función de las preferencias del usuario.", "en": "Two attempts to make one city legible: every route, and every event."},
+    group: "repos", order: 6,
+    blocks: [
+      { id: "71c8a972-bb2a-45da-b34a-b1c448a492ab", type: "text", props: {"text": {"es": "Este proyecto forma parte del Hackathon de Cabify. El reto era elegir una linea sobre la que sugerir mejoras, nosotros escogimos multimodalidad de transporte en la app. Nuestra propuesta se enfocó en ofrecer una combinación de tipos de transportes desde el punto A hasta el punto B cuando esta fuese óptima, por ejemplo, coge un cabify hasta la estación Príncipe Pio y después la linea 10 hasta Tribunal. ", "en": "\nOur differentiating proposal focused on offering a combination of types of transport from point A to point B when it was most optimal, for example, take a cabify before the Principe Pio station and then line 10 to Tribunal."}, "textLinks": {"es": [{"end": 49, "href": "article:hackathon-de-cabify", "start": 30}]}} },
+      { id: "8ebd4df9-81db-4919-91c1-e54c49409135", type: "text", props: {"text": {"es": "Estas combinaciones se basaban en las preferencias del usuario: sostenibilidad, velocidad, coste.. Y se ofrecían en conjunto con opciones unimodales clásicas. La idea era hacer de cabify una aplicación de movilidad completa, e incentivar el uso de las opciones cabify con puntos canjeables en viajes normales. ", "en": "\nOur differentiating proposal focused on offering a combination of types of transport from point A to point B when it was most optimal, for example, take a cabify before the Principe Pio station and then line 10 to Tribunal."}, "textLinks": {"es": []}} },
+      { id: "fdf11f45-f002-4ada-9a1b-da8294475086", type: "text", props: {"text": {"es": "Las posibles combinaciones se hacían basándose en el algoritmo geoespacial de google maps y el rankeo de opciones dependía de las preferencias que indicaba el usuario. Hicimos una extracción masiva de lineas de bus, metro, cercanías, larga distancia, bicimad y patinetes eléctricos, además de APIs para horarios y precios en tiempo real. ", "en": "\n\nThese combinations were based on user preferences: sustainability, speed, cost... and were offered in conjunction with classic unimodal options. The idea was to make cabify a complete mobility application, and encourage the use of cabify options with redemption points on normal trips.\n\nThe ranking of options was given by an algorithm of weights based on preferences. We did a massive extraction of bus, metro, commuter, long-distance, bike and electric scooters lines, in addition to APIs for schedules and prices in real time, it was great."}, "textLinks": {"es": []}} },
+      { id: "dcff5c3b-e2cb-454f-a7f7-eb4c5fb73414", type: "text", props: {"text": {"es": "Quedó una versión funcional bastante bonita, con los diseños de marca de Cabify y la preview de la integración en la app. Por supuesto le quedaban por pulir fallos en los tiempos y las distancias, que un día dan para poco por mucho Claude que tengas.", "en": "There was a pretty nice functional version, with the brand designs of cabify the preview of the integration in the app."}, "textLinks": {"es": []}} },
+      { id: "b686585e-94cc-573f-bfc5-54cf2004bd24", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/Cabicity"], ["Web", "https://aleetreny.github.io/Cabicity/"]]} },
+      { id: "aa81dace-f63e-4d40-b956-5acdd3cd9892", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/dad5d747-a0b4-42bb-85d8-bdcf923df453-screenshot-2026-08-22-at-15.44.08.png", "caption": ""} },
+    ],
+  },
+  "small-repos": {
+    id: "3c47bb44-9166-5a31-a9d6-b5a47886c83e",
+    kicker: {"es": "CÓDIGO", "en": "Code · The rest"},
+    when: {"es": "2026", "en": "nights, various"},
+    where: {"es": "Webscrapping", "en": "github.com/aleetreny"},
+    title: {"es": "Mad Plan", "en": "Grabaciones, c2-practice-log, finanzas, Present, Development"},
+    lede: {"es": "La web que recopila todos los eventos y noticias de Madrid en un solo feed.", "en": "The utilities. Each one exists because paying for the alternative annoyed me more than building it."},
+    group: "repos", order: 7,
+    blocks: [
+      { id: "c61611d5-1393-447c-af2f-17c5b33a8217", type: "text", props: {"text": {"es": "Mi colega Nacho y yo hemos hecho muchos proyectos y trabajos juntos, pero este es especialmente chulo. Ambos somos de hacer muchos planes y probar cada actividad nueva y rara que surja. Cuando buscamos algo tenemos que meternos en Fever, Eventbrite, Wegow, Ticketmaster o Fundaciones, y la barrera psicológica es muchas veces tan grande que acabas haciendo lo mismo de siempre. ", "en": "Nacho and I"}, "textLinks": {"es": []}} },
+      { id: "e23c1e45-5e28-4910-87f8-fe5d0b83302d", type: "text", props: {"text": {"es": "En Mad Plan hemos agregado un pipeline de extracción diaria de planes de todos los portales de actividades en Madrid, destilándolas y agregándolas a un macro feed con recomendaciones, información previa, categorías, horarios y lugares. ", "en": "In Mad Plan we have added a daily extraction pipeline of plans from all activity portals in Madrid, distilling them and adding them to a macro feed with recommendations, valuable information, categories, schedules and places."}, "textLinks": {"es": []}} },
+      { id: "c95aafd5-8e50-4c8e-8532-6f3ab4181b5d", type: "text", props: {"text": {"es": "Tienes vista de lista y vista de mapa. Incluso una pestaña con un scrapping similar pero para webs de noticias, para estar al día de lo que sucede en cada zona. ", "en": "You have list view and map view. Even a tab with a similar scrapping but for news websites, to keep up to date with what is happening in each area."}, "textLinks": {"es": []}} },
+      { id: "4818ee3b-ac91-426c-9b8c-924fca90e5f7", type: "text", props: {"text": {"es": "Puedes filtrar por familia, tipo de plan, hora del día, en grupo.... Échale un ojo ->", "en": "You can filter by family, plan type, time of day, group.... Check it out ->"}, "textLinks": {"es": []}} },
+      { id: "bc712860-1d1d-48e8-86a7-e2d6ec17c75e", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/mad_plan"], ["Web", "https://aleetreny.github.io/mad_plan/"]]} },
+      { id: "dc33d4a2-e8c1-4614-a832-cbdaee8fa914", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/e9cee276-c861-4724-9acd-9e776b7e483d-screenshot-2026-08-22-at-19.24.26.png", "caption": ""} },
+    ],
+  },
+  "c2-practice-log": {
+    id: "a217077c-9cf6-4e3c-aced-26039d545b8c",
+    kicker: {"es": "Código", "en": "The workshop"},
+    when: {"es": "2026", "en": "2026"},
+    where: {"es": "Dashboard", "en": "DDBB and Stats"},
+    title: {"es": "C2 Practice Log", "en": "C2 Practice Log"},
+    lede: {"es": "Dashboard para practicar ejercicios tipo examen para el C2 de Cambridge, con estadísticas.", "en": "Dashboard to practice exam exercises for the Cambridge C2, with statistics."},
+    group: "repos", order: 8,
+    blocks: [
+      { id: "ec74a508-8cc9-4748-b0d0-70f15052e68c", type: "text", props: {"text": {"es": "Mientras practicaba ejercicios para C2 me faltaba un repositorio común que agrupase todos los recursos. Yo no estaba en academia por lo que echaba en falta el seguimiento de un profesor y el registro de mis simulacros. ", "en": "While practicing exercises for C2, I lacked a common repository that grouped all the resources. I was not in academia so I was missing the follow-up of a teacher and the registration of my drills."}, "textLinks": {"es": []}} },
+      { id: "120f55d4-a4a9-409f-bf75-d12b592fe08b", type: "text", props: {"text": {"es": "Primero creé una plantilla para rellenar las casillas del listening para no gastar papel, y poco a poco fui metiéndole plantillas de otras partes del examen, modo corrección, estadísticas de progreso, banco de vocabulario e incluso ejercicios reales que encontré en mil pdfs. ", "en": "First I created a template to fill in the listening boxes so as not to waste paper, and little by little I put templates of other parts of the exam, correction mode, progress statistics, vocabulary bank and even real exercises that I found in a thousand pdfs."}, "textLinks": {"es": []}} },
+      { id: "b5443f78-d9b7-4a16-8d02-e23dccb2ac5b", type: "text", props: {"text": {"es": "Ha quedado un recurso muy chulo para registrar todos tus simulacros con ejemplos reales y ver dónde estás fallando, poder revisar fallos comunes que cometes y evitarlos con un daily recall de flashcards.", "en": "It has been a very cool resource to record all your drills with real examples and see where you are failing, be able to review common mistakes you make and avoid them with a daily recall of flashcards."}, "textLinks": {"es": []}} },
+      { id: "9161afa8-183c-4596-bd68-8751b0c42286", type: "text", props: {"text": {"es": "No hay mucho ML por aquí, pero como utilidad es un 10.", "en": "It worked for me, wait"}, "textLinks": {"es": []}} },
+      { id: "01fbe3ea-f011-4fcc-a406-5396da86ed3b", type: "links", props: {"items": [["Github", "https://github.com/aleetreny/c2-practice-log"], ["Web", "https://aleetreny.github.io/c2-practice-log/"]]} },
+    ],
+  },
+  "garden": {
+    id: "9aafdb9c-5ea7-551e-9b02-1f0cc8890548",
+    kicker: {"es": "Obsessions", "en": "Obsessions"},
+    title: {"es": "Horticultura", "en": "The vegetable patch"},
+    lede: {"es": "Lo menos abstracto que encontrarás por aquí. Siembro, cuido y recojo", "en": "The least abstract thing I own. I plant it, it grows, I eat it, no dashboard required."},
+    group: "random", order: 0,
+    blocks: [
+      { id: "db89efac-85c1-4d85-bfad-23240e5c34f8", type: "text", props: {"text": {"es": "Me encanta la naturaleza, pero mucho. No me refiero solo a los paisajes, sino a toda la ciencia que hay detrás: botánica, edafología, geología... Estoy muy lejos de ser experto en alguna de estas ramas pero como aficionado me trago libros enteros de suelos o cultivos.", "en": "I love nature, but a lot. I am not referring only to landscapes, but to all the science behind them: botany, soil science, geology... I am far from being an expert in any of these branches but as an amateur I swallow whole books on soils or crops."}, "items": {"0": "horticulture", "1": "slow"}, "textLinks": {"es": []}} },
+      { id: "e3f44f97-aba4-4a35-9e55-c65c5ae0ba4a", type: "text", props: {"text": {"es": "He llevado esto a la práctica con un huerto, y para mí ha supuesto el clímax perfecto: ", "en": "I have put this into practice with a vegetable garden, it is the perfect climax:"}, "textLinks": {"es": []}} },
+      { id: "ef137d0a-3434-43db-ae6b-e2a1281a82f5", type: "list", props: {"items": [{"es": "Desconecto del mundo laboral. Es increíble la paz que se respira al dar un paseo entre las plantas. El ritual indispensable suele ser mirar los detalles que han crecido desde la última vez, quitarles las ramas que sobran, regarlas y comprobar si les falta algo. ", "en": "Disconnect from the world of work. It is incredible the peace that you can breathe when taking a walk among the plants. The essential ritual is usually to look at the details that have grown since the last time, remove the leftover branches, water them and check if they are missing something."}, {"es": "Disfruto experimentando. Hago un poco de laboratorio, pruebo tipos de suelo nuevos, diferentes composiciones, distancias entre las plantas, cruzo variedades, mido cosechas y tiempos. Hay mil variables incontrolables pero es interesante intentar entender su comportamiento objetivo.", "en": "I enjoy experimenting"}, {"es": "Como mis propias verduras. Esto es un nuevo placer desbloqueado, no hay comparación entre comerte una verdura del supermercado y otra plantada por uno mismo. No solo por el efecto psicológico del esfuerzo que lleva detrás, sino por la pureza e inmensidad de sabor que tienen. Son más feas pero una explosión de sabor natural.  ", "en": "I eat my own vegetables. This is a new unblocked pleasure, there is no comparison between eating a supermarket vegetable and another one planted by itself, not only for the psychological effect of the effort behind its cultivation, but for the purity and immensity of flavor they have. They are uglier but an explosion of natural flavour."}], "itemTextLinks": {"es": [[], [], []]}} },
+      { id: "3b14eaa8-26b3-454b-ab17-71e54d88de61", type: "text", props: {"text": {"es": "También salgo mucho de ruta a ver plantas nuevas y hace poco que he empezado a plantar flores aromáticas y especias. Lo próximo que me gusta hacer es iniciarme en taxonomía y propiedades medicinales/químicas. ", "en": "I leave you here at the aforementioned orchard"}, "textLinks": {"es": []}} },
+      { id: "161d500d-1f99-497e-896c-633b0c979d8a", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/db0d80c7-3a70-4c93-9315-0a55ed8354f5-img_0254.jpeg", "caption": ""} },
+      { id: "40572574-6e2d-409a-b9e2-06b69e5278ab", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/3e8087ed-831c-4c79-a681-9d856105070a-img_0253.jpeg", "caption": {"es": "Tomatitos", "en": "Tomatitos"}} },
+    ],
+  },
+  "telescope": {
+    id: "585f6f87-6b26-5b60-ae0e-515bca549ea4",
+    kicker: {"es": "Obsessions", "en": "Obsessions"},
+    title: {"es": "Astronomía", "en": "Astro-analytics"},
+    lede: {"es": "Estrellas, constelaciones, órbitas y cualquier cosa que haya en el espacio.", "en": "Stars, constellations, orbits, black holes, dark matter, and anything that sounds like science fiction"},
+    group: "random", order: 1,
+    blocks: [
+      { id: "bf8f4881-4bc9-4ac2-82b6-e79bdf55b7c3", type: "text", props: {"text": {"es": "Es una pasión fácil de compartir. Lo desconocido nos intriga y la forma más fácil de canalizar el misterio de nuestra existencia es mirando al espacio. A mi parecer, hay cierta paz en pensar que somos minúsculos e intrascendentes, que somos libres y no tenemos un fin supremo al que ceñirnos. ", "en": "It's an easy passion to share. The unknown intrigues us and the easiest way to channel the mystery of our existence is by looking into space. In my opinion, there is a certain peace in thinking that we are tiny and inconsequential, that we are free and do not have a supreme end to stick to."}, "textLinks": {"es": []}} },
+      { id: "ab380d5f-7fa1-4b18-80e6-765d3a1f00d3", type: "text", props: {"text": {"es": "Mirar a las estrellas me hace recordar todas estas filosofadas, pero también me hace pensar en las reglas que la rigen. Es sorprendente pensar en la armonía inquebrantable de las galaxias, en cómo la gravedad y las fuerzas repulsivas mantienen el todo dinámico sin romperse. Me gusta recordar las distancias, las velocidades, lo mucho que tarda la luz en llegar de las estrellas lejanas, que podrían ya estar apagadas. ", "en": "Looking at the stars reminds me of all these philosophies, but it also makes me think of the rules that govern it. It is surprising to think of the unbreakable harmony of galaxies, how gravity and repulsive forces keep the whole dynamic without breaking. I like to remember the distances, the speeds, how long it takes for light to reach the distant stars, which could already be off."}, "textLinks": {"es": []}} },
+      { id: "326790e6-67e8-4d4c-8b83-a1c2f18c6cbc", type: "text", props: {"text": {"es": "Me gusta sacar el telescopio y mirar Saturno. Todos sabemos que está ahí pero te choca verlo por primera vez con tus ojos. Estamos tan acostumbrados a abstracciones matemáticas y físicas que cuando un concepto es observable a simple vista nos emocionamos. ", "en": "I like to take out the telescope and look at Saturn. We all know it's there but you're shocked to see it for the first time with your eyes. We are so used to mathematical and physical abstractions that when a concept is observable with the naked eye we get excited."}, "textLinks": {"es": []}} },
+      { id: "e84d9d25-5077-48ef-bfaa-414428a35824", type: "text", props: {"text": {"es": "Me gusta tumbarme en la playa cuando son las Perseidas. Ver esos restos de polvo formando estelas que cruzan el cielo. La forma de las constelaciones y cómo cambian a lo largo del año me recuerdan al paso del tiempo, a que estoy en una roca que se mueve a 30km/s alrededor de una bola de fuego.", "en": "I like to lie on the beach when it's the Perseids. See those other dust forming trails that cross the sky."}, "textLinks": {"es": []}} },
+      { id: "714ded16-afdd-4666-a259-bebaa157431d", type: "text", props: {"text": {"es": "He querido aportar objetividad al asunto desde que era un crío, así que he devorado todo tipo de libros de divulgación, pero también de termodinámica, física general y otros temas relacionados con las fuerzas macroespaciales.", "en": "I have wanted to bring objectivity to the matter since I was a child, so I have devoured all kinds of popular books, but also thermodynamics, general physics and other topics related to macrospatial forces."}, "textLinks": {"es": []}} },
+      { id: "82765aa2-a55c-402f-9494-f6520cb1e296", type: "text", props: {"text": {"es": "Soy un verdadero friki. ", "en": "I'm a real geek."}, "textLinks": {"es": []}} },
+      { id: "660563bc-8da6-4b11-8106-e7d33ed14a6d", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/e8dbdc04-a5ac-4241-b38d-128583750524-img_5933.jpeg", "caption": ""} },
+    ],
+  },
+  "racket": {
+    id: "59742a86-ac34-53b4-a683-c23bdd4b9cdb",
+    kicker: {"es": "Obsessions", "en": "Obsessions"},
+    title: {"es": "Pádel, Pickleball y Spikeball", "en": "Padel, pickleball and an unreasonable competitive streak"},
+    lede: {"es": "Que vivan los deportes, sazonar con raqueta le da un plus.", "en": "Racket sports weekly, plus volleyball, spikeball, bowling, billiards and any game with a scoreboard."},
+    group: "random", order: 2,
+    blocks: [
+      { id: "1125cee7-abd2-4d4c-b11f-6b0c8c2a8ff5", type: "text", props: {"text": {"es": "No sé cómo será en otros países, pero en España existe la costumbre de apuntar a tus hijos desde chicos en 3 cosas indispensables: inglés, música y algún deporte. A mí me tocó hacer violín y piano en el conservatorio, que no estaban mal, y pádel como deporte, que me pareció brutal.", "en": "I don't know how it will be in other countries, but in Spain there is a custom to target your children as children in 3 indispensable things: English, music and some sport. I had to play violin and piano in the conservatory, which were not bad, and paddle as a sport, which seemed brutal to me."}, "textLinks": {"es": []}} },
+      { id: "cffc3175-0773-4842-9293-08d8cb62d966", type: "text", props: {"text": {"es": "Es el juego perfecto:", "en": "It's the perfect game:"}, "textLinks": {"es": []}} },
+      { id: "0033588b-a133-4ec5-9cf2-b32ba06fb920", type: "list", props: {"items": [{"es": "4 personas es el óptimo de jugadores en un juego para disfrutar. Sois suficientes para que haya variedad de estilos, es fácil montar un partido al ser pocos, es ideal para condensar los esfuerzos de socialización en pocas personas, y es el número idílico para tomar algo al terminar.  ", "en": "4 people is the optimal number of players in a game to enjoy. You are enough to have a variety of styles, it is easy to set up a match when you are few, it is ideal to condense socialization efforts in a few people, and it is the idyllic number to have a drink at the end."}, {"es": "La pista tiene muchos elementos que meten jugabilidades muy cambiantes, las paredes permiten rebotes en todas las direcciones y las rejas introducen algo de aleatoriedad. Es suficientemente grande para que tengas que moverte pero suficientemente pequeña para aportar dinamismo en los cruces.", "en": "The track has many elements that bring very changing gameplay, the walls allow bounces in all directions and the bars introduce some randomness. Large enough for you to move around but small enough to add dynamism at crossroads."}, {"es": "Es un deporte interesante con estrategia, combinaciones de golpes, posicionamiento, y búsqueda de puntos débiles. Pero no es tan complejo como para suponer una barrera grande a nuevos jugadores, lo que aumenta la variabilidad de perfiles. Se puede llegar a un nivel decente con poca práctica así que es fácil introducir a tus amigos. Además los partidos duran entre 1 hora y 2 horas que es ideal para una persona con vida ajetreada ", "en": "It is an interesting sport with strategy, combinations of strokes, positioning, and search for the opponent's weak points. But it is not so complex as to pose a large barrier to new players. It can be reached at a decent level with little practice, which makes it especially accessible to all types of audiences. In addition, the matches last between 1 hour and 2 hours, which is ideal for a person with a busy life"}], "itemTextLinks": {"es": [[], [], []]}} },
+      { id: "67820537-687c-464c-9fd8-588bf1ca8331", type: "text", props: {"text": {"es": "Yo llevo desde los 7 años jugando, y a decir verdad he pasado por etapas de amor-odio. Empecé a competir con 15 y me di cuenta de lo mucho que te puede absorber la vida el profesionalizarte en un deporte. Lo dejé por frustración durante unos años, y ahora he vuelto con el foco en el disfrute amistoso entre amigos. ", "en": "I have been playing since I was 7 years old, and to tell the truth I have gone through stages of love-hate. I started competing professionally at 15 and realized how much"}, "textLinks": {"es": []}} },
+      { id: "50729a74-0f8a-48ef-92d2-f521ce45c574", type: "text", props: {"text": {"es": "En ese tiempo de parón probé dos deportes estadounidenses que no se conocían mucho en España:", "en": "In this time of stoppage"}, "textLinks": {"es": []}} },
+      { id: "79dab992-ffd7-4476-8ac1-5b9afe21b1f7", type: "list", props: {"items": [{"es": "El Pickleball, que es como el pádel pero en una pista sin paredes, un poco más pequeña, y con bola más pesada. El juego es más lento y la movilidad es menor, lo que lo hace especialmente atractivo para todas las edades. ", "en": "The Pickleball that is like padel but on a court without walls, a little smaller, and with a heavier ball."}, {"es": "El Spikeball, que no se parece a nada anterior. Es una red circular en horizontal que se apoya en el suelo entre 4 jugadores (2 vs 2), cada pareja tiene para dar hasta 3 toques con una bola pequeña y luego hacerla botar en la red para cambiar la posesión. Se gana el punto logrando que la bola toque el suelo tras botar en la red. Es lo más dinámico que he visto en mi vida, tengo moratones en todo el cuerpo de las caídas jajajaj.  ", "en": "The Spikeball, which is unlike anything before it. It is a horizontal circular net that rests on the ground between 4 players (2 vs 2), each pair has to give up to 3 touches with a small ball and then make it bounce on the net to change possession. The point is won by getting the ball to touch the ground after bouncing on the net. It is the most dynamic thing I have seen in my life, I have bruises all over the body of the falls hahahahaha."}], "itemTextLinks": {"es": [[], []]}} },
+      { id: "f38e8485-d84c-4cce-a887-757389814703", type: "text", props: {"text": {"es": "El caso es que me encanta el deporte en general, pero estos 3 son mis pasiones actuales y los disfruto como un niño pequeño.", "en": "I love sports in general, but these 3 are my current passions and I enjoy them as a small child."}, "textLinks": {"es": []}} },
+      { id: "56faf3c0-3cd9-4fd2-9d27-1ede48795ce6", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/1aa74fe1-c613-4b4f-99a4-9d9a99d42aa0-3df8963f-13f4-40d4-834a-c80837d014ba.jpg", "caption": "", "mediaType": "image/jpeg"} },
+      { id: "a55c97e5-392d-4150-ac1d-8841e0f749ca", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/f0215533-a54b-4ea3-9746-0d89614d8ef8-screenshot-2026-08-24-at-15.50.15.png", "caption": "", "mediaType": "image/png"} },
+    ],
+  },
+  "genome": {
+    id: "4a74ddc7-a03a-5b8e-be13-44edd846e5a4",
+    kicker: {"es": "Obsessions", "en": "Obsessions"},
+    title: {"es": "Juegos de mesa", "en": "I sequenced my own DNA to settle an argument"},
+    lede: {"es": "A recrear todas esas batallas y escenarios imaginarios que nunca pudimos vivir. ", "en": "Bought a test, downloaded the raw data, ran it through a second service for the interesting reports. My father called it a scam. It is not."},
+    group: "random", order: 3,
+    blocks: [
+      { id: "f5607e45-b5a1-40cd-a2d8-b35e697f9c22", type: "text", props: {"text": {"es": "Creo que los juegos de mesa son la vía perfecta para salirse un rato de la realidad. Adoro el cine pero sigo atrapado en un ángulo pasivo donde solo veo la historia y no puedo interactuar. Con los tableros podemos vivir esas historias y sumergirnos en mundos tan diferentes como una batalla espacial o la edad media. ", "en": "I think board games are the perfect way to get away from reality for a while. I love cinema but I'm still stuck in a passive angle where I only see the story and can't interact. With the boards we can live those stories and immerse ourselves in worlds as different as a space battle or the Middle Ages."}, "textLinks": {"es": []}} },
+      { id: "7b7570cd-90c7-482a-8ad6-a3c8d75b15bc", type: "text", props: {"text": {"es": "Los videojuegos narrativos también hacen un papel similar pero en su mayoría se juegan en individual, perdiendo esa inmersión colaborativa tan bonita entre amigos. Me encanta pasar horas luchando por recursos, planificando estrategia, haciendo aliados y creando nuestra propia historia. ", "en": "Narrative video games also play a similar role but for the most part they are played individually, losing that beautiful collaborative immersion between friends. I love spending hours fighting for resources, planning strategy, making allies, and creating our own story."}, "textLinks": {"es": []}} },
+      { id: "e9491ed9-0488-43f7-a537-b917d0ef8912", type: "text", props: {"text": {"es": "Lo bueno de los juegos de mesa es que tienes algunos para echar un rato en una situación ligera, como las cartas o el Código Secreto, pero tienes otros para pasar horas riendo y peleando, como el Catan o el Scythe. Incluso puedes hacer campañas completas de D&D para perder la noción del mundo exterior. ", "en": "It matters a lot how you take the game since this"}, "textLinks": {"es": []}} },
+      { id: "7f625a4c-7aea-4607-b0c9-53b3b8356b86", type: "text", props: {"text": {"es": "Y no quiero decir que el mundo real sea indeseable y es en esta ficción donde uno realmente disfruta. Lo que quiero remarcar es la capacidad de poder complementar tu vida cotidiana con el escenario alternativo que desees. Hay un juego para todo el mundo, y son maravillosos.", "en": "And I don't want to say that the real world is undesirable and it is in this fiction that one really enjoys. What I want to emphasize is the ability to be able to complement your daily life with the alternative scenario you want. There's a game for everyone, and they're wonderful."}, "textLinks": {"es": []}} },
+      { id: "7adb4ee5-c857-426b-a9e0-462ffd7604dd", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/1a7267d6-fd23-4f5e-8ece-c9d465be7ebc-img_0237.jpeg", "caption": "", "mediaType": "image/jpeg"} },
+    ],
+  },
+  "apocalypse": {
+    id: "5d2c27ec-3573-5fe5-9a23-fd6c616dc295",
+    kicker: {"es": "Obsessions", "en": "Obsessions"},
+    title: {"es": "Diario", "en": "The apocalypse notebook"},
+    lede: {"es": "Somos torpes como para recordarlo todo, y se nos olvidan los detalles. Mucho mejor llevar un registro de vida", "en": "We are clumsy to remember everything, better to keep it."},
+    group: "random", order: 4,
+    blocks: [
+      { id: "d6b8b018-2cbd-4391-b641-98e979addd90", type: "text", props: {"text": {"es": "Hace varios años me agobié de repente con el paso del tiempo, era Navidad y no podía creer que el año hubiera pasado tan rápido. Fue aun peor cuando me puse a escribir unas palabras sobre cómo me iba, y al mirar atrás me costó ver la película completa de lo que había sido mi adolescencia. ", "en": "Several years ago I was suddenly overwhelmed with the passage of time, it was Christmas and I could not believe that the year had passed so quickly. It was even worse when I started writing a few words about how I was doing, and looking back it was hard for me to see the full film of what had been adolescence."}, "textLinks": {"es": []}} },
+      { id: "4798d70d-f921-4630-bee5-834adf4abc3c", type: "text", props: {"text": {"es": "Vivimos historias con multitud de detalles continuamente, pero con el tiempo solo recordamos las más impactantes, y lo hacemos con la narrativa ligeramente deformada. Pensé que cuando estas historias desaparecen de mi mente, desaparecen para siempre, y decidí empezar un diario. ", "en": "We live stories with a multitude of details continuously, but over time we will only remember the most shocking ones, and we do it with the slightly distorted narrative. I thought that when these stories disappear from my mind, they disappear forever, and I decided to start a journal."}, "textLinks": {"es": []}} },
+      { id: "90d865d3-7409-4db9-920a-f4e1cb27ec9a", type: "text", props: {"text": {"es": "El formato empezó siendo agresivo, una hoja por día contando qué tal había ido, pero rápidamente cambié a una entrada semanal para hacerlo más plausible. A fecha de 2026 llevo 6 años documentando mi vida y es la mejor decisión que he podido tomar. ", "en": "The format began being aggressive, one sheet per day telling how it had gone, but quickly changed to a weekly entry to make it more plausible. As of 2026, I have been documenting my life for 6 years and it is the best decision I have been able to make. Each of my relevant experiences is stored under the pen of the Ale of the moment."}, "textLinks": {"es": []}} },
+      { id: "9644292f-2a60-4e70-80f3-bbce25beecc3", type: "text", props: {"text": {"es": "Creo que llevar un diario es, por encima de todo, la mejor forma de autoconocimiento y gestión de emociones. No solo tengo guardadas todas las vivencias, sino que las escribió mi personalidad de la época y has podido ir viendo cómo se desarrolla tu arco de personaje con los años. Tu tendencia argumentativa, tus manías, tus fallos. ", "en": "I believe that keeping a journal is, above all, the best form of self-knowledge and emotion management. Not only have I saved all the experiences, but they were written by my personality of the time and you have been able to see how your character arc develops over the years. Your argumentative tendency, your manias, your failures."}, "textLinks": {"es": []}} },
+      { id: "3937f7ca-04a5-48e9-b9b0-7d1a62ae78f1", type: "text", props: {"text": {"es": "Por alguna razón el tiempo parece pasar más lento, seguramente porque la percepción de este está condicionada por lo mucho que somos capaces de recordar, y el tener una doble recall de cada cosa que sucede ayuda a dar la sensación de que han pasado muchas más cosas, y por ende, más tiempo. Además tienes la sensación de aprovechamiento de vida siempre a flor de piel, ya que con un click accedes a innumerables entradas que de otra forma ya no existirían. En realidad no hace falta ni que recuerdes lo que has escrito para disfrutar de estos efectos que comento, solo el hecho de tenerlo te aporta la tranquilidad suficiente para experimentarlos. ", "en": "For some reason time seems to pass slower, probably because the perception of it is conditioned by how much we are able to remember, and having a double recall of each thing that happens helps to give the feeling that much more has happened, and therefore, more time. In addition, you have the feeling of taking advantage of life always at the top of your skin, since with a click you access countless entries that otherwise would no longer exist. In reality, you do not even need to remember what you have written to enjoy these effects, just the fact of having it gives you enough peace of mind to experience them."}, "textLinks": {"es": []}} },
+      { id: "918c7344-c069-4c25-ac22-fc83176bdf80", type: "text", props: {"text": {"es": "Por otro lado, en el día a día es increíblemente útil para reflexionar sobre tus problemas y sentir tus decisiones más fundadas. Libera estrés e incluso abre la mente al plantearte debates inexplorados solo por rellenar paginas cuando no tienes mucho que contar. ", "en": "On the other hand, on a day-to-day basis it is incredibly useful to reflect on your problems and feel your most grounded decisions. It releases stress and even opens the mind by raising unexplored debates just by filling in pages when you don't have much to say."}, "textLinks": {"es": []}} },
+      { id: "04c78f75-4ef6-4fa1-ba77-bed76c0b5e22", type: "text", props: {"text": {"es": "Se lo recomiendo a todo el mundo!", "en": "I recommend it to everybody."}, "textLinks": {"es": []}} },
+    ],
+  },
+  "contact": {
+    id: "6135d86d-3506-5c74-95e6-7f6f26e1c2d5",
+    kicker: {"es": "Accesible", "en": "Reachable"},
+    when: {"es": "siempre", "en": "always"},
+    where: {"es": "Madrid → Londres", "en": "Madrid → London"},
+    title: {"es": "Algo extraño", "en": "Say something strange"},
+    lede: {"es": "La respuesta más rápida si tu mensaje contiene una pregunta que nadie me ha hecho antes.", "en": "Fastest reply if your message contains a question nobody has asked me before."},
+    group: "contact", order: 0,
+    blocks: [
+      { id: "3b5da077-e2e3-53eb-bed9-26d178eb46c3", type: "metrics", props: {"items": [["ES / FR / EN", "languages"], ["Madrid", "now"], ["London", "Oct 2026"]]} },
+      { id: "6076062c-1dc8-5b08-a758-d66471bb970d", type: "text", props: {"text": {"es": "El correo electrónico es lo mejor. GitHub si se trata de código. LinkedIn si debe ser formal.", "en": "Email is best. GitHub if it is about code. LinkedIn if it must be formal."}} },
+      { id: "d2a98206-9ec8-511b-b0d6-99e76a484e4a", type: "tags", props: {"items": [{"es": "contacto", "en": "contact"}]} },
+      { id: "4fe84141-c41d-5c3f-88e9-e3af0af66676", type: "links", props: {"items": [["alejandrotreny100@gmail.com", "mailto:alejandrotreny100@gmail.com"], ["github.com/aleetreny", "https://github.com/aleetreny"], ["linkedin.com/in/aleetreny", "https://linkedin.com/in/aleetreny"]]} },
+    ],
+  },
+  "erasmus-programme": {
+    id: "534ccf7e-7bb4-4d7d-b206-2d70d423e588",
+    kicker: {"es": "Experiencia Internacional", "en": "Volunteering"},
+    when: {"es": "2024", "en": "2024"},
+    where: {"es": "Bratislava, Eslovaquia", "en": "Bratislava, Slovakia"},
+    title: {"es": "Erasmus Programme", "en": "Erasmus Programme"},
+    lede: {"es": "Año entero de estudios en Bratislava como parte de mi Grado.", "en": "Full year of study abroad as part of my Bachelor's Degree."},
+    group: "experiencias-internacionales", order: 0,
+    blocks: [
+      { id: "f5b4fae3-812a-49ef-bb2b-d0db863896ee", type: "text", props: {"text": {"es": "En el cuarto año de mi Grado en Economía + ADE, la universidad nos da la posibilidad de irnos a otro país europeo para ganar experiencia internacional. Durante este año, cursamos las asignaturas en otras aulas, con gente de todas las nacionalidades y en otro idioma. ", "en": "I did the fourth year of my c"}, "textLinks": {"es": []}} },
+      { id: "61364ea4-ef9d-4309-bee1-be5a4ea1be13", type: "text", props: {"text": {"es": "Este programa ha sido un antes y un después en la vida de muchas personas, incluyendo la mía, porque hay un frenesí inigualable que rodea cada minuto. La parte del estudio esta bien porque sales de tu zona de confort, pero lo realmente transformador es cómo aprendes a relacionarte socialmente para disfrutar este año fuera. ", "en": "This program has been a before and after in the lives of many people, including mine, because there is an unparalleled frenzy that surrounds every minute. The study part is fine because you get out of your comfort zone, but the really transformative thing is how you learn to relate socially to enjoy this year out."}, "textLinks": {"es": []}} },
+      { id: "f455efc5-7ea0-4d61-a2df-d847e0693b65", type: "text", props: {"text": {"es": "Yo hice un grupo de gente maravillosa, todos habíamos escogido Bratislava porque tenía al lado el aeropuerto de Viena, con vuelos baratos a todas partes, y lo aprovechamos al máximo. ", "en": "At my destination, there were 3 people I already knew and it was"}, "textLinks": {"es": []}} },
+      { id: "e31774bc-287d-4776-980a-20eed6d2199e", type: "text", props: {"text": {"es": "Visitamos 45 países, prácticamente uno por fin de semana xD. Tren, coche, avión o bus, daba igual. Pasamos de las playas de Croacia al frio de Islandia, de las montañas de Suiza a los valles de Georgia, de las korean bbq de Seúl a los rascacielos de Nueva York. Se nos fue la pinza, queríamos comernos el mundo.", "en": "We visited 45 countries, which is basically equivalent to one per weekend,"}, "textLinks": {"es": []}} },
+      { id: "affee69a-20d4-4b66-9bc9-5b30eb49c4ee", type: "text", props: {"text": {"es": "Nos vimos en mil situaciones diferentes, problemas, risas, pasamos todas las etapas de la montaña rusa. Pero lo pasamos juntos, como hermanos, y eso nos hizo crear una confianza que no he sido capaz de replicar con nadie. Descubres facetas de ti que nunca habías visto, al estar expuesto a tanta cosa nueva. Aprendes a gestionar el FOMO, el cansancio, la batería social.", "en": "We found ourselves in a thousand different situations, problems, laughter, we went through all the stages of the roller coaster. But we spent it together, as brothers, and that made us create a trust that I have not been able to replicate with anyone."}, "textLinks": {"es": []}} },
+      { id: "841a1157-a16f-41e6-8c91-c4574f6a859b", type: "text", props: {"text": {"es": "Creo que el Erasmus es la ocasión perfecta para poner en orden tu vida, porque conversaciones de esas no te van a faltar y vas a plantear cada posible camino. Creo que es el punto de inflexión donde pasas de dejarte llevar a tomar las riendas. Donde tomas decisiones proactivamente, y donde encuentras la confianza para comerte los años venideros. ", "en": "I think that erasmus is the perfect occasion to get to know yourself, but also to"}, "textLinks": {"es": []}} },
+      { id: "3073aa95-676b-4542-9bf7-106e1294df73", type: "text", props: {"text": {"es": "Totalmente recomendable :0", "en": "Highly recommended"}, "textLinks": {"es": []}} },
+      { id: "dabcbb3c-d8b2-480c-9959-e3fe8073b93f", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/d88d1101-5ea9-4697-af46-6696d137938d-img_0793.jpg", "caption": ""} },
+    ],
+  },
+  "traineeship-programme": {
+    id: "c247533f-f634-4d5b-8110-59203c6df8ec",
+    kicker: {"es": "EXPERIENCIA INTERNACIONAL", "en": "Volunteering"},
+    when: {"es": "2023", "en": "2023"},
+    where: {"es": "Kaunas, Lituania", "en": "Kaunas, Lithuania"},
+    title: {"es": "Traineeship Programme", "en": "Traineeship Programme"},
+    lede: {"es": "Aprendizaje de herramientas de IA para uso cotidiano. ", "en": "Learning AI tools for everyday use."},
+    group: "experiencias-internacionales", order: 1,
+    blocks: [
+      { id: "d799c092-6a11-491a-89d3-5c021c19b9f3", type: "text", props: {"text": {"es": "Este proyecto formaba parte de un Erasmus+ de corta estancia, un concepto de la Unión Europea en el que se beca a algunos estudiantes para pasar 15 días aprendiendo una temática concreta. Este era de herramientas de inteligencia artificial cuando estas estaban empezando a volverse populares. ", "en": "This really is not a volunteering as such, but a project of"}, "textLinks": {"es": []}} },
+      { id: "d265ac49-ff37-40c7-8634-dbdee2da4863", type: "text", props: {"text": {"es": "Fue en Kaunas, y la dinámica era clases por la mañana, y actividades en grupo por la tarde. Entonces, aprendías por ejemplo una herramienta de Adobe para editar audio con IA por la mañana, y por la tarde salias a grabar un podcast con tu grupo para probarlo. ", "en": "It was in Kaunas, and the dynamic was classes in the morning, and group activities in the afternoon. So, for example, you learned an Adobe tool to edit audio with AI in the morning, and in the afternoon you went out to record a podcast with your group to try it out."}, "textLinks": {"es": []}} },
+      { id: "11bba2af-7962-4320-bae3-f60d140a311d", type: "text", props: {"text": {"es": "Aprendimos de todo antes de que en España se hablara mucho de ello, usamos Midjourney, Claude, GPT, Gamma... Pero sobre todo aprendimos socialmente, esto es una especie de experimento social donde juntas a 30 chavales a vivir en el mismo sitio y pasar las 24 horas del día. Disfrutamos como locos y vivimos una experiencia bastante intensa. ", "en": "We learned everything before there was much talk about it in Spain, we used Midjourney, Claude, Gpt, Gamma... But above all we learned socially, this is a kind of social experiment where you bring together 30 kids to live in the same place and spend 24 hours a day. We enjoyed it like crazy and had a pretty intense experience."}, "textLinks": {"es": []}} },
+      { id: "e548c81a-31c4-4da8-a13f-15ba9edcabc4", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/2c2d4e7a-9159-48db-9b0c-806632e7db41-img_2652.jpg", "caption": ""} },
+    ],
+  },
+  "youth-exchange": {
+    id: "06b5a21d-e41a-42cd-9b1e-fb64023dff55",
+    kicker: {"es": "EXPERIENCIA INTERNACIONAL", "en": "Volunteering"},
+    when: {"es": "2023", "en": "2023"},
+    where: {"es": "Varna, Bulgaria", "en": "Varna, Bulgaria."},
+    title: {"es": "Youth Exchange", "en": "Youth Exchange"},
+    lede: {"es": "Intercambio juvenil sobre ciudadanía activa", "en": "Youth exchange on active citizenship"},
+    group: "experiencias-internacionales", order: 2,
+    blocks: [
+      { id: "14ca3c41-3a15-4503-9e15-9f40f0ef90ed", type: "text", props: {"text": {"es": "Este proyecto es parecido al Traineeship Programme, es un Erasmus+ de 15 días que, más que de aprender una temática concreta, era de convivir culturalmente con otros participantes, bajo la temática de cómo podemos fomentar la ciudadanía activa.", "en": "This project is similar to the Traineeship Programme, it is an Erasmus + of 15 days more than learning a specific topic, it was to live culturally with other participants, under the theme of how we can promote active citizenship."}, "textLinks": {"es": []}} },
+      { id: "2c06a9f4-70ca-4ef7-8192-730ce4fb03d0", type: "text", props: {"text": {"es": "Tuvimos un hotel entero para los participantes, talleres por la mañana y numerosos juegos y actividades por la tarde. Lo pasamos como niños, la finalidad de este proyecto fue más el disfrute y la apertura de mente que los conceptos académicos. Volvimos renovados, con muchas historias y nuevas ideas. ", "en": "We had an entire hotel for the participants, workshops in the morning and numerous games and activities in the afternoon. We spent it as children, the purpose of this project was more enjoyment and open-mindedness than academic concepts. We came back refreshed, with lots of stories and new ideas."}, "textLinks": {"es": []}} },
+      { id: "a71b9b39-ce61-40e0-a1b4-add6604289e9", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/10a2577f-cdd9-4b59-bfdd-d4f0eaf102b3-ce11043a-539e-44b2-a4f7-7996a069ea12.jpg", "caption": ""} },
+    ],
+  },
+  "intercambio-de-idiomas": {
+    id: "d1d2ddd3-ec68-4727-9264-32e1eaf8cdf1",
+    kicker: {"es": "Movilidad", "en": "Mobility"},
+    when: {"es": "2017", "en": "2017"},
+    where: {"es": "Nantes, Francia", "en": "France"},
+    title: {"es": "Intercambio de idiomas", "en": "Language exchange"},
+    lede: {"es": "Programa de intercambio a un instituto del norte de Francia.", "en": "Exchange program to an institute in the north of France."},
+    group: "experiencias-internacionales", order: 3,
+    blocks: [
+      { id: "cda472ab-f0ae-463c-9a66-5023b26fcfe1", type: "text", props: {"text": {"es": "El departamento de francés de mi instituto ofrece a los estudiantes la posibilidad de irse un mes a Nantes (norte de Francia) para mejorar su francés. El programa consiste en emparejarse con un estudiante francés del instituto de destino, pasar un mes allí en su casa, y después él vendrá para pasar un mes aquí en tu casa. ", "en": "In high school French class"}, "textLinks": {"es": []}} },
+      { id: "7e50d9c4-779f-4f57-88e5-04b6d61ab735", type: "text", props: {"text": {"es": "Eramos bastante jóvenes así que el choque de independencia fue brutal. Una inmersión lingüística brutal, tanto para ellos como para nosotros, porque ni Nantes ni Málaga son precisamente referencias del español y francés estándar.", "en": "We were quite young so the clash of independence was brutal. The first time q"}, "textLinks": {"es": []}} },
+      { id: "c0e7df91-7308-484b-affa-8dc04c1b2379", type: "text", props: {"text": {"es": "Primera vez solito fuera de casa, yuju. ", "en": "First time alone away from home, yuju."}, "textLinks": {"es": []}} },
+    ],
+  },
+  "podcast": {
+    id: "8894c1dd-e98e-5134-aae3-50e885e3a64b",
+    kicker: {"es": "Podcast", "en": "Making things"},
+    when: {"es": "2023", "en": "2025 →"},
+    where: {"es": "Málaga", "en": "Málaga / Madrid"},
+    title: {"es": "Un Poco Absurdo - Podcast", "en": "Un Poco Absurdo — the podcast"},
+    lede: {"es": "Filosofeadas rápidas de física, tecnología y sociedad. ", "en": "Tech and philosophy, named accurately. Two hundred-plus listeners an episode and five stars three months in."},
+    group: "__unlisted__", order: 7,
+    blocks: [
+      { id: "9ad2cb31-a81b-4e42-852d-aab457e64ad0", type: "text", props: {"text": {"es": "Llevo escuchando podcast desde los 15 años, es el formato perfecto para complementar una actividad mecánica como hacer ejercicios de matemáticas, tareas de la casa o actividades deportivas suaves. Adoro el formato", "en": "I have been listening to podcasts since I was 15 years old, it is the perfect format to complement a mechanical activity such as doing math exercises, housework or soft sports activities."}, "textLinks": {"es": []}} },
+      { id: "e5216ddc-15c6-4ed9-b01d-721daaf505ad", type: "text", props: {"text": {"es": "Por otro lado, me encanta divagar sobre ideas absurdas o conceptos que no suelen surgir en las conversaciones de ascensor. Es por ello que decidí hacer algunos episodios hablados sobre algunos temas que me interesaban. Era un crío y seguro que cometería mil errores en mis explicaciones pero me divertían mucho. ", "en": "I love the format"}, "textLinks": {"es": []}} },
+      { id: "af0a90ba-efbd-45f3-ac02-195dc0246f63", type: "text", props: {"text": {"es": "Fue mi proyecto del verano del 2023, duré 3 meses, 100 oyentes mensuales, y 5 estrellas. Humilde, pero algo es algo. La portada la hice con IA cuando Midjourney recién empezaba y la edición la hacía con Garage Band. No había guion, solo una idea y un poquito de improvisación. ", "en": "It was my summer 2023 project, lasting 3 months, 100 monthly listeners, and 5 stars. Humble, but it's something."}, "textLinks": {"es": []}} },
+      { id: "29125759-0f95-4ff3-bea7-4f451df172c8", type: "links", props: {"items": [["Spotify", "https://open.spotify.com/show/7EKj6f9KyXjLYTzdxrT8oO"]]} },
+      { id: "5f227136-1bc5-4406-9f38-767d4c83e6c5", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/6b0b9756-a9a5-4f5a-ac06-3eac3dc177ab-aleetreny_logo_for_a_podcast_with_lots_of_funny_science_and_uni_82fb38c1-1d19-4acd-9655-15308575", "caption": ""} },
+    ],
+  },
+  "diary": {
+    id: "3bd9d935-a575-5404-8436-b679e9dac120",
+    kicker: {"es": "Emprendimiento", "en": "The long project"},
+    when: {"es": "2020 - 2021", "en": "2021 → now"},
+    where: {"es": "Málaga", "en": "everywhere"},
+    title: {"es": "Frulogy", "en": "Five years of a weekly diary"},
+    lede: {"es": "Plataforma para vender fruta directamente al consumidor europeo.", "en": "Platform to sell fruit directly to the European consumer."},
+    group: "__unlisted__", order: 8,
+    blocks: [
+      { id: "a4c4d99c-e260-4fc3-b344-b2bed0f0e45c", type: "text", props: {"text": {"es": "Bueno esto surgió por dos motivos diferentes, por un lado tenía 17 años y quería hacer mi primer negocio antes de ser mayor de edad, sentí que las cosas grandes se hacen de jóvenes cuando aún no tenemos responsabilidad y familias a las que alimentar. Por otro lado, dado que vengo de una familia de agricultores, veía cómo apretaban a diario a mi padre con el precio de la fruta, para luego verla en el supermercado al doble o triple. ", "en": "Well, this came about for two different reasons, on the one hand I was 17 years old and I wanted to do my first business before coming of age, I felt that the big things are done by young people when we still do not have responsibilities and families to feed. On the other hand, since I come from a family of farmers, I saw how my father was squeezed daily with the price of the fruit, and then I saw it in the supermarket at double or triple."}, "textLinks": {"es": []}} },
+      { id: "5ada547c-3e78-4372-a40a-0fe6175fa4bb", type: "text", props: {"text": {"es": "Frulogy nació como una plataforma para condensar toda la cadena de intermediarios en un solo escalón: productor -> consumidor. La idea era otorgar un valor extra al consumidor ecológico europeo, que pueda recibir su fruta sin ningún tipo de procesamiento ni maduración artificial, directamente desde el campo a la mesa en 48h. Y al mismo tiempo, devolver el margen perdido al productor. Unicamente aceptábamos fruta ecológica en la plataforma, que es aquella cultivada sin productos químicos. ", "en": "Frulogy was born as a platform to replace the chain"}, "textLinks": {"es": []}} },
+      { id: "27f07778-5fce-4688-8e13-e486e243238d", type: "text", props: {"text": {"es": "El modelo de negocio era simple, una comisión minúscula para mantener la plataforma, un consumidor beneficiado con producto fresco, y un agricultor con ganancias. Los agricultores se ponían en contacto conmigo, empaquetaban su fruta con mis paquetes y una empresa de mensajería pasaba a recogerlos en su finca para llevarlo a destino final. Los precios se decidían por un algoritmo dinámico de pesos en función del momento de la temporada, el coste del envío y el poder adquisitivo del país de destino.", "en": "The business model was simple, a minuscule commission to maintain the platform, a consumer benefited with fresh produce, and a farmer with profits. The farmers contacted me, packed their fruit with my packages and a courier company picked them up at their farm to take them to their final destination."}, "textLinks": {"es": []}} },
+      { id: "4ddc74a1-20ac-411c-940c-7a5980ee51de", type: "text", props: {"text": {"es": "Estaba yo solo así que diseñé la plataforma con Wordpress y WooCommerce, integré Stripe, idiomas, blog con recetas, productos e iniciativas como apadrina un árbol o suscripción mensual. Como podéis imaginar aprendí más que en 1 año de carrera: cómo gestionar envíos con proveedores, incidencias con clientes, gestión de caja, margenes, SEO, contratos por Fiverr para el logo y copywriting, cuenta de instagram, Facebook ads, incluso llegué a colaborar con una marca de cosméticos para hacer una crema de aguacate... Estuve un año con el proyecto y los números no fueron mal, incrementé los márgenes de los productores un 150%, recibí un 4.5 en Trustpilot de mis clientes e hice más de 300 envíos. ", "en": "I was alone so I designed the platform with Wordpress and WooCommerce, integrated Stripe, languages, blog with recipes, products and initiatives such as sponsoring a tree or monthly subscription. As you can imagine, I learned more than in 1 year of my career, how to manage shipping with suppliers, incidents with customers, cash management, margins, SEO... I spent a year with the project and the numbers were not bad, I increased the margins of the producers by 150%, I received a 4.5 in Trustpilot from my clients and I made more than 300 shipments."}, "textLinks": {"es": []}} },
+      { id: "8b5ee709-bf01-4ea0-a5e3-b9222377826b", type: "text", props: {"text": {"es": "Sin embargo, era muy exigente en tiempo y no supe delegar. Además me costaba seguir creciendo y me comían las prisas. No supe gestionar bien la paciencia que requiere un negocio y finalmente lo dejé. Fue una experiencia increíble. ", "en": "However, I was very demanding on time and did not know how to delegate. It was also difficult for me to continue growing and they ate my haste. I did not know how to manage the patience that a business requires well and finally I left it. It was an experience"}, "textLinks": {"es": []}} },
+      { id: "a97798c1-e6ae-47a0-a1b3-b0fe61588d7e", type: "image", props: {"alt": "", "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/c59e3f7c-0230-4a94-b542-bc71c5976c95-img_7801.jpeg", "caption": ""} },
+    ],
+  },
 };
 
 export const ORDER = Object.keys(ITEMS);
