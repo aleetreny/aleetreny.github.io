@@ -2,7 +2,7 @@
 
 A portfolio that is not a page. It is a **board**: one large canvas with paper
 cards pinned to a slate hanging on a wall — drawers listing your work, spotlights
-for the things worth a whole card, instant photos, sticky notes. Every line on it
+for the things worth a whole card, Spotify tracks, instant photos, sticky notes. Every line on it
 opens a full-page dossier. Drag the paper, scroll or pinch to zoom.
 
 **Live example: [aleetreny.github.io](https://aleetreny.github.io)** — Alejandro

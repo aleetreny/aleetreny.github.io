@@ -1229,13 +1229,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     return { x: Math.round((rect.width / 2 - v.x) / v.s - 150), y: Math.round((rect.height / 2 - v.y) / v.s - 90) };
   }, []);
 
-  const addCard = useCallback((type: 'drawer' | 'spotlight' | 'sticker') => {
+  const addCard = useCallback((type: 'drawer' | 'spotlight' | 'sticker' | 'spotify') => {
     const at = viewCenterWorld();
     const id = crypto.randomUUID();
     const newCard: Record<typeof type, BoardCard> = {
       drawer: { id, type: 'drawer', x: at.x, y: at.y, rot: 0, w: 440, tone: 'paper', kicker: '', title: '', group: board.groups[0]?.id ?? 'random', layout: 'compact' },
       spotlight: { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: '', title: '', blurb: '', open: entries[0]?.slug },
       sticker: { id, type: 'sticker', x: at.x, y: at.y, rot: 0, w: 300, tone: 'paperCream', kicker: '', title: '', langs: [['', '', 5]], open: entries[0]?.slug },
+      spotify: { id, type: 'spotify', x: at.x, y: at.y, rot: 0, w: 420, tone: 'dark', kicker: '', title: '', spotifyUrl: '' },
     };
     commitBoard({ ...rawBoard, cards: [...rawBoard.cards, newCard[type]] });
     setCardMenu(id);
@@ -2177,6 +2178,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                       <button className="tbtn" type="button" onClick={() => addCard('drawer')}>{t('owner.addDrawer')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>{t('owner.addSpotlight')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('sticker')}>{t('owner.addSticker')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('spotify')}>{t('owner.addSpotify')}</button>
                       <button className="tbtn" type="button" onClick={addPolaroid}>{t('owner.addPhoto')}</button>
                       <button className="tbtn" type="button" onClick={addNote}>{t('owner.addNote')}</button>
                     </>

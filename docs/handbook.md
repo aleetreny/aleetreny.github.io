@@ -251,7 +251,7 @@ nothing is saved.
 | --- | --- |
 | `edit mode` | Toggles inline editing on the whole board. |
 | `🔒 positions` | Locks every card, photo and note in place. It starts locked; press it deliberately to enable dragging. |
-| `add: drawer / spotlight / sticker / photo / note` | Drops a new piece at the centre of the view. |
+| `add: drawer / spotlight / sticker / Spotify / photo / note` | Drops a new piece at the centre of the view. |
 | `aspecto` / `theme` | [Appearance panel](#51-theme). |
 | `visita` / `tour` | [Guided tour panel](#54-boardtour). |
 | `artículos` / `entries` | [Inventory panel](#inventory). |
@@ -742,7 +742,7 @@ Common to every card:
 | Field | What it does |
 | --- | --- |
 | `id` | Stable identifier. Used by layout overrides and tour stops. |
-| `type` | `hero` `now` `drawer` `spotlight` `sticker` `contact` |
+| `type` | `hero` `now` `drawer` `spotlight` `sticker` `contact` `spotify` |
 | `x` `y` | Position in board pixels. |
 | `rot` | Tilt in degrees, multiplied by the theme's `chaos`. |
 | `w` | Width in board pixels. |
@@ -762,6 +762,7 @@ Per type:
 | `spotlight` | `open` (the dossier slug), `blurb`, `grid`, `waveform`, `bars`, `barCaption`, `ruled`, `footer` |
 | `sticker` | `open` (the dossier slug), `langs`, `note` |
 | `contact` | `links` (`[label, url]` pairs), `note` |
+| `spotify` | `spotifyUrl`: a Spotify song URL or `spotify:track:` URI; it is normalised to Spotify's official player URL. |
 
 Drawer row layouts:
 

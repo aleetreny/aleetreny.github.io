@@ -77,6 +77,7 @@ const CATALOGUE: Record<string, Entry> = {
   'owner.addDrawer': { es: 'cajón', en: 'drawer' },
   'owner.addSpotlight': { es: 'destacado', en: 'spotlight' },
   'owner.addSticker': { es: 'pegatina', en: 'sticker' },
+  'owner.addSpotify': { es: 'Spotify', en: 'Spotify' },
   'owner.addPhoto': { es: 'foto', en: 'photo' },
   'owner.addNote': { es: 'nota', en: 'note' },
   'owner.writing': { es: 'escribiendo:', en: 'writing:' },
@@ -142,6 +143,10 @@ const CATALOGUE: Record<string, Entry> = {
   'card.changePhoto': { es: 'Cambiar foto: {placeholder}', en: 'Change photo: {placeholder}' },
   'card.dropMedia': { es: 'suelta una foto o vídeo', en: 'drop a photo or video' },
   'card.changeMedia': { es: 'Cambiar contenido: {placeholder}', en: 'Change media: {placeholder}' },
+  'card.spotifyKicker': { es: 'escuchando', en: 'listening to' },
+  'card.spotifyTitle': { es: 'una canción', en: 'a song' },
+  'card.spotifyLink': { es: 'enlace de Spotify', en: 'Spotify link' },
+  'card.spotifyPaste': { es: 'Pega el enlace de una canción de Spotify para mostrarla aquí.', en: 'Paste a Spotify song link to show it here.' },
 
   // ---------------------------------------------------------------- dossier
   'dossier.editFlag': { es: 'editando — pulsa cualquier texto', en: 'editing — click any text' },

@@ -381,6 +381,15 @@ a { color: var(--c-accent); text-decoration: none; }
 .bars span.is-peak { background: var(--c-accent); }
 .spot--ruled::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 1px; background: color-mix(in oklch, var(--c-accent) 35%, transparent); }
 
+/* Spotify track — the official player remains interactive while the board is
+   otherwise draggable, and the owner can paste a replacement link in edit mode. */
+.spotify__title { font-family: var(--font-display); font-size: 25px; font-weight: 750; line-height: 1.02; letter-spacing: -.025em; margin: 8px 0 13px; }
+.spotify__input { display: flex; flex-direction: column; gap: 5px; margin: 0 0 12px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+.spotify__input input { width: 100%; min-width: 0; padding: 7px 8px; border: 1px solid rgba(243, 236, 221, .28); background: rgba(0, 0, 0, .2); color: inherit; font: inherit; letter-spacing: 0; text-transform: none; }
+.spotify__input input[aria-invalid='true'] { border-color: var(--c-signal-soft); }
+.spotify__player { display: block; width: 100%; height: 152px; border: 0; border-radius: 12px; background: #121212; }
+.spotify__empty { margin: 0; padding: 16px 0 3px; font-size: 12px; line-height: 1.5; opacity: .65; }
+
 /* sticker (languages) — the small stuck-on shape: a seal, level rows, one
    line. Every colour comes from the palette, so it restyles with the theme
    like every other card. */
@@ -624,7 +633,7 @@ a { color: var(--c-accent); text-decoration: none; }
 }
 
 .panel select, .panel input, .panel textarea,
-.card-ctrl__menu select, .card-ctrl__menu input {
+.card-ctrl__menu select, .card-ctrl__menu input, .spotify__input input {
   color-scheme: dark;
 }
 
@@ -673,6 +682,7 @@ a { color: var(--c-accent); text-decoration: none; }
 .panel input:focus-visible,
 .card-ctrl__menu select:focus-visible,
 .card-ctrl__menu input:focus-visible,
+.spotify__input input:focus-visible,
 .card__rotate-handle:focus-visible,
 .tbtn:focus-visible,
 .pbtn:focus-visible,

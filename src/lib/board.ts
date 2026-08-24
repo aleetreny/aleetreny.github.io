@@ -160,7 +160,7 @@ export type TagChip = string | { label: string; accent?: boolean };
 
 export type BoardCard = {
   id: string;
-  type: 'hero' | 'now' | 'drawer' | 'spotlight' | 'sticker' | 'contact';
+  type: 'hero' | 'now' | 'drawer' | 'spotlight' | 'sticker' | 'contact' | 'spotify';
   jump?: string;
   open?: string;
   group?: string;
@@ -192,6 +192,8 @@ export type BoardCard = {
   currentSub?: string;
   nextTitle?: string;
   nextSub?: string;
+  /** A copied Spotify track URL or spotify:track URI for the music card. */
+  spotifyUrl?: string;
   blurb?: string;
   waveform?: boolean;
   footer?: string[] | string;
