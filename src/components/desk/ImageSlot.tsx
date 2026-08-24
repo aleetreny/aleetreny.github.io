@@ -21,7 +21,6 @@ type ImageSlotProps = {
  * parent uploads the original file to Neon Object Storage and persists its URL. */
 const FRAME_MIN_SCALE = 1;
 const FRAME_MAX_SCALE = 2.5;
-const FRAME_STEP = 5;
 
 function bounded(value: number | undefined, fallback: number, min: number, max: number) {
   return typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
@@ -42,8 +41,9 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
   const dragDepth = useRef(0);
   const [over, setOver] = useState(false);
   const [framing, setFraming] = useState(false);
+  const [frameDirty, setFrameDirty] = useState(false);
   // Dragging should feel immediate, but it must not generate a database write
-  // for every pointer-move event. This preview is committed on pointer-up.
+  // for every pointer-move event. This preview is committed with the ✓.
   const [previewFrame, setPreviewFrame] = useState<{ url: string; frame: MediaFrame | undefined } | null>(null);
   const video = isVideoMedia(mediaType, url);
   const canFrame = Boolean(editable && url && !video && onFrameChange);
@@ -80,17 +80,14 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
     openPicker();
   }
 
-  function updateFrame(patch: Partial<MediaFrame>) {
-    if (!onFrameChange) return;
-    const next = { ...currentFrame, ...patch };
-    setPreviewFrame({ url: url ?? '', frame: next });
-    onFrameChange(next);
+  function beginFraming() {
+    setFrameDirty(false);
+    setFraming(true);
   }
 
-  function nudgeFrame(x: number, y: number) {
-    // `object-position` moves in the opposite direction to the pixels on
-    // screen: a larger focal point shifts the rendered photo left.
-    updateFrame({ x: bounded(currentFrame.x - x, 50, 0, 100), y: bounded(currentFrame.y - y, 50, 0, 100) });
+  function saveFrame() {
+    if (frameDirty && hasPreviewFrame) onFrameChange?.(previewFrame?.frame);
+    setFraming(false);
   }
 
   function startFrameDrag(event: PointerEvent<HTMLDivElement>) {
@@ -102,21 +99,21 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
     const startX = event.clientX;
     const startY = event.clientY;
     let latest = start;
-    let changed = false;
     const move = (next: globalThis.PointerEvent) => {
       // Moving the photo right should reveal what was on its left, hence the
       // inverse relationship between pointer movement and object-position.
       const x = bounded(start.x - ((next.clientX - startX) / box.width) * 100 / start.scale, 50, 0, 100);
       const y = bounded(start.y - ((next.clientY - startY) / box.height) * 100 / start.scale, 50, 0, 100);
       latest = { ...start, x, y };
-      changed = changed || latest.x !== start.x || latest.y !== start.y;
       setPreviewFrame({ url: url ?? '', frame: latest });
+      setFrameDirty(true);
     };
     const end = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', end);
       window.removeEventListener('pointercancel', end);
-      if (changed) onFrameChange?.(latest);
+      // Saving is explicit: the owner can look at the exact final crop before
+      // the ✓ persists it. `latest` intentionally stays only in local state.
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', end);
@@ -158,7 +155,7 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
 
   return (
     <div
-      className={`slot${url ? ' slot--filled' : ''}${editable ? ' slot--editable' : ''}${over ? ' slot--dragover' : ''}`}
+      className={`slot${url ? ' slot--filled' : ''}${editable ? ' slot--editable' : ''}${framing ? ' slot--framing' : ''}${over ? ' slot--dragover' : ''}`}
       {...(editable ? { 'data-nodrag': '' } : {})}
       onClick={editable ? onSlotClick : undefined}
       onDragEnter={editable ? onDragEnter : undefined}
@@ -178,43 +175,29 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
       ) : <span className="slot__ph">{slotText}</span>}
       {busy ? <span className="slot__busy" aria-hidden="true" /> : null}
       {canFrame ? (
-        <>
+        framing ? (
+          <>
+            <span className="slot__frame-hint" data-slot-control>{t('card.frameHint')}</span>
+            <button
+              className="slot__frame-toggle slot__frame-save"
+              type="button"
+              data-slot-control
+              data-nodrag
+              onClick={saveFrame}
+              aria-label={t('card.frameSave')}
+              title={t('card.frameSave')}
+            >✓</button>
+          </>
+        ) : (
           <button
             className="slot__frame-toggle"
             type="button"
             data-slot-control
             data-nodrag
-            onClick={() => setFraming((open) => !open)}
-            aria-expanded={framing}
+            onClick={beginFraming}
             aria-label={t('card.reframeImage')}
           >⌗ <span>{t('card.reframe')}</span></button>
-          {framing ? (
-            <div className="slot__frame-controls" data-slot-control data-nodrag role="group" aria-label={t('card.reframeImage')}>
-              <label>
-                <span>{t('card.frameZoom')}</span>
-                <input
-                  type="range"
-                  min={FRAME_MIN_SCALE}
-                  max={FRAME_MAX_SCALE}
-                  step="0.05"
-                  value={currentFrame.scale}
-                  onChange={(event) => updateFrame({ scale: Number(event.target.value) })}
-                  aria-label={t('card.frameZoom')}
-                />
-              </label>
-              <div className="slot__frame-move">
-                <span>{t('card.frameMove')}</span>
-                <div>
-                  <button type="button" onClick={() => nudgeFrame(0, -FRAME_STEP)} aria-label={t('card.frameUp')}>↑</button>
-                  <button type="button" onClick={() => nudgeFrame(-FRAME_STEP, 0)} aria-label={t('card.frameLeft')}>←</button>
-                  <button type="button" onClick={() => nudgeFrame(FRAME_STEP, 0)} aria-label={t('card.frameRight')}>→</button>
-                  <button type="button" onClick={() => nudgeFrame(0, FRAME_STEP)} aria-label={t('card.frameDown')}>↓</button>
-                </div>
-              </div>
-              <button type="button" className="slot__frame-reset" onClick={() => { setPreviewFrame({ url: url ?? '', frame: undefined }); onFrameChange?.(undefined); }}>{t('card.frameReset')}</button>
-            </div>
-          ) : null}
-        </>
+        )
       ) : null}
       {editable ? (
         <input
