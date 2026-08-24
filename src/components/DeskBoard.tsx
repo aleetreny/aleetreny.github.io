@@ -82,8 +82,9 @@ import {
   saveSiteSetting,
   signInOwner,
   signOutOwner,
-  uploadImage,
+  uploadMedia,
 } from '../lib/content-repository';
+import { mediaContentType } from '../lib/image-upload';
 import { BoardCardView } from './desk/BoardCards';
 import { DossierErrorBoundary, DossierPlate, type SaveState } from './desk/DossierPlate';
 import { GroupOverflowPanel } from './desk/GroupOverflowPanel';
@@ -1187,28 +1188,31 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     })();
   }, [flash, remoteDataEnabled]);
 
-  // Photo upload: Neon Object Storage in production, an in-browser data URL in
-  // local preview so the whole flow is testable offline.
-  const uploadPhoto = useCallback(async (file: File): Promise<string> => {
+  // Media upload: Neon Object Storage in production, an in-browser data URL in
+  // local preview so the whole flow is testable offline. Both paths retain the
+  // original bytes: files are never converted or recompressed in the editor.
+  const uploadMediaFile = useCallback(async (file: File): Promise<{ url: string; mimeType: string }> => {
+    const mimeType = mediaContentType(file);
+    if (!mimeType) throw new Error(tRef.current('msg.uploadFailed'));
     if (!remoteDataEnabled) {
-      return new Promise<string>((resolve, reject) => {
+      return new Promise<{ url: string; mimeType: string }>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
+        reader.onload = () => resolve({ url: String(reader.result), mimeType });
         reader.onerror = () => reject(new Error(tRef.current('msg.imageReadFailed')));
         reader.readAsDataURL(file);
       });
     }
-    const asset = await uploadImage(file, file.name);
-    return asset.publicUrl;
+    const asset = await uploadMedia(file, file.name);
+    return { url: asset.publicUrl, mimeType: asset.mimeType };
   }, [remoteDataEnabled]);
 
-  const pickPolaroidPhoto = useCallback((polaroidId: string, file: File) => {
+  const pickPolaroidMedia = useCallback((polaroidId: string, file: File) => {
     setPolBusy(polaroidId);
-    uploadPhoto(file)
-      .then((url) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: url } : p)) }); })
+    uploadMediaFile(file)
+      .then((media) => { commitBoard({ ...rawBoard, polaroids: rawBoard.polaroids.map((p) => (p.id === polaroidId ? { ...p, assetUrl: media.url, assetMediaType: media.mimeType } : p)) }); })
       .catch((reason: unknown) => flash(reason instanceof Error ? reason.message : tRef.current('msg.uploadFailed'), true))
       .finally(() => setPolBusy(null));
-  }, [rawBoard, commitBoard, flash, uploadPhoto]);
+  }, [rawBoard, commitBoard, flash, uploadMediaFile]);
 
   // ---- board card management ------------------------------------------------
   const viewCenterWorld = useCallback(() => {
@@ -2044,7 +2048,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                 <div className="polaroid__frame">
                   {p.tape ? <div className="polaroid__tape" /> : null}
                   <div style={{ position: 'relative', width: '100%', height: p.h }}>
-                    <ImageSlot url={p.assetUrl} alt={p.caption} placeholder={p.placeholder || undefined} editable={editing} busy={polBusy === p.id} onPick={(file) => pickPolaroidPhoto(p.id, file)} />
+                    <ImageSlot url={p.assetUrl} mediaType={p.assetMediaType} alt={p.caption} placeholder={p.placeholder || undefined} editable={editing} busy={polBusy === p.id} onPick={(file) => pickPolaroidMedia(p.id, file)} />
                   </div>
                   <EditableText
                     as="div"
@@ -2241,7 +2245,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
             onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}
             onOpenArticle={setOpenSlug}
             onChange={changeEntry}
-            uploadPhoto={uploadPhoto}
+            uploadMedia={uploadMediaFile}
             onUploadError={(reason) => flash(reason instanceof Error ? reason.message : t('msg.uploadFailed'), true)}
             dossier={theme.dossier}
           />

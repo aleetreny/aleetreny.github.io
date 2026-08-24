@@ -13,6 +13,6 @@ describe('editor helpers', () => {
   });
 
   it('uses the expected property shape for a new image block', () => {
-    expect(createBlock('image').props).toEqual({ url: '', alt: '', assetId: '' });
+    expect(createBlock('image').props).toEqual({ url: '', alt: '', assetId: '', mediaType: '' });
   });
 });

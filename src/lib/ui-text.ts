@@ -140,6 +140,8 @@ const CATALOGUE: Record<string, Entry> = {
   'card.removeLang': { es: 'Quitar {code}', en: 'Remove {code}' },
   'card.dropPhoto': { es: 'suelta una foto', en: 'drop a photo' },
   'card.changePhoto': { es: 'Cambiar foto: {placeholder}', en: 'Change photo: {placeholder}' },
+  'card.dropMedia': { es: 'suelta una foto o vídeo', en: 'drop a photo or video' },
+  'card.changeMedia': { es: 'Cambiar contenido: {placeholder}', en: 'Change media: {placeholder}' },
 
   // ---------------------------------------------------------------- dossier
   'dossier.editFlag': { es: 'editando — pulsa cualquier texto', en: 'editing — click any text' },

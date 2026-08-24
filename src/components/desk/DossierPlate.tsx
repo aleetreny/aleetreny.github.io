@@ -30,7 +30,7 @@ type DossierPlateProps = {
   onNext: () => void;
   onOpenArticle: (slug: string) => void;
   onChange: (next: PortfolioEntry) => void;
-  uploadPhoto: (file: File) => Promise<string>;
+  uploadMedia: (file: File) => Promise<{ url: string; mimeType: string }>;
   onUploadError: (reason: unknown) => void;
   /** Article design: measure, title, lede, drop cap, numbering, entrance. */
   dossier: DossierConfig;
@@ -100,7 +100,7 @@ export class DossierErrorBoundary extends Component<{
 export function DossierPlate({
   entry, articles, activeLanguage, posLabel, prevTitle, nextTitle, editing,
   saveState, saveError, onRetrySave, canTranslate, translating, onTranslate,
-  onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, onUploadError, dossier,
+  onClose, onPrev, onNext, onOpenArticle, onChange, uploadMedia, onUploadError, dossier,
 }: DossierPlateProps) {
   const t = useUiText();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -274,11 +274,11 @@ export function DossierPlate({
     });
   }
 
-  async function pickBlockImage(id: string, file: File) {
+  async function pickBlockMedia(id: string, file: File) {
     setBusyBlock(id);
     try {
-      const url = await uploadPhoto(file);
-      updateBlock(id, { url });
+      const media = await uploadMedia(file);
+      updateBlock(id, { url: media.url, mediaType: media.mimeType });
     } catch (reason) {
       onUploadError(reason);
     } finally {
@@ -544,7 +544,7 @@ export function DossierPlate({
         return (
           <figure className="db-image">
             <div className="db-image__frame">
-              <ImageSlot url={propString(block, 'url') || undefined} alt={propString(block, 'alt')} placeholder={propString(block, 'caption') || t('card.dropPhoto')} editable={editing} busy={busyBlock === block.id} onPick={(file) => pickBlockImage(block.id, file)} />
+              <ImageSlot url={propString(block, 'url') || undefined} mediaType={propString(block, 'mediaType') || undefined} alt={propString(block, 'alt')} placeholder={propString(block, 'caption') || t('card.dropMedia')} editable={editing} busy={busyBlock === block.id} onPick={(file) => pickBlockMedia(block.id, file)} />
             </div>
             {propString(block, 'caption') || editing ? (
               <EditableText

@@ -90,7 +90,7 @@ or as an explicit line break, the element holds text nodes only, and a drift
 check remounts a field whose DOM stops matching the model. `readEditable`
 reconstructs `\n` from any element break that still gets through.
 
-## Images
+## Images and video
 
 The block asks `POST /uploads/presign` for a signed URL with the ephemeral Neon
 Auth JWT, does the `PUT` directly, then registers metadata through

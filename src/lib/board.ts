@@ -225,6 +225,7 @@ export type Polaroid = {
   placeholder?: string;
   assetId?: string;
   assetUrl?: string;
+  assetMediaType?: string;
 };
 
 export type Marginal = {

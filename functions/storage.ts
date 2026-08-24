@@ -134,7 +134,7 @@ app.post('/uploads/presign', async (context) => {
     const ownerId = await ownerFromRequest(context.req.header('Authorization'));
     const request = uploadRequestSchema.parse(await context.req.json());
     if (!isUploadAllowed(request.contentType, request.byteSize)) {
-      return context.json({ error: 'Unsupported image type or file exceeds 10 MiB.' }, 400);
+      return context.json({ error: 'Unsupported media type or file exceeds its size limit.' }, 400);
     }
 
     const bucket = process.env.STORAGE_BUCKET ?? 'portfolio-assets';

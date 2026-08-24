@@ -24,7 +24,7 @@ export function createBlock(type: EditableBlockType): ContentBlock {
     list: { items: [''] },
     metric: { label: '', value: '' },
     quote: { text: '', attribution: '' },
-    image: { url: '', alt: '', assetId: '' },
+    image: { url: '', alt: '', assetId: '', mediaType: '' },
   };
   return {
     id: crypto.randomUUID(),

@@ -1,4 +1,7 @@
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_VIDEO_UPLOAD_BYTES = 100 * 1024 * 1024;
+/** Retained for callers checking the image limit. */
+export const MAX_UPLOAD_BYTES = MAX_IMAGE_UPLOAD_BYTES;
 
 export const ALLOWED_IMAGE_TYPES = new Set([
   'image/avif',
@@ -10,6 +13,13 @@ export const ALLOWED_IMAGE_TYPES = new Set([
   'image/jpeg',
   'image/png',
   'image/webp',
+]);
+
+export const ALLOWED_VIDEO_TYPES = new Set([
+  'video/mp4',
+  'video/quicktime',
+  'video/webm',
+  'video/x-m4v',
 ]);
 
 export function sanitizeFilename(filename: string): string {
@@ -25,7 +35,12 @@ export function sanitizeFilename(filename: string): string {
 }
 
 export function isUploadAllowed(contentType: string, byteSize: number): boolean {
-  return ALLOWED_IMAGE_TYPES.has(contentType) && byteSize > 0 && byteSize <= MAX_UPLOAD_BYTES;
+  const maxBytes = ALLOWED_IMAGE_TYPES.has(contentType)
+    ? MAX_IMAGE_UPLOAD_BYTES
+    : ALLOWED_VIDEO_TYPES.has(contentType)
+      ? MAX_VIDEO_UPLOAD_BYTES
+      : 0;
+  return byteSize > 0 && byteSize <= maxBytes;
 }
 
 export function isAllowedOrigin(origin: string | undefined, configuredOrigins: string): boolean {

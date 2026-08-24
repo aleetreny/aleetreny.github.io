@@ -5,3 +5,4 @@
 \ir migrations/0003_editor_functions.sql
 \ir migrations/0004_trash_restore.sql
 \ir migrations/0005_allow_heic_uploads.sql
+\ir migrations/0006_allow_video_uploads.sql

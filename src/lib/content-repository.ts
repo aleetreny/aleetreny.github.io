@@ -13,7 +13,7 @@ import {
 } from '../types/content';
 import type { Json } from '../types/database';
 import { runtimeConfig } from './config';
-import { imageContentType } from './image-upload';
+import { mediaContentType } from './image-upload';
 import { dehydrateEntry, hydrateEntry } from './entry-storage';
 import { getNeonClient } from './neon';
 
@@ -365,14 +365,16 @@ async function getOwnerToken(): Promise<string> {
   return result.data.session.token;
 }
 
-export async function uploadImage(file: File, altText: string): Promise<StoredAsset> {
+/** Upload the original file bytes directly to object storage. No client-side
+ * conversion or recompression is performed, including for video. */
+export async function uploadMedia(file: File, altText: string): Promise<StoredAsset> {
   if (!runtimeConfig.storageFunctionUrl) {
     throw new Error('VITE_STORAGE_FUNCTION_URL is not configured.');
   }
 
-  const contentType = imageContentType(file);
+  const contentType = mediaContentType(file);
   if (!contentType) {
-    throw new Error('Solo se pueden subir imágenes AVIF, GIF, HEIC, HEIF, JPEG, PNG o WebP.');
+    throw new Error('Solo se pueden subir imágenes AVIF, GIF, HEIC, HEIF, JPEG, PNG o WebP, o vídeos MP4, MOV, M4V y WebM.');
   }
 
   const token = await getOwnerToken();

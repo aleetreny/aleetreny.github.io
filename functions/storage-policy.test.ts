@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   MAX_UPLOAD_BYTES,
+  MAX_VIDEO_UPLOAD_BYTES,
   isAllowedOrigin,
   isUploadAllowed,
   publicObjectUrl,
@@ -15,6 +16,8 @@ describe('storage policy', () => {
     expect(isUploadAllowed('image/heic', MAX_UPLOAD_BYTES)).toBe(true);
     expect(isUploadAllowed('image/svg+xml', 100)).toBe(false);
     expect(isUploadAllowed('image/png', MAX_UPLOAD_BYTES + 1)).toBe(false);
+    expect(isUploadAllowed('video/mp4', MAX_VIDEO_UPLOAD_BYTES)).toBe(true);
+    expect(isUploadAllowed('video/mp4', MAX_VIDEO_UPLOAD_BYTES + 1)).toBe(false);
   });
 
   it('uses an exact CORS allowlist', () => {

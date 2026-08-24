@@ -1,9 +1,10 @@
 import { useRef, useState, type DragEvent } from 'react';
-import { IMAGE_INPUT_ACCEPT, isSupportedImageFile } from '../../lib/image-upload';
+import { isSupportedMediaFile, isVideoMedia, MEDIA_INPUT_ACCEPT } from '../../lib/image-upload';
 import { useUiText } from './ui-text-context';
 
 type ImageSlotProps = {
   url?: string;
+  mediaType?: string;
   alt?: string;
   placeholder?: string;
   editable?: boolean;
@@ -11,17 +12,17 @@ type ImageSlotProps = {
   onPick?: (file: File) => void | Promise<void>;
 };
 
-/** A fillable photo frame. Owner can click or drop an image; the parent
- * uploads it to Neon Object Storage and persists the resulting URL. */
-export function ImageSlot({ url, alt, placeholder, editable = false, busy = false, onPick }: ImageSlotProps) {
+/** A fillable media frame. Owner can click or drop a photo or video; the
+ * parent uploads the original file to Neon Object Storage and persists its URL. */
+export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, busy = false, onPick }: ImageSlotProps) {
   const t = useUiText();
-  const slotText = placeholder ?? t('card.dropPhoto');
+  const slotText = placeholder ?? t('card.dropMedia');
   const inputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
   const [over, setOver] = useState(false);
 
   function handleFiles(files: FileList | null) {
-    const file = files ? Array.from(files).find(isSupportedImageFile) : undefined;
+    const file = files ? Array.from(files).find(isSupportedMediaFile) : undefined;
     if (file && onPick) onPick(file);
   }
 
@@ -74,15 +75,18 @@ export function ImageSlot({ url, alt, placeholder, editable = false, busy = fals
       role={editable ? 'button' : undefined}
       tabIndex={editable ? 0 : undefined}
       onKeyDown={editable ? (event) => { if (event.key === 'Enter') inputRef.current?.click(); } : undefined}
-      aria-label={editable ? t('card.changePhoto', { placeholder: slotText }) : (alt || slotText)}
+      aria-label={editable ? t('card.changeMedia', { placeholder: slotText }) : (alt || slotText)}
     >
-      {url ? <img src={url} alt={alt ?? ''} /> : <span className="slot__ph">{slotText}</span>}
+      {url ? (isVideoMedia(mediaType, url)
+        ? <video src={url} controls playsInline preload="metadata" aria-label={alt || slotText} />
+        : <img src={url} alt={alt ?? ''} />
+      ) : <span className="slot__ph">{slotText}</span>}
       {busy ? <span className="slot__busy" aria-hidden="true" /> : null}
       {editable ? (
         <input
           ref={inputRef}
           type="file"
-          accept={IMAGE_INPUT_ACCEPT}
+          accept={MEDIA_INPUT_ACCEPT}
           style={{ display: 'none' }}
           onChange={(event) => { handleFiles(event.target.files); event.target.value = ''; }}
         />

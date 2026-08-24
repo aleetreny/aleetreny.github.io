@@ -35,7 +35,9 @@ portfolio-assets/
 ```
 
 Keys chosen entirely by the client are not accepted. The function builds the
-prefix and UUID, and allows only AVIF, GIF, HEIC, HEIF, JPEG, PNG and WebP up to 10 MiB.
+prefix and UUID, and allows only AVIF, GIF, HEIC, HEIF, JPEG, PNG and WebP up
+to 10 MiB, plus MP4, MOV/QuickTime, M4V and WebM video up to 100 MiB. Uploads
+use the original file bytes; the editor does not convert or recompress media.
 
 ## Access policies
 
