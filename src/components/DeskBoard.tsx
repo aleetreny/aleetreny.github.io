@@ -85,7 +85,7 @@ import {
   uploadImage,
 } from '../lib/content-repository';
 import { BoardCardView } from './desk/BoardCards';
-import { DossierPlate, type SaveState } from './desk/DossierPlate';
+import { DossierErrorBoundary, DossierPlate, type SaveState } from './desk/DossierPlate';
 import { GroupOverflowPanel } from './desk/GroupOverflowPanel';
 import { ImageSlot } from './desk/ImageSlot';
 import { ThemePanel } from './desk/ThemePanel';
@@ -2221,28 +2221,31 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       ) : null}
 
       {openEntry ? (
-        <DossierPlate
-          entry={openEntry}
-          articles={entries}
-          activeLanguage={activeLang}
-          posLabel={`${openIndex + 1} / ${orderedSlugs.length}`}
-          prevTitle={prevEntry?.title ?? ''}
-          nextTitle={nextEntry?.title ?? ''}
-          editing={editing}
-          saveState={saveState}
-          saveError={saveError}
-          onRetrySave={() => { setSaveState('pending'); flushRef.current(); }}
-          canTranslate={canTranslate}
-          translating={translating}
-          onTranslate={() => { void runTranslate({ entryId: openEntry.id, scope: 'refresh', source: activeLang }); }}
-          onClose={() => setOpenSlug(null)}
-          onPrev={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i - 1 + orderedSlugs.length) % orderedSlugs.length]); }}
-          onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}
-          onOpenArticle={setOpenSlug}
-          onChange={changeEntry}
-          uploadPhoto={uploadPhoto}
-          dossier={theme.dossier}
-        />
+        <DossierErrorBoundary key={openEntry.id} onClose={() => setOpenSlug(null)} closeLabel={t('dossier.close')}>
+          <DossierPlate
+            entry={openEntry}
+            articles={entries}
+            activeLanguage={activeLang}
+            posLabel={`${openIndex + 1} / ${orderedSlugs.length}`}
+            prevTitle={prevEntry?.title ?? ''}
+            nextTitle={nextEntry?.title ?? ''}
+            editing={editing}
+            saveState={saveState}
+            saveError={saveError}
+            onRetrySave={() => { setSaveState('pending'); flushRef.current(); }}
+            canTranslate={canTranslate}
+            translating={translating}
+            onTranslate={() => { void runTranslate({ entryId: openEntry.id, scope: 'refresh', source: activeLang }); }}
+            onClose={() => setOpenSlug(null)}
+            onPrev={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i - 1 + orderedSlugs.length) % orderedSlugs.length]); }}
+            onNext={() => { const i = orderedSlugs.indexOf(openEntry.slug); setOpenSlug(orderedSlugs[(i + 1) % orderedSlugs.length]); }}
+            onOpenArticle={setOpenSlug}
+            onChange={changeEntry}
+            uploadPhoto={uploadPhoto}
+            onUploadError={(reason) => flash(reason instanceof Error ? reason.message : t('msg.uploadFailed'), true)}
+            dossier={theme.dossier}
+          />
+        </DossierErrorBoundary>
       ) : null}
 
       {loginOpen ? (

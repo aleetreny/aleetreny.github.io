@@ -1,4 +1,5 @@
 import { useRef, useState, type DragEvent } from 'react';
+import { IMAGE_INPUT_ACCEPT, isSupportedImageFile } from '../../lib/image-upload';
 import { useUiText } from './ui-text-context';
 
 type ImageSlotProps = {
@@ -7,7 +8,7 @@ type ImageSlotProps = {
   placeholder?: string;
   editable?: boolean;
   busy?: boolean;
-  onPick?: (file: File) => void;
+  onPick?: (file: File) => void | Promise<void>;
 };
 
 /** A fillable photo frame. Owner can click or drop an image; the parent
@@ -20,7 +21,7 @@ export function ImageSlot({ url, alt, placeholder, editable = false, busy = fals
   const [over, setOver] = useState(false);
 
   function handleFiles(files: FileList | null) {
-    const file = files ? Array.from(files).find((candidate) => candidate.type.startsWith('image/') || /\.(avif|gif|jpe?g|png|svg|webp)$/i.test(candidate.name)) : undefined;
+    const file = files ? Array.from(files).find(isSupportedImageFile) : undefined;
     if (file && onPick) onPick(file);
   }
 
@@ -81,7 +82,7 @@ export function ImageSlot({ url, alt, placeholder, editable = false, busy = fals
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept={IMAGE_INPUT_ACCEPT}
           style={{ display: 'none' }}
           onChange={(event) => { handleFiles(event.target.files); event.target.value = ''; }}
         />

@@ -4,3 +4,4 @@
 \ir migrations/0002_data_api_permissions.sql
 \ir migrations/0003_editor_functions.sql
 \ir migrations/0004_trash_restore.sql
+\ir migrations/0005_allow_heic_uploads.sql

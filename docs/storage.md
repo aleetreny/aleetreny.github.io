@@ -35,7 +35,7 @@ portfolio-assets/
 ```
 
 Keys chosen entirely by the client are not accepted. The function builds the
-prefix and UUID, and allows only AVIF, GIF, JPEG, PNG and WebP up to 10 MiB.
+prefix and UUID, and allows only AVIF, GIF, HEIC, HEIF, JPEG, PNG and WebP up to 10 MiB.
 
 ## Access policies
 

@@ -1,6 +1,6 @@
-import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent } from 'react';
+import { Component, useCallback, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ErrorInfo, type MouseEvent as ReactMouseEvent, type PointerEvent, type ReactNode } from 'react';
 import type { ContentBlock, PortfolioEntry } from '../../types/content';
-import { BLOCK_TYPES, insertAfterId, newBlock, propPairList, propString, propStringList, reorderById, type DossierBlockType } from '../../lib/blocks';
+import { BLOCK_TYPES, insertAfterId, newBlock, propPairList, propString, propStringList, reorderById, updateById, type DossierBlockType } from '../../lib/blocks';
 import type { DossierConfig } from '../../lib/board';
 import { linksForLanguage, linksForLanguageAt, rebaseTextLinks, removeLinksForLanguageAt, setLinksForLanguage, setLinksForLanguageAt, splitTextLinks, type TextLink } from '../../lib/rich-text';
 import { ImageSlot } from './ImageSlot';
@@ -31,6 +31,7 @@ type DossierPlateProps = {
   onOpenArticle: (slug: string) => void;
   onChange: (next: PortfolioEntry) => void;
   uploadPhoto: (file: File) => Promise<string>;
+  onUploadError: (reason: unknown) => void;
   /** Article design: measure, title, lede, drop cap, numbering, entrance. */
   dossier: DossierConfig;
 };
@@ -44,20 +45,66 @@ type DropTarget = { id: string; after: boolean };
 const DRAG_SCROLL_EDGE = 88;
 const DRAG_SCROLL_MAX = 18;
 
+function useLatestEntryCommit(entry: PortfolioEntry, onChange: (next: PortfolioEntry) => void) {
+  const entryRef = useRef(entry);
+  useLayoutEffect(() => { entryRef.current = entry; }, [entry]);
+  return useCallback((change: (current: PortfolioEntry) => PortfolioEntry) => {
+    const current = entryRef.current;
+    const next = change(current);
+    if (next === current) return;
+    entryRef.current = next;
+    onChange(next);
+  }, [onChange]);
+}
+
 /** Which block types Enter should split into a second block of the same kind
  *  rather than break a line inside. Writing prose, Enter means "next
  *  paragraph"; inside a callout or a quote it means "next line". */
 const SPLITS_ON_ENTER = new Set<string>(['text', 'heading']);
 
+/** Keep a rendering failure inside the dossier from stranding the owner on an
+ * empty board. The normal edit path avoids the stale updates that caused the
+ * failure; this is the last-resort escape hatch for malformed remote content. */
+export class DossierErrorBoundary extends Component<{
+  children: ReactNode;
+  onClose: () => void;
+  closeLabel: string;
+}, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError(): { failed: true } {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('Dossier render failed', error, info);
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="dossier" data-editing="false">
+        <div className="dossier__scrim" onClick={this.props.onClose} />
+        <section className="dossier__plate" role="alertdialog" aria-modal="true" aria-label="Editor error">
+          <div className="dossier__inner">
+            <h2 className="dossier__title">No se ha podido mostrar este dossier.</h2>
+            <p className="dossier__lede">El tablero sigue disponible y puedes volver a él sin recargar la página.</p>
+            <button className="pbtn" type="button" onClick={this.props.onClose}>{this.props.closeLabel}</button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+}
+
 export function DossierPlate({
   entry, articles, activeLanguage, posLabel, prevTitle, nextTitle, editing,
   saveState, saveError, onRetrySave, canTranslate, translating, onTranslate,
-  onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, dossier,
+  onClose, onPrev, onNext, onOpenArticle, onChange, uploadPhoto, onUploadError, dossier,
 }: DossierPlateProps) {
   const t = useUiText();
   const closeRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const latestEntryRef = useRef(entry);
   const [busyBlock, setBusyBlock] = useState<string | null>(null);
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
@@ -73,7 +120,6 @@ export function DossierPlate({
 
   useEffect(() => { closeRef.current?.focus(); }, []);
   useEffect(() => { if (sheetRef.current) sheetRef.current.scrollTop = 0; }, [entry.slug]);
-  useLayoutEffect(() => { latestEntryRef.current = entry; }, [entry]);
   useEffect(() => () => {
     if (dragScrollFrame.current !== null) window.cancelAnimationFrame(dragScrollFrame.current);
   }, []);
@@ -85,13 +131,26 @@ export function DossierPlate({
     return () => window.clearTimeout(timer);
   }, [focusTarget]);
 
-  const blocks = [...entry.blocks].sort((a, b) => a.position - b.position);
+  const orderedBlocks = (source: PortfolioEntry) => [...source.blocks].sort((a, b) => a.position - b.position);
+  const blocks = orderedBlocks(entry);
 
-  const setMeta = (key: string, value: unknown) => onChange({ ...entry, metadata: { ...entry.metadata, [key]: value } });
+  /** Every edit starts from the most recent local dossier, not the render that
+   * created the event handler. This matters when blur, click and unmount all
+   * happen in the same interaction. */
+  const commitEntry = useLatestEntryCommit(entry, onChange);
+  const setMeta = (key: string, value: unknown) => commitEntry((current) => ({
+    ...current,
+    metadata: { ...current.metadata, [key]: value },
+  }));
   const normaliseBlocks = (next: ContentBlock[]) => next.map((block, index) => ({ ...block, position: index }));
-  const commitBlocks = (next: ContentBlock[]) => onChange({ ...entry, blocks: normaliseBlocks(next) });
-  const updateBlock = (id: string, props: Record<string, unknown>) =>
-    commitBlocks(blocks.map((block) => (block.id === id ? { ...block, props: { ...block.props, ...props } } : block)));
+  const commitBlocks = (change: (current: ContentBlock[]) => ContentBlock[]) => commitEntry((current) => {
+    const currentBlocks = orderedBlocks(current);
+    const nextBlocks = change(currentBlocks);
+    return nextBlocks === currentBlocks ? current : { ...current, blocks: normaliseBlocks(nextBlocks) };
+  });
+  const updateBlock = (id: string, props: Record<string, unknown>) => commitBlocks((current) =>
+    updateById(current, id, (block) => ({ ...block, props: { ...block.props, ...props } })),
+  );
   const updateLinkedText = (block: ContentBlock, text: string, links: TextLink[]) =>
     updateBlock(block.id, { text, textLinks: setLinksForLanguage(block.props.textLinks, activeLanguage, links) });
   const updateLinkedListItem = (block: ContentBlock, index: number, text: string, links: TextLink[]) => {
@@ -100,10 +159,16 @@ export function DossierPlate({
     nextItems[index] = text;
     updateBlock(block.id, { items: nextItems, itemTextLinks: setLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, links) });
   };
-  const removeBlock = (id: string) => commitBlocks(blocks.filter((block) => block.id !== id));
+  const removeBlock = (id: string) => {
+    commitBlocks((current) => {
+      const next = current.filter((block) => block.id !== id);
+      return next.length === current.length ? current : next;
+    });
+    setFocusTarget((current) => (current?.block === id ? null : current));
+  };
   const addBlock = (type: DossierBlockType) => {
-    const block = newBlock(type, blocks.length);
-    commitBlocks([...blocks, block]);
+    const block = newBlock(type, 0);
+    commitBlocks((current) => [...current, block]);
     setFocusTarget({ block: block.id });
   };
   const addParagraphAfter = (id: string) => {
@@ -111,10 +176,8 @@ export function DossierPlate({
     // block. Reading the latest entry prevents the pending blur from replacing
     // that paragraph with its stale pre-click value.
     window.setTimeout(() => {
-      const latest = latestEntryRef.current;
-      const current = [...latest.blocks].sort((a, b) => a.position - b.position);
-      const paragraph = newBlock('text', current.length);
-      onChange({ ...latest, blocks: normaliseBlocks(insertAfterId(current, id, paragraph)) });
+      const paragraph = newBlock('text', 0);
+      commitBlocks((current) => insertAfterId(current, id, paragraph));
       setFocusTarget({ block: paragraph.id });
     }, 0);
   };
@@ -126,39 +189,57 @@ export function DossierPlate({
    *  Enter at the end of a title means "now write the section", not "now write
    *  another title". Splitting a heading in the middle does keep both halves as
    *  headings, because that is a rename, not a new section. */
-  const splitBlock = (block: ContentBlock, before: string, after: string) => {
-    const nextType: DossierBlockType = block.type === 'heading' && !after.trim()
+  const splitBlock = (blockId: string, before: string, after: string) => {
+    const source = blocks.find((block) => block.id === blockId);
+    if (!source) return;
+    const nextType: DossierBlockType = source.type === 'heading' && !after.trim()
       ? 'text'
-      : (block.type as DossierBlockType);
+      : (source.type as DossierBlockType);
     const created = newBlock(nextType, 0);
-    const index = blocks.findIndex((item) => item.id === block.id);
-    const previous = propString(block, 'text');
-    const current = `${before}${after}`;
-    const rebasedLinks = rebaseTextLinks(
-      linksForLanguage(block.props.textLinks, activeLanguage, previous.length),
-      previous,
-      current,
-    );
-    const { before: beforeLinks, after: afterLinks } = splitTextLinks(rebasedLinks, before.length, current.length);
-    const next = blocks.map((item) => (item.id === block.id
-      ? { ...item, props: { ...item.props, text: before, textLinks: setLinksForLanguage(item.props.textLinks, activeLanguage, beforeLinks) } }
-      : item));
-    next.splice(index + 1, 0, {
-      ...created,
-      props: { ...created.props, text: after, textLinks: setLinksForLanguage(undefined, activeLanguage, afterLinks) },
+    commitBlocks((current) => {
+      const index = current.findIndex((item) => item.id === blockId);
+      if (index < 0) return current;
+      const block = current[index];
+      const previous = propString(block, 'text');
+      const combined = `${before}${after}`;
+      const rebasedLinks = rebaseTextLinks(
+        linksForLanguage(block.props.textLinks, activeLanguage, previous.length),
+        previous,
+        combined,
+      );
+      const { before: beforeLinks, after: afterLinks } = splitTextLinks(rebasedLinks, before.length, combined.length);
+      const next = updateById(current, blockId, (item) => ({
+        ...item,
+        props: { ...item.props, text: before, textLinks: setLinksForLanguage(item.props.textLinks, activeLanguage, beforeLinks) },
+      }));
+      next.splice(index + 1, 0, {
+        ...created,
+        props: { ...created.props, text: after, textLinks: setLinksForLanguage(undefined, activeLanguage, afterLinks) },
+      });
+      return next;
     });
-    commitBlocks(next);
     setFocusTarget({ block: created.id });
   };
 
   /** Enter inside a bullet: the same idea, one row down. */
-  const splitListItem = (block: ContentBlock, index: number, before: string, after: string) => {
-    const items = propStringList(block, 'items');
-    const next = [...items];
-    next[index] = before;
-    next.splice(index + 1, 0, after);
-    updateBlock(block.id, { items: next, itemTextLinks: setLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, []) });
-    setFocusTarget({ block: block.id, item: index + 1 });
+  const splitListItem = (blockId: string, index: number, before: string, after: string) => {
+    commitBlocks((current) => {
+      const block = current.find((item) => item.id === blockId);
+      if (!block) return current;
+      const items = propStringList(block, 'items');
+      const next = [...items];
+      next[index] = before;
+      next.splice(index + 1, 0, after);
+      return updateById(current, blockId, (item) => ({
+        ...item,
+        props: {
+          ...item.props,
+          items: next,
+          itemTextLinks: setLinksForLanguageAt(block.props.itemTextLinks, activeLanguage, index, []),
+        },
+      }));
+    });
+    setFocusTarget({ block: blockId, item: index + 1 });
   };
 
   function stopDragAutoScroll() {
@@ -198,6 +279,8 @@ export function DossierPlate({
     try {
       const url = await uploadPhoto(file);
       updateBlock(id, { url });
+    } catch (reason) {
+      onUploadError(reason);
     } finally {
       setBusyBlock(null);
     }
@@ -275,7 +358,7 @@ export function DossierPlate({
   function finishBlockDrag() {
     const source = draggingBlockRef.current;
     const target = dropTargetRef.current;
-    if (source && target) commitBlocks(reorderById(blocks, source, target.id, target.after));
+    if (source && target) commitBlocks((current) => reorderById(current, source, target.id, target.after));
     clearBlockDrag();
   }
 
@@ -344,7 +427,7 @@ export function DossierPlate({
         articles={linkableArticles}
         placeholder={placeholder}
         autoFocus={focusHere}
-        onSplit={SPLITS_ON_ENTER.has(block.type) ? (before, after) => splitBlock(block, before, after) : undefined}
+        onSplit={SPLITS_ON_ENTER.has(block.type) ? (before, after) => splitBlock(block.id, before, after) : undefined}
         onChange={(nextText, links) => updateLinkedText(block, nextText, links)}
         onOpenArticle={onOpenArticle}
       />
@@ -396,7 +479,7 @@ export function DossierPlate({
                   articles={linkableArticles}
                   placeholder={t('ph.item')}
                   autoFocus={focusTarget?.block === block.id && focusTarget.item === index}
-                  onSplit={(before, after) => splitListItem(block, index, before, after)}
+                  onSplit={(before, after) => splitListItem(block.id, index, before, after)}
                   onChange={(nextText, links) => updateLinkedListItem(block, index, nextText, links)}
                   onOpenArticle={onOpenArticle}
                 />

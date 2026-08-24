@@ -3,6 +3,10 @@ export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = new Set([
   'image/avif',
   'image/gif',
+  'image/heic',
+  'image/heic-sequence',
+  'image/heif',
+  'image/heif-sequence',
   'image/jpeg',
   'image/png',
   'image/webp',

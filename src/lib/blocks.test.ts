@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BLOCK_TYPES, insertAfterId, newBlock, propPairList, propString, propStringList, reorderById } from './blocks';
+import { BLOCK_TYPES, insertAfterId, newBlock, propPairList, propString, propStringList, reorderById, updateById } from './blocks';
 
 describe('dossier blocks', () => {
   it('creates every palette block with sane defaults', () => {
@@ -34,5 +34,10 @@ describe('dossier blocks', () => {
     const blocks = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
     expect(insertAfterId(blocks, 'b', { id: 'new' }).map((block) => block.id)).toEqual(['a', 'b', 'new', 'c']);
     expect(insertAfterId(blocks, 'missing', { id: 'new' }).map((block) => block.id)).toEqual(['a', 'b', 'c', 'new']);
+  });
+
+  it('ignores a late update for a deleted block', () => {
+    const remaining = [{ id: 'a', text: 'Still here' }];
+    expect(updateById(remaining, 'deleted', (block) => ({ ...block, text: 'Stale edit' }))).toBe(remaining);
   });
 });

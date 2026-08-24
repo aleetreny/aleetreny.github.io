@@ -79,6 +79,19 @@ export function insertAfterId<T extends { id: string }>(items: T[], targetId: st
   return [...items.slice(0, index + 1), item, ...items.slice(index + 1)];
 }
 
+/** Update one item without reviving an item that was removed meanwhile.
+ *
+ * Editable fields can commit while their parent block is being unmounted. In
+ * that case the block id is no longer in the latest collection, so keeping the
+ * collection unchanged is the only safe result. */
+export function updateById<T extends { id: string }>(items: T[], id: string, update: (item: T) => T): T[] {
+  const index = items.findIndex((item) => item.id === id);
+  if (index < 0) return items;
+  const next = [...items];
+  next[index] = update(items[index]);
+  return next;
+}
+
 /** Read a string prop safely. */
 export function propString(block: ContentBlock, key: string): string {
   const value = block.props[key];

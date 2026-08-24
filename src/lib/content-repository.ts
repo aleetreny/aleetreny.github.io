@@ -13,6 +13,7 @@ import {
 } from '../types/content';
 import type { Json } from '../types/database';
 import { runtimeConfig } from './config';
+import { imageContentType } from './image-upload';
 import { dehydrateEntry, hydrateEntry } from './entry-storage';
 import { getNeonClient } from './neon';
 
@@ -369,6 +370,11 @@ export async function uploadImage(file: File, altText: string): Promise<StoredAs
     throw new Error('VITE_STORAGE_FUNCTION_URL is not configured.');
   }
 
+  const contentType = imageContentType(file);
+  if (!contentType) {
+    throw new Error('Solo se pueden subir imágenes AVIF, GIF, HEIC, HEIF, JPEG, PNG o WebP.');
+  }
+
   const token = await getOwnerToken();
   const presignResponse = await fetch(`${runtimeConfig.storageFunctionUrl}/uploads/presign`, {
     method: 'POST',
@@ -376,7 +382,7 @@ export async function uploadImage(file: File, altText: string): Promise<StoredAs
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ filename: file.name, contentType: file.type, byteSize: file.size }),
+    body: JSON.stringify({ filename: file.name, contentType, byteSize: file.size }),
   });
   if (!presignResponse.ok) {
     const body = (await presignResponse.json().catch(() => null)) as { error?: string } | null;
@@ -386,7 +392,7 @@ export async function uploadImage(file: File, altText: string): Promise<StoredAs
 
   const uploadResponse = await fetch(presign.uploadUrl, {
     method: 'PUT',
-    headers: { 'Content-Type': file.type },
+    headers: { 'Content-Type': contentType },
     body: file,
   });
   if (!uploadResponse.ok) throw new Error('Storage rejected the upload.');
@@ -397,7 +403,7 @@ export async function uploadImage(file: File, altText: string): Promise<StoredAs
     p_bucket: presign.bucket,
     p_object_key: presign.key,
     p_public_url: presign.publicUrl,
-    p_mime_type: file.type,
+    p_mime_type: contentType,
     p_byte_size: file.size,
     p_alt_text: altText,
   });
