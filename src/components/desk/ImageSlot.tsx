@@ -1,4 +1,4 @@
-import { useRef, useState, type DragEvent } from 'react';
+import { useRef, useState, type DragEvent, type MouseEvent } from 'react';
 import { isVideoMedia, MEDIA_INPUT_ACCEPT } from '../../lib/image-upload';
 import { useUiText } from './ui-text-context';
 
@@ -27,7 +27,20 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
   }
 
   function isFileDrag(event: DragEvent) {
-    return Array.from(event.dataTransfer.types).includes('Files');
+    return Array.from(event.dataTransfer.types).includes('Files')
+      || Array.from(event.dataTransfer.items).some((item) => item.kind === 'file');
+  }
+
+  function openPicker() {
+    if (!busy) inputRef.current?.click();
+  }
+
+  function onSlotClick(event: MouseEvent<HTMLDivElement>) {
+    // Calling click() on the hidden input dispatches another click event. Keep
+    // that event from re-entering the slot handler, which could cancel the
+    // native file sheet instead of opening it.
+    if (event.target === inputRef.current) return;
+    openPicker();
   }
 
   function onDragEnter(event: DragEvent) {
@@ -67,14 +80,15 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
     <div
       className={`slot${url ? ' slot--filled' : ''}${editable ? ' slot--editable' : ''}${over ? ' slot--dragover' : ''}`}
       {...(editable ? { 'data-nodrag': '' } : {})}
-      onClick={editable ? () => inputRef.current?.click() : undefined}
+      onClick={editable ? onSlotClick : undefined}
       onDragEnter={editable ? onDragEnter : undefined}
       onDragOver={editable ? onDragOver : undefined}
       onDragLeave={editable ? onDragLeave : undefined}
       onDrop={editable ? onDrop : undefined}
       role={editable ? 'button' : undefined}
       tabIndex={editable ? 0 : undefined}
-      onKeyDown={editable ? (event) => { if (event.key === 'Enter') inputRef.current?.click(); } : undefined}
+      onKeyDown={editable ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openPicker(); } } : undefined}
+      aria-busy={busy || undefined}
       aria-label={editable ? t('card.changeMedia', { placeholder: slotText }) : (alt || slotText)}
     >
       {url ? (isVideoMedia(mediaType, url)
@@ -88,6 +102,7 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
           type="file"
           accept={MEDIA_INPUT_ACCEPT}
           style={{ display: 'none' }}
+          onClick={(event) => event.stopPropagation()}
           onChange={(event) => { handleFiles(event.target.files); event.target.value = ''; }}
         />
       ) : null}
