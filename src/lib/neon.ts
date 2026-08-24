@@ -1,8 +1,8 @@
+import { createClient } from '@neondatabase/neon-js';
 import { runtimeConfig } from './config';
 import type { Database } from '../types/database';
 
 async function createConfiguredClient() {
-  const { createClient } = await import('@neondatabase/neon-js');
   return createClient<Database>({
       auth: {
         url: runtimeConfig.neonAuthUrl,
