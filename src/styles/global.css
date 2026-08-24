@@ -1024,3 +1024,163 @@ a { color: var(--c-accent); text-decoration: none; }
 }
 .wording__field .editdel { flex: none; }
 .wording__field .editdel:disabled { opacity: .3; cursor: default; }
+
+/* ── the motif layer ────────────────────────────────────────────────────────
+   A scatter of glyphs thrown across the slate while the camera flies into a
+   stop. It lives outside the board transform, so a piece is the same size at
+   any zoom, and it is torn down as soon as it has faded. */
+.motif {
+  position: absolute; inset: 0; z-index: 45; pointer-events: none; overflow: hidden;
+  contain: strict;
+}
+.motif__bit {
+  position: absolute; left: var(--x); top: var(--y);
+  font-size: var(--size); line-height: 1;
+  color: var(--c-signal); opacity: 0;
+  will-change: transform, opacity;
+  animation-timing-function: cubic-bezier(.25, .7, .3, 1);
+  animation-fill-mode: both;
+}
+@keyframes motif-drift {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0) scale(.6); }
+  22% { opacity: .9; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1.1); }
+}
+@keyframes motif-rise {
+  0% { opacity: 0; transform: translate(0, 24px) scale(.7); }
+  25% { opacity: .95; }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * .4), -160px) rotate(var(--rot)) scale(1); }
+}
+@keyframes motif-fall {
+  0% { opacity: 0; transform: translate(0, -60px) rotate(0) scale(.8); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), 220px) rotate(var(--rot)) scale(1); }
+}
+@keyframes motif-twinkle {
+  0%, 100% { opacity: 0; transform: scale(.4) rotate(0); }
+  35% { opacity: 1; transform: scale(1.25) rotate(calc(var(--rot) * .25)); }
+  60% { opacity: .45; transform: scale(.9) rotate(calc(var(--rot) * .4)); }
+}
+@keyframes motif-snap {
+  0% { opacity: 0; transform: translate(0, 0) scale(.2); }
+  30% { opacity: 1; transform: translate(calc(var(--dx) * .5), calc(var(--dy) * .5)) scale(1); }
+  70% { opacity: 1; transform: translate(var(--dx), var(--dy)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.4); }
+}
+@keyframes motif-punch {
+  0% { opacity: 0; transform: scale(2.2) rotate(calc(var(--rot) * -.5)); }
+  30% { opacity: .95; transform: scale(1) rotate(0); }
+  100% { opacity: 0; transform: scale(1.05) rotate(calc(var(--rot) * .2)); }
+}
+
+.motif__bit--ink { animation-name: motif-drift; color: var(--c-accent2); }
+.motif__bit--spark { animation-name: motif-twinkle; color: var(--c-signal); }
+.motif__bit--pixel { animation-name: motif-snap; color: var(--c-lab, var(--c-signal)); animation-timing-function: steps(4, end); }
+.motif__bit--star { animation-name: motif-twinkle; color: var(--c-signal-soft); }
+.motif__bit--leaf { animation-name: motif-rise; color: oklch(0.72 0.13 145); }
+.motif__bit--beat { animation-name: motif-rise; color: var(--c-signal); }
+.motif__bit--confetti { animation-name: motif-fall; }
+.motif__bit--confetti:nth-child(3n) { color: var(--c-signal); }
+.motif__bit--confetti:nth-child(3n + 1) { color: var(--c-accent2); }
+.motif__bit--confetti:nth-child(3n + 2) { color: var(--c-signal-soft); }
+.motif__bit--dust { animation-name: motif-drift; color: color-mix(in oklch, var(--c-slate-ink, #fff) 55%, transparent); }
+.motif__bit--postmark { animation-name: motif-punch; color: var(--c-accent2); }
+.motif__bit--grid { animation-name: motif-snap; color: color-mix(in oklch, var(--c-signal) 60%, transparent); animation-timing-function: steps(3, end); }
+
+@media (prefers-reduced-motion: reduce) {
+  .motif { display: none; }
+}
+
+/* ── plot: a series, drawn small ────────────────────────────────────────── */
+.plot { position: relative; cursor: pointer; }
+.plot__title { font-family: var(--font-display); font-weight: 800; font-size: 19px; line-height: 1.05; letter-spacing: -.02em; margin: 6px 0 12px; }
+.plot__fig { display: block; width: 100%; height: 76px; overflow: visible; }
+.plot__line { fill: none; stroke: var(--c-accent2); stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
+.plot__area { fill: color-mix(in oklch, var(--c-accent2) 16%, transparent); stroke: none; }
+.plot__bar { fill: color-mix(in oklch, var(--c-accent2) 62%, transparent); }
+.plot__dot { fill: var(--c-accent2); }
+.plot__dot--last { fill: var(--c-signal); }
+.plot__empty { height: 76px; border: 1px dashed color-mix(in oklch, currentColor 22%, transparent); }
+.plot__axis { display: flex; justify-content: space-between; gap: 10px; margin-top: 7px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; }
+.plot__note { margin: 10px 0 0; font-size: 11px; line-height: 1.55; opacity: .62; }
+.plot__series { display: flex; flex-direction: column; gap: 3px; margin-top: 10px; }
+.plot__series input { font-family: var(--font-mono); font-size: 11px; background: transparent; color: inherit; border: 1px solid color-mix(in oklch, currentColor 26%, transparent); padding: 4px 6px; }
+
+/* ── stamp: a franked square ────────────────────────────────────────────── */
+.stamp { cursor: pointer; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .3)); }
+.stamp__paper {
+  position: relative; padding: 16px 12px 12px; text-align: center;
+  background: var(--c-paper-cream);
+  color: var(--c-ink);
+  /* The perforation is a row of holes punched out of each edge. */
+  --hole: 7px;
+  -webkit-mask:
+    radial-gradient(circle var(--hole) at 50% 0, transparent 98%, #000) 0 0 / 18px 100%,
+    radial-gradient(circle var(--hole) at 50% 100%, transparent 98%, #000) 0 0 / 18px 100%,
+    radial-gradient(circle var(--hole) at 0 50%, transparent 98%, #000) 0 0 / 100% 18px,
+    radial-gradient(circle var(--hole) at 100% 50%, transparent 98%, #000) 0 0 / 100% 18px;
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle var(--hole) at 50% 0, transparent 98%, #000) 0 0 / 18px 100%,
+    radial-gradient(circle var(--hole) at 50% 100%, transparent 98%, #000) 0 0 / 18px 100%,
+    radial-gradient(circle var(--hole) at 0 50%, transparent 98%, #000) 0 0 / 100% 18px,
+    radial-gradient(circle var(--hole) at 100% 50%, transparent 98%, #000) 0 0 / 100% 18px;
+  mask-composite: intersect;
+}
+.stamp__glyph { display: block; font-size: 40px; line-height: 1; color: var(--c-accent); }
+.stamp__title { font-family: var(--font-display); font-weight: 800; font-size: 14px; line-height: 1.1; margin: 8px 0 2px; }
+.stamp__denom { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
+.stamp__mark {
+  position: absolute; top: 6px; right: 4px; width: 64px; height: 64px;
+  display: grid; place-items: center; text-align: center;
+  border: 1.5px solid color-mix(in oklch, var(--c-accent) 55%, transparent);
+  border-radius: 50%; color: color-mix(in oklch, var(--c-accent) 75%, transparent);
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .02em; line-height: 1.2;
+  transform: rotate(-14deg); opacity: .8; padding: 4px; overflow: hidden;
+}
+
+/* ── ticket: a boarding stub ────────────────────────────────────────────── */
+.ticket { display: flex; align-items: stretch; gap: 0; cursor: pointer; }
+.ticket__stub { flex: 1 1 auto; min-width: 0; padding-right: 12px; }
+.ticket__route { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 4px; }
+.ticket__place { font-family: var(--font-display); font-weight: 800; font-size: 24px; letter-spacing: -.02em; line-height: 1; }
+.ticket__arrow { color: var(--c-accent2); font-size: 15px; }
+.ticket__title { font-size: 11.5px; line-height: 1.5; opacity: .68; }
+.ticket__tear {
+  flex: none; width: 1px; margin: -2px 12px;
+  background: repeating-linear-gradient(to bottom, color-mix(in oklch, currentColor 40%, transparent) 0 5px, transparent 5px 10px);
+}
+.ticket__end { flex: none; width: 92px; display: flex; flex-direction: column; justify-content: center; gap: 4px; text-align: right; }
+.ticket__when { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; opacity: .75; }
+.ticket__seat { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--c-accent2); }
+.ticket__code { display: flex; align-items: flex-end; justify-content: flex-end; gap: 2px; height: 22px; margin-top: 4px; }
+.ticket__code i { display: block; height: 100%; background: currentColor; opacity: .68; }
+
+/* ── terminal: a few lines of console ───────────────────────────────────── */
+.term { position: relative; cursor: pointer; font-family: var(--font-mono); }
+.term__bar { display: flex; gap: 5px; margin-bottom: 10px; }
+.term__bar i { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in oklch, currentColor 28%, transparent); }
+.term__bar i:first-child { background: color-mix(in oklch, var(--c-signal) 80%, transparent); }
+.term__body { margin: 0; font-size: 11.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+.term__cmd { color: var(--c-signal); }
+.term__out { opacity: .68; }
+.term__cursor { display: inline-block; width: 7px; height: 13px; vertical-align: -2px; background: var(--c-signal); animation: term-blink 1.1s steps(2, end) infinite; }
+@keyframes term-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.term__edit { display: flex; flex-direction: column; gap: 3px; margin-top: 10px; }
+.term__edit textarea { font-family: var(--font-mono); font-size: 11px; background: transparent; color: inherit; border: 1px solid color-mix(in oklch, currentColor 26%, transparent); padding: 5px 6px; resize: vertical; }
+@media (prefers-reduced-motion: reduce) { .term__cursor { animation: none; } }
+
+/* ── scrap: a drawn mark, no words ──────────────────────────────────────── */
+.scrap {
+  display: block; width: 100%; height: auto;
+  stroke: var(--c-signal); stroke-width: 2.4;
+  color: var(--c-signal);
+  opacity: .72;
+  overflow: visible;
+}
+.scrap .scrap__solid { fill: currentColor; stroke: none; }
+.scrap .scrap__tape { fill: color-mix(in oklch, var(--c-signal-soft) 60%, transparent); stroke: none; }
+.scrap--tape { opacity: .55; }
+.scrap--clip, .scrap--pin { stroke: color-mix(in oklch, var(--c-slate-ink, #d8d2c4) 70%, transparent); color: color-mix(in oklch, var(--c-slate-ink, #d8d2c4) 70%, transparent); }
+.scrap--leaf { stroke: oklch(0.72 0.13 145); }
+.scrap--coffee, .scrap--die { stroke: var(--c-accent2); color: var(--c-accent2); }

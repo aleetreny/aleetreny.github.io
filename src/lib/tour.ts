@@ -43,7 +43,55 @@ export const EASINGS = [
 ] as const;
 export type Easing = (typeof EASINGS)[number];
 
-export type TourStop = { id: string; label: string; items: string[] };
+/** The flourish that plays across the slate while the camera flies into a
+ *  stop. A tour that lands every section the same way says every section is
+ *  the same; these say what the stop is about before a word is read. */
+export const MOTIFS = [
+  'none', 'ink', 'spark', 'pixel', 'star', 'leaf', 'beat', 'confetti', 'dust', 'postmark', 'grid',
+] as const;
+export type Motif = (typeof MOTIFS)[number];
+
+/** What each motif scatters. Glyphs rather than images: they take the board's
+ *  accent ink, they scale with the type, and they cost nothing to load. */
+export const MOTIF_GLYPHS: Record<Motif, string[]> = {
+  none: [],
+  ink: ['/', '\\', '·', '—', '~', '⁄'],
+  spark: ['✦', '✧', '+', '·', '✳', '✢'],
+  pixel: ['▪', '▫', '▩', '░', '▚', '▞'],
+  star: ['★', '✦', '✶', '·', '✧', '✩'],
+  leaf: ['❧', '❦', '✽', '⌇', '❀', '·'],
+  beat: ['♪', '♫', '♩', '♬', '·', '♭'],
+  confetti: ['▰', '▱', '▬', '▮', '▪', '▪'],
+  dust: ['·', '∙', '˙', '⋅', '·', '∘'],
+  postmark: ['◎', '◍', '⊛', '⊙', '✈', '◉'],
+  grid: ['┼', '├', '┤', '┬', '┴', '╬'],
+};
+
+/** How many pieces a motif throws, and how long one takes to cross and fade. */
+export const MOTIF_TIMING: Record<Motif, { count: number; duration: number }> = {
+  none: { count: 0, duration: 0 },
+  ink: { count: 14, duration: 1500 },
+  spark: { count: 18, duration: 1250 },
+  pixel: { count: 22, duration: 1100 },
+  star: { count: 16, duration: 1800 },
+  leaf: { count: 12, duration: 2100 },
+  beat: { count: 12, duration: 1700 },
+  confetti: { count: 26, duration: 1600 },
+  dust: { count: 24, duration: 1900 },
+  postmark: { count: 9, duration: 1500 },
+  grid: { count: 20, duration: 1200 },
+};
+
+export type TourStop = {
+  id: string;
+  label: string;
+  items: string[];
+  /** Per-stop overrides. Anything left out falls through to the tour's own
+   *  reveal, motion and motif, so a stop only carries what makes it different. */
+  reveal?: Partial<TourReveal>;
+  motion?: CameraMotion;
+  motif?: Motif;
+};
 
 export type TourCamera = {
   motion: CameraMotion;
@@ -138,6 +186,11 @@ export type TourConfig = {
   replay: ReplayMode;
   /** Append a final stop with whatever the route left out. */
   includeRest: boolean;
+  /** Keep the marginalia off the slate until the walk is over. The loose notes
+   *  are asides — a favourite word, a bad football record — and reading one
+   *  between two pieces of work breaks the thread. They land together at the
+   *  end, when the board becomes a board again. */
+  holdNotes: boolean;
   /** The hand-authored route, used when `route === 'custom'`. */
   stops: TourStop[];
   camera: TourCamera;
@@ -159,6 +212,7 @@ const BASE_TOUR: TourConfig = {
   loop: false,
   replay: 'always',
   includeRest: true,
+  holdNotes: true,
   stops: [],
   camera: {
     motion: 'glide',
@@ -250,19 +304,50 @@ function text(value: unknown, fallback: string): string {
   return fallback;
 }
 
+/** A stop's own reveal, as far as it names one. Only the keys it carries are
+ *  read, so `{ style: 'slam' }` keeps the tour's timing and changes the landing. */
+function parseStopReveal(value: unknown): Partial<TourReveal> | undefined {
+  if (!isRecord(value)) return undefined;
+  const out: Partial<TourReveal> = {};
+  if (typeof value.style === 'string' && (REVEAL_STYLES as readonly string[]).includes(value.style)) out.style = value.style as RevealStyle;
+  if (typeof value.order === 'string' && (REVEAL_ORDERS as readonly string[]).includes(value.order)) out.order = value.order as RevealOrder;
+  if (typeof value.easing === 'string' && (EASINGS as readonly string[]).includes(value.easing)) out.easing = value.easing as Easing;
+  if (typeof value.duration === 'number') out.duration = num(value.duration, 560, 0, 4000);
+  if (typeof value.stagger === 'number') out.stagger = num(value.stagger, 150, 0, 1500);
+  if (typeof value.distance === 'number') out.distance = num(value.distance, 190, 0, 800);
+  if (typeof value.blur === 'number') out.blur = num(value.blur, 4, 0, 20);
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 function parseStops(value: unknown, fallback: TourStop[]): TourStop[] {
   if (!Array.isArray(value)) return fallback;
   const stops: TourStop[] = [];
   for (const raw of value) {
     if (!isRecord(raw)) continue;
     const items = Array.isArray(raw.items) ? raw.items.filter((id): id is string => typeof id === 'string') : [];
-    stops.push({
+    const stop: TourStop = {
       id: typeof raw.id === 'string' ? raw.id : `stop-${stops.length + 1}`,
       label: text(raw.label, ''),
       items,
-    });
+    };
+    const reveal = parseStopReveal(raw.reveal);
+    if (reveal) stop.reveal = reveal;
+    if (typeof raw.motion === 'string' && (CAMERA_MOTIONS as readonly string[]).includes(raw.motion)) stop.motion = raw.motion as CameraMotion;
+    if (typeof raw.motif === 'string' && (MOTIFS as readonly string[]).includes(raw.motif)) stop.motif = raw.motif as Motif;
+    stops.push(stop);
   }
   return stops;
+}
+
+/** How this stop lands its pieces: the tour's reveal with the stop's own
+ *  changes laid over it. */
+export function revealFor(tour: TourConfig, stop: TourStop | undefined): TourReveal {
+  return stop?.reveal ? { ...tour.reveal, ...stop.reveal } : tour.reveal;
+}
+
+/** How the camera flies into this stop. */
+export function motionFor(tour: TourConfig, stop: TourStop | undefined): CameraMotion {
+  return stop?.motion ?? tour.camera.motion;
 }
 
 /** Deep-merge a stored tour document over a base so partial saves keep working. */
@@ -283,6 +368,7 @@ export function parseTour(value: unknown, base: TourConfig = DEFAULT_TOUR): Tour
     loop: bool(value.loop, base.loop),
     replay: pickEnum(value.replay, REPLAY_MODES, base.replay),
     includeRest: bool(value.includeRest, base.includeRest),
+    holdNotes: bool(value.holdNotes, base.holdNotes),
     stops: parseStops(value.stops, base.stops),
     camera: {
       motion: pickEnum(camera.motion, CAMERA_MOTIONS, base.camera.motion),
@@ -665,6 +751,7 @@ export function buildStops(tour: TourConfig, items: TourItem[], rand: () => numb
     default:
       stops = tour.stops
         .map((stop, index) => ({
+          ...stop,
           id: stop.id || `stop-${index + 1}`,
           label: stop.label || labelFor(stop.items.map((id) => byId.get(id)).filter((item): item is TourItem => !!item)),
           items: stop.items.filter((id) => byId.has(id)),
@@ -709,7 +796,8 @@ export function splitStops(stops: TourStop[], max: number): TourStop[] {
   for (const stop of stops) {
     if (stop.items.length <= max) { out.push(stop); continue; }
     chunk(stop.items, max).forEach((items, index) => {
-      out.push({ id: `${stop.id}-${index + 1}`, label: stop.label, items });
+      // The pieces split; the heading and the stop's own flourish do not.
+      out.push({ ...stop, id: `${stop.id}-${index + 1}`, items });
     });
   }
   return out;

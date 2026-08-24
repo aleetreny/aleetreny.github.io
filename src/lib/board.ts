@@ -158,9 +158,23 @@ export type ThemeConfig = {
 
 export type TagChip = string | { label: string; accent?: boolean };
 
+/** How a plot card draws its series. */
+export const PLOT_KINDS = ['line', 'area', 'bars', 'scatter', 'steps'] as const;
+export type PlotKind = (typeof PLOT_KINDS)[number];
+
+/** The loose things pinned between the cards. A scrap carries no words and
+ *  opens nothing: it is there so the eye has somewhere to rest between one
+ *  drawer and the next. */
+export const SCRAP_KINDS = [
+  'arrow', 'circle', 'underline', 'bracket', 'star', 'spiral', 'cross', 'wave',
+  'tape', 'clip', 'pin', 'coffee', 'leaf', 'bulb', 'die',
+] as const;
+export type ScrapKind = (typeof SCRAP_KINDS)[number];
+
 export type BoardCard = {
   id: string;
-  type: 'hero' | 'now' | 'drawer' | 'spotlight' | 'sticker' | 'contact' | 'spotify';
+  type: 'hero' | 'now' | 'drawer' | 'spotlight' | 'sticker' | 'contact' | 'spotify'
+    | 'plot' | 'stamp' | 'ticket' | 'terminal' | 'scrap';
   jump?: string;
   open?: string;
   group?: string;
@@ -208,7 +222,44 @@ export type BoardCard = {
    *  how many of `STICKER_MARKS` are filled in. Structure, like `stats`, so it
    *  is never handed to the translator. */
   langs?: Array<[string, string, number]>;
+  /** What holds this one card to the slate, when it should not be whatever the
+   *  theme fastens everything else with. A board where every card is taped
+   *  down reads as a print; a board where some are clipped and one is pinned
+   *  reads as a board somebody uses. */
+  fastener?: CardFastener;
+
+  // ---- plot: a series, drawn small ----
+  /** The numbers themselves. Structure, not prose — never translated. */
+  series?: number[];
+  plotKind?: PlotKind;
+  /** The two axis words, left and bottom. */
+  axis?: [string, string];
+
+  // ---- stamp: a franked square ----
+  /** One or two characters printed large on the stamp. */
+  glyph?: string;
+  /** The value line under the glyph, e.g. "ES · 2025". */
+  denom?: string;
+  /** What the postmark ring reads. */
+  postmark?: string;
+
+  // ---- ticket: a boarding stub ----
+  from?: string;
+  to?: string;
+  when?: string;
+  seat?: string;
+
+  // ---- terminal: a few lines of console ----
+  prompt?: string;
+  lines?: string[];
+
+  // ---- scrap: a drawn mark, no words ----
+  kind?: ScrapKind;
 };
+
+/** Card types that are drawn rather than written: no paper surface, no tone,
+ *  no fastener, nothing to translate. */
+export const CHROMELESS_CARDS: ReadonlyArray<BoardCard['type']> = ['hero', 'spotify', 'scrap'];
 
 /** How many marks a sticker row draws. Five reads as a level at a glance and
  *  still fits inside a card narrow enough to be a sticker. */

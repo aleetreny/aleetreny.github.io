@@ -15,6 +15,11 @@ import {
   splitStops,
   tourAlreadySeen,
   type TourItem,
+  MOTIFS,
+  MOTIF_GLYPHS,
+  MOTIF_TIMING,
+  revealFor,
+  motionFor,
 } from './tour';
 
 const items: TourItem[] = [
@@ -45,6 +50,57 @@ describe('tour config parsing', () => {
     // Headings are authored in both languages; unlocalised they read as Spanish.
     expect(DEFAULT_TOUR.stops[0].label).toBe('Quién soy');
     expect(DEFAULT_TOUR.stops.at(-1)?.items).toContain('contact');
+  });
+
+  it('holds the loose notes back until the walk is over', () => {
+    expect(DEFAULT_TOUR.holdNotes).toBe(true);
+    expect(parseTour({ holdNotes: false }).holdNotes).toBe(false);
+    // The authored route names photos, never a note: a note reaching a stop
+    // would be an aside read out in the middle of the work.
+    const routed = new Set(DEFAULT_TOUR.stops.flatMap((stop) => stop.items));
+    for (const id of ['note-1', 'note-2', 'note-3']) expect(routed.has(id)).toBe(false);
+  });
+
+  it('lets a stop land its pieces its own way', () => {
+    const parsed = parseTour({
+      stops: [{ id: 's', label: 'x', items: ['a'], reveal: { style: 'slam' }, motion: 'arc', motif: 'confetti' }],
+    });
+    const stop = parsed.stops[0];
+    expect(stop.motif).toBe('confetti');
+    expect(stop.motion).toBe('arc');
+    // Only what the stop names changes; the rest is still the tour's.
+    expect(revealFor(parsed, stop).style).toBe('slam');
+    expect(revealFor(parsed, stop).duration).toBe(parsed.reveal.duration);
+    expect(motionFor(parsed, stop)).toBe('arc');
+    expect(motionFor(parsed, undefined)).toBe(parsed.camera.motion);
+  });
+
+  it('drops a stop override it does not recognise', () => {
+    const parsed = parseTour({ stops: [{ id: 's', label: 'x', items: ['a'], reveal: { style: 'nope' }, motion: 'teleport', motif: 'fireworks' }] });
+    const stop = parsed.stops[0];
+    expect(stop.motif).toBeUndefined();
+    expect(stop.motion).toBeUndefined();
+    expect(revealFor(parsed, stop).style).toBe(DEFAULT_TOUR.reveal.style);
+  });
+
+  it('gives every motif something to throw', () => {
+    for (const motif of MOTIFS) {
+      const glyphs = MOTIF_GLYPHS[motif];
+      const timing = MOTIF_TIMING[motif];
+      expect(Array.isArray(glyphs)).toBe(true);
+      if (motif === 'none') { expect(glyphs).toHaveLength(0); expect(timing.count).toBe(0); continue; }
+      expect(glyphs.length).toBeGreaterThan(2);
+      expect(timing.count).toBeGreaterThan(0);
+      expect(timing.duration).toBeGreaterThan(400);
+    }
+  });
+
+  it('every stop the board ships carries its own flourish', () => {
+    for (const stop of DEFAULT_TOUR.stops) {
+      expect(stop.motif).toBeTruthy();
+      expect(stop.motion).toBeTruthy();
+      expect(stop.reveal?.style).toBeTruthy();
+    }
   });
 
   it('keeps the handoff timings as defaults', () => {
@@ -208,6 +264,9 @@ describe('narrow screens', () => {
     expect(stops).toHaveLength(DEFAULT_TOUR.stops.flatMap((s) => s.items).length);
     expect(stops[0].label).toBe(DEFAULT_TOUR.stops[0].label);
     expect(stops[1].label).toBe(DEFAULT_TOUR.stops[0].label);
+    // A stop that splits keeps its flourish on every piece of itself.
+    expect(stops[0].motif).toBe(DEFAULT_TOUR.stops[0].motif);
+    expect(stops[1].reveal).toEqual(DEFAULT_TOUR.stops[0].reveal);
     expect(new Set(stops.map((s) => s.id)).size).toBe(stops.length);
   });
 

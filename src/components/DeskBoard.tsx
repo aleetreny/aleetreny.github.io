@@ -15,9 +15,16 @@ import {
   tintLuminance,
   themeVars,
   wallBackground,
+  CHROMELESS_CARDS,
+  PLOT_KINDS,
+  SCRAP_KINDS,
+  CARD_FASTENERS,
   type BoardCard,
   type BoardConfig,
   type CardTone,
+  type CardFastener,
+  type PlotKind,
+  type ScrapKind,
   type GridMode,
   type LayoutMap,
   type LayoutOverride,
@@ -63,12 +70,19 @@ import {
   resolveCamera,
   revealDirection,
   revealKeyframes,
+  revealFor,
+  motionFor,
+  MOTIF_GLYPHS,
+  MOTIF_TIMING,
   revealSequence,
   splitStops,
   tourAlreadySeen,
   type TourConfig,
   type TourItem,
   type TourStop,
+  type TourReveal,
+  type CameraMotion,
+  type Motif,
 } from '../lib/tour';
 import {
   deleteContentEntry,
@@ -280,6 +294,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
   const shakeRef = useRef<HTMLDivElement>(null);
+  const motifRef = useRef<HTMLDivElement>(null);
+  const motifRunRef = useRef(0);
   const flashRef = useRef<HTMLDivElement>(null);
   const view = useRef<View>({ x: 0, y: 0, s: 1 });
   const didDrag = useRef(false);
@@ -390,14 +406,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const geom = polGeom(p);
       return { id: p.id, x: geom.x, y: geom.y, w: geom.w, label: itemLabel(p.caption, p.id) };
     });
-    const notes = theme.showMarginalia
+    // The loose notes are asides. Walked through between two pieces of work
+    // they read as interruptions, so `holdNotes` keeps them out of the route
+    // entirely; `revealAll` at the end of the tour is what puts them up.
+    const notes = theme.showMarginalia && !tour.holdNotes
       ? board.marginalia.map((n) => {
         const geom = noteGeom(n);
         return { id: n.id, x: geom.x, y: geom.y, w: geom.w, label: itemLabel(n.text, n.id) };
       })
       : [];
     return [...cards, ...polaroids, ...notes];
-  }, [board.cards, board.groups, board.marginalia, board.polaroids, cardGeom, noteGeom, polGeom, theme.showMarginalia]);
+  }, [board.cards, board.groups, board.marginalia, board.polaroids, cardGeom, noteGeom, polGeom, theme.showMarginalia, tour.holdNotes]);
 
   const itemsRef = useRef<TourItem[]>(tourItems);
   useEffect(() => { itemsRef.current = tourItems; }, [tourItems]);
@@ -610,14 +629,31 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     for (const stud of studEls()) stud.style.opacity = '0';
   }, [boardItems, studEls]);
 
-  const revealAll = useCallback(() => {
+  /** Everything back on the board. `settle` makes whatever the walk never
+   *  showed — the held notes, anything added since the route was written —
+   *  arrive one after another instead of appearing all at once, which is the
+   *  moment the slate stops being a presentation and becomes a board. */
+  const revealAll = useCallback((settle = false) => {
+    const held: HTMLElement[] = [];
     for (const el of boardItems()) {
+      const id = el.dataset.card;
+      const late = settle && !!id && !shownRef.current.has(id);
       el.style.opacity = '1';
       el.style.pointerEvents = '';
-      if (el.dataset.card) shownRef.current.add(el.dataset.card);
+      if (id) shownRef.current.add(id);
+      if (late) held.push(el);
     }
     if (plateRef.current) plateRef.current.style.opacity = '1';
     for (const stud of studEls()) stud.style.opacity = '1';
+    if (held.length === 0) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    held.forEach((el, index) => {
+      const rot = parseFloat(el.dataset.rot || '0');
+      el.animate([
+        { opacity: 0, transform: `translateY(-14px) rotate(${rot - 5}deg) scale(.94)` },
+        { opacity: 1, transform: `rotate(${rot}deg) scale(1)` },
+      ], { duration: 460, delay: index * 90, easing: 'cubic-bezier(.2,.9,.25,1.1)', fill: 'none' });
+    });
   }, [boardItems, studEls]);
 
   /** The framing numbers in force for the viewport as it is right now. */
@@ -629,9 +665,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   }, []);
 
   /** Camera flight between two framings, on the configured motion curve. */
-  const flyTo = useCallback((target: View, duration: number) => new Promise<void>((resolve) => {
+  const flyTo = useCallback((target: View, duration: number, motion?: CameraMotion) => new Promise<void>((resolve) => {
     const vp = viewportRef.current;
-    const cam = camera();
+    const base = camera();
+    const cam = motion ? { ...base, motion } : base;
     if (!vp || !(duration > 0) || cam.motion === 'cut') {
       view.current = { ...target };
       paint(false);
@@ -691,23 +728,67 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   }, [board.size.height, board.size.width, camera, fitRect]);
 
   /** Land one item on the slate. */
-  const showItem = useCallback((id: string, index: number, animate: boolean) => {
+  const showItem = useCallback((id: string, index: number, animate: boolean, reveal?: TourReveal) => {
     const el = boardRef.current?.querySelector<HTMLElement>(`[data-card="${id}"]`);
     if (!el) return;
     shownRef.current.add(id);
     el.style.opacity = '1';
     el.style.pointerEvents = '';
     const cfg = tourRef.current;
+    const how = reveal ?? cfg.reveal;
     const speed = cfg.speed > 0 ? cfg.speed : 1;
-    if (!animate || cfg.reveal.style === 'none' || !(cfg.reveal.duration > 0)) return;
+    if (!animate || how.style === 'none' || !(how.duration > 0)) return;
     const rot = parseFloat(el.dataset.rot || '0');
     // `fill: 'none'` on purpose: the element keeps its own inline rotation,
     // which is what the drag code reads back when the visitor moves it.
-    el.animate(revealKeyframes(cfg.reveal, rot, revealDirection(id, index)), {
-      duration: cfg.reveal.duration / speed,
-      easing: easingCss(cfg.reveal.easing),
+    el.animate(revealKeyframes(how, rot, revealDirection(id, index)), {
+      duration: how.duration / speed,
+      easing: easingCss(how.easing),
       fill: 'none',
     });
+  }, []);
+
+  /** Throw a stop's motif across the slate: a scatter of glyphs in the accent
+   *  ink that drift and fade while the camera is still flying. It says what the
+   *  next stop is about before a word of it is readable — sparks for the lab,
+   *  confetti for the prizes, a postmark for the countries.
+   *
+   *  Purely decorative, so it is built and torn down outside React and skipped
+   *  entirely for a visitor who has asked for less motion. */
+  const playMotif = useCallback((kind: Motif | undefined) => {
+    const layer = motifRef.current;
+    if (!layer || !kind || kind === 'none') return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const glyphs = MOTIF_GLYPHS[kind] ?? [];
+    const timing = MOTIF_TIMING[kind];
+    if (glyphs.length === 0 || !timing) return;
+    const speed = tourRef.current.speed > 0 ? tourRef.current.speed : 1;
+    const life = timing.duration / speed;
+    layer.replaceChildren();
+    for (let i = 0; i < timing.count; i += 1) {
+      const bit = document.createElement('span');
+      bit.className = `motif__bit motif__bit--${kind}`;
+      bit.textContent = glyphs[i % glyphs.length];
+      // Every piece gets its own lane, drift, size and start, so no two runs
+      // of the same motif land the same way.
+      bit.style.setProperty('--x', `${Math.random() * 100}%`);
+      bit.style.setProperty('--y', `${Math.random() * 100}%`);
+      bit.style.setProperty('--dx', `${(Math.random() - 0.5) * 220}px`);
+      bit.style.setProperty('--dy', `${(Math.random() - 0.5) * 220}px`);
+      bit.style.setProperty('--rot', `${(Math.random() - 0.5) * 220}deg`);
+      bit.style.setProperty('--size', `${0.75 + Math.random() * 1.5}rem`);
+      bit.style.animationDuration = `${life}ms`;
+      bit.style.animationDelay = `${Math.random() * life * 0.45}ms`;
+      layer.appendChild(bit);
+    }
+    // Each throw takes a number. Advancing fast enough that the previous
+    // motif's cleanup lands after this one has spawned would otherwise wipe
+    // the new stop's flourish the moment it appeared.
+    const mine = (motifRunRef.current += 1);
+    const clear = window.setTimeout(() => {
+      if (motifRunRef.current === mine) layer.replaceChildren();
+    }, life * 1.6);
+    timersRef.current.push(clear);
   }, []);
 
   /** Put every item of the stops before `index` on the board without ceremony —
@@ -726,7 +807,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     gateRef.current = null;
     cancelAnimationFrame(rafRef.current);
     clearTimers();
-    revealAll();
+    revealAll(true);
     markTourSeen(tourRef.current.replay);
     phaseRef.current = 'live';
     setPhase('live');
@@ -842,16 +923,22 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         setTourLabel(stop.label);
         setTourWaiting(false);
 
+        playMotif(stop.motif);
         const target = frameFor(stop.items);
-        if (target) await flyTo(target, (i === 0 ? cfg.camera.firstDuration : cfg.camera.duration) / speed);
+        if (target) {
+          await flyTo(target, (i === 0 ? cfg.camera.firstDuration : cfg.camera.duration) / speed, motionFor(cfg, stop));
+        }
         if (!alive()) return;
 
         if (stop.items.some((id) => !shownRef.current.has(id))) {
-          const order = revealSequence(stop.items.length, cfg.reveal.order);
-          const stagger = cfg.reveal.order === 'together' ? 0 : cfg.reveal.stagger / speed;
+          // A stop may land its pieces its own way — the work drawer slams, the
+          // lab zooms in, the countries flip over.
+          const reveal = revealFor(cfg, stop);
+          const order = revealSequence(stop.items.length, reveal.order);
+          const stagger = reveal.order === 'together' ? 0 : reveal.stagger / speed;
           for (const index of order) {
             if (!alive()) return;
-            showItem(stop.items[index], index, true);
+            showItem(stop.items[index], index, true, reveal);
             await wait(stagger);
           }
           if (!alive()) return;
@@ -879,7 +966,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       console.error('Guided tour interrupted; restoring the board.', error);
       endTour('fit');
     }
-  }, [endTour, flyTo, frameFor, gate, playIntro, showItem, showThrough, wait]);
+  }, [endTour, flyTo, frameFor, gate, playIntro, playMotif, showItem, showThrough, wait]);
 
   /** Re-hide everything and play the run from stop one. */
   const replayTour = useCallback(() => {
@@ -1247,7 +1334,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     return { x: Math.round((rect.width / 2 - v.x) / v.s - 150), y: Math.round((rect.height / 2 - v.y) / v.s - 90) };
   }, []);
 
-  const addCard = useCallback((type: 'drawer' | 'spotlight' | 'sticker' | 'spotify') => {
+  const addCard = useCallback((type: 'drawer' | 'spotlight' | 'sticker' | 'spotify' | 'plot' | 'stamp' | 'ticket' | 'terminal' | 'scrap') => {
     const at = viewCenterWorld();
     const id = crypto.randomUUID();
     const newCard: Record<typeof type, BoardCard> = {
@@ -1255,6 +1342,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       spotlight: { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: '', title: '', blurb: '', open: entries[0]?.slug },
       sticker: { id, type: 'sticker', x: at.x, y: at.y, rot: 0, w: 300, tone: 'paperCream', kicker: '', title: '', langs: [['', '', 5]], open: entries[0]?.slug },
       spotify: { id, type: 'spotify', x: at.x, y: at.y, rot: 0, w: 420, spotifyUrl: '' },
+      plot: { id, type: 'plot', x: at.x, y: at.y, rot: 0, w: 320, tone: 'paper', kicker: '', title: '', plotKind: 'line', series: [3, 5, 4, 8, 7, 11, 9, 14], axis: ['', ''] },
+      stamp: { id, type: 'stamp', x: at.x, y: at.y, rot: 0, w: 190, glyph: '✦', title: '', denom: '', postmark: '', open: entries[0]?.slug },
+      ticket: { id, type: 'ticket', x: at.x, y: at.y, rot: 0, w: 380, tone: 'paperCream', kicker: '', from: '', to: '', title: '', when: '', seat: '', open: entries[0]?.slug },
+      terminal: { id, type: 'terminal', x: at.x, y: at.y, rot: 0, w: 360, tone: 'dark', lines: ['$ ', ''] },
+      scrap: { id, type: 'scrap', x: at.x, y: at.y, rot: 0, w: 120, kind: 'star' },
     };
     commitBoard({ ...rawBoard, cards: [...rawBoard.cards, newCard[type]] });
     setCardMenu(id);
@@ -1904,6 +1996,9 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         data-edge={theme.cards.edge}
         data-lift={theme.cards.lift}
       >
+        {/* The motif layer sits over the slate but outside the camera transform,
+            so its pieces stay the size they were drawn at whatever the zoom. */}
+        <div className="motif" ref={motifRef} aria-hidden="true" />
         {backdrop.plate && backdrop.grain > 0 ? (
           <div className="desk__grain" aria-hidden="true" style={{ opacity: backdrop.grain }} />
         ) : null}
@@ -1988,23 +2083,50 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                     />
                   </>
                 ) : null}
-                {/* The hero has no paper surface, so nothing fastens it. */}
-                {theme.cards.fastener !== 'none' && card.type !== 'hero' && card.type !== 'spotify' ? (
-                  <span className={`card__fastener card__fastener--${theme.cards.fastener}`} aria-hidden="true" />
-                ) : null}
+                {/* A card drawn rather than written — the hero, a player, a
+                    doodle — has no paper surface, so nothing fastens it. A card
+                    may also name its own fastener: a board where every piece is
+                    taped down reads as a print, not as a board. */}
+                {(() => {
+                  const fastener = card.fastener ?? theme.cards.fastener;
+                  if (fastener === 'none' || CHROMELESS_CARDS.includes(card.type)) return null;
+                  return <span className={`card__fastener card__fastener--${fastener}`} aria-hidden="true" />;
+                })()}
                 {editing ? (
                   <div className="card-ctrl" data-nodrag>
                     <button className="card-ctrl__gear" type="button" onClick={() => setCardMenu((v) => (v === card.id ? null : card.id))} aria-label={t('owner.cardSettings')}>⚙</button>
                     {cardMenu === card.id ? (
                       <div className="card-ctrl__menu">
-                        {card.type !== 'hero' && card.type !== 'spotify' ? (
+                        {!CHROMELESS_CARDS.includes(card.type) && card.type !== 'stamp' ? (
                           <label>{t('cardmenu.tone')}
                             <select value={card.tone ?? 'paper'} onChange={(e) => editCard(card.id, { tone: e.target.value as CardTone })}>
                               {TONES.map((t) => <option key={t} value={t}>{t}</option>)}
                             </select>
                           </label>
                         ) : null}
-                        {card.type !== 'hero' && card.type !== 'spotify' && card.tone === 'custom' ? (
+                        {!CHROMELESS_CARDS.includes(card.type) ? (
+                          <label>{t('cardmenu.fastener')}
+                            <select value={card.fastener ?? ''} onChange={(e) => editCard(card.id, { fastener: (e.target.value || undefined) as CardFastener | undefined })}>
+                              <option value="">{t('cardmenu.fastenerTheme')}</option>
+                              {CARD_FASTENERS.map((f) => <option key={f} value={f}>{f}</option>)}
+                            </select>
+                          </label>
+                        ) : null}
+                        {card.type === 'plot' ? (
+                          <label>{t('cardmenu.plotKind')}
+                            <select value={card.plotKind ?? 'line'} onChange={(e) => editCard(card.id, { plotKind: e.target.value as PlotKind })}>
+                              {PLOT_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
+                            </select>
+                          </label>
+                        ) : null}
+                        {card.type === 'scrap' ? (
+                          <label>{t('cardmenu.scrapKind')}
+                            <select value={card.kind ?? 'star'} onChange={(e) => editCard(card.id, { kind: e.target.value as ScrapKind })}>
+                              {SCRAP_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
+                            </select>
+                          </label>
+                        ) : null}
+                        {!CHROMELESS_CARDS.includes(card.type) && card.type !== 'stamp' && card.tone === 'custom' ? (
                           <>
                             <label>{t('cardmenu.bg')}
                               <input type="color" value={card.bg ?? '#fbf7ef'} onChange={(e) => editCard(card.id, { bg: e.target.value })} />
@@ -2218,6 +2340,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                       <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>{t('owner.addSpotlight')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('sticker')}>{t('owner.addSticker')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('spotify')}>{t('owner.addSpotify')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('plot')}>{t('owner.addPlot')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('stamp')}>{t('owner.addStamp')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('ticket')}>{t('owner.addTicket')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('terminal')}>{t('owner.addTerminal')}</button>
+                      <button className="tbtn" type="button" onClick={() => addCard('scrap')}>{t('owner.addScrap')}</button>
                       <button className="tbtn" type="button" onClick={addPolaroid}>{t('owner.addPhoto')}</button>
                       <button className="tbtn" type="button" onClick={addNote}>{t('owner.addNote')}</button>
                     </>

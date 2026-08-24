@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   BOARD_STYLE_IDS,
   BOARD_TEXTURES,
+  CHROMELESS_CARDS,
+  PLOT_KINDS,
+  SCRAP_KINDS,
   DEFAULT_BACKDROP,
   DEFAULT_BOARD,
   DEFAULT_THEME,
@@ -94,6 +97,41 @@ describe('board settings parsing', () => {
     expect(theme.backdrop.plateMargin).toBe(DEFAULT_BACKDROP.plateMargin);
     // A theme document with no backdrop at all still resolves to a full one.
     expect(parseTheme({ chaos: 0 }).backdrop).toEqual(DEFAULT_THEME.backdrop);
+  });
+});
+
+describe('the shapes on the board', () => {
+  it('ships more than paper: a plot, a stamp, a stub, a console and drawn marks', () => {
+    const types = new Set(DEFAULT_BOARD.cards.map((card) => card.type));
+    for (const type of ['plot', 'stamp', 'ticket', 'terminal', 'scrap'] as const) {
+      expect(types.has(type)).toBe(true);
+    }
+  });
+
+  it('gives every drawn mark a stroke it knows how to draw', () => {
+    const scraps = DEFAULT_BOARD.cards.filter((card) => card.type === 'scrap');
+    expect(scraps.length).toBeGreaterThan(4);
+    for (const scrap of scraps) {
+      expect(SCRAP_KINDS).toContain(scrap.kind);
+      // A mark carries no words, so there is nothing on it to translate.
+      expect(scrap.title ?? scrap.kicker ?? scrap.note).toBeUndefined();
+    }
+  });
+
+  it('plots a series it can actually draw', () => {
+    for (const card of DEFAULT_BOARD.cards.filter((c) => c.type === 'plot')) {
+      expect(PLOT_KINDS).toContain(card.plotKind ?? 'line');
+      expect((card.series ?? []).length).toBeGreaterThan(1);
+      expect((card.series ?? []).every((n) => Number.isFinite(n))).toBe(true);
+    }
+  });
+
+  it('never fastens what has no paper to fasten', () => {
+    for (const card of DEFAULT_BOARD.cards) {
+      if (!CHROMELESS_CARDS.includes(card.type)) continue;
+      expect(card.fastener).toBeUndefined();
+      expect(card.tone).toBeUndefined();
+    }
   });
 });
 

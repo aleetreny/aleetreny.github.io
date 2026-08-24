@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { BoardCard } from '../../lib/board';
 import { entriesForGroup, reorderGroupEntries, STICKER_MARKS } from '../../lib/board';
+import type { PlotKind, ScrapKind } from '../../lib/board';
 import { spotifyTrackEmbedUrl } from '../../lib/spotify-embed';
 import type { PortfolioEntry } from '../../types/content';
 import { EditableText } from './EditableText';
@@ -438,6 +439,76 @@ function StickerRows({ card, editing, onCardEdit }: { card: BoardCard; editing: 
   );
 }
 
+/** The series drawn small. One path, no library, no axes to speak of — a plot
+ *  on a working board is a shape you recognise across the room, not a figure
+ *  you read values off. */
+function PlotFigure({ series, kind }: { series: number[]; kind: PlotKind }) {
+  const values = series.filter((n) => Number.isFinite(n));
+  if (values.length < 2) return <div className="plot__empty" aria-hidden="true" />;
+  const W = 100;
+  const H = 44;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const at = (value: number, index: number) => ({
+    x: (index / (values.length - 1)) * W,
+    y: H - ((value - min) / span) * H,
+  });
+  const points = values.map(at);
+  const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');
+  const steps = points
+    .map((p, i) => (i === 0 ? `M${p.x.toFixed(2)},${p.y.toFixed(2)}` : `H${p.x.toFixed(2)}V${p.y.toFixed(2)}`))
+    .join(' ');
+  const path = kind === 'steps' ? steps : line;
+
+  return (
+    <svg className="plot__fig" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-hidden="true">
+      {kind === 'bars' ? (
+        points.map((p, i) => (
+          <rect key={i} className="plot__bar" x={p.x - W / values.length / 2.6} y={p.y} width={W / values.length / 1.3} height={Math.max(1, H - p.y)} />
+        ))
+      ) : kind === 'scatter' ? (
+        points.map((p, i) => <circle key={i} className="plot__dot" cx={p.x} cy={p.y} r={1.7} />)
+      ) : (
+        <>
+          {kind === 'area' ? <path className="plot__area" d={`${path} L${W},${H} L0,${H} Z`} /> : null}
+          <path className="plot__line" d={path} />
+          <circle className="plot__dot plot__dot--last" cx={points[points.length - 1].x} cy={points[points.length - 1].y} r={2.1} />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/** The drawn marks between the cards. Each one is a single stroke or two in the
+ *  accent ink — no words, nothing to open, nothing to translate. They exist so
+ *  the eye has somewhere to go between one drawer and the next. */
+function ScrapMark({ kind }: { kind: ScrapKind }) {
+  const stroke = { fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  const paths: Record<ScrapKind, ReactNode> = {
+    arrow: <><path d="M6 34 C24 30 40 20 56 10" {...stroke} /><path d="M44 8 L58 9 L54 22" {...stroke} /></>,
+    circle: <path d="M32 6 C52 6 60 16 58 24 C56 34 40 40 26 38 C12 36 4 28 8 18 C11 10 22 6 34 7" {...stroke} />,
+    underline: <><path d="M4 26 C22 20 44 20 62 24" {...stroke} /><path d="M8 32 C24 28 42 28 58 31" {...stroke} /></>,
+    bracket: <path d="M22 4 C10 8 10 18 14 22 C10 26 10 36 22 40" {...stroke} />,
+    star: <path d="M32 6 L37 24 L56 24 L41 34 L46 52 L32 41 L18 52 L23 34 L8 24 L27 24 Z" {...stroke} />,
+    spiral: <path d="M34 22 C34 16 26 16 26 22 C26 30 38 30 38 20 C38 8 22 8 22 22 C22 38 42 38 42 20" {...stroke} />,
+    cross: <><path d="M12 12 L52 40" {...stroke} /><path d="M52 12 L12 40" {...stroke} /></>,
+    wave: <path d="M4 26 C12 14 20 38 28 26 C36 14 44 38 52 26 C56 20 60 22 62 26" {...stroke} />,
+    tape: <rect className="scrap__tape" x="2" y="14" width="60" height="20" rx="1" />,
+    clip: <path d="M40 8 L40 36 C40 44 26 44 26 36 L26 12 C26 6 34 6 34 12 L34 34" {...stroke} />,
+    pin: <><circle className="scrap__solid" cx="32" cy="18" r="9" /><path d="M32 27 L32 46" {...stroke} /></>,
+    coffee: <><path d="M14 16 L18 38 C19 42 41 42 42 38 L46 16 Z" {...stroke} /><path d="M46 20 C56 18 56 30 46 30" {...stroke} /></>,
+    leaf: <><path d="M32 44 C10 34 14 10 40 8 C46 26 44 40 32 44 Z" {...stroke} /><path d="M32 44 C34 32 36 20 40 10" {...stroke} /></>,
+    bulb: <><path d="M32 6 C20 6 14 14 18 24 C21 30 24 30 24 38 L40 38 C40 30 43 30 46 24 C50 14 44 6 32 6 Z" {...stroke} /><path d="M25 44 L39 44" {...stroke} /></>,
+    die: <><rect x="10" y="10" width="44" height="34" rx="5" {...stroke} /><circle className="scrap__solid" cx="22" cy="22" r="3" /><circle className="scrap__solid" cx="42" cy="32" r="3" /><circle className="scrap__solid" cx="32" cy="27" r="3" /></>,
+  };
+  return (
+    <svg className={`scrap scrap--${kind}`} viewBox="0 0 64 52" role="presentation" aria-hidden="true">
+      {paths[kind] ?? paths.star}
+    </svg>
+  );
+}
+
 function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   const tone = card.tone ?? 'paper';
   const style: CSSProperties | undefined = tone === 'custom'
@@ -559,6 +630,120 @@ export function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, 
           {field('title', card.title, { className: 'sticker__title', placeholder: t('ph.title') })}
           <StickerRows card={card} editing={editing} onCardEdit={onCardEdit} />
           {card.note || editing ? field('note', card.note, { className: 'sticker__note', placeholder: t('ph.text') }) : null}
+        </div>
+      </Surface>
+    );
+  }
+
+  // A scrap is a drawn mark, not a card: no surface, no words, nothing to open.
+  if (card.type === 'scrap') {
+    return <ScrapMark kind={card.kind ?? 'star'} />;
+  }
+
+  // A plot is the one shape a board about data was missing: a series drawn
+  // small enough to read as a gesture and large enough to see the trend.
+  if (card.type === 'plot') {
+    const series = card.series ?? [];
+    return (
+      <Surface card={card}>
+        <div className="plot" data-open={editing ? undefined : card.open}>
+          {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
+          {field('title', card.title, { className: 'plot__title', placeholder: t('ph.title') })}
+          <PlotFigure series={series} kind={card.plotKind ?? 'line'} />
+          <div className="plot__axis">
+            <CardField className="plot__axis-y" editing={editing} value={card.axis?.[0]} placeholder={t('card.plotY')} multiline={false} commit={(value) => onCardEdit(card.id, { axis: [value, card.axis?.[1] ?? ''] })} />
+            <CardField className="plot__axis-x" editing={editing} value={card.axis?.[1]} placeholder={t('card.plotX')} multiline={false} commit={(value) => onCardEdit(card.id, { axis: [card.axis?.[0] ?? '', value] })} />
+          </div>
+          {card.note || editing ? field('note', card.note, { className: 'plot__note', placeholder: t('ph.text') }) : null}
+          {editing ? (
+            <label className="plot__series" data-nodrag>
+              <span className="k">{t('card.plotSeries')}</span>
+              <input
+                type="text"
+                defaultValue={series.join(', ')}
+                onBlur={(event) => onCardEdit(card.id, {
+                  series: event.target.value.split(/[,\s]+/).map(Number).filter((n) => Number.isFinite(n)),
+                })}
+              />
+            </label>
+          ) : null}
+        </div>
+      </Surface>
+    );
+  }
+
+  // A franked square. It opens a dossier the way a spotlight does, but it reads
+  // as something stuck in a passport rather than something filed.
+  if (card.type === 'stamp') {
+    return (
+      <div className="stamp" data-open={editing ? undefined : card.open}>
+        <div className="stamp__paper">
+          <span className="stamp__glyph" aria-hidden="true">
+            <CardField as="span" editing={editing} value={card.glyph} placeholder="✦" multiline={false} commit={(value) => onCardEdit(card.id, { glyph: value.slice(0, 3) })} />
+          </span>
+          {field('title', card.title, { className: 'stamp__title', placeholder: t('ph.title') })}
+          {field('denom', card.denom, { as: 'span', className: 'stamp__denom', placeholder: t('card.stampDenom'), multiline: false })}
+          <span className="stamp__mark" aria-hidden="true">
+            <CardField as="span" editing={editing} value={card.postmark} placeholder={t('card.stampMark')} multiline={false} commit={(value) => onCardEdit(card.id, { postmark: value })} />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // A boarding stub: where from, where to, when, and a torn edge.
+  if (card.type === 'ticket') {
+    return (
+      <Surface card={card}>
+        <div className="ticket" data-open={editing ? undefined : card.open}>
+          <div className="ticket__stub">
+            {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
+            <div className="ticket__route">
+              <CardField className="ticket__place" editing={editing} value={card.from} placeholder={t('card.ticketFrom')} multiline={false} commit={(value) => onCardEdit(card.id, { from: value })} />
+              <span className="ticket__arrow" aria-hidden="true">→</span>
+              <CardField className="ticket__place" editing={editing} value={card.to} placeholder={t('card.ticketTo')} multiline={false} commit={(value) => onCardEdit(card.id, { to: value })} />
+            </div>
+            {field('title', card.title, { className: 'ticket__title', placeholder: t('ph.title') })}
+          </div>
+          <div className="ticket__tear" aria-hidden="true" />
+          <div className="ticket__end">
+            <CardField className="ticket__when" editing={editing} value={card.when} placeholder={t('card.ticketWhen')} multiline={false} commit={(value) => onCardEdit(card.id, { when: value })} />
+            <CardField className="ticket__seat" editing={editing} value={card.seat} placeholder={t('card.ticketSeat')} multiline={false} commit={(value) => onCardEdit(card.id, { seat: value })} />
+            <span className="ticket__code" aria-hidden="true">
+              {Array.from({ length: 22 }).map((_, index) => (
+                <i key={index} style={{ width: index % 4 === 0 ? 3 : index % 3 === 0 ? 2 : 1 }} />
+              ))}
+            </span>
+          </div>
+        </div>
+      </Surface>
+    );
+  }
+
+  // A few lines of console. The board is written by somebody who spends the day
+  // in one, and nothing else on it says so.
+  if (card.type === 'terminal') {
+    const lines = card.lines ?? [];
+    return (
+      <Surface card={card}>
+        <div className="term" data-open={editing ? undefined : card.open}>
+          <div className="term__bar" aria-hidden="true"><i /><i /><i /></div>
+          <pre className="term__body">
+            {lines.map((line, index) => (
+              <span key={index} className={line.startsWith('$') ? 'term__cmd' : 'term__out'}>{line}{'\n'}</span>
+            ))}
+            <span className="term__cursor" aria-hidden="true" />
+          </pre>
+          {editing ? (
+            <label className="term__edit" data-nodrag>
+              <span className="k">{t('card.termLines')}</span>
+              <textarea
+                rows={4}
+                defaultValue={lines.join('\n')}
+                onBlur={(event) => onCardEdit(card.id, { lines: event.target.value.split('\n') })}
+              />
+            </label>
+          ) : null}
         </div>
       </Surface>
     );
