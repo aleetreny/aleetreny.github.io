@@ -1123,12 +1123,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   }, [rawBoard, commitBoard, patchText]);
 
   /** The rotate handle is primarily dragged, but a keyboard click also nudges
-   * the card by five degrees. It wraps after the practical visual limit. */
-  const nudgeCardRotation = useCallback((card: BoardCard, current: Geom) => {
+   * an item by five degrees. It wraps after the practical visual limit. */
+  const nudgeItemRotation = useCallback((id: string, current: Geom) => {
     const rotation = current.rot >= 30 ? -30 : current.rot + 5;
     const next = {
       ...layout,
-      [card.id]: { x: current.x, y: current.y, rot: rotation, w: current.w },
+      [id]: { x: current.x, y: current.y, rot: rotation, w: current.w },
     };
     if (authedRef.current) commitLayout(next);
     else setSettings((settings) => ({ ...settings, 'board.layout': next }));
@@ -1482,7 +1482,8 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               rot,
               w: width,
             };
-            editCard(id, { w: width });
+            if (card.classList.contains('note')) editNote(id, { w: width });
+            else editCard(id, { w: width });
             const next = { ...layout, [id]: geom };
             if (authedRef.current) commitLayout(next); else setSettings((s) => ({ ...s, 'board.layout': next }));
           }
@@ -1593,7 +1594,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       live.clear();
       pinchRef.current = null;
     };
-  }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, editCard, layout, positionsLocked]);
+  }, [advance, zoomAt, paint, centerNode, fitAll, commitLayout, editCard, editNote, layout, positionsLocked]);
 
   // ---- keyboard -------------------------------------------------------------
   useEffect(() => {
@@ -1946,7 +1947,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                       data-nodrag
                       aria-label={t('cardmenu.rotation')}
                       title={t('cardmenu.rotation')}
-                      onClick={() => nudgeCardRotation(card, geom)}
+                      onClick={() => nudgeItemRotation(card.id, geom)}
                     >↻</button>
                     <span
                       className="card__resize-handle card__resize-handle--left"
@@ -2074,6 +2075,37 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
             return (
               <div key={n.id} className={`note note--${n.style}`} data-card={n.id} data-rot={geom.rot} style={{ left: geom.x, top: geom.y, width: geom.w, transform: `rotate(${geom.rot}deg)`, zIndex: 60 + index }}>
                 {editing ? <span className="item-grip" aria-hidden="true">{t('owner.dragHint')}</span> : null}
+                {editing ? (
+                  <>
+                    <button
+                      className="card__rotate-handle note__rotate-handle"
+                      type="button"
+                      data-card-rotate
+                      data-nodrag
+                      aria-label={t('cardmenu.rotation')}
+                      title={t('cardmenu.rotation')}
+                      onClick={() => nudgeItemRotation(n.id, geom)}
+                    >↻</button>
+                    <span
+                      className="card__resize-handle card__resize-handle--left"
+                      data-card-resize="left"
+                      data-nodrag
+                      role="separator"
+                      aria-orientation="vertical"
+                      aria-label={t('cardmenu.width')}
+                      title={t('cardmenu.width')}
+                    />
+                    <span
+                      className="card__resize-handle card__resize-handle--right"
+                      data-card-resize="right"
+                      data-nodrag
+                      role="separator"
+                      aria-orientation="vertical"
+                      aria-label={t('cardmenu.width')}
+                      title={t('cardmenu.width')}
+                    />
+                  </>
+                ) : null}
                 {editing ? (
                   <div className="note-ctrl" data-nodrag>
                     <button className="note-ctrl__style" type="button" onClick={() => editNote(n.id, { style: n.style === 'amber' ? 'paper-dashed' : 'amber' })} aria-label={t('owner.noteStyle')}>◑</button>

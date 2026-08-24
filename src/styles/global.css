@@ -131,7 +131,7 @@ a { color: var(--c-accent); text-decoration: none; }
 /* ------------------------------------------------------------------ cards */
 .card { position: absolute; cursor: grab; }
 .card.is-dragging { cursor: grabbing; }
-.card.is-resizing { cursor: ew-resize; }
+.card.is-resizing, .note.is-resizing { cursor: ew-resize; }
 .card__resize-handle {
   position: absolute;
   top: 8px;
@@ -158,7 +158,8 @@ a { color: var(--c-accent); text-decoration: none; }
   box-shadow: 0 2px 5px rgba(0, 0, 0, .3);
 }
 .card__resize-handle:hover,
-.card.is-resizing .card__resize-handle { opacity: 1; }
+.card.is-resizing .card__resize-handle,
+.note.is-resizing .card__resize-handle { opacity: 1; }
 .card__rotate-handle {
   position: absolute;
   left: -10px;
@@ -179,7 +180,8 @@ a { color: var(--c-accent); text-decoration: none; }
   cursor: grab;
   touch-action: none;
 }
-.card.is-rotating .card__rotate-handle { cursor: grabbing; color: #f3ecdd; background: var(--c-accent); }
+.card.is-rotating .card__rotate-handle,
+.note.is-rotating .card__rotate-handle { cursor: grabbing; color: #f3ecdd; background: var(--c-accent); }
 .card__surface {
   padding: calc(var(--card-pad, 22px) * .92) var(--card-pad, 22px) var(--card-pad, 22px);
   box-shadow: 0 calc(24px * var(--card-shadow, 1)) calc(40px * var(--card-shadow, 1)) calc(-24px * var(--card-shadow, 1)) rgba(0, 0, 0, calc(.65 * var(--card-shadow, 1)));
@@ -426,6 +428,7 @@ a { color: var(--c-accent); text-decoration: none; }
 .note__body { padding: 14px 15px; box-shadow: 0 14px 24px -12px rgba(0, 0, 0, .55); font-size: 12px; line-height: 1.5; color: var(--c-ink); border-radius: var(--card-radius, 0px); }
 .note--amber .note__body { background: oklch(0.9 0.09 100); }
 .note--paper-dashed .note__body { background: #fdfbf6; border: 1px dashed #cfc5b0; }
+.note__rotate-handle { top: auto; bottom: -10px; }
 
 /* ------------------------------------------------------------------ image slot */
 .slot { position: relative; width: 100%; height: 100%; background: #e8e1d2; overflow: hidden; display: flex; align-items: center; justify-content: center; }
