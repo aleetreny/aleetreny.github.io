@@ -100,6 +100,7 @@ const CATALOGUE: Record<string, Entry> = {
   'owner.tour': { es: 'visita', en: 'tour' },
   'owner.entries': { es: 'artículos', en: 'entries' },
   'owner.wording': { es: 'textos', en: 'wording' },
+  'owner.objects': { es: 'objetos', en: 'objects' },
   'owner.preview': { es: 'vista previa', en: 'preview' },
   'owner.previewTitle': { es: 'Vista previa local — los cambios no se guardan', en: 'Local preview — changes are not saved' },
   'owner.signOut': { es: 'cerrar sesión', en: 'sign out' },
@@ -366,6 +367,138 @@ const CATALOGUE: Record<string, Entry> = {
     es: 'Hay cambios sin guardar.',
     en: 'There are unsaved changes.',
   },
+
+  // ------------------------------------------------------------- the world
+  //
+  // Almost nothing out here says anything. What is written down is the two or
+  // three words an object genuinely needs — a hint that only shows on hover, a
+  // button somebody has to be able to find, an acknowledgement. Everything else
+  // is meant to be found by touching it.
+  'world.answer': { es: 'LA RESPUESTA', en: 'THE ANSWER' },
+  'world.zeroG': { es: 'sin gravedad', en: 'no gravity' },
+  'world.lost': { es: '{n} dentro del agujero · recuperar', en: '{n} inside the hole · get them back' },
+
+  'world.tool.paint': { es: 'pistola', en: 'paint gun' },
+  'world.tool.paint.hint': { es: 'clic para disparar · ← → color', en: 'click to shoot · ← → colour' },
+  'world.tool.camera': { es: 'cámara', en: 'camera' },
+  'world.tool.camera.hint': { es: 'clic para hacer la foto', en: 'click to take the picture' },
+  'world.tool.scope': { es: 'telescopio', en: 'telescope' },
+  'world.tool.scope.hint': { es: 'mueve el ratón', en: 'move the mouse' },
+  'world.tool.water': { es: 'regadera', en: 'watering can' },
+  'world.tool.water.hint': { es: 'clic en tu planta', en: 'click your plant' },
+
+  'world.coin.label': { es: 'una moneda', en: 'a coin' },
+  'world.coin.hint': { es: 'lánzala', en: 'flip it' },
+  'world.coin.doubt': { es: 'ya no me fío de esta moneda.', en: 'I don’t trust this coin anymore.' },
+
+  'world.die.label': { es: 'un dado', en: 'a die' },
+  'world.die.hint': { es: 'tíralo', en: 'roll it' },
+  'world.die.go': { es: 'ir a {face}', en: 'go to {face}' },
+  'world.die.shrug': { es: '…', en: '…' },
+
+  'world.calc.label': { es: 'una calculadora', en: 'a calculator' },
+  'world.calc.clear': { es: 'borrar', en: 'clear' },
+
+  'world.press.label': { es: 'un botón', en: 'a button' },
+  'world.press.aria': { es: 'el botón', en: 'the button' },
+
+  'world.book.label': { es: 'un libro', en: 'a book' },
+  'world.book.hint': { es: 'ábrelo', en: 'open it' },
+  'world.book.close': { es: 'cerrar el libro', en: 'close the book' },
+  'world.book.prev': { es: 'página anterior', en: 'previous page' },
+  'world.book.next': { es: 'página siguiente', en: 'next page' },
+
+  'world.letter.label': { es: 'una carta', en: 'a letter' },
+  'world.letter.hint': { es: 'ábrela', en: 'open it' },
+
+  'world.note.label': { es: 'un taco de papel', en: 'a pad of paper' },
+  'world.note.hint': { es: 'déjame una nota', en: 'leave me a note' },
+  'world.note.placeholder': { es: 'lo que quieras…', en: 'whatever you like…' },
+  'world.note.send': { es: 'clavar', en: 'spike it' },
+  'world.note.thanks': { es: 'recibida.', en: 'got it.' },
+  'world.note.enough': { es: 'por hoy ya vale.', en: 'that’s enough for today.' },
+
+  'world.gun.label': { es: 'una pistola de pintura', en: 'a paint gun' },
+  'world.gun.hint': { es: 'click to pick up', en: 'click to pick up' },
+
+  'world.glass.label': { es: 'un reloj de arena', en: 'an hourglass' },
+  'world.glass.hint': { es: 'dale la vuelta', en: 'turn it over' },
+
+  'world.cup.label': { es: 'una taza', en: 'a cup' },
+  'world.cup.hint': { es: 'muévela', en: 'move it' },
+  'world.lorenz.ask': { es: '¿qué es esto?', en: 'what is this?' },
+
+  'world.scope.label': { es: 'un telescopio', en: 'a telescope' },
+  'world.scope.hint': { es: 'mira por él', en: 'look through it' },
+  'world.scope.saturn': { es: 'ahí está', en: 'there it is' },
+
+  'world.pass.label': { es: 'un pasaporte', en: 'a passport' },
+  'world.pass.hint': { es: 'ábrelo', en: 'open it' },
+  'world.pass.close': { es: 'cerrar', en: 'close' },
+  'world.pass.photo': { es: 'foto', en: 'photo' },
+  'world.pass.addPhoto': { es: 'sin foto', en: 'no photo' },
+  'world.pass.note': { es: 'lo que quieras contar de este sitio', en: 'whatever you want to say about this place' },
+  'world.pass.city': { es: 'ciudad', en: 'city' },
+  'world.pass.page': { es: 'hoja', en: 'leaf' },
+  'world.pass.remove': { es: 'quitar sello', en: 'remove stamp' },
+
+  'world.cam.label': { es: 'una polaroid', en: 'a polaroid' },
+  'world.cam.hint': { es: 'cógela', en: 'pick it up' },
+  'world.cam.discard': { es: 'tirar la foto', en: 'bin the photo' },
+
+  'world.petri.label': { es: 'una placa de petri', en: 'a petri dish' },
+  'world.petri.hint': { es: 'toca dentro', en: 'touch inside' },
+  'world.petri.dials': { es: 'parámetros', en: 'parameters' },
+  'world.petri.reset': { es: 'limpiar', en: 'wipe it' },
+
+  'world.slime.label': { es: 'algo amarillo', en: 'something yellow' },
+  'world.slime.hint': { es: 'dale de comer', en: 'feed it' },
+
+  'world.pca.label': { es: 'un flexo', en: 'a lamp' },
+  'world.pca.hint': { es: 'gira la nube', en: 'turn the cloud' },
+
+  'world.hole.hint': { es: 'no le tires nada. o sí.', en: 'don’t throw anything in. or do.' },
+
+  'world.life.label': { es: 'una cuadrícula', en: 'a grid' },
+  'world.life.hint': { es: 'pinta y pulsa espacio', en: 'draw, then press space' },
+
+  'world.fit.label': { es: 'una nube de puntos', en: 'a scatterplot' },
+  'world.fit.hint': { es: 'arrastra un punto muy lejos', en: 'drag a point a long way' },
+
+  'world.walk.label': { es: 'un papel y un lápiz', en: 'paper and a pencil' },
+  'world.walk.hint': { es: 'déjalo dibujar', en: 'let it draw' },
+  'world.walk.dials': { es: 'ajustes', en: 'settings' },
+
+  'world.galton.label': { es: 'una máquina de bolas', en: 'a bean machine' },
+  'world.galton.hint': { es: 'mantén pulsado', en: 'hold it down' },
+
+  'world.game.label': { es: 'una sonda', en: 'a probe' },
+  'world.game.hint': { es: 'enciéndelo', en: 'switch it on' },
+  'world.game.start': { es: 'empezar', en: 'start' },
+  'world.game.again': { es: 'otra vez', en: 'again' },
+
+  'world.vote.label': { es: 'dos palancas', en: 'two levers' },
+  'world.vote.plate': { es: 'ELIGE UNA', en: 'PICK ONE' },
+  'world.vote.yours': { es: 'elegiste {choice}', en: 'you chose {choice}' },
+  'world.vote.cooperated': { es: 'cooperó', en: 'cooperated' },
+  'world.vote.decisions': { es: 'en total', en: 'in total' },
+
+  'world.ask.label': { es: 'una máquina', en: 'a machine' },
+  'world.ask.hint': { es: 'tira de la palanca', en: 'pull the lever' },
+  'world.ask.pull': { es: 'sacar una pregunta', en: 'get a question' },
+  'world.ask.placeholder': { es: 'tu respuesta…', en: 'your answer…' },
+  'world.ask.send': { es: 'meter', en: 'post it' },
+  'world.ask.another': { es: 'otra', en: 'another' },
+  'world.ask.thanks': { es: 'guardada.', en: 'kept.' },
+  'world.ask.enough': { es: 'por hoy ya vale.', en: 'that’s enough for today.' },
+
+  'world.garden.label': { es: 'un semillero', en: 'a seed tray' },
+  'world.garden.hint': { es: 'planta algo', en: 'plant something' },
+  'world.garden.plant': { es: 'plantar', en: 'plant' },
+  'world.garden.empty': { es: 'tierra', en: 'soil' },
+  'world.garden.water': { es: 'regar', en: 'water it' },
+  'world.garden.watered': { es: 'regada hace {when}', en: 'watered {when} ago' },
+  'world.garden.yours': { es: 'tu {name}', en: 'your {name}' },
 };
 
 /** Every key, in a stable order, for the wording panel and the tests. */
@@ -388,6 +521,7 @@ export const UI_SECTIONS: Array<{ prefix: string; label: Entry }> = [
   { prefix: 'login.', label: { es: 'Acceso', en: 'Sign in' } },
   { prefix: 'tourbar.', label: { es: 'Barra de la visita', en: 'Tour bar' } },
   { prefix: 'wording.', label: { es: 'Este panel', en: 'This panel' } },
+  { prefix: 'world.', label: { es: 'Los objetos', en: 'The objects' } },
   { prefix: 'msg.', label: { es: 'Avisos', en: 'Notices' } },
 ];
 

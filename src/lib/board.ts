@@ -999,6 +999,18 @@ export function slateBackground(backdrop: BackdropConfig, texture: BoardTexture)
   return `radial-gradient(130% 110% at 26% -10%, ${backdrop.slate} 0%, ${edge} 100%)`;
 }
 
+/** One flat colour that stands for the slate.
+ *
+ *  The slate itself is a gradient, and a gradient cannot be handed to a canvas
+ *  that is drawing a small picture of the board — the Polaroid and the
+ *  telescope both need a single ground to paint before anything else. The mid
+ *  stop is the honest answer. */
+export function slateGround(backdrop: BackdropConfig, texture: BoardTexture): string {
+  if (backdrop.slate) return backdrop.slate;
+  const stops = slateBackground(backdrop, texture).match(/#[0-9a-fA-F]{3,8}/g) ?? [];
+  return stops[1] ?? stops[0] ?? '#1b2724';
+}
+
 /** What is legible written on the slate. */
 export function slateInk(backdrop: BackdropConfig, texture: BoardTexture): string {
   if (backdrop.slateInk) return backdrop.slateInk;

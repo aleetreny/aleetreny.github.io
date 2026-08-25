@@ -1,6 +1,59 @@
 # Project status
 
-Updated: 2026-08-15. Branch: `main`.
+Updated: 2026-08-25. Branch: `main`.
+
+## The desk: twenty-six objects on the same slate (2026-08)
+
+The board's first layer is a portfolio and stays one. The second is furniture:
+twenty-six things lying on the slate that do something when you touch them — a
+book whose leaves turn, a coin that is not fair, a Gray–Scott dish, a slime
+mould that grows a network between the food you drop, a passport with a stamp
+per country, a camera that photographs the board it is standing on, a black hole
+with a real gravitational lens in it, and a garden the visitors plant.
+
+The whole design is one decision: **an object is furniture, a card is content.**
+A card is written, translated, seeded, versioned and read; an object is a thing
+on a table. They share a slate, a camera and a light source, and nothing else.
+The full proposal, the maths behind each simulation and the performance strategy
+are in [docs/desk-objects.md](docs/desk-objects.md).
+
+What holds them together (`src/lib/world/`):
+
+- **one animation loop** for everything, which starts on the first subscriber
+  and stops dead on the last — measured at zero frames a second with the board
+  panned away from every object;
+- **one physics integrator**, with traits (`draggable`, `physics`, `gravity`,
+  `blackhole`, `paintable`, `capture`, `heavy`) instead of types, which is what
+  lets the paint gun stain the passport and the coin be thrown into the hole
+  without any of the three knowing the others exist;
+- **positions on a ref, not in React state** — a physics step at sixty frames a
+  second is not a render, and the camera and the tour already work this way;
+- **`IntersectionObserver` on every heavy object**, so a simulation that is not
+  on screen is not running;
+- **`React.lazy` for the ten canvas objects**, so the board is complete and
+  usable before any of them arrive.
+
+What visitors leave behind goes to Postgres when there is one and to their own
+browser when there is not, so every object works with no services at all.
+`db/migrations/0008_visitor_world.sql` adds four tables under one rule: an
+anonymous visitor may add their own row and read nothing that identifies anybody
+else. Where they genuinely need to read something back — their own plant, the
+state of the plot, the running tally of the vote — they go through a
+`security definer` function that returns exactly that, rather than a table grant
+that would have to be fenced in afterwards. One plant per visitor and a
+four-hour watering interval are enforced in the database, not hoped for in the
+client.
+
+The board itself was laid out again for this: nothing overlaps, the twelve
+numbered cards reach all four sides, and the loose things are spread across the
+slate rather than heaped at one end. The slate is 730px wider to make room,
+which costs the opening view nothing on any screen wider than it is tall.
+
+The guided tour changed at the same time. It used to halt twenty-two times,
+several of them on a loose photo, which is a halt on nothing. It now halts
+thirteen times — the title and the twelve numbered cards — and everything else
+the board carries rides along in a stop's `extras`, landing on the slate without
+the camera ever widening to frame it.
 
 ## Writing articles: wording, typing and translation (2026-08)
 
@@ -225,20 +278,38 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
   keyboard and touch, back/jump/skip/loop/auto/scroll, every touch gesture, and a
   regression pass over dossiers, drag, `+ N more`, jumps, scatter/reset and
   reduced motion, with no console errors;
-- local checks: repository scan, lint, types, 110 tests and build;
+- local checks: repository scan, lint, types, 189 tests and build;
 - documentation for the handbook, architecture, data, authentication, editor,
-  storage, deployment, security, recovery and handoff.
+  storage, deployment, security, recovery, handoff and the desk objects;
+- every one of the twenty-six objects driven by hand in a real browser: picked
+  up, opened, drawn in, shot at, photographed, thrown into the black hole and
+  recovered, with the guided tour rewalked end to end and no console errors.
 
 ## Partially implemented
 
 | Item | State | Files | Dependency | Completion criterion |
 | --- | --- | --- | --- | --- |
 | Public content | Seeded in Neon | `fixtures/demo-content.json`, `scripts/db/seed.mjs` | the owner's later subjective review | text and links approved or adjusted from the editor |
+| The desk objects | Built, tested locally against the fixtures | `src/lib/world/`, `src/components/desk/world/` | a reseed and a migration on Neon | `board`, `board.objects`, `board.passport`, `board.world` and `board.tour` seeded, and `0008_visitor_world.sql` applied on `development` then `production` |
+| The passport's writing | Countries and stamps shipped, descriptions empty | `content/source/board-spec.mjs` | the owner writing them | a photograph and a paragraph on each stamp, from inside the passport |
+| The book's pages | Binding complete, leaves deliberately blank | `src/lib/world/book.ts` | the owner's own or licensed text | leaves filled with writing there is a right to publish |
 
 ## Pending
 
-No mandatory implementation, deployment, portability or QA work remains for this
-phase. Subjective approval of the wording is an editorial review, not a technical
+Two deployment steps, both of them ordinary and both documented:
+
+1. **Apply `0008_visitor_world.sql`** through `.github/workflows/provision-neon.yml`
+   (`development` first, then `production` with `APPLY_PRODUCTION`). Until it is
+   applied the notes, the garden, the answers and the vote fall back to the
+   visitor's own browser, which is a working board with a smaller memory.
+2. **Reseed the settings documents** through `.github/workflows/seed-content.yml`
+   with `only_settings=board,board.objects,board.passport,board.world,board.tour`.
+   The board's stored `size` predates the wider slate, `board.objects` and
+   `board.passport` do not exist there yet, and `board.layout` still holds the
+   old positions — note that seeding `board.layout` deliberately resets the
+   authored arrangement, which here is the point.
+
+Subjective approval of the wording is an editorial review, not a technical
 blocker.
 
 ## Blocked
@@ -263,7 +334,11 @@ No active external or technical blockers.
   environment limited to `main` plus `APPLY_PRODUCTION`;
 - the repository's GitHub plan offers no required environment reviewers;
 - board layout uses explicit positions: a new card needs design and a responsive
-  check.
+  check. The arrangement is now solved rather than eyeballed — see the layout
+  pass described in `docs/desk-objects.md` — but adding a piece still means
+  finding it a gap by hand;
+- `src/types/database.ts` gained five tables and six functions for the visitor
+  world, and is still written by hand.
 
 ## Do not break
 

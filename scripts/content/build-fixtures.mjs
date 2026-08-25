@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { ITEMS, ORDER } from '../../content/source/desk-data.mjs';
 import {
   BOARD, THEME, GROUPS, GROUP_LABELS, GROUP_LABELS_ES, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
-  CARDS, POLAROIDS, MARGINALIA, TOUR, I18N,
+  CARDS, POLAROIDS, MARGINALIA, TOUR, I18N, OBJECTS, PASSPORT, WORLD,
 } from '../../content/source/board-spec.mjs';
 
 const NAMESPACE = '2b6f0cc9-04a1-4b7e-9d2a-7a1d3e5f8c00';
@@ -210,6 +210,16 @@ function flattenEntry(entry) {
 }
 
 const bilingual = I18N.enabled === true;
+
+/** A single-language fork keeps one string per field, exactly as the cards do. */
+function flattenStamp(stamp) {
+  const out = { ...stamp };
+  for (const field of ['place', 'city', 'note']) {
+    if (isLangMap(out[field])) out[field] = plain(out[field]);
+  }
+  return out;
+}
+
 const boardValue = { size: BOARD, groups, cards: CARDS, polaroids: POLAROIDS, marginalia: MARGINALIA };
 const publicEntries = entries.map(bilingual ? tagEntry : flattenEntry);
 
@@ -218,6 +228,11 @@ const settings = [
   { key: 'board', value: bilingual ? tagBoard(boardValue) : boardValue, is_public: true },
   { key: 'board.layout', value: {}, is_public: true },
   { key: 'board.tour', value: TOUR, is_public: true },
+  // The loose objects, and the words on the passport's leaves. The stamps carry
+  // prose, so they are tagged like everything else the owner writes.
+  { key: 'board.objects', value: OBJECTS, is_public: true },
+  { key: 'board.passport', value: bilingual ? PASSPORT.map((stamp) => tagFields(stamp, ['place', 'city', 'note'])) : PASSPORT.map(flattenStamp), is_public: true },
+  { key: 'board.world', value: WORLD, is_public: true },
   { key: 'site.i18n', value: I18N, is_public: true },
 ];
 

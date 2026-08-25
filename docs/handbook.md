@@ -17,7 +17,7 @@ becomes yours.
 5. [Looks: changing everything at once](#5-looks-changing-everything-at-once)
 6. [Two languages, one board](#6-two-languages-one-board)
 7. [Settings encyclopedia](#7-settings-encyclopedia)
-   · [theme](#71-theme) · [board](#72-board) · [board.layout](#73-boardlayout) · [board.tour](#74-boardtour) · [site.i18n](#75-sitei18n)
+   · [theme](#71-theme) · [board](#72-board) · [board.layout](#73-boardlayout) · [board.tour](#74-boardtour) · [board.objects](#75-boardobjects) · [board.passport](#76-boardpassport) · [board.world](#77-boardworld) · [site.i18n](#78-sitei18n)
 8. [Dossiers and blocks](#8-dossiers-and-blocks)
 9. [Where everything lives](#9-where-everything-lives)
 10. [Making it yours](#10-making-it-yours)
@@ -95,6 +95,31 @@ never moves a card, even if it started on one.
 | **Contact** | A links card. |
 | **Instant photo** | A polaroid with a fillable photo slot and a caption. |
 | **Sticky note** | A small marginal note, toggled by the theme. |
+
+### Things on the desk
+
+Lying on the same slate, between the cards, are twenty-six objects. They are
+furniture rather than content: a card is written, translated, seeded and read,
+an object is a thing on a table that does something when you touch it.
+
+A book you can open and turn the leaves of. A coin that is not fair. A petri
+dish running a real reaction-diffusion simulation, a slime mould that grows a
+network between whatever food you drop in front of it, an hourglass with
+individual grains in it. A passport with a stamp per country and a page behind
+every stamp. A camera that takes a real photograph of the board it is standing
+on, and a paint gun that stains whatever you shoot — the cards, the slate, the
+passport, the photographs. A black hole you can throw things into and get them
+back. A garden other visitors planted, growing on the wall clock.
+
+Nothing is announced and nothing needs explaining, which is the point: almost
+anything odd on the table can probably be touched. Everything is switched on,
+moved, resized or put away from [`board.objects`](#75-boardobjects), and the
+whole design — what runs, what is real maths, what is stored where and what it
+costs — is in [docs/desk-objects.md](desk-objects.md).
+
+**Two keys the board listens for anywhere:** `esc` puts down whatever you are
+holding and turns the gravity back on, and typing `42` does what typing `42`
+should do.
 
 ### Row caps and the overflow panel
 
@@ -257,6 +282,7 @@ nothing is saved.
 | `visita` / `tour` | [Guided tour panel](#54-boardtour). |
 | `artículos` / `entries` | [Inventory panel](#inventory). |
 | `textos` / `wording` | [Interface wording panel](#interface-wording). |
+| `objetos` / `objects` | [The objects panel](#75-boardobjects): what is out on the table, how long the paint lasts, and everything visitors have left — their notes, the plot, the answers and the vote, with hide, delete, reset and an export. |
 | `⏏` | Sign out. |
 
 The bar itself, like the rest of the chrome, is written in the language you are
@@ -856,7 +882,16 @@ carries just the stops still resolves to a complete configuration.
 | `groupSize` | 1 – 8 | 2 | Pieces per stop, for generated routes. |
 | `includeRest` | bool | true | Append a final stop with whatever the route missed. |
 | `holdNotes` | bool | true | Keep the loose notes off the slate until the walk is over. |
-| `stops` | `[{ id, label, items[], reveal?, motion?, motif? }]` | the authored route | The hand-written route. |
+| `stops` | `[{ id, label, items[], extras?, reveal?, motion?, motif? }]` | the authored route | The hand-written route. |
+
+`items` are what the stop **frames**: the camera flies to their union and comes
+to rest there. `extras` are what it **carries** — pieces that land on the slate
+while that stop is on screen without the camera ever widening for them. That is
+the difference between walking a board and halting on a loose photograph, which
+is a halt on nothing. The shipped route halts thirteen times, once on the title
+and once on each numbered card, and carries the twenty-odd photos, stamps, marks
+and the boarding pass along with whichever card they belong beside. In the panel
+they are the second, quieter chip row under each stop (`+ lands here`).
 
 The stop editor creates, renames, reorders and deletes stops, and composes each
 one piece by piece. Any generated route can be frozen into `custom` with **copy
@@ -955,7 +990,53 @@ Lower `inflate` and `padX`, or raise `maxScale`, to frame stops closer.
 | `hint` | `space / → next · drag & zoom anytime` | The hint line. Free text. |
 | `nextLabel` `finishLabel` `backLabel` `skipLabel` | `next →`, `open the board →`, `← back`, `skip` | Every button's text. Free text. |
 
-### 7.5 · `site.i18n`
+### 7.5 · `board.objects`
+
+The things lying on the slate. **Panel:** owner bar → `objects`. A list of
+`{ id, x, y, rot, scale, visible }`, one per object, merged over what the
+repository ships — so an object added to the shipped set after you last saved
+still reaches you, and one you switched off stays off.
+
+| Field | Values | Default | What it does |
+| --- | --- | --- | --- |
+| `id` | one of the twenty-six kinds | — | Which object. The id *is* the kind; there is one of each. |
+| `x` `y` | board units | the authored spot | Where it starts. Drag it on the board and press **take positions** rather than typing these. |
+| `rot` | −180 – 180° | a small tilt | Things on a desk are not square to it. |
+| `scale` | 0.4 – 2.4 × | 1 | How big. They are authored small on purpose: the board zooms, and a thing you had to zoom into is a thing you found. |
+| `visible` | bool | true | Out on the table, or away. |
+
+The panel also carries **put it all back** (the repository's arrangement),
+**show all** / **hide all**, and **reset the world**, which returns anything the
+black hole has eaten. What each object *is* lives in code, not here:
+[docs/desk-objects.md](desk-objects.md).
+
+### 7.6 · `board.passport`
+
+The passport's stamps, which are content rather than furniture. **Panel:** open
+the passport in owner mode and click a stamp. A list of
+`{ id, code, place, year, page, x, y, rot, ink, shape, city, note, assetUrl }`.
+
+| Field | Values | What it does |
+| --- | --- | --- |
+| `code` | two or three letters | Printed large in the stamp. |
+| `place` `city` `note` | prose | Bilingual, like every other piece of writing on the board. `note` is yours; nothing generates it. |
+| `year` | free text | The line under the place. |
+| `page` | 1 upward | Which leaf it is on. Four to a leaf reads like a real passport. |
+| `x` `y` | 2 – 88 % of the leaf | Where on it. Imperfect on purpose. |
+| `rot` | −180 – 180° | A bored official's angle. |
+| `ink` | `violet` `teal` `rust` `ink` `green` | Five pads, so a passport is not one rubber stamp. |
+| `shape` | `round` `rect` `oval` `shield` | Nor one die. |
+| `assetUrl` | a URL | The photograph behind the stamp. Uploaded through the same bucket as everything else. |
+
+### 7.7 · `board.world`
+
+One setting, and only one: how long a splat of paint lasts.
+
+| Field | Values | Default | What it does |
+| --- | --- | --- | --- |
+| `paint` | `none` `session` `global` | `session` | Nothing kept past the tab, kept for the visit, or kept in that browser for good. Visitors can always shoot; this is only about memory. |
+
+### 7.8 · `site.i18n`
 
 Languages. **Panel:** owner bar → `theme` → **languages**. See
 [chapter 6](#6-two-languages-one-board) for how it behaves.
@@ -976,7 +1057,7 @@ Languages. **Panel:** owner bar → `theme` → **languages**. See
 interface's own wording has no built-in French, so it falls back to the primary
 language until you fill it in from the `textos` panel.
 
-### 7.6 · `site.ui`
+### 7.9 · `site.ui`
 
 Interface wording. **Panel:** owner bar → `textos`. See
 [interface wording](#interface-wording).
@@ -1057,7 +1138,8 @@ content/source/          the authored board: theme, cards, lists, dossiers, tour
 scripts/content/         pnpm content:build → fixtures
 fixtures/                generated JSON: the offline copy and the seed payload
   demo-content.json      dossiers and their blocks
-  site-settings.json     theme, board, board.layout, board.tour
+  site-settings.json     theme, board, board.layout, board.tour,
+                         board.objects, board.passport, board.world
 src/
   components/DeskBoard.tsx      the board, the camera, the tour state machine
   components/desk/              cards, dossier, panels, tour bar
@@ -1121,7 +1203,7 @@ A full seed puts **everything** back to what the repository last generated,
 which is wrong for a board you have been writing in. Narrow it instead:
 
 - `only_slugs` — the dossiers to write, e.g. `lab-kepler,lab-ica`.
-- `only_settings` — the settings keys to write, e.g. `board,board.layout,board.tour`.
+- `only_settings` — the settings keys to write, e.g. `board,board.layout,board.tour,board.objects,board.passport,board.world`.
 
 Either one on its own makes the run targeted: nothing outside the list is
 touched, and no entry is swept to the trash. Seeding `board.layout` resets the
