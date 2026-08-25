@@ -13,10 +13,15 @@ const GROUND = 93;
 const BEST_KEY = 'board.arcade.best';
 
 type Cactus = { x: number; w: number; h: number };
-type Game = { y: number; vy: number; duck: boolean; cacti: Cactus[]; score: number; since: number };
+/** `run` is the distance covered, in points, as a real number; `score` is that
+ *  rounded down. Keeping both is the whole trick: a frame is worth about a
+ *  third of a point, so flooring the running total every frame — rather than
+ *  adding the fraction to an integer that can never hold it — is what used to
+ *  leave the counter stuck on zero for the entire game. */
+type Game = { y: number; vy: number; duck: boolean; cacti: Cactus[]; run: number; score: number; since: number };
 
 function fresh(): Game {
-  return { y: 0, vy: 0, duck: false, cacti: [{ x: W + 36, w: 8, h: 25 }], score: 0, since: 0 };
+  return { y: 0, vy: 0, duck: false, cacti: [{ x: W + 36, w: 8, h: 25 }], run: 0, score: 0, since: 0 };
 }
 
 export function Arcade() {
@@ -24,7 +29,11 @@ export function Arcade() {
   const { reduced } = useWorld();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const game = useRef<Game>(fresh());
+  // Held as null and filled on first use rather than handed to the hook: the
+  // run is mutated in place, sixty times a second, and a value passed into
+  // `useRef` is one the hook rules quite reasonably expect nobody to touch.
+  const game = useRef<Game | null>(null);
+  const run = useCallback(() => (game.current ??= fresh()), []);
   const [playing, setPlaying] = useState(false);
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => readLocal<number>(BEST_KEY, 0));
@@ -39,10 +48,10 @@ export function Arcade() {
   }, []);
 
   const jump = useCallback(() => {
-    const g = game.current;
     if (!playing) { start(); return; }
+    const g = run();
     if (g.y <= 0.5) g.vy = -6.6;
-  }, [playing, start]);
+  }, [playing, run, start]);
 
   useEffect(() => {
     if (!playing) return undefined;
@@ -51,16 +60,16 @@ export function Arcade() {
         event.preventDefault();
         jump();
       }
-      if (event.key === 'ArrowDown') game.current.duck = true;
+      if (event.key === 'ArrowDown') run().duck = true;
     };
-    const up = (event: KeyboardEvent) => { if (event.key === 'ArrowDown') game.current.duck = false; };
+    const up = (event: KeyboardEvent) => { if (event.key === 'ArrowDown') run().duck = false; };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
-  }, [jump, playing]);
+  }, [jump, playing, run]);
 
   useFrame((dt) => {
-    const g = game.current;
+    const g = run();
     const step = Math.min(2.1, dt / 16.7);
     if (playing) {
       const speed = 2.25 + Math.min(2.15, g.score / 90);
@@ -68,9 +77,11 @@ export function Arcade() {
       g.y = Math.min(0, g.y + g.vy * step);
       if (g.y === 0) g.vy = 0;
       g.since += dt;
-      g.cacti = g.cacti
-        .map((cactus) => ({ ...cactus, x: cactus.x - speed * step }))
-        .filter((cactus) => cactus.x + cactus.w > -3);
+      // Moved in place. Rebuilding the row of cacti sixty times a second is a
+      // fresh array and a fresh object per cactus per frame, for a game whose
+      // entire state is four numbers and a handful of rectangles.
+      for (const cactus of g.cacti) cactus.x -= speed * step;
+      while (g.cacti.length > 0 && g.cacti[0].x + g.cacti[0].w <= -3) g.cacti.shift();
       const lastCactus = g.cacti[g.cacti.length - 1];
       if (g.since > 780 + Math.random() * 750 && (!lastCactus || lastCactus.x < W - 38)) {
         g.cacti.push({ x: W + 10, w: Math.random() > .72 ? 15 : 8, h: 18 + Math.round(Math.random() * 10) });
@@ -85,14 +96,19 @@ export function Arcade() {
       if (hit) {
         setPlaying(false);
         setOver(true);
+        // The only moment React needs the number: the run is over and the
+        // score has to survive on the restart button.
+        setScore(g.score);
         setBest((current) => {
           const next = Math.max(current, g.score);
           writeLocal(BEST_KEY, next);
           return next;
         });
       } else {
-        const nextScore = Math.floor(g.score + dt / 54);
-        if (nextScore !== g.score) { g.score = nextScore; setScore(nextScore); }
+        g.run += dt / 54;
+        // The live counter is painted on the canvas by the same frame that
+        // advances it, so a running game re-renders nothing at all.
+        g.score = Math.floor(g.run);
       }
     }
 

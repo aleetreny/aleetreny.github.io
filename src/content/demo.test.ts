@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import demoContent from '../../fixtures/demo-content.json';
 import { demoEntries, demoSettings } from './demo';
+import { portfolioEntriesSchema } from '../types/content';
 import { parseBoard } from '../lib/board';
 
 describe('demo content', () => {
+  // The app takes the fixture at its word so that nothing is validated in
+  // front of the first paint. This is where the word is checked.
+  it('matches the stored-entry contract', () => {
+    expect(() => portfolioEntriesSchema.parse(demoContent)).not.toThrow();
+  });
+
   it('contains only published entries with ordered blocks', () => {
     expect(demoEntries.length).toBeGreaterThan(0);
     for (const entry of demoEntries) {

@@ -35,7 +35,10 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
   const found = useRef(false);
   const ticks = useRef(0);
   const [running, setRunning] = useState(false);
-  const [gen, setGen] = useState(0);
+  // The generation count changes eight times a second and is read by one
+  // number on the bar. It is written straight to that number rather than
+  // through a render of the whole sheet.
+  const genRef = useRef<HTMLSpanElement | null>(null);
   const [glider, setGlider] = useState(false);
   const onScreen = useOnScreen(hostRef);
 
@@ -112,7 +115,7 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
     spare.current = a;
     draw();
     ticks.current += 1;
-    setGen(ticks.current);
+    if (genRef.current) genRef.current.textContent = String(ticks.current);
     // Checked on a beat rather than every generation: it is a search over the
     // whole board and nobody needs the news within 130ms.
     if (ticks.current % 8 === 0 && !found.current && findGlider()) {
@@ -137,7 +140,7 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
   const clear = useCallback(() => {
     cells.current = new Uint8Array(N * N);
     spare.current = new Uint8Array(N * N);
-    setGen(0);
+    if (genRef.current) genRef.current.textContent = '0';
     setGlider(false);
     setRunning(false);
     found.current = false;
@@ -166,7 +169,7 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
         />
         <div className="life__bar" data-nodrag>
           <button type="button" onClick={() => setRunning((v) => !v)}>{running ? '❚❚' : '▶'}</button>
-          <span className="life__gen">{gen}</span>
+          <span className="life__gen" ref={genRef}>0</span>
           <button type="button" onClick={clear}>◻</button>
         </div>
         {glider ? <span className="life__found">↗ glider</span> : null}

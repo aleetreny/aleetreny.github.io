@@ -1,7 +1,7 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { memo, type CSSProperties, type ReactNode } from 'react';
 import type { BoardCard } from '../../lib/board';
 import { entriesForGroup, reorderGroupEntries, STICKER_MARKS } from '../../lib/board';
-import type { PlotKind, ScrapKind } from '../../lib/board';
+import type { ScrapKind } from '../../lib/board';
 import { spotifyTrackEmbedUrl } from '../../lib/spotify-embed';
 import type { PortfolioEntry } from '../../types/content';
 import { EditableText } from './EditableText';
@@ -439,47 +439,6 @@ function StickerRows({ card, editing, onCardEdit }: { card: BoardCard; editing: 
   );
 }
 
-/** The series drawn small. One path, no library, no axes to speak of — a plot
- *  on a working board is a shape you recognise across the room, not a figure
- *  you read values off. */
-function PlotFigure({ series, kind }: { series: number[]; kind: PlotKind }) {
-  const values = series.filter((n) => Number.isFinite(n));
-  if (values.length < 2) return <div className="plot__empty" aria-hidden="true" />;
-  const W = 100;
-  const H = 44;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || 1;
-  const at = (value: number, index: number) => ({
-    x: (index / (values.length - 1)) * W,
-    y: H - ((value - min) / span) * H,
-  });
-  const points = values.map(at);
-  const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');
-  const steps = points
-    .map((p, i) => (i === 0 ? `M${p.x.toFixed(2)},${p.y.toFixed(2)}` : `H${p.x.toFixed(2)}V${p.y.toFixed(2)}`))
-    .join(' ');
-  const path = kind === 'steps' ? steps : line;
-
-  return (
-    <svg className="plot__fig" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-hidden="true">
-      {kind === 'bars' ? (
-        points.map((p, i) => (
-          <rect key={i} className="plot__bar" x={p.x - W / values.length / 2.6} y={p.y} width={W / values.length / 1.3} height={Math.max(1, H - p.y)} />
-        ))
-      ) : kind === 'scatter' ? (
-        points.map((p, i) => <circle key={i} className="plot__dot" cx={p.x} cy={p.y} r={1.7} />)
-      ) : (
-        <>
-          {kind === 'area' ? <path className="plot__area" d={`${path} L${W},${H} L0,${H} Z`} /> : null}
-          <path className="plot__line" d={path} />
-          <circle className="plot__dot plot__dot--last" cx={points[points.length - 1].x} cy={points[points.length - 1].y} r={2.1} />
-        </>
-      )}
-    </svg>
-  );
-}
-
 /** The drawn marks between the cards. Each one is a single stroke or two in the
  *  accent ink — no words, nothing to open, nothing to translate. They exist so
  *  the eye has somewhere to go between one drawer and the next. */
@@ -517,7 +476,15 @@ function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   return <div className={`card__surface card__surface--${tone}`} style={style}>{children}</div>;
 }
 
-export function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, onAddEntry, onDeleteEntry, onReorderEntries }: BoardCardViewProps) {
+/** One card.
+ *
+ *  Memoised, and it matters: the board holds four dozen of these inside a
+ *  component that also owns the tour's step counter, the toast, the panels and
+ *  the sign-in state. Without this, halting on a stop — or flashing a message,
+ *  or opening a panel — re-rendered every card on the slate to change one line
+ *  of chrome. Every prop below is either a value or a stable callback, so the
+ *  comparison is honest. */
+export const BoardCardView = memo(function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, onAddEntry, onDeleteEntry, onReorderEntries }: BoardCardViewProps) {
   const t = useUiText();
   const field = (
     key: keyof BoardCard,
@@ -640,38 +607,6 @@ export function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, 
     return <ScrapMark kind={card.kind ?? 'star'} />;
   }
 
-  // A plot is the one shape a board about data was missing: a series drawn
-  // small enough to read as a gesture and large enough to see the trend.
-  if (card.type === 'plot') {
-    const series = card.series ?? [];
-    return (
-      <Surface card={card}>
-        <div className="plot" data-open={editing ? undefined : card.open}>
-          {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
-          {field('title', card.title, { className: 'plot__title', placeholder: t('ph.title') })}
-          <PlotFigure series={series} kind={card.plotKind ?? 'line'} />
-          <div className="plot__axis">
-            <CardField className="plot__axis-y" editing={editing} value={card.axis?.[0]} placeholder={t('card.plotY')} multiline={false} commit={(value) => onCardEdit(card.id, { axis: [value, card.axis?.[1] ?? ''] })} />
-            <CardField className="plot__axis-x" editing={editing} value={card.axis?.[1]} placeholder={t('card.plotX')} multiline={false} commit={(value) => onCardEdit(card.id, { axis: [card.axis?.[0] ?? '', value] })} />
-          </div>
-          {card.note || editing ? field('note', card.note, { className: 'plot__note', placeholder: t('ph.text') }) : null}
-          {editing ? (
-            <label className="plot__series" data-nodrag>
-              <span className="k">{t('card.plotSeries')}</span>
-              <input
-                type="text"
-                defaultValue={series.join(', ')}
-                onBlur={(event) => onCardEdit(card.id, {
-                  series: event.target.value.split(/[,\s]+/).map(Number).filter((n) => Number.isFinite(n)),
-                })}
-              />
-            </label>
-          ) : null}
-        </div>
-      </Surface>
-    );
-  }
-
   // A franked square. It opens a dossier the way a spotlight does, but it reads
   // as something stuck in a passport rather than something filed.
   if (card.type === 'stamp') {
@@ -688,64 +623,6 @@ export function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, 
           </span>
         </div>
       </div>
-    );
-  }
-
-  // A boarding stub: where from, where to, when, and a torn edge.
-  if (card.type === 'ticket') {
-    return (
-      <Surface card={card}>
-        <div className="ticket" data-open={editing ? undefined : card.open}>
-          <div className="ticket__stub">
-            {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
-            <div className="ticket__route">
-              <CardField className="ticket__place" editing={editing} value={card.from} placeholder={t('card.ticketFrom')} multiline={false} commit={(value) => onCardEdit(card.id, { from: value })} />
-              <span className="ticket__arrow" aria-hidden="true">→</span>
-              <CardField className="ticket__place" editing={editing} value={card.to} placeholder={t('card.ticketTo')} multiline={false} commit={(value) => onCardEdit(card.id, { to: value })} />
-            </div>
-            {field('title', card.title, { className: 'ticket__title', placeholder: t('ph.title') })}
-          </div>
-          <div className="ticket__tear" aria-hidden="true" />
-          <div className="ticket__end">
-            <CardField className="ticket__when" editing={editing} value={card.when} placeholder={t('card.ticketWhen')} multiline={false} commit={(value) => onCardEdit(card.id, { when: value })} />
-            <CardField className="ticket__seat" editing={editing} value={card.seat} placeholder={t('card.ticketSeat')} multiline={false} commit={(value) => onCardEdit(card.id, { seat: value })} />
-            <span className="ticket__code" aria-hidden="true">
-              {Array.from({ length: 22 }).map((_, index) => (
-                <i key={index} style={{ width: index % 4 === 0 ? 3 : index % 3 === 0 ? 2 : 1 }} />
-              ))}
-            </span>
-          </div>
-        </div>
-      </Surface>
-    );
-  }
-
-  // A few lines of console. The board is written by somebody who spends the day
-  // in one, and nothing else on it says so.
-  if (card.type === 'terminal') {
-    const lines = card.lines ?? [];
-    return (
-      <Surface card={card}>
-        <div className="term" data-open={editing ? undefined : card.open}>
-          <div className="term__bar" aria-hidden="true"><i /><i /><i /></div>
-          <pre className="term__body">
-            {lines.map((line, index) => (
-              <span key={index} className={line.startsWith('$') ? 'term__cmd' : 'term__out'}>{line}{'\n'}</span>
-            ))}
-            <span className="term__cursor" aria-hidden="true" />
-          </pre>
-          {editing ? (
-            <label className="term__edit" data-nodrag>
-              <span className="k">{t('card.termLines')}</span>
-              <textarea
-                rows={4}
-                defaultValue={lines.join('\n')}
-                onBlur={(event) => onCardEdit(card.id, { lines: event.target.value.split('\n') })}
-              />
-            </label>
-          ) : null}
-        </div>
-      </Surface>
     );
   }
 
@@ -803,4 +680,4 @@ export function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, 
       ) : null}
     </Surface>
   );
-}
+});

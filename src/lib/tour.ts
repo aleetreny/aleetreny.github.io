@@ -103,6 +103,18 @@ export function stopPieces(stop: TourStop): string[] {
   return stop.extras && stop.extras.length > 0 ? [...stop.items, ...stop.extras] : stop.items;
 }
 
+/** What a stop actually puts on the slate while the walk is halted on it.
+ *
+ *  Its own pieces, and nothing else. A stop also *carries* extras — the loose
+ *  photographs, the stamps, the drawn marks that belong beside its card — but
+ *  the camera never widens for them, so during the run they fade up at the edge
+ *  of a held frame, half in shot, and the walk reads as a board that has not
+ *  finished loading. They are held back and arrive with everything else the
+ *  route never touched, the moment the walk ends and the whole board comes up. */
+export function walkedPieces(stop: TourStop): string[] {
+  return stop.items;
+}
+
 export type TourCamera = {
   motion: CameraMotion;
   easing: Easing;

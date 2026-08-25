@@ -1,16 +1,26 @@
 import { demoEntries, demoSettings } from '../content/demo';
-import { z } from 'zod';
-import {
-  portfolioEntrySchema,
-  type ContentBlock,
-  type DeletedEntrySummary,
-  type EntryStatus,
-  type EntryType,
-  type EntryVersionSummary,
-  type PortfolioEntry,
-  type StoredPortfolioEntry,
-  type StoredAsset,
+import type {
+  ContentBlock,
+  DeletedEntrySummary,
+  EntryStatus,
+  EntryType,
+  EntryVersionSummary,
+  PortfolioEntry,
+  StoredPortfolioEntry,
+  StoredAsset,
 } from '../types/content';
+
+// The validator is fetched, not bundled.
+//
+// Every schema in this file guards a write — saving an entry, restoring a
+// version, authorising an upload — and a write is something only the owner
+// ever does, from a session they had to sign into. Reading the board needs
+// none of it, so zod is loaded the first time somebody actually writes rather
+// than sitting in front of the first paint for every visitor who will not.
+async function storedEntry(data: unknown): Promise<StoredPortfolioEntry> {
+  const { portfolioEntrySchema } = await import('../types/content');
+  return portfolioEntrySchema.parse(data);
+}
 import type { Json } from '../types/database';
 import { runtimeConfig } from './config';
 import { mediaContentType } from './image-upload';
@@ -294,7 +304,7 @@ export async function saveContentEntry(
     const prefix = error.code === '40001' ? 'Edit conflict: reload before saving. ' : '';
     throw new Error(`${prefix}${error.message}`);
   }
-  return hydrateEntry(portfolioEntrySchema.parse(data));
+  return hydrateEntry(await storedEntry(data));
 }
 
 export async function deleteContentEntry(entry: Pick<PortfolioEntry, 'id' | 'version'>): Promise<void> {
@@ -315,7 +325,7 @@ export async function restoreDeletedContentEntry(
     p_expected_version: entry.version,
   });
   if (error) throw new Error(error.message);
-  return hydrateEntry(portfolioEntrySchema.parse(data));
+  return hydrateEntry(await storedEntry(data));
 }
 
 export async function listEntryVersions(entryId: string): Promise<EntryVersionSummary[]> {
@@ -346,15 +356,18 @@ export async function restoreEntryVersion(
     p_expected_version: expectedVersion,
   });
   if (error) throw new Error(error.message);
-  return hydrateEntry(portfolioEntrySchema.parse(data));
+  return hydrateEntry(await storedEntry(data));
 }
 
-const presignResponseSchema = z.object({
-  bucket: z.string().min(1),
-  key: z.string().min(1),
-  uploadUrl: z.url(),
-  publicUrl: z.url(),
-});
+async function parsePresign(data: unknown) {
+  const { z } = await import('zod');
+  return z.object({
+    bucket: z.string().min(1),
+    key: z.string().min(1),
+    uploadUrl: z.url(),
+    publicUrl: z.url(),
+  }).parse(data);
+}
 
 async function getOwnerToken(): Promise<string> {
   const neonClient = await getAuthorizedOwnerClient();
@@ -390,7 +403,7 @@ export async function uploadMedia(file: File, altText: string): Promise<StoredAs
     const body = (await presignResponse.json().catch(() => null)) as { error?: string } | null;
     throw new Error(body?.error ?? 'No se pudo autorizar la subida.');
   }
-  const presign = presignResponseSchema.parse(await presignResponse.json());
+  const presign = await parsePresign(await presignResponse.json());
 
   const uploadResponse = await fetch(presign.uploadUrl, {
     method: 'PUT',

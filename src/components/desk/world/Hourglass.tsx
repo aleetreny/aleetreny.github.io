@@ -43,16 +43,20 @@ export function Hourglass() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const grains = useRef<Grain[] | null>(null);
   const [flipped, setFlipped] = useState(false);
+  const flippedRef = useRef(false);
   const [reversing, setReversing] = useState(false);
   const shake = useRef<{ last: number; dir: number; count: number; at: number } | null>(null);
   const onScreen = useOnScreen(hostRef);
 
   const flip = useCallback(() => {
-    setFlipped((v) => {
-      const next = !v;
-      grains.current = fill(next);
-      return next;
-    });
+    const next = !flippedRef.current;
+    flippedRef.current = next;
+    // The canvas turns with the frame, so the bulb that is *up* on screen is
+    // the far end of the glass's own coordinates once it has been flipped.
+    // Charging the wrong one is what left the sand sitting on the floor it had
+    // already reached, which looked exactly like an hourglass that does nothing.
+    grains.current = fill(!next);
+    setFlipped(next);
   }, []);
 
   // Sand, and then the joke about sand.

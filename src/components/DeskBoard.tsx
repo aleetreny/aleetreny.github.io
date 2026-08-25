@@ -17,14 +17,12 @@ import {
   themeVars,
   wallBackground,
   CHROMELESS_CARDS,
-  PLOT_KINDS,
   SCRAP_KINDS,
   CARD_FASTENERS,
   type BoardCard,
   type BoardConfig,
   type CardTone,
   type CardFastener,
-  type PlotKind,
   type ScrapKind,
   type GridMode,
   type LayoutMap,
@@ -77,7 +75,7 @@ import {
   MOTIF_TIMING,
   revealSequence,
   splitStops,
-  stopPieces,
+  walkedPieces,
   tourAlreadySeen,
   type TourConfig,
   type TourItem,
@@ -102,11 +100,8 @@ import {
 } from '../lib/content-repository';
 import { isVideoMedia, maxUploadBytesForMediaType, mediaContentType } from '../lib/image-upload';
 import { BoardCardView } from './desk/BoardCards';
-import { DossierErrorBoundary, DossierPlate, type SaveState } from './desk/DossierPlate';
-import { GroupOverflowPanel } from './desk/GroupOverflowPanel';
+import type { SaveState } from './desk/DossierPlate';
 import { ImageSlot } from './desk/ImageSlot';
-import { ThemePanel } from './desk/ThemePanel';
-import { InventoryPanel } from './desk/InventoryPanel';
 import { TourBar } from './desk/TourBar';
 import { WorldProvider, type PaintMode } from '../lib/world/context';
 import { parseObjects, type DeskObject } from '../lib/world/kinds';
@@ -120,8 +115,21 @@ import { DEFAULT_STAMPS, parseStamps, type PassportStamp } from '../lib/world/pa
 const WorldLayer = lazy(() => import('./desk/world/WorldLayer').then((m) => ({ default: m.WorldLayer })));
 const WorldOverlay = lazy(() => import('./desk/world/WorldLayer').then((m) => ({ default: m.WorldOverlay })));
 const ObjectsPanel = lazy(() => import('./desk/ObjectsPanel').then((m) => ({ default: m.ObjectsPanel })));
-import { TourPanel } from './desk/TourPanel';
-import { WordingPanel } from './desk/WordingPanel';
+
+// The full-page article, and the panels behind the owner bar. None of them is
+// on screen when the board paints — a dossier waits for a click, the panels
+// wait for a sign-in — so none of them belongs in the first download. The
+// dossier chunk is fetched on idle a moment later, so the click that opens one
+// still opens it immediately.
+const dossierChunk = () => import('./desk/DossierPlate');
+const DossierPlate = lazy(() => dossierChunk().then((m) => ({ default: m.DossierPlate })));
+const DossierErrorBoundary = lazy(() => dossierChunk().then((m) => ({ default: m.DossierErrorBoundary })));
+const GroupOverflowPanel = lazy(() => import('./desk/GroupOverflowPanel').then((m) => ({ default: m.GroupOverflowPanel })));
+const ThemePanel = lazy(() => import('./desk/ThemePanel').then((m) => ({ default: m.ThemePanel })));
+const InventoryPanel = lazy(() => import('./desk/InventoryPanel').then((m) => ({ default: m.InventoryPanel })));
+const TourPanel = lazy(() => import('./desk/TourPanel').then((m) => ({ default: m.TourPanel })));
+const WordingPanel = lazy(() => import('./desk/WordingPanel').then((m) => ({ default: m.WordingPanel })));
+
 import { UiTextContext } from './desk/ui-text-context';
 import { EditableText } from './desk/EditableText';
 
@@ -603,6 +611,44 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
   useEffect(() => { paint(false); }, [paint, layout]);
   useEffect(() => { restView(true); }, [restView]);
+
+  // The article is the point of the board, so its chunk is fetched the moment
+  // the browser has nothing better to do — after the first paint, before the
+  // first click. A visitor who opens a dossier never waits for a download; a
+  // visitor who only looks at the slate never paid for one up front.
+  useEffect(() => {
+    const idle = window.requestIdleCallback
+      ? window.requestIdleCallback(() => { void dossierChunk(); }, { timeout: 4000 })
+      : window.setTimeout(() => { void dossierChunk(); }, 1400);
+    return () => {
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
+    };
+  }, []);
+
+  // The board is a camera, not a scroller.
+  //
+  // `.desk` is `overflow: hidden`, which hides the overflow but still leaves
+  // the element scrollable *programmatically*. Anything inside it that takes
+  // focus — the book's close button, the pad's textarea, a stamp in the
+  // passport — makes the browser scroll that control into view, and because
+  // the slate is positioned by a transform rather than by the scroll position,
+  // the whole board slides out from under the camera and stays there. What the
+  // visitor sees is a thing they just closed sitting half off the screen.
+  //
+  // The stylesheet asks for `overflow: clip`, which makes it not a scroll
+  // container at all; this is the belt to that pair of braces, for anything
+  // that manages a scroll regardless.
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return undefined;
+    const pin = () => {
+      if (vp.scrollLeft !== 0) vp.scrollLeft = 0;
+      if (vp.scrollTop !== 0) vp.scrollTop = 0;
+    };
+    vp.addEventListener('scroll', pin, { passive: true });
+    return () => vp.removeEventListener('scroll', pin);
+  }, []);
   useEffect(() => {
     // Re-fitting mid-tour would fight the camera; the run reframes itself.
     // A phone rotating is a real resize; the on-screen keyboard is not, so
@@ -832,7 +878,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
    *  used when a visitor jumps ahead from the tour bar's dots. */
   const showThrough = useCallback((index: number) => {
     for (let i = 0; i < index && i < stopsRef.current.length; i += 1) {
-      for (const id of stopPieces(stopsRef.current[i])) {
+      for (const id of walkedPieces(stopsRef.current[i])) {
         if (!shownRef.current.has(id)) showItem(id, 0, false);
       }
     }
@@ -967,10 +1013,13 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         }
         if (!alive()) return;
 
-        // What the stop frames, then what it merely carries: the camera has
-        // already come to rest on the card, and the loose photos beside it are
-        // stuck on while the visitor reads.
-        const pieces = stopPieces(stop);
+        // Only what the stop actually frames. A stop's `extras` — the loose
+        // photographs, the stamps, the drawn marks — used to be stuck on while
+        // the visitor read, and that is what made the walk look half-finished:
+        // the camera is holding one card, and a photograph is fading up at the
+        // edge of the frame with nothing said about it. They are held back with
+        // the rest of the board and arrive together when the walk ends.
+        const pieces = walkedPieces(stop);
         if (pieces.some((id) => !shownRef.current.has(id))) {
           // A stop may land its pieces its own way — the work drawer slams, the
           // lab zooms in, the countries flip over.
@@ -1404,7 +1453,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     return { x: Math.round((rect.width / 2 - v.x) / v.s - 150), y: Math.round((rect.height / 2 - v.y) / v.s - 90) };
   }, []);
 
-  const addCard = useCallback((type: 'drawer' | 'spotlight' | 'sticker' | 'spotify' | 'plot' | 'stamp' | 'ticket' | 'terminal' | 'scrap') => {
+  const addCard = useCallback((type: 'drawer' | 'spotlight' | 'sticker' | 'spotify' | 'stamp' | 'scrap') => {
     const at = viewCenterWorld();
     const id = crypto.randomUUID();
     const newCard: Record<typeof type, BoardCard> = {
@@ -1412,10 +1461,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       spotlight: { id, type: 'spotlight', x: at.x, y: at.y, rot: 0, w: 400, tone: 'paperWarm', kicker: '', title: '', blurb: '', open: entries[0]?.slug },
       sticker: { id, type: 'sticker', x: at.x, y: at.y, rot: 0, w: 300, tone: 'paperCream', kicker: '', title: '', langs: [['', '', 5]], open: entries[0]?.slug },
       spotify: { id, type: 'spotify', x: at.x, y: at.y, rot: 0, w: 420, spotifyUrl: '' },
-      plot: { id, type: 'plot', x: at.x, y: at.y, rot: 0, w: 320, tone: 'paper', kicker: '', title: '', plotKind: 'line', series: [3, 5, 4, 8, 7, 11, 9, 14], axis: ['', ''] },
       stamp: { id, type: 'stamp', x: at.x, y: at.y, rot: 0, w: 190, glyph: '✦', title: '', denom: '', postmark: '', open: entries[0]?.slug },
-      ticket: { id, type: 'ticket', x: at.x, y: at.y, rot: 0, w: 380, tone: 'paperCream', kicker: '', from: '', to: '', title: '', when: '', seat: '', open: entries[0]?.slug },
-      terminal: { id, type: 'terminal', x: at.x, y: at.y, rot: 0, w: 360, tone: 'dark', lines: ['$ ', ''] },
       scrap: { id, type: 'scrap', x: at.x, y: at.y, rot: 0, w: 120, kind: 'star' },
     };
     commitBoard({ ...rawBoard, cards: [...rawBoard.cards, newCard[type]] });
@@ -2196,13 +2242,6 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                             </select>
                           </label>
                         ) : null}
-                        {card.type === 'plot' ? (
-                          <label>{t('cardmenu.plotKind')}
-                            <select value={card.plotKind ?? 'line'} onChange={(e) => editCard(card.id, { plotKind: e.target.value as PlotKind })}>
-                              {PLOT_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
-                            </select>
-                          </label>
-                        ) : null}
                         {card.type === 'scrap' ? (
                           <label>{t('cardmenu.scrapKind')}
                             <select value={card.kind ?? 'star'} onChange={(e) => editCard(card.id, { kind: e.target.value as ScrapKind })}>
@@ -2439,10 +2478,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                       <button className="tbtn" type="button" onClick={() => addCard('spotlight')}>{t('owner.addSpotlight')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('sticker')}>{t('owner.addSticker')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('spotify')}>{t('owner.addSpotify')}</button>
-                      <button className="tbtn" type="button" onClick={() => addCard('plot')}>{t('owner.addPlot')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('stamp')}>{t('owner.addStamp')}</button>
-                      <button className="tbtn" type="button" onClick={() => addCard('ticket')}>{t('owner.addTicket')}</button>
-                      <button className="tbtn" type="button" onClick={() => addCard('terminal')}>{t('owner.addTerminal')}</button>
                       <button className="tbtn" type="button" onClick={() => addCard('scrap')}>{t('owner.addScrap')}</button>
                       <button className="tbtn" type="button" onClick={addPolaroid}>{t('owner.addPhoto')}</button>
                       <button className="tbtn" type="button" onClick={addNote}>{t('owner.addNote')}</button>
@@ -2531,6 +2567,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       ) : null}
 
       {openEntry ? (
+        <Suspense fallback={null}>
         <DossierErrorBoundary key={openEntry.id} onClose={() => setOpenSlug(null)} closeLabel={t('dossier.close')}>
           <DossierPlate
             entry={openEntry}
@@ -2556,6 +2593,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
             dossier={theme.dossier}
           />
         </DossierErrorBoundary>
+        </Suspense>
       ) : null}
 
       {loginOpen ? (
@@ -2577,35 +2615,35 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       ) : null}
 
       {themeOpen ? (
-        <ThemePanel
+        <Suspense fallback={null}><ThemePanel
           theme={theme}
           onChange={commitTheme}
           i18n={i18n}
           onI18nChange={commitI18n}
           onClose={() => setThemeOpen(false)}
-        />
+        /></Suspense>
       ) : null}
       {tourOpen ? (
-        <TourPanel
+        <Suspense fallback={null}><TourPanel
           tour={tour}
           items={tourItems}
           onChange={commitTour}
           onPreview={() => { setTourOpen(false); replayTour(); }}
           onClose={() => setTourOpen(false)}
-        />
+        /></Suspense>
       ) : null}
       {wordingOpen ? (
-        <WordingPanel
+        <Suspense fallback={null}><WordingPanel
           overrides={uiOverrides}
           language={activeLang}
           languageLabel={i18n.languages.find((l) => l.code === activeLang)?.label ?? activeLang}
           primary={i18n.primary}
           onChange={commitUi}
           onClose={() => setWordingOpen(false)}
-        />
+        /></Suspense>
       ) : null}
       {inventoryOpen ? (
-        <InventoryPanel
+        <Suspense fallback={null}><InventoryPanel
           entries={entries}
           board={board}
           remoteDataEnabled={remoteDataEnabled}
@@ -2617,17 +2655,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           onReorderEntries={reorderEntries}
           onBoardChange={commitBoard}
           notify={flash}
-        />
+        /></Suspense>
       ) : null}
 
       {overflowGroup ? (
-        <GroupOverflowPanel
+        <Suspense fallback={null}><GroupOverflowPanel
           groupId={overflowGroup}
           label={board.groups.find((g) => g.id === overflowGroup)?.label ?? overflowGroup}
           entries={entries}
           onOpen={setOpenSlug}
           onClose={() => setOverflowGroup(null)}
-        />
+        /></Suspense>
       ) : null}
 
       {objectsOpen ? (

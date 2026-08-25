@@ -18,8 +18,12 @@ export function Garden() {
   const [mine, setMine] = useState<Plant | null>(null);
   const [picking, setPicking] = useState(false);
   const [pouring, setPouring] = useState(false);
+  /** True while the can is off its hook and on its way to a plant. */
+  const [carrying, setCarrying] = useState(false);
+  const pourTimers = useRef<number[]>([]);
   const [now, setNow] = useState(() => Date.now());
   const canRef = useRef<HTMLButtonElement | null>(null);
+  const trayRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -38,6 +42,8 @@ export function Garden() {
     const timer = window.setInterval(() => setNow(Date.now()), 60_000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => () => { for (const id of pourTimers.current) window.clearTimeout(id); }, []);
 
   const sow = useCallback((id: string) => {
     setPicking(false);
@@ -59,12 +65,15 @@ export function Garden() {
     });
   }, []);
 
+  const shown = plot.slice(-14);
+
   const water = useCallback(() => {
     if (!mine || pouring) return;
-    setPouring(true);
     const el = canRef.current;
+    const tray = trayRef.current;
     const finish = () => {
       setPouring(false);
+      setCarrying(false);
       const optimistic: Plant = { ...mine, wateredAt: new Date().toISOString(), waterings: mine.waterings + 1 };
       setMine(optimistic);
       setPlot((current) => current.map((plant) => (plant.id === mine.id ? optimistic : plant)));
@@ -75,23 +84,44 @@ export function Garden() {
         setPlot((current) => current.map((currentPlant) => (currentPlant.id === plant.id ? plant : currentPlant)));
       }).catch(() => undefined);
     };
-    if (!el || reduced) { finish(); return; }
-    el.animate([
-      { transform: 'rotate(0deg) translate(0,0)' },
-      { transform: 'rotate(-46deg) translate(-16px,-6px)', offset: 0.28 },
-      { transform: 'rotate(-46deg) translate(-16px,-6px)', offset: 0.72 },
-      { transform: 'rotate(0deg) translate(0,0)' },
-    ], { duration: 1500, easing: 'ease-in-out', fill: 'none' })
-      .addEventListener('finish', finish, { once: true });
-  }, [mine, pouring, reduced]);
+    if (!el || !tray || reduced) { setPouring(true); finish(); return; }
+
+    // Where the visitor's own seedling actually is. The sprouts share the tray
+    // out evenly, so the slot is the whole geometry — and taking it off the
+    // laid-out tray rather than a constant keeps the can honest if the object
+    // is ever resized.
+    const slot = Math.max(0, shown.findIndex((plant) => plant.id === mine.id));
+    const total = Math.max(1, shown.length);
+    const target = tray.offsetLeft + ((slot + 0.5) / total) * tray.offsetWidth;
+    // The spout is on the near side of the can, and the water leaves it about
+    // two thirds of the way down.
+    const spoutX = el.offsetLeft + 12;
+    const spoutY = el.offsetTop + 26;
+    const dx = Math.round(target - spoutX);
+    const dy = Math.round(tray.offsetTop + tray.offsetHeight * 0.42 - spoutY);
+
+    setCarrying(true);
+    const run = el.animate([
+      { transform: 'translate(0px, 0px) rotate(0deg)' },
+      { transform: `translate(${dx}px, ${dy}px) rotate(0deg)`, offset: 0.26 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(-46deg)`, offset: 0.4 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(-46deg)`, offset: 0.76 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(0deg)`, offset: 0.86 },
+      { transform: 'translate(0px, 0px) rotate(0deg)' },
+    ], { duration: 1900, easing: 'ease-in-out', fill: 'none' });
+    // The water starts once the can is over the plant and tipped, and stops
+    // before it is carried back.
+    pourTimers.current.push(window.setTimeout(() => setPouring(true), 1900 * 0.4));
+    pourTimers.current.push(window.setTimeout(() => setPouring(false), 1900 * 0.78));
+    run.addEventListener('finish', finish, { once: true });
+  }, [mine, pouring, reduced, shown]);
 
   const canWater = Boolean(mine);
-  const shown = plot.slice(-14);
 
   return (
     <ObjectShell id="garden" label={t('world.garden.label')} hint={mine ? undefined : t('world.garden.hint')}>
       <div className="garden">
-        <div className="garden__tray">
+        <div className="garden__tray" ref={trayRef}>
           <span className="garden__soil" aria-hidden="true" />
           <span className="garden__rim" aria-hidden="true" />
           <div className="garden__plants" data-nodrag>
@@ -111,10 +141,10 @@ export function Garden() {
 
         <button
           ref={canRef}
-          className={`garden__can${canWater ? ' is-ready' : ''}`}
+          className={`garden__can${canWater ? ' is-ready' : ''}${carrying ? ' is-carrying' : ''}`}
           type="button"
           data-nodrag
-          disabled={!canWater}
+          disabled={!canWater || carrying}
           onClick={water}
           aria-label={t('world.garden.water')}
           title={mine ? t('world.garden.watered', { when: ago(mine.wateredAt, now) }) : ''}

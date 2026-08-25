@@ -8,7 +8,7 @@
 // The maths is real: the covariance of the projected coordinates, and a power
 // iteration on the 3×3 covariance for the switch. No equations are shown.
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
 import { useFrame, useOnScreen } from '../../../lib/world/frame';
@@ -84,7 +84,10 @@ export function PcaLamp() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const view = useRef<{ yaw: number; pitch: number; toYaw: number; toPitch: number; seeking: boolean } | null>(null);
-  const [spread, setSpread] = useState(0);
+  // The meter is a number the frame already has and a width the frame can
+  // write. Routing it through React re-rendered the whole lamp sixty times a
+  // second to move one bar.
+  const meterRef = useRef<HTMLElement | null>(null);
   const onScreen = useOnScreen(hostRef);
 
   const eye = useCallback(() => (view.current ??= { yaw: 0.7, pitch: 0.35, toYaw: 0.7, toPitch: 0.35, seeking: false }), []);
@@ -181,7 +184,8 @@ export function PcaLamp() {
     ctx.closePath();
     ctx.fill();
 
-    setSpread(Math.min(1, variance / 0.95));
+    const meter = meterRef.current;
+    if (meter) meter.style.width = `${Math.round(Math.min(1, variance / 0.95) * 100)}%`;
   }, onScreen && !reduced);
 
   return (
@@ -193,7 +197,7 @@ export function PcaLamp() {
         <canvas ref={canvasRef} data-nodrag style={{ width: W, height: H }} onPointerDown={drag} />
         <div className="pca__ctrl" data-nodrag>
           <button type="button" className="pca__switch" onClick={findIt}>PCA</button>
-          <span className="pca__meter" aria-hidden="true"><i style={{ width: `${Math.round(spread * 100)}%` }} /></span>
+          <span className="pca__meter" aria-hidden="true"><i ref={meterRef} /></span>
         </div>
       </div>
     </ObjectShell>

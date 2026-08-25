@@ -72,7 +72,7 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
   passport: { w: 152, h: 200, traits: SITTING },
   camera: { w: 140, h: 124, traits: LOOSE },
   die: { w: 100, h: 100, traits: LOOSE },
-  life: { w: 160, h: 172, traits: HEAVY_SITTING },
+  life: { w: 160, h: 182, traits: HEAVY_SITTING },
   lorenz: { w: 124, h: 124, traits: LOOSE },
   regression: { w: 200, h: 172, traits: SITTING },
   garden: { w: 240, h: 182, traits: ANCHORED },

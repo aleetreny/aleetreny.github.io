@@ -199,8 +199,15 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
             </span>
           ) : null}
           <span className="toolbar-tool__hint">{t(`world.tool.${tool}.hint`)}</span>
-          {tool === 'paint' ? <button className="toolbar-tool__drop" type="button" onClick={clearSplats}>{t('world.tool.paint.clear')}</button> : null}
-          <button className="toolbar-tool__drop" type="button" onClick={() => hold(null)}>esc</button>
+          {tool === 'paint' ? (
+            <button className="toolbar-tool__drop" type="button" onClick={clearSplats}>{t('world.tool.paint.clear')}</button>
+          ) : null}
+          {/* The way out, spelled out. A bare "esc" is a keycap, not a sentence:
+              a visitor holding a paint gun needs to be told, in words, that the
+              key puts it down — and to be able to click the same thing. */}
+          <button className="toolbar-tool__drop toolbar-tool__drop--esc" type="button" onClick={() => hold(null)}>
+            <kbd>esc</kbd> {t('world.tool.drop')}
+          </button>
         </div>
       ) : null}
 

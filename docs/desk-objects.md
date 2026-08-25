@@ -111,7 +111,6 @@ All canvas, all real, all lazy (`React.lazy`), all paused by an
 | **Game of Life** | B3/S23 on a 26×26 torus. A glider — any of its eight orientations — is recognised. |
 | **Regression** | OLS against Theil–Sen on the same points, with the residuals drawn. Drag one point a long way and watch which line follows it. |
 | **Random walk** | Box–Muller normal steps with drift and σ, laid down at drawing speed by a pencil. |
-| **Galton board** | Every bead is a body; each pin is a Bernoulli trial. The distribution is not drawn, it arrives. |
 | **The game** | A probe falling through drifting masses. Steer with the pointer or the arrows, collect samples for fuel, thirty seconds is a good run. It is a gravity game because everything else on this end of the desk is. |
 | **The black hole** | See below. |
 

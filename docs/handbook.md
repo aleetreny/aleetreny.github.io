@@ -30,9 +30,8 @@ becomes yours.
 
 A portfolio that is not a page. It is a **board**: one large canvas — 3390 × 2500
 by default — with paper pinned to it. Drawers list your work and spotlights
-feature one thing; a plot draws a series, a stamp franks a country, a stub holds
-a route, a console holds four lines; instant photos, sticky notes and drawn
-marks fill the gaps. Clicking any line opens a full-page **dossier**.
+feature one thing and a stamp franks a country; instant photos, sticky notes
+and drawn marks fill the gaps. Clicking any line opens a full-page **dossier**.
 
 Three ideas hold it together.
 
@@ -277,7 +276,7 @@ nothing is saved.
 | --- | --- |
 | `edit mode` | Toggles inline editing on the whole board. |
 | `🔒 positions` | Locks every card, photo and note in place. It starts locked; press it deliberately to enable dragging. |
-| `add: drawer / spotlight / sticker / Spotify / plot / stamp / ticket / terminal / doodle / photo / note` | Drops a new piece at the centre of the view. |
+| `add: drawer / spotlight / sticker / Spotify / stamp / doodle / photo / note` | Drops a new piece at the centre of the view. |
 | `aspecto` / `theme` | [Appearance panel](#51-theme). |
 | `visita` / `tour` | [Guided tour panel](#54-boardtour). |
 | `artículos` / `entries` | [Inventory panel](#inventory). |
@@ -769,7 +768,11 @@ Common to every card:
 | Field | What it does |
 | --- | --- |
 | `id` | Stable identifier. Used by layout overrides and tour stops. |
-| `type` | `hero` `now` `drawer` `spotlight` `sticker` `contact` `spotify` `plot` `stamp` `ticket` `terminal` `scrap` |
+| `type` | `hero` `now` `drawer` `spotlight` `sticker` `contact` `spotify` `stamp` `scrap` |
+
+A stored board is read through that list. The plot, the boarding stub and the
+console panel were retired, and a card of a retired type is dropped on the way
+in — so a board saved while they existed simply stops showing them.
 | `x` `y` | Position in board pixels. |
 | `rot` | Tilt in degrees, multiplied by the theme's `chaos`. |
 | `w` | Width in board pixels. |
@@ -791,10 +794,7 @@ Per type:
 | `sticker` | `open` (the dossier slug), `langs`, `note` |
 | `contact` | `links` (`[label, url]` pairs), `note` |
 | `spotify` | `spotifyUrl`: a Spotify song URL or `spotify:track:` URI; it is normalised to Spotify's official player URL. |
-| `plot` | `series` (the numbers), `plotKind` (`line` `area` `bars` `scatter` `steps`), `axis` (`[left, bottom]`), `note`, `open` |
 | `stamp` | `glyph` (one or two characters, printed large), `denom` (the value line), `postmark` (what the ring reads), `open` |
-| `ticket` | `from`, `to`, `when`, `seat`, `open` |
-| `terminal` | `prompt`, `lines` (one string per console line; a line starting with `$` is a command) |
 | `scrap` | `kind` — one drawn mark, no words: `arrow` `circle` `underline` `bracket` `star` `spiral` `cross` `wave` `tape` `clip` `pin` `coffee` `leaf` `bulb` `die` |
 
 Drawer row layouts:
@@ -818,17 +818,12 @@ exactly as you typed them. `open` makes the whole sticker a link to a dossier.
 
 #### The shapes that are not paper
 
-Five of the types are not filled-in cards, and they exist because a board of
+Two of the types are not filled-in cards, and they exist because a board of
 nothing but paper rectangles stops being interesting to look at:
 
-- **`plot`** draws a series small — one path, no library. `bars` reads best at
-  card size; `scatter` is the one to use when the shape matters more than the
-  order.
 - **`stamp`** is a franked square with a perforated edge and a postmark ring
   stamped over one corner. Like a spotlight, `open` makes the whole thing a
   link to a dossier.
-- **`ticket`** is a boarding stub: a route, a date, a seat and a torn edge.
-- **`terminal`** is a few lines of console with a blinking cursor.
 - **`scrap`** is a single drawn mark in the accent ink — an arrow, a circle
   around something, a coffee ring, a die. It carries no words, opens nothing
   and is never translated. Scraps are what fill the gaps between the columns.
@@ -889,9 +884,11 @@ to rest there. `extras` are what it **carries** — pieces that land on the slat
 while that stop is on screen without the camera ever widening for them. That is
 the difference between walking a board and halting on a loose photograph, which
 is a halt on nothing. The shipped route halts thirteen times, once on the title
-and once on each numbered card, and carries the twenty-odd photos, stamps, marks
-and the boarding pass along with whichever card they belong beside. In the panel
-they are the second, quieter chip row under each stop (`+ lands here`).
+and once on each numbered card. The extras are held back while the walk is on —
+the camera frames a card, the card arrives, and nothing else moves — and the
+photos, stamps and marks land together at the end, when the whole board comes
+up. In the panel they are the second, quieter chip row under each stop
+(`+ lands here`).
 
 The stop editor creates, renames, reorders and deletes stops, and composes each
 one piece by piece. Any generated route can be frozen into `custom` with **copy

@@ -158,10 +158,6 @@ export type ThemeConfig = {
 
 export type TagChip = string | { label: string; accent?: boolean };
 
-/** How a plot card draws its series. */
-export const PLOT_KINDS = ['line', 'area', 'bars', 'scatter', 'steps'] as const;
-export type PlotKind = (typeof PLOT_KINDS)[number];
-
 /** The loose things pinned between the cards. A scrap carries no words and
  *  opens nothing: it is there so the eye has somewhere to rest between one
  *  drawer and the next. */
@@ -171,10 +167,21 @@ export const SCRAP_KINDS = [
 ] as const;
 export type ScrapKind = (typeof SCRAP_KINDS)[number];
 
+/** Every shape the board still knows how to draw.
+ *
+ *  This is also the filter a stored board is read through: the plot, the
+ *  boarding stub and the console panel were retired, and a board saved while
+ *  they existed still carries them. Anything not on this list is dropped on
+ *  the way in rather than falling through to the drawer renderer and coming
+ *  back as a card nobody wrote. */
+export const CARD_TYPES = [
+  'hero', 'now', 'drawer', 'spotlight', 'sticker', 'contact', 'spotify', 'stamp', 'scrap',
+] as const;
+export type CardType = (typeof CARD_TYPES)[number];
+
 export type BoardCard = {
   id: string;
-  type: 'hero' | 'now' | 'drawer' | 'spotlight' | 'sticker' | 'contact' | 'spotify'
-    | 'plot' | 'stamp' | 'ticket' | 'terminal' | 'scrap';
+  type: CardType;
   jump?: string;
   open?: string;
   group?: string;
@@ -228,13 +235,6 @@ export type BoardCard = {
    *  reads as a board somebody uses. */
   fastener?: CardFastener;
 
-  // ---- plot: a series, drawn small ----
-  /** The numbers themselves. Structure, not prose — never translated. */
-  series?: number[];
-  plotKind?: PlotKind;
-  /** The two axis words, left and bottom. */
-  axis?: [string, string];
-
   // ---- stamp: a franked square ----
   /** One or two characters printed large on the stamp. */
   glyph?: string;
@@ -242,16 +242,6 @@ export type BoardCard = {
   denom?: string;
   /** What the postmark ring reads. */
   postmark?: string;
-
-  // ---- ticket: a boarding stub ----
-  from?: string;
-  to?: string;
-  when?: string;
-  seat?: string;
-
-  // ---- terminal: a few lines of console ----
-  prompt?: string;
-  lines?: string[];
 
   // ---- scrap: a drawn mark, no words ----
   kind?: ScrapKind;
@@ -808,6 +798,15 @@ function withShippedCards(cards: BoardCard[], dismissed: string[]): BoardCard[] 
   return missing.length > 0 ? [...cards, ...missing] : cards;
 }
 
+const SUPPORTED = new Set<string>(CARD_TYPES);
+
+/** A stored card list, minus the shapes the board no longer draws. */
+function supportedCards(cards: unknown[]): BoardCard[] {
+  return cards.filter((card): card is BoardCard => (
+    isRecord(card) && typeof card.type === 'string' && SUPPORTED.has(card.type)
+  ));
+}
+
 export function parseBoard(value: unknown): BoardConfig {
   if (!isRecord(value) || !Array.isArray(value.cards)) return DEFAULT_BOARD;
   const groups = Array.isArray(value.groups) ? value.groups.filter(isBoardGroup) : [];
@@ -819,7 +818,7 @@ export function parseBoard(value: unknown): BoardConfig {
       ? { width: Number(value.size.width) || DEFAULT_BOARD.size.width, height: Number(value.size.height) || DEFAULT_BOARD.size.height }
       : DEFAULT_BOARD.size,
     groups: groups.length > 0 ? groups : DEFAULT_BOARD.groups,
-    cards: withShippedCards(value.cards as BoardCard[], dismissed),
+    cards: withShippedCards(supportedCards(value.cards), dismissed),
     polaroids: Array.isArray(value.polaroids) ? (value.polaroids as Polaroid[]) : [],
     marginalia: Array.isArray(value.marginalia) ? (value.marginalia as Marginal[]) : [],
     dismissed,

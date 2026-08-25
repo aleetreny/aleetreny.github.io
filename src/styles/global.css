@@ -56,7 +56,12 @@ a { color: var(--c-accent); text-decoration: none; }
 .desk {
   position: fixed;
   inset: 0;
+  /* `clip` rather than `hidden`: hidden still makes this a scroll container,
+     and a control taking focus inside the slate then scrolls the whole board
+     out from under its own camera. `hidden` first, for anything that has not
+     heard of `clip`. */
   overflow: hidden;
+  overflow: clip;
   cursor: grab;
   touch-action: none;
   font-family: var(--font-mono);
@@ -1095,21 +1100,6 @@ a { color: var(--c-accent); text-decoration: none; }
   .motif { display: none; }
 }
 
-/* ── plot: a series, drawn small ────────────────────────────────────────── */
-.plot { position: relative; cursor: pointer; }
-.plot__title { font-family: var(--font-display); font-weight: 800; font-size: 19px; line-height: 1.05; letter-spacing: -.02em; margin: 6px 0 12px; }
-.plot__fig { display: block; width: 100%; height: 76px; overflow: visible; }
-.plot__line { fill: none; stroke: var(--c-accent2); stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
-.plot__area { fill: color-mix(in oklch, var(--c-accent2) 16%, transparent); stroke: none; }
-.plot__bar { fill: color-mix(in oklch, var(--c-accent2) 62%, transparent); }
-.plot__dot { fill: var(--c-accent2); }
-.plot__dot--last { fill: var(--c-signal); }
-.plot__empty { height: 76px; border: 1px dashed color-mix(in oklch, currentColor 22%, transparent); }
-.plot__axis { display: flex; justify-content: space-between; gap: 10px; margin-top: 7px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; }
-.plot__note { margin: 10px 0 0; font-size: 11px; line-height: 1.55; opacity: .62; }
-.plot__series { display: flex; flex-direction: column; gap: 3px; margin-top: 10px; }
-.plot__series input { font-family: var(--font-mono); font-size: 11px; background: transparent; color: inherit; border: 1px solid color-mix(in oklch, currentColor 26%, transparent); padding: 4px 6px; }
-
 /* ── stamp: a franked square ────────────────────────────────────────────── */
 .stamp { cursor: pointer; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .3)); }
 .stamp__paper {
@@ -1142,37 +1132,6 @@ a { color: var(--c-accent); text-decoration: none; }
   font-family: var(--font-mono); font-size: 10px; letter-spacing: .02em; line-height: 1.2;
   transform: rotate(-14deg); opacity: .8; padding: 4px; overflow: hidden;
 }
-
-/* ── ticket: a boarding stub ────────────────────────────────────────────── */
-.ticket { display: flex; align-items: stretch; gap: 0; cursor: pointer; }
-.ticket__stub { flex: 1 1 auto; min-width: 0; padding-right: 12px; }
-.ticket__route { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 4px; }
-.ticket__place { font-family: var(--font-display); font-weight: 800; font-size: 24px; letter-spacing: -.02em; line-height: 1; }
-.ticket__arrow { color: var(--c-accent2); font-size: 15px; }
-.ticket__title { font-size: 11.5px; line-height: 1.5; opacity: .68; }
-.ticket__tear {
-  flex: none; width: 1px; margin: -2px 12px;
-  background: repeating-linear-gradient(to bottom, color-mix(in oklch, currentColor 40%, transparent) 0 5px, transparent 5px 10px);
-}
-.ticket__end { flex: none; width: 92px; display: flex; flex-direction: column; justify-content: center; gap: 4px; text-align: right; }
-.ticket__when { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; opacity: .75; }
-.ticket__seat { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--c-accent2); }
-.ticket__code { display: flex; align-items: flex-end; justify-content: flex-end; gap: 2px; height: 22px; margin-top: 4px; }
-.ticket__code i { display: block; height: 100%; background: currentColor; opacity: .68; }
-
-/* ── terminal: a few lines of console ───────────────────────────────────── */
-.term { position: relative; cursor: pointer; font-family: var(--font-mono); }
-.term__bar { display: flex; gap: 5px; margin-bottom: 10px; }
-.term__bar i { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in oklch, currentColor 28%, transparent); }
-.term__bar i:first-child { background: color-mix(in oklch, var(--c-signal) 80%, transparent); }
-.term__body { margin: 0; font-size: 11.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
-.term__cmd { color: var(--c-signal); }
-.term__out { opacity: .68; }
-.term__cursor { display: inline-block; width: 7px; height: 13px; vertical-align: -2px; background: var(--c-signal); animation: term-blink 1.1s steps(2, end) infinite; }
-@keyframes term-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-.term__edit { display: flex; flex-direction: column; gap: 3px; margin-top: 10px; }
-.term__edit textarea { font-family: var(--font-mono); font-size: 11px; background: transparent; color: inherit; border: 1px solid color-mix(in oklch, currentColor 26%, transparent); padding: 5px 6px; resize: vertical; }
-@media (prefers-reduced-motion: reduce) { .term__cursor { animation: none; } }
 
 /* ── scrap: a drawn mark, no words ──────────────────────────────────────── */
 .scrap {
@@ -1366,11 +1325,39 @@ a { color: var(--c-accent); text-decoration: none; }
   width: 54px; height: 54px; padding: 0; border: none; border-radius: 50%; cursor: pointer;
   background: radial-gradient(circle at 38% 32%, #e4584a, #a02a20 70%, #6d1a13);
   box-shadow: 0 5px 0 #5c1610, inset 0 2px 4px rgba(255, 255, 255, .3);
+  transition: transform .09s ease-out, box-shadow .09s ease-out, filter .2s ease;
 }
 .press__button:disabled { cursor: not-allowed; filter: saturate(.5) brightness(.8); }
-.press__button:not(:disabled):active { transform: translate(-50%, 4px); box-shadow: 0 1px 0 #5c1610; }
+.press--open .press__button { filter: brightness(1.08); }
+.press__button:not(:disabled):hover { filter: brightness(1.16); }
+/* `translate` already carries the -50% that centres the button, so the press
+   only has to move it down. Spelling the -50% out again in `transform` applied
+   it twice and shot the button half its own width to the left. */
+.press__button:not(:disabled):active { transform: translateY(5px); box-shadow: 0 0 0 #5c1610, inset 0 2px 6px rgba(0, 0, 0, .45); }
 .press__cap { position: absolute; inset: 9px; border-radius: 50%; background: rgba(255, 255, 255, .12); }
-.press__button.is-fired .press__cap { transform: translateY(3px); filter: brightness(1.3); }
+/* The ring is the receipt for one press: it is keyed on the press count, so a
+   second press mounts a new one rather than replaying a finished animation. */
+.press__ring {
+  position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  border: 2px solid rgba(255, 190, 170, .9);
+  animation: pressring .5s cubic-bezier(.2, .7, .3, 1) forwards;
+}
+@keyframes pressring {
+  from { opacity: .9; transform: scale(1); }
+  to { opacity: 0; transform: scale(2.1); }
+}
+/* Four lamps on the plinth: how far along the escalation this visitor is. */
+.press__lights { position: absolute; left: 0; right: 0; bottom: 22px; display: flex; justify-content: center; gap: 5px; }
+.press__lights i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255, 255, 255, .1);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .5);
+  transition: background .18s ease, box-shadow .18s ease;
+}
+.press__lights i.is-lit {
+  background: #ffb24a;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .4), 0 0 7px rgba(255, 178, 74, .85);
+}
 .press__lid {
   position: absolute; left: 50%; top: 10px; translate: -50% 0;
   width: 76px; height: 62px; cursor: pointer;
@@ -1380,7 +1367,10 @@ a { color: var(--c-accent); text-decoration: none; }
   transform-origin: 50% 100%;
   transition: transform .42s cubic-bezier(.3, 1.3, .4, 1);
 }
-.press__lid--open { transform: translateX(-50%) rotateX(-104deg); }
+/* Thrown back, and out of the way: a flat lid still projects a band across the
+   bottom of the button, and every click that landed on it was a press the
+   visitor never got. */
+.press__lid--open { transform: rotateX(-104deg); pointer-events: none; }
 .press__lidglass { position: absolute; inset: 5px 9px auto; height: 16px; border-radius: 20px; background: rgba(255, 255, 255, .28); }
 .press__plate {
   position: absolute; left: 0; right: 0; bottom: 7px; text-align: center;
@@ -1686,13 +1676,20 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 
 .toolbar-tool {
   position: fixed; left: 50%; bottom: 22px; translate: -50% 0; z-index: 1300;
-  display: flex; align-items: center; gap: 12px; padding: 6px 12px;
+  display: flex; align-items: center; gap: 12px; padding: 7px 12px;
   background: rgba(14, 18, 16, .94); border: 1px solid rgba(243, 236, 221, .2);
   font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; color: rgba(243, 236, 221, .85);
   cursor: default;
+  /* It arrives rather than appearing: the bar is the only instruction a held
+     tool ever gets, and a thing that slides up is a thing that gets read. */
+  animation: toolbarin .26s cubic-bezier(.2, .9, .3, 1.1) both;
+}
+@keyframes toolbarin {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
 .toolbar-tool__name { text-transform: uppercase; color: var(--c-signal-soft); }
-.toolbar-tool__hint { opacity: .55; }
+.toolbar-tool__hint { opacity: .72; }
 .toolbar-tool__swatches { display: flex; gap: 3px; }
 .toolbar-tool__swatch {
   width: 13px; height: 13px; border: 1px solid rgba(0, 0, 0, .5); cursor: pointer; padding: 0;
@@ -1700,9 +1697,19 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 }
 .toolbar-tool__swatch.is-on { outline-color: rgba(255, 255, 255, .85); outline-offset: 1px; }
 .toolbar-tool__drop {
-  font: inherit; letter-spacing: .12em; padding: 2px 7px; cursor: pointer;
-  background: none; color: rgba(243, 236, 221, .6); border: 1px solid rgba(243, 236, 221, .25);
+  font: inherit; letter-spacing: .12em; padding: 3px 8px; cursor: pointer;
+  background: none; color: rgba(243, 236, 221, .72); border: 1px solid rgba(243, 236, 221, .3);
+  transition: color .16s ease, border-color .16s ease, background .16s ease;
 }
+.toolbar-tool__drop:hover { color: #f3ecdd; border-color: rgba(243, 236, 221, .6); background: rgba(243, 236, 221, .08); }
+.toolbar-tool__drop--esc { display: inline-flex; align-items: center; gap: 6px; }
+.toolbar-tool__drop--esc kbd {
+  font: inherit; letter-spacing: .1em; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 2px;
+  background: rgba(243, 236, 221, .14); color: var(--c-signal-soft);
+  box-shadow: inset 0 0 0 1px rgba(243, 236, 221, .2);
+}
+@media (prefers-reduced-motion: reduce) { .toolbar-tool { animation: none; } }
 
 /* ------------------------------------------------------------ the hourglass */
 .glass { position: relative; width: 104px; height: 152px; }
@@ -2073,7 +2080,10 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 [data-bent] { transition: filter .3s ease; }
 
 /* ------------------------------------------------------------- game of life */
-.life { position: relative; width: 160px; height: 172px; padding: 8px; }
+/* The sheet is sized to hold the whole grid *and* its controls: 26 cells of
+   5.6px plus the bar underneath. Trimming the box any tighter is what pushed
+   the play button through the bottom edge of the paper. */
+.life { position: relative; width: 160px; height: 182px; padding: 8px 8px 7px; }
 .life::before {
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(172deg, #f7f4ea, #e7e2d2);
@@ -2086,11 +2096,11 @@ body.has-tool, body.has-tool .desk { cursor: none; }
   box-shadow: 0 2px 3px rgba(0, 0, 0, .4);
 }
 .life__bar {
-  position: relative; display: flex; align-items: center; gap: 6px; margin-top: 5px;
-  font-size: 8px; color: rgba(30, 42, 51, .7);
+  position: relative; display: flex; align-items: center; gap: 6px; margin-top: 4px;
+  font-size: 8px; line-height: 1; color: rgba(30, 42, 51, .7);
 }
 .life__bar button {
-  font: inherit; font-size: 9px; padding: 1px 5px; cursor: pointer;
+  font: inherit; font-size: 9px; line-height: 1; padding: 2px 5px; cursor: pointer;
   background: none; border: 1px solid rgba(30, 42, 51, .28); color: inherit;
 }
 .life__gen { flex: 1; font-variant-numeric: tabular-nums; opacity: .55; }
@@ -2186,8 +2196,10 @@ body.has-tool, body.has-tool .desk { cursor: none; }
   transition: transform .38s cubic-bezier(.3, 1.2, .4, 1);
 }
 .vote__lever--cooperate .vote__knob { background: radial-gradient(circle at 36% 30%, #6fbf7a, #2f7a3d); }
-.vote__lever.is-pulled .vote__stem { transform: translateX(-50%) rotate(58deg); }
-.vote__lever.is-pulled .vote__knob { transform: translate(-50%, 26px) translateX(30px); }
+/* Both already carry their centring in `translate`; repeating it here shifted
+   the lever sideways as it was pulled. */
+.vote__lever.is-pulled .vote__stem { transform: rotate(58deg); }
+.vote__lever.is-pulled .vote__knob { transform: translate(30px, 26px); }
 .vote__word {
   font-family: var(--font-mono); font-size: 7px; letter-spacing: .16em;
   color: rgba(243, 236, 221, .6);
@@ -2313,6 +2325,9 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 .garden__can svg { width: 100%; height: 100%; display: block; }
 .garden__can:disabled { cursor: default; opacity: .45; }
 .garden__can.is-ready { filter: drop-shadow(0 0 6px rgba(120, 180, 220, .55)); }
+/* Off its hook and over the soil: it has to clear the tray rim while it pours. */
+.garden__can.is-carrying { z-index: 4; }
+.garden__can:disabled.is-carrying { opacity: 1; }
 .garden__pour { position: absolute; left: 2px; top: 26px; width: 20px; height: 30px; }
 .garden__pour i {
   position: absolute; top: 0; width: 2px; height: 8px; border-radius: 2px;
@@ -2345,7 +2360,7 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 
 /* ------------------------------------------------------------------ the flower */
 .flower { width: 110px; height: 160px; }
-.flower svg { width: 100%; height: 100%; display: block; }
+.flower svg { width: 100%; height: 100%; display: block; overflow: visible; }
 
 /* -------------------------------------------------------- the objects panel */
 .panel--objects { max-width: 640px; }

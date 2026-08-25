@@ -17,6 +17,7 @@ import {
   type TourItem,
   type TourStop,
   stopPieces,
+  walkedPieces,
   MOTIFS,
   MOTIF_GLYPHS,
   MOTIF_TIMING,
@@ -73,6 +74,9 @@ describe('tour config parsing', () => {
     const parsed = parseTour({ stops: [{ id: 's', label: 'x', items: ['a', 'b'], extras: ['b', 'c', 7] }] });
     expect(parsed.stops[0].extras).toEqual(['c']);
     expect(stopPieces(parsed.stops[0])).toEqual(['a', 'b', 'c']);
+    // The walk itself only ever shows what the stop frames: the extras it
+    // carries are held back and land with the rest of the board at the end.
+    expect(walkedPieces(parsed.stops[0])).toEqual(['a', 'b']);
     // A stop that carries nothing does not grow an empty list.
     expect(parseTour({ stops: [{ id: 's', label: 'x', items: ['a'] }] }).stops[0]).not.toHaveProperty('extras');
   });

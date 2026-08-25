@@ -16,6 +16,18 @@ describe('parseRuntimeConfig', () => {
     );
   });
 
+  it('refuses an endpoint that is not a URL', () => {
+    expect(() => parseRuntimeConfig({ VITE_STORAGE_FUNCTION_URL: 'not-a-url' })).toThrow(
+      /VITE_STORAGE_FUNCTION_URL/,
+    );
+  });
+
+  it('refuses a remote-data flag that is neither true nor false', () => {
+    expect(() => parseRuntimeConfig({ VITE_ENABLE_REMOTE_DATA: 'yes' })).toThrow(
+      /VITE_ENABLE_REMOTE_DATA/,
+    );
+  });
+
   it('accepts a complete public configuration', () => {
     const config = parseRuntimeConfig({
       VITE_ENABLE_REMOTE_DATA: 'true',

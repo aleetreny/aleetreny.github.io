@@ -8,11 +8,15 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ObjectShell } from './ObjectShell';
-import { mulberry32 } from '../../../lib/world/rng';
+import { clamp, mulberry32 } from '../../../lib/world/rng';
 import { useUiText } from '../ui-text-context';
 
 const W = 176;
 const H = 118;
+/** How close to the edge of the paper a point may be dragged. A scatterplot
+ *  whose points can be pulled off the sheet stops demonstrating anything: the
+ *  fit is drawn on this paper, so the data has to live on it too. */
+const PAD = 7;
 
 type Point = { id: number; x: number; y: number };
 
@@ -74,7 +78,11 @@ export function Regression() {
     const svg = svgRef.current;
     if (!svg) return null;
     const box = svg.getBoundingClientRect();
-    return { x: ((clientX - box.left) / box.width) * W, y: ((clientY - box.top) / box.height) * H };
+    const x = ((clientX - box.left) / box.width) * W;
+    const y = ((clientY - box.top) / box.height) * H;
+    // Held to the paper, wherever the hand went. Pulling a point to the far
+    // corner of the screen still ruins the fit — it just does it on the plot.
+    return { x: clamp(x, PAD, W - PAD), y: clamp(y, PAD, H - PAD) };
   }, []);
 
   const grab = useCallback((id: number) => (event: React.PointerEvent) => {

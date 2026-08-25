@@ -3,7 +3,6 @@ import {
   BOARD_STYLE_IDS,
   BOARD_TEXTURES,
   CHROMELESS_CARDS,
-  PLOT_KINDS,
   SCRAP_KINDS,
   DEFAULT_BACKDROP,
   DEFAULT_BOARD,
@@ -106,7 +105,28 @@ describe('the shapes on the board', () => {
     for (const type of ['stamp', 'scrap'] as const) {
       expect(types.has(type)).toBe(true);
     }
-    for (const type of ['plot', 'ticket', 'terminal'] as const) expect(types.has(type)).toBe(false);
+    for (const type of ['plot', 'ticket', 'terminal']) expect(types.has(type as never)).toBe(false);
+  });
+
+  it('drops a retired shape a stored board still carries', () => {
+    // The live board was saved while the plot, the boarding stub and the
+    // console panel existed. Reading it must not hand them back — and must not
+    // let them fall through to the drawer renderer either.
+    const stored = {
+      size: DEFAULT_BOARD.size,
+      groups: DEFAULT_BOARD.groups,
+      cards: [
+        { id: 'plot-years', type: 'plot', x: 0, y: 0, rot: 0, w: 300 },
+        { id: 'ticket-ucl', type: 'ticket', x: 0, y: 0, rot: 0, w: 300 },
+        { id: 'term-repos', type: 'terminal', x: 0, y: 0, rot: 0, w: 300 },
+        { id: 'contact', type: 'contact', x: 0, y: 0, rot: 0, w: 300 },
+      ],
+      // Everything the board ships with is already dismissed, so the only
+      // cards left are the ones written above.
+      dismissed: DEFAULT_BOARD.cards.map((card) => card.id),
+    };
+    const parsed = parseBoard(stored);
+    expect(parsed.cards.map((card) => card.id)).toEqual(['contact']);
   });
 
   it('gives every drawn mark a stroke it knows how to draw', () => {
@@ -116,14 +136,6 @@ describe('the shapes on the board', () => {
       expect(SCRAP_KINDS).toContain(scrap.kind);
       // A mark carries no words, so there is nothing on it to translate.
       expect(scrap.title ?? scrap.kicker ?? scrap.note).toBeUndefined();
-    }
-  });
-
-  it('plots a series it can actually draw', () => {
-    for (const card of DEFAULT_BOARD.cards.filter((c) => c.type === 'plot')) {
-      expect(PLOT_KINDS).toContain(card.plotKind ?? 'line');
-      expect((card.series ?? []).length).toBeGreaterThan(1);
-      expect((card.series ?? []).every((n) => Number.isFinite(n))).toBe(true);
     }
   });
 
