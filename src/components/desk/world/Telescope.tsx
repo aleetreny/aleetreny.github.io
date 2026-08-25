@@ -85,11 +85,16 @@ export function ScopeField({ boardSize }: { boardSize: { width: number; height: 
     if (!held) return undefined;
     const move = (event: PointerEvent) => { pointer.current = { x: event.clientX, y: event.clientY }; };
     const key = (event: KeyboardEvent) => { if (event.key === 'Escape') hold(null); };
+    const dismiss = (event: PointerEvent) => {
+      if (event.button === 0) hold(null);
+    };
     window.addEventListener('pointermove', move);
     window.addEventListener('keydown', key);
+    window.addEventListener('pointerdown', dismiss, true);
     return () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('keydown', key);
+      window.removeEventListener('pointerdown', dismiss, true);
     };
   }, [held, hold]);
 

@@ -131,11 +131,22 @@ function localPlot(): Plant[] {
   return readLocal<Plant[]>(PLOT_KEY, []);
 }
 
+function plantFrom(value: unknown): Plant | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  const id = typeof row.id === 'string' ? row.id : null;
+  const species = typeof row.species === 'string' ? row.species : null;
+  const plantedAt = typeof row.plantedAt === 'string' ? row.plantedAt : typeof row.planted_at === 'string' ? row.planted_at : null;
+  const wateredAt = typeof row.wateredAt === 'string' ? row.wateredAt : typeof row.watered_at === 'string' ? row.watered_at : null;
+  const waterings = typeof row.waterings === 'number' && Number.isFinite(row.waterings) ? row.waterings : null;
+  return id && species && plantedAt && wateredAt && waterings !== null ? { id, species, plantedAt, wateredAt, waterings } : null;
+}
+
 export async function gardenPlot(): Promise<Plant[]> {
   const neon = await client();
   if (neon) {
     const { data, error } = await neon.rpc('garden_plot');
-    if (!error && Array.isArray(data)) return data as unknown as Plant[];
+    if (!error && Array.isArray(data)) return data.map(plantFrom).filter((plant): plant is Plant => plant !== null);
   }
   return localPlot();
 }
@@ -144,7 +155,7 @@ export async function myPlant(): Promise<Plant | null> {
   const neon = await client();
   if (neon) {
     const { data, error } = await neon.rpc('garden_mine', { p_visitor: visitorId() });
-    if (!error) return (data as unknown as Plant | null) ?? null;
+    if (!error) return plantFrom(data);
   }
   return readLocal<Plant | null>(MINE_KEY, null);
 }
@@ -153,8 +164,8 @@ export async function plantSeed(species: string): Promise<Plant> {
   const neon = await client();
   if (neon) {
     const { data, error } = await neon.rpc('garden_plant', { p_visitor: visitorId(), p_species: species });
-    if (!error && data) {
-      const plant = data as unknown as Plant;
+    const plant = plantFrom(data);
+    if (!error && plant) {
       writeLocal(MINE_KEY, plant);
       return plant;
     }
@@ -169,24 +180,18 @@ export async function plantSeed(species: string): Promise<Plant> {
   return plant;
 }
 
-/** Four hours between waterings, enforced in the database when there is one and
- *  here when there is not. A plant you can drown in one afternoon is a slider,
- *  not a plant. */
-export const WATER_INTERVAL_MS = 4 * 60 * 60 * 1000;
-
 export async function waterPlant(): Promise<Plant | null> {
   const neon = await client();
   if (neon) {
     const { data, error } = await neon.rpc('garden_water', { p_visitor: visitorId() });
     if (!error) {
-      const plant = (data as unknown as Plant | null) ?? null;
+      const plant = plantFrom(data);
       if (plant) writeLocal(MINE_KEY, plant);
       return plant;
     }
   }
   const mine = readLocal<Plant | null>(MINE_KEY, null);
   if (!mine) return null;
-  if (Date.now() - new Date(mine.wateredAt).getTime() < WATER_INTERVAL_MS) return mine;
   const next: Plant = { ...mine, wateredAt: nowIso(), waterings: mine.waterings + 1 };
   writeLocal(MINE_KEY, next);
   writeLocal(PLOT_KEY, localPlot().map((p) => (p.id === next.id ? next : p)));

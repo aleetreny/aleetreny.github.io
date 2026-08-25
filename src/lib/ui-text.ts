@@ -374,12 +374,12 @@ const CATALOGUE: Record<string, Entry> = {
   // three words an object genuinely needs — a hint that only shows on hover, a
   // button somebody has to be able to find, an acknowledgement. Everything else
   // is meant to be found by touching it.
-  'world.answer': { es: 'LA RESPUESTA', en: 'THE ANSWER' },
   'world.zeroG': { es: 'sin gravedad', en: 'no gravity' },
   'world.lost': { es: '{n} dentro del agujero · recuperar', en: '{n} inside the hole · get them back' },
 
   'world.tool.paint': { es: 'pistola', en: 'paint gun' },
-  'world.tool.paint.hint': { es: 'clic para disparar · ← → color', en: 'click to shoot · ← → colour' },
+  'world.tool.paint.hint': { es: 'clic para disparar · ← → color · esc para salir', en: 'click to shoot · ← → colour · esc to exit' },
+  'world.tool.paint.clear': { es: 'limpiar manchas', en: 'clear paint' },
   'world.tool.camera': { es: 'cámara', en: 'camera' },
   'world.tool.camera.hint': { es: 'clic para hacer la foto', en: 'click to take the picture' },
   'world.tool.scope': { es: 'telescopio', en: 'telescope' },
@@ -393,8 +393,8 @@ const CATALOGUE: Record<string, Entry> = {
 
   'world.die.label': { es: 'un dado', en: 'a die' },
   'world.die.hint': { es: 'tíralo', en: 'roll it' },
-  'world.die.go': { es: 'ir a {face}', en: 'go to {face}' },
-  'world.die.shrug': { es: '…', en: '…' },
+  'world.die.go': { es: 'abrir {entry}', en: 'open {entry}' },
+  'world.die.shrug': { es: 'no hay entradas', en: 'no entries yet' },
 
   'world.calc.label': { es: 'una calculadora', en: 'a calculator' },
   'world.calc.clear': { es: 'borrar', en: 'clear' },
@@ -410,6 +410,7 @@ const CATALOGUE: Record<string, Entry> = {
 
   'world.letter.label': { es: 'una carta', en: 'a letter' },
   'world.letter.hint': { es: 'ábrela', en: 'open it' },
+  'world.letter.close': { es: 'cerrar carta', en: 'close letter' },
 
   'world.note.label': { es: 'un taco de papel', en: 'a pad of paper' },
   'world.note.hint': { es: 'déjame una nota', en: 'leave me a note' },
@@ -469,11 +470,8 @@ const CATALOGUE: Record<string, Entry> = {
   'world.walk.hint': { es: 'déjalo dibujar', en: 'let it draw' },
   'world.walk.dials': { es: 'ajustes', en: 'settings' },
 
-  'world.galton.label': { es: 'una máquina de bolas', en: 'a bean machine' },
-  'world.galton.hint': { es: 'mantén pulsado', en: 'hold it down' },
-
-  'world.game.label': { es: 'una sonda', en: 'a probe' },
-  'world.game.hint': { es: 'enciéndelo', en: 'switch it on' },
+  'world.game.label': { es: 'un dinosaurio', en: 'a dinosaur' },
+  'world.game.hint': { es: 'salta los cactus', en: 'jump the cacti' },
   'world.game.start': { es: 'empezar', en: 'start' },
   'world.game.again': { es: 'otra vez', en: 'again' },
 

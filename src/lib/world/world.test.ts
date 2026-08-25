@@ -176,10 +176,11 @@ describe('the borrowed copy', () => {
     expect(blanks.length).toBeGreaterThan(BOOK_LENGTH * 0.7);
   });
 
-  it('leaves forty-two as a number', () => {
+  it('keeps the answer as the only content on page forty-two', () => {
     const page = bookPage(42);
     expect(page.kind).toBe('answer');
-    expect(page.heading).toBe('42');
+    expect(page.heading).toBe('¡La respuesta!');
+    expect(page.lines).toEqual([]);
   });
 
   it('lists only the leaves with something on them', () => {

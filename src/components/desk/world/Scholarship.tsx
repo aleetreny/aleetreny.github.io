@@ -34,6 +34,7 @@ export function Scholarship() {
 
         {open ? (
           <div className="letter__sheet mat-paper" data-nodrag>
+            <button className="letter__close" type="button" onClick={() => setOpen(false)} aria-label={t('world.letter.close')}>×</button>
             <span className="letter__clip" aria-hidden="true" />
             <div className="letter__crest" aria-hidden="true">
               <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" /><path d="M20 6l4 9 10 1-7.5 7 2 10-8.5-5-8.5 5 2-10L6 16l10-1z" /></svg>

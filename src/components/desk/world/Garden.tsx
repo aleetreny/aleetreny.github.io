@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
 import { SPECIES, ago, growthOf, speciesOf } from '../../../lib/world/garden';
-import { WATER_INTERVAL_MS, gardenPlot, myPlant, plantSeed, waterPlant, type Plant } from '../../../lib/world/remote';
+import { gardenPlot, myPlant, plantSeed, waterPlant, type Plant } from '../../../lib/world/remote';
 import { useUiText } from '../ui-text-context';
 
 export function Garden() {
@@ -41,10 +41,22 @@ export function Garden() {
 
   const sow = useCallback((id: string) => {
     setPicking(false);
+    const optimistic: Plant = {
+      id: `planting-${Date.now()}`,
+      species: id,
+      plantedAt: new Date().toISOString(),
+      wateredAt: new Date().toISOString(),
+      waterings: 0,
+    };
+    setMine(optimistic);
+    setPlot((current) => [...current, optimistic]);
     void plantSeed(id).then((plant) => {
       setMine(plant);
-      setPlot((current) => (current.some((p) => p.id === plant.id) ? current : [...current, plant]));
-    }).catch(() => undefined);
+      setPlot((current) => [...current.filter((p) => p.id !== optimistic.id && p.id !== plant.id), plant]);
+    }).catch(() => {
+      setMine((current) => current?.id === optimistic.id ? null : current);
+      setPlot((current) => current.filter((p) => p.id !== optimistic.id));
+    });
   }, []);
 
   const water = useCallback(() => {
@@ -53,10 +65,14 @@ export function Garden() {
     const el = canRef.current;
     const finish = () => {
       setPouring(false);
+      const optimistic: Plant = { ...mine, wateredAt: new Date().toISOString(), waterings: mine.waterings + 1 };
+      setMine(optimistic);
+      setPlot((current) => current.map((plant) => (plant.id === mine.id ? optimistic : plant)));
       void waterPlant().then((plant) => {
         if (!plant) return;
+        if (plant.waterings < optimistic.waterings) return;
         setMine(plant);
-        setPlot((current) => current.map((p) => (p.id === plant.id ? plant : p)));
+        setPlot((current) => current.map((currentPlant) => (currentPlant.id === plant.id ? plant : currentPlant)));
       }).catch(() => undefined);
     };
     if (!el || reduced) { finish(); return; }
@@ -69,8 +85,7 @@ export function Garden() {
       .addEventListener('finish', finish, { once: true });
   }, [mine, pouring, reduced]);
 
-  const dry = mine ? now - new Date(mine.wateredAt).getTime() : 0;
-  const canWater = Boolean(mine) && dry >= WATER_INTERVAL_MS;
+  const canWater = Boolean(mine);
   const shown = plot.slice(-14);
 
   return (

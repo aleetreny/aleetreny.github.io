@@ -628,46 +628,6 @@
           ]
         },
         {
-          "id": "plot-years",
-          "type": "plot",
-          "open": "diary",
-          "tone": "dark",
-          "x": 2744,
-          "y": 2184,
-          "rot": -1.8,
-          "w": 296,
-          "kicker": {
-            "es": "En números",
-            "en": "In numbers"
-          },
-          "title": {
-            "es": "Lo que ha pasado por aquí",
-            "en": "What has been through here"
-          },
-          "note": {
-            "es": "Una barra por año, contando todo lo que hay en este tablero. 2026 sigue abierto.",
-            "en": "One bar per year, counting everything on this board. 2026 is still open."
-          },
-          "plotKind": "bars",
-          "series": [
-            2,
-            2,
-            4,
-            4,
-            5,
-            23,
-            13
-          ],
-          "axis": [
-            {
-              "es": "entradas",
-              "en": "entries"
-            },
-            "2020 → 2026"
-          ],
-          "fastener": "clip"
-        },
-        {
           "id": "stamp-py",
           "type": "stamp",
           "open": "alda",
@@ -710,48 +670,6 @@
             "en": "45 countries"
           },
           "glyph": "⛰"
-        },
-        {
-          "id": "ticket-ucl",
-          "type": "ticket",
-          "open": "ucl",
-          "tone": "paperCream",
-          "x": 564,
-          "y": 784,
-          "rot": 1.9,
-          "w": 320,
-          "kicker": {
-            "es": "Embarque",
-            "en": "Boarding"
-          },
-          "title": {
-            "es": "MSc en Ciencia de Datos y ML",
-            "en": "MSc in Data Science and ML"
-          },
-          "from": "MAD",
-          "to": "LON",
-          "when": "Sep 2026",
-          "seat": "26A",
-          "fastener": "staple"
-        },
-        {
-          "id": "term-repos",
-          "type": "terminal",
-          "tone": "dark",
-          "x": 2284,
-          "y": 744,
-          "rot": -1.5,
-          "w": 300,
-          "fastener": "tape",
-          "lines": [
-            "$ whoami",
-            "alejandro",
-            "$ cat plan.txt",
-            {
-              "es": "seguir haciéndole preguntas a los datos",
-              "en": "keep asking the data questions"
-            }
-          ]
         },
         {
           "id": "scrap-arrow",
@@ -1216,8 +1134,7 @@
           ],
           "extras": [
             "fb625376-c68f-4aa8-bd2c-dbf31846b5fd",
-            "scrap-bulb",
-            "ticket-ucl"
+            "scrap-bulb"
           ]
         },
         {
@@ -1236,7 +1153,6 @@
           ],
           "extras": [
             "058364fb-99aa-4218-8eb4-7dc54f2eb270",
-            "term-repos",
             "scrap-coffee",
             "76ef90fd-0892-4f81-895d-d3c499c4c591"
           ]
@@ -1294,7 +1210,6 @@
             "vol"
           ],
           "extras": [
-            "plot-years",
             "scrap-leaf",
             "0c77969f-c720-4b16-ae42-0d5877e05c86"
           ]
@@ -1542,14 +1457,6 @@
         "x": 724,
         "y": 1904,
         "rot": -2,
-        "scale": 1,
-        "visible": true
-      },
-      {
-        "id": "galton",
-        "x": 1504,
-        "y": 1044,
-        "rot": 1,
         "scale": 1,
         "visible": true
       },

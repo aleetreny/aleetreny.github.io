@@ -85,14 +85,9 @@ export function Regression() {
       if (!at) return;
       setPoints((current) => current.map((p) => (p.id === id ? { ...p, x: at.x, y: at.y } : p)));
     };
-    const up = (ev: PointerEvent) => {
+    const up = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
-      // Dragged clean off the paper: the point is gone.
-      const at = local(ev.clientX, ev.clientY);
-      if (at && (at.x < -14 || at.x > W + 14 || at.y < -14 || at.y > H + 14)) {
-        setPoints((current) => current.filter((p) => p.id !== id));
-      }
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);

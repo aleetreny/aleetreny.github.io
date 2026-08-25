@@ -2373,7 +2373,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           {/* Everything loose on the slate. Inside the board, so it shares the
               camera, the light and the coordinates with the paper. */}
           <Suspense fallback={null}>
-            <WorldLayer objects={objects} boardSize={board.size} onJump={jump} />
+            <WorldLayer
+              objects={objects}
+              boardSize={board.size}
+              entries={entries.map(({ slug, title }) => ({ slug, title }))}
+              onOpenEntry={setOpenSlug}
+            />
           </Suspense>
           </div>
         </div>

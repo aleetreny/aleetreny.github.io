@@ -79,8 +79,8 @@ const WRITTEN: Record<number, Omit<BookPage, 'n'>> = {
   41: { kind: 'blank', margin: '→' },
   42: {
     kind: 'answer',
-    heading: '42',
-    lines: ['', 'the question is left', 'as an exercise'],
+    heading: '¡La respuesta!',
+    lines: [],
   },
   43: { kind: 'blank', margin: '←' },
   57: {

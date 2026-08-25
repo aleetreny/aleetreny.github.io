@@ -42,43 +42,23 @@ const BlackHole = lazy(() => import('./BlackHole').then((m) => ({ default: m.Bla
 const LifeGrid = lazy(() => import('./LifeGrid').then((m) => ({ default: m.LifeGrid })));
 const Regression = lazy(() => import('./Regression').then((m) => ({ default: m.Regression })));
 const RandomWalk = lazy(() => import('./RandomWalk').then((m) => ({ default: m.RandomWalk })));
-const Galton = lazy(() => import('./Galton').then((m) => ({ default: m.Galton })));
 const Arcade = lazy(() => import('./Arcade').then((m) => ({ default: m.Arcade })));
 
 export type WorldLayerProps = {
   objects: DeskObject[];
   boardSize: { width: number; height: number };
-  onJump: (name: string) => void;
+  entries: Array<{ slug: string; title: string }>;
+  onOpenEntry: (slug: string) => void;
 };
 
-export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
+export function WorldLayer({ objects, boardSize, entries, onOpenEntry }: WorldLayerProps) {
   const world = useWorld();
-  const { splats, answer, nodes, placeRef, reduced, swallowed } = world;
+  const { splats, nodes, placeRef, reduced, swallowed } = world;
   const [spin, setSpin] = useState(0);
   const [alarm, setAlarm] = useState(false);
   useWorldKeys();
 
   const visible = useMemo(() => objects.filter((o) => o.visible), [objects]);
-
-  // ---- the alignment --------------------------------------------------------
-  //
-  // Everything on the table turns to face the same way for a second and a
-  // quarter, and then goes back to exactly where it was. Nothing is written,
-  // nothing is saved, nothing moves an inch further than the animation.
-  useEffect(() => {
-    if (answer === 0 || reduced) return;
-    for (const object of visible) {
-      const el = nodes.current.get(object.id);
-      const at = placeRef.current.get(object.id);
-      if (!el || !at) continue;
-      el.animate([
-        { transform: `rotate(${at.rot}deg) scale(${at.scale})` },
-        { transform: `rotate(0deg) scale(${at.scale * 1.04})`, offset: 0.3 },
-        { transform: `rotate(0deg) scale(${at.scale * 1.04})`, offset: 0.68 },
-        { transform: `rotate(${at.rot}deg) scale(${at.scale})` },
-      ], { duration: 1600, easing: 'cubic-bezier(.3,1.2,.4,1)', fill: 'none' });
-    }
-  }, [answer, nodes, placeRef, reduced, visible]);
 
   // ---- the third press: something turns -------------------------------------
   useEffect(() => {
@@ -100,7 +80,7 @@ export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
   const render = useCallback((object: DeskObject) => {
     switch (object.id) {
       case 'coin': return <Coin key="coin" />;
-      case 'die': return <DecisionDie key="die" onJump={onJump} onChaos={world.fireAnswer} />;
+      case 'die': return <DecisionDie key="die" entries={entries} onOpenEntry={onOpenEntry} />;
       case 'calculator': return <Calculator key="calculator" onAnswer={world.fireAnswer} />;
       case 'donotpress': return (
         <DoNotPress
@@ -109,7 +89,7 @@ export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
           onSpin={() => setSpin((n) => n + 1)}
         />
       );
-      case 'book': return <Book key="book" onAnswer={world.fireAnswer} />;
+      case 'book': return <Book key="book" />;
       case 'scholarship': return <Scholarship key="scholarship" />;
       case 'notepad': return <NotePad key="notepad" />;
       case 'paintgun': return <PaintGun key="paintgun" />;
@@ -129,11 +109,10 @@ export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
       case 'life': return <LifeGrid key="life" onGlider={world.fireAnswer} />;
       case 'regression': return <Regression key="regression" />;
       case 'randomwalk': return <RandomWalk key="randomwalk" />;
-      case 'galton': return <Galton key="galton" />;
       case 'arcade': return <Arcade key="arcade" />;
       default: return null;
     }
-  }, [boardSize, onJump, world.fireAnswer]);
+  }, [boardSize, entries, onOpenEntry, world.fireAnswer]);
 
   return (
     <>
@@ -156,24 +135,13 @@ export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
   );
 }
 
-/** The word, once, in the middle of the slate, then gone. */
-function AnswerFlash({ label }: { label: string }) {
-  const [on, setOn] = useState(true);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setOn(false), 1900);
-    return () => window.clearTimeout(timer);
-  }, []);
-  if (!on) return null;
-  return <div className="world-answer" role="status">{label}</div>;
-}
-
 /** The board-level chrome a held tool needs: an aiming cursor, the colour it is
  *  loaded with, and the one line of instruction that only exists while you are
  *  holding something. Rendered outside the camera, so it stays screen-sized. */
 export function WorldOverlay({ boardSize }: { boardSize: { width: number; height: number } }) {
   const t = useUiText();
   const world = useWorld();
-  const { tool, paintColor, hold, zeroG, setZeroG, swallowed, restoreWorld, answer } = world;
+  const { tool, paintColor, hold, zeroG, setZeroG, swallowed, restoreWorld, clearSplats } = world;
   const reticleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -202,7 +170,6 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
           containing block for `position: fixed`, so an eyepiece rendered inside
           the board would be pinned to the slate and zoom with it. */}
       <ScopeField boardSize={boardSize} />
-      {answer > 0 ? <AnswerFlash key={answer} label={t('world.answer')} /> : null}
 
       {tool && tool !== 'scope' ? (
         <div className={`reticle reticle--${tool}`} ref={reticleRef} aria-hidden="true">
@@ -232,6 +199,7 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
             </span>
           ) : null}
           <span className="toolbar-tool__hint">{t(`world.tool.${tool}.hint`)}</span>
+          {tool === 'paint' ? <button className="toolbar-tool__drop" type="button" onClick={clearSplats}>{t('world.tool.paint.clear')}</button> : null}
           <button className="toolbar-tool__drop" type="button" onClick={() => hold(null)}>esc</button>
         </div>
       ) : null}

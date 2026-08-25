@@ -19,7 +19,7 @@ export const OBJECT_KINDS = [
   'book', 'scholarship', 'notepad', 'paintgun', 'petri', 'physarum', 'coin',
   'pcalamp', 'hourglass', 'blackhole', 'telescope', 'passport', 'camera',
   'die', 'life', 'lorenz', 'regression', 'garden', 'flower', 'donotpress',
-  'calculator', 'randomwalk', 'galton', 'dilemma', 'curiosity', 'arcade',
+  'calculator', 'randomwalk', 'dilemma', 'curiosity', 'arcade',
 ] as const;
 export type ObjectKind = (typeof OBJECT_KINDS)[number];
 
@@ -79,8 +79,7 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
   flower: { w: 110, h: 160, traits: ANCHORED },
   donotpress: { w: 130, h: 112, traits: SITTING },
   calculator: { w: 120, h: 180, traits: SITTING },
-  randomwalk: { w: 190, h: 162, traits: SITTING },
-  galton: { w: 160, h: 186, traits: HEAVY_SITTING },
+  randomwalk: { w: 190, h: 180, traits: SITTING },
   dilemma: { w: 180, h: 132, traits: SITTING },
   curiosity: { w: 150, h: 210, traits: SITTING },
   arcade: { w: 160, h: 150, traits: HEAVY_SITTING },

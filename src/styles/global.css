@@ -1370,6 +1370,7 @@ a { color: var(--c-accent); text-decoration: none; }
 .press__button:disabled { cursor: not-allowed; filter: saturate(.5) brightness(.8); }
 .press__button:not(:disabled):active { transform: translate(-50%, 4px); box-shadow: 0 1px 0 #5c1610; }
 .press__cap { position: absolute; inset: 9px; border-radius: 50%; background: rgba(255, 255, 255, .12); }
+.press__button.is-fired .press__cap { transform: translateY(3px); filter: brightness(1.3); }
 .press__lid {
   position: absolute; left: 50%; top: 10px; translate: -50% 0;
   width: 76px; height: 62px; cursor: pointer;
@@ -1402,15 +1403,6 @@ a { color: var(--c-accent); text-decoration: none; }
   animation: blip .5s ease-in-out 5;
 }
 
-/* -------------------------------------------------------------- the answer */
-.world-answer {
-  position: fixed; left: 50%; top: 46%; translate: -50% -50%; z-index: 1200;
-  font-family: var(--font-display); font-weight: 800; font-size: 44px;
-  letter-spacing: .3em; color: var(--c-signal);
-  text-shadow: 0 4px 30px rgba(0, 0, 0, .8);
-  pointer-events: none;
-  animation: answerin 1.9s cubic-bezier(.2, .9, .3, 1) both;
-}
 @keyframes answerin {
   0% { opacity: 0; letter-spacing: 1.2em; filter: blur(9px); }
   22% { opacity: 1; letter-spacing: .3em; filter: blur(0); }
@@ -1494,7 +1486,7 @@ a { color: var(--c-accent); text-decoration: none; }
   letter-spacing: .04em; line-height: 1.2; display: flex; flex-direction: column;
 }
 .book__leaf--title .book__heading { font-size: 14px; margin-top: 40px; text-align: center; }
-.book__leaf--answer .book__heading { font-size: 62px; text-align: center; margin: 60px 0 0; letter-spacing: .04em; color: #6b5a2c; }
+.book__leaf--answer .book__heading { font-size: 11px; text-align: center; margin: 54px 0 0; letter-spacing: .04em; color: #6b5a2c; }
 .book__body { font-family: var(--font-mono); font-size: 7.6px; line-height: 1.62; }
 .book__body p { margin: 0; min-height: 1.62em; }
 .book__leaf--title .book__body, .book__leaf--answer .book__body { text-align: center; font-style: italic; opacity: .66; }
@@ -1593,6 +1585,11 @@ a { color: var(--c-accent); text-decoration: none; }
   color: #241f16; text-align: center;
   box-shadow: 0 20px 30px rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(60, 50, 30, .16);
   animation: sheetout .55s cubic-bezier(.2, .9, .3, 1) both;
+}
+.letter__close {
+  position: absolute; right: 8px; top: 7px; width: 18px; height: 18px; padding: 0;
+  border: 1px solid rgba(36, 31, 22, .35); border-radius: 50%; background: rgba(255, 255, 255, .52);
+  color: #241f16; cursor: pointer; font: 13px/1 var(--font-mono);
 }
 @keyframes sheetout {
   from { opacity: 0; transform: translateY(52px) scaleY(.86); }
@@ -1709,6 +1706,8 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 
 /* ------------------------------------------------------------ the hourglass */
 .glass { position: relative; width: 104px; height: 152px; }
+.glass__turn { position: absolute; inset: 0; transform-origin: 50% 50%; transition: transform .64s cubic-bezier(.25, 1.18, .4, 1); }
+.glass--flipped .glass__turn { transform: rotate(180deg); }
 .glass__cap { position: absolute; left: 0; right: 0; height: 9px; border-radius: 2px; }
 .glass__cap--t { top: 0; }
 .glass__cap--b { bottom: 0; }
@@ -2028,15 +2027,15 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 /* -------------------------------------------------------------- the PCA lamp */
 .pca { position: relative; width: 200px; height: 166px; }
 .pca__arm {
-  position: absolute; left: 12px; top: 6px; width: 4px; height: 44px; border-radius: 2px;
-  background: linear-gradient(#c3c9c6, #6d7573); transform: rotate(-16deg); transform-origin: bottom;
+  position: absolute; left: 98px; top: 4px; width: 4px; height: 32px; border-radius: 2px;
+  background: linear-gradient(#c3c9c6, #6d7573); transform-origin: bottom;
 }
 .pca__shade {
-  position: absolute; left: 2px; top: -2px; width: 42px; height: 22px;
+  position: absolute; left: 79px; top: -2px; width: 42px; height: 22px;
   clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); border-radius: 3px;
 }
 .pca__bulb {
-  position: absolute; left: 16px; top: 18px; width: 12px; height: 12px; border-radius: 50%;
+  position: absolute; left: 94px; top: 18px; width: 12px; height: 12px; border-radius: 50%;
   background: radial-gradient(circle, #fff3cf, #f0c94c);
   box-shadow: 0 0 18px rgba(255, 226, 150, .7);
 }
@@ -2124,7 +2123,7 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 .fit__slope { margin-left: auto; opacity: .5; font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------------ the random walk */
-.walk { position: relative; width: 190px; height: 162px; padding: 10px; }
+.walk { position: relative; width: 190px; height: 180px; padding: 10px; }
 .walk__clip {
   position: absolute; left: 50%; top: -10px; translate: -50% 0; width: 20px; height: 32px;
   border: 2.6px solid #9aa3a6; border-bottom-color: transparent; border-radius: 9px;
@@ -2146,19 +2145,9 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 .walk__dials label { display: flex; align-items: center; gap: 5px; }
 .walk__dials input { flex: 1; min-width: 0; }
 
-/* ------------------------------------------------------------ the bean machine */
-.galton { position: relative; width: 160px; height: 186px; padding: 5px; border-radius: 4px; }
-.galton canvas { display: block; margin: 0 auto; cursor: pointer; rotate: var(--tilt, 0deg); transition: rotate .3s ease; }
-.galton__bar { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
-.galton__bar button {
-  flex: 1; font-family: var(--font-mono); font-size: 8px; padding: 1px; cursor: pointer;
-  background: none; border: 1px solid rgba(243, 236, 221, .2); color: rgba(243, 236, 221, .6);
-}
-.galton__bar button:nth-child(2) { flex: 2; font-variant-numeric: tabular-nums; color: var(--c-signal-soft); }
-
 /* ---------------------------------------------------------------- the game */
 .game { position: relative; width: 160px; height: 150px; padding: 5px; border-radius: 4px; }
-.game canvas { display: block; margin: 0 auto; border-radius: 2px; cursor: crosshair; }
+.game canvas { display: block; margin: 0 auto; border-radius: 2px; cursor: pointer; }
 .game__start {
   position: absolute; inset: 5px; display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 3px; cursor: pointer;
@@ -2261,8 +2250,8 @@ body.has-tool, body.has-tool .desk { cursor: none; }
   animation: stripout .55s cubic-bezier(.2, .9, .3, 1) both;
 }
 @keyframes stripout {
-  from { opacity: 0; transform: translateX(-50%) translateY(-34px) scaleY(.3); }
-  to { opacity: 1; transform: translateX(-50%); }
+  from { opacity: 0; transform: translateY(-34px) scaleY(.3); }
+  to { opacity: 1; transform: none; }
 }
 .ask__perf {
   position: absolute; left: 0; right: 0; top: 0; height: 4px;

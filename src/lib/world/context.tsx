@@ -83,6 +83,9 @@ type WorldValue = {
 
   swallowed: ObjectKind[];
   swallow: (id: ObjectKind) => void;
+  /** Start the black-hole capture immediately when an object crosses the
+   * horizon, including while the visitor is still holding it. */
+  absorb: (id: ObjectKind, previous?: { x: number; y: number }) => boolean;
   restoreWorld: () => void;
 
   photos: Photo[];
@@ -149,6 +152,7 @@ export function WorldProvider({
   const nodes = useRef(new Map<string, HTMLElement>());
   const placeRef = useRef(new Map<ObjectKind, Placement>());
   const bodies = useRef(new Map<ObjectKind, Body>());
+  const absorbing = useRef(new Set<ObjectKind>());
   const zRef = useRef(400);
 
   const [tool, setTool] = useState<Tool | null>(null);
@@ -272,6 +276,66 @@ export function WorldProvider({
     setSwallowed((current) => (current.includes(id) ? current : [...current, id]));
   }, []);
 
+  /**
+   * The event horizon is shared by thrown things and things still held by the
+   * pointer. Keeping the animation here means both paths get the same long,
+   * wound-in disappearance rather than a drag simply snapping out of view.
+   */
+  const absorb = useCallback((id: ObjectKind, previous?: { x: number; y: number }): boolean => {
+    if (!hasTrait(id, 'blackhole') || id === 'blackhole' || swallowed.includes('blackhole')) return false;
+    if (swallowed.includes(id) || absorbing.current.has(id)) return true;
+    const hole = placeRef.current.get('blackhole');
+    const at = placeRef.current.get(id);
+    if (!hole || !at) return false;
+    const holeSpec = OBJECT_SPECS.blackhole;
+    const spec = OBJECT_SPECS[id];
+    const hx = hole.x + (holeSpec.w * hole.scale) / 2;
+    const hy = hole.y + (holeSpec.h * hole.scale) / 2;
+    const cx = at.x + (spec.w * at.scale) / 2;
+    const cy = at.y + (spec.h * at.scale) / 2;
+    const dx = hx - cx;
+    const dy = hy - cy;
+    const distance = Math.hypot(dx, dy);
+    const horizon = (holeSpec.w * hole.scale) * 0.31;
+    const previousDistance = previous
+      ? distanceToSegment(
+        hx,
+        hy,
+        previous.x + (spec.w * at.scale) / 2,
+        previous.y + (spec.h * at.scale) / 2,
+        cx,
+        cy,
+      )
+      : distance;
+    if (Math.min(distance, previousDistance) > horizon) return false;
+
+    bodies.current.delete(id);
+    absorbing.current.add(id);
+    const finish = () => {
+      absorbing.current.delete(id);
+      swallow(id);
+    };
+    const el = nodes.current.get(id);
+    if (!el || reducedMotion()) { finish(); return true; }
+    const spin = dx >= 0 ? 1 : -1;
+    const run = el.animate([
+      { transform: `rotate(${at.rot}deg) scale(${at.scale})`, filter: 'none', opacity: 1 },
+      {
+        transform: `translate(${(dx * 0.48).toFixed(1)}px, ${(dy * 0.48).toFixed(1)}px) rotate(${at.rot + spin * 260}deg) scaleX(${at.scale * 0.9}) scaleY(${at.scale * 0.38})`,
+        filter: 'hue-rotate(-30deg) saturate(1.7) brightness(.78)',
+        opacity: 0.9,
+        offset: 0.54,
+      },
+      {
+        transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${at.rot + spin * 720}deg) scaleX(${at.scale * 0.12}) scaleY(${at.scale * 0.025})`,
+        filter: 'hue-rotate(-72deg) saturate(2.4) brightness(.28)',
+        opacity: 0,
+      },
+    ], { duration: 860, easing: 'cubic-bezier(.45,0,.86,.38)', fill: 'forwards' });
+    run.addEventListener('finish', finish, { once: true });
+    return true;
+  }, [swallowed, swallow]);
+
   const restoreWorld = useCallback(() => {
     setSwallowed([]);
     bodies.current.clear();
@@ -311,11 +375,11 @@ export function WorldProvider({
   // frame without the loop being torn down and rebuilt.
   const holeRef = useRef(holeAt);
   const zeroRef = useRef(zeroG);
-  const swallowRef = useRef(swallow);
+  const absorbRef = useRef(absorb);
   useEffect(() => {
     holeRef.current = holeAt;
     zeroRef.current = zeroG;
-    swallowRef.current = swallow;
+    absorbRef.current = absorb;
   });
 
   useEffect(() => {
@@ -350,30 +414,8 @@ export function WorldProvider({
             body.vr += 0.0008 * step;
           }
           if (d < hole.r * 0.42) {
-            // Across the horizon. Nothing is deleted — the object simply is not
-            // here any more, and "reset the world" is one click away. It goes
-            // the way things go: wound in, stretched along the fall, and
-            // reddened, because the last light off it arrives late.
+            absorbRef.current(id);
             live.delete(id);
-            const el = nodes.current.get(id);
-            const finish = () => swallowRef.current(id);
-            if (!el || reducedMotion()) { finish(); continue; }
-            const spin = dx >= 0 ? 1 : -1;
-            const run = el.animate([
-              { transform: `rotate(${at.rot}deg) scale(${at.scale})`, filter: 'none', opacity: 1 },
-              {
-                transform: `translate(${(dx * 0.55).toFixed(1)}px, ${(dy * 0.55).toFixed(1)}px) rotate(${at.rot + spin * 220}deg) scale(${at.scale * 0.52})`,
-                filter: 'hue-rotate(-28deg) saturate(1.5) brightness(.8)',
-                opacity: 0.9,
-                offset: 0.55,
-              },
-              {
-                transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${at.rot + spin * 620}deg) scale(${at.scale * 0.04})`,
-                filter: 'hue-rotate(-70deg) saturate(2.2) brightness(.35)',
-                opacity: 0,
-              },
-            ], { duration: 780, easing: 'cubic-bezier(.5,0,.85,.4)', fill: 'forwards' });
-            run.addEventListener('finish', finish, { once: true });
             continue;
           }
         }
@@ -486,6 +528,7 @@ export function WorldProvider({
     setZeroG,
     swallowed,
     swallow,
+    absorb,
     restoreWorld,
     photos,
     addPhoto,
@@ -502,7 +545,7 @@ export function WorldProvider({
   }), [
     objects, register, boardRef, scale, place, moveTo, bump, tool, hold, paintColor,
     splats, addSplat, clearSplats, paintMode, onPaintMode, zeroG, setZeroG, swallowed,
-    swallow, restoreWorld, photos, addPhoto, dropPhoto, clearPhotos, answer, fireAnswer,
+    swallow, absorb, restoreWorld, photos, addPhoto, dropPhoto, clearPhotos, answer, fireAnswer,
     passport, onPassport, editing, upload, wake, reduced,
   ]);
 
@@ -510,3 +553,12 @@ export function WorldProvider({
 }
 
 export { clamp };
+
+function distanceToSegment(px: number, py: number, ax: number, ay: number, bx: number, by: number) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared === 0) return Math.hypot(px - ax, py - ay);
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lengthSquared));
+  return Math.hypot(px - (ax + dx * t), py - (ay + dy * t));
+}

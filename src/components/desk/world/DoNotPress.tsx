@@ -16,11 +16,15 @@ export function DoNotPress({ onAlarm, onSpin }: { onAlarm: () => void; onSpin: (
   const [count, setCount] = useState(0);
   const [screw, setScrew] = useState(false);
   const [alarm, setAlarm] = useState(false);
+  const [fired, setFired] = useState(false);
 
   const press = useCallback(() => {
     const n = count + 1;
     setCount(n);
-    // 1: nothing at all, which is the funniest one.
+    setFired(true);
+    window.setTimeout(() => setFired(false), 320);
+    // The first press now visibly acknowledges the visitor. Keeping it silent
+    // made the lid feel broken rather than mischievous.
     if (n === 2) { setScrew(true); window.setTimeout(() => setScrew(false), 2400); }
     if (n === 3) onSpin();
     if (n === 4) { setAlarm(true); onAlarm(); window.setTimeout(() => setAlarm(false), 2600); }
@@ -28,11 +32,11 @@ export function DoNotPress({ onAlarm, onSpin }: { onAlarm: () => void; onSpin: (
   }, [count, onAlarm, onSpin, setZeroG, zeroG]);
 
   return (
-    <ObjectShell id="donotpress" label={t('world.press.label')}>
+    <ObjectShell id="donotpress" label={t('world.press.label')} onActivate={() => { if (open) press(); else setOpen(true); }}>
       <div className={`press${alarm ? ' press--alarm' : ''}`}>
         <div className="press__base mat-metal" />
         <button
-          className="press__button"
+          className={`press__button${fired ? ' is-fired' : ''}`}
           type="button"
           data-nodrag
           disabled={!open}

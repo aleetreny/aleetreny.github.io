@@ -142,19 +142,21 @@ export function Hourglass() {
 
   return (
     <ObjectShell id="hourglass" onActivate={flip} hint={t('world.glass.hint')} label={t('world.glass.label')}>
-      <div className="glass" ref={hostRef} onPointerMove={onPointerMove}>
-        <span className="glass__cap glass__cap--t mat-metal" />
-        <span className="glass__cap glass__cap--b mat-metal" />
-        <span className="glass__post glass__post--l mat-metal" />
-        <span className="glass__post glass__post--r mat-metal" />
-        <div className="glass__body">
-          <svg className="glass__glass" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
-            <path
-              d={`M14 12 L${W - 14} 12 L${W / 2 + NECK_HALF} ${NECK_Y} L${W - 14} ${H - 12} L14 ${H - 12} L${W / 2 - NECK_HALF} ${NECK_Y} Z`}
-              className="glass__wall"
-            />
-          </svg>
-          <canvas ref={canvasRef} style={{ width: W, height: H }} />
+      <div className={`glass${flipped ? ' glass--flipped' : ''}`} ref={hostRef} onPointerMove={onPointerMove}>
+        <div className="glass__turn">
+          <span className="glass__cap glass__cap--t mat-metal" />
+          <span className="glass__cap glass__cap--b mat-metal" />
+          <span className="glass__post glass__post--l mat-metal" />
+          <span className="glass__post glass__post--r mat-metal" />
+          <div className="glass__body">
+            <svg className="glass__glass" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+              <path
+                d={`M14 12 L${W - 14} 12 L${W / 2 + NECK_HALF} ${NECK_Y} L${W - 14} ${H - 12} L14 ${H - 12} L${W / 2 - NECK_HALF} ${NECK_Y} Z`}
+                className="glass__wall"
+              />
+            </svg>
+            <canvas ref={canvasRef} style={{ width: W, height: H }} />
+          </div>
         </div>
         {reversing ? <span className="glass__entropy">S ↓ ?</span> : null}
       </div>

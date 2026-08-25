@@ -60,6 +60,9 @@ export function PolaroidCamera() {
       event.preventDefault();
       event.stopPropagation();
       shoot(event.clientX, event.clientY);
+      // A camera press arms one exposure. Dropping the tool after the shutter
+      // prevents a second click from silently producing another print.
+      hold(null);
     };
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') hold(null); };
     window.addEventListener('pointerdown', onDown, true);

@@ -14,7 +14,7 @@ import { useUiText } from '../ui-text-context';
 
 const KEY = 'board.book.page';
 
-export function Book({ onAnswer }: { onAnswer: () => void }) {
+export function Book() {
   const t = useUiText();
   const { reduced } = useWorld();
   const [open, setOpen] = useState(false);
@@ -25,11 +25,6 @@ export function Book({ onAnswer }: { onAnswer: () => void }) {
   const dragRef = useRef<{ from: number; dir: 1 | -1 } | null>(null);
 
   useEffect(() => { writeSession(KEY, leaf); }, [leaf]);
-
-  // Reaching the forty-second leaf is one of the ways in.
-  useEffect(() => {
-    if (open && (leaf === 42 || leaf + 1 === 42)) onAnswer();
-  }, [leaf, onAnswer, open]);
 
   const go = useCallback((dir: 1 | -1) => {
     setLeaf((current) => {

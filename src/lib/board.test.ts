@@ -101,11 +101,12 @@ describe('board settings parsing', () => {
 });
 
 describe('the shapes on the board', () => {
-  it('ships more than paper: a plot, a stamp, a stub, a console and drawn marks', () => {
+  it('keeps the stamp and drawn marks, without the removed plot, ticket or terminal', () => {
     const types = new Set(DEFAULT_BOARD.cards.map((card) => card.type));
-    for (const type of ['plot', 'stamp', 'ticket', 'terminal', 'scrap'] as const) {
+    for (const type of ['stamp', 'scrap'] as const) {
       expect(types.has(type)).toBe(true);
     }
+    for (const type of ['plot', 'ticket', 'terminal'] as const) expect(types.has(type)).toBe(false);
   });
 
   it('gives every drawn mark a stroke it knows how to draw', () => {

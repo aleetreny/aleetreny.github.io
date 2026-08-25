@@ -4,7 +4,7 @@
 // still near it for long enough and it turns to face you properly, opens, and
 // eventually puts out a leaf. There is nothing to click and nothing to read.
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
 import { useFrame, useOnScreen } from '../../../lib/world/frame';
@@ -21,6 +21,14 @@ export function Flower() {
   const [bloom, setBloom] = useState(0);
   const [leaves, setLeaves] = useState(0);
 
+  useEffect(() => {
+    const follow = (event: PointerEvent) => {
+      light.current = { ...light.current, x: event.clientX, y: event.clientY, at: performance.now() };
+    };
+    window.addEventListener('pointermove', follow);
+    return () => window.removeEventListener('pointermove', follow);
+  }, []);
+
   useFrame((dt, now) => {
     const at = placeRef.current.get('flower');
     const host = hostRef.current;
@@ -34,9 +42,11 @@ export function Flower() {
     const near = distance < 420 && light.current.at > 0;
 
     // Phototropism, with an honest time constant: a plant does not snap.
-    const want = near ? clamp((dx / Math.max(60, -dy || 60)) * 26, -34, 34) : 0;
-    lean.current += (want - lean.current) * Math.min(1, dt / 900);
-    const sway = reduced ? 0 : wobble(now / 2600, 3) * 1.5;
+    // It is a deliberately theatrical flower: the cursor is its sun and the
+    // response needs to be obvious at board scale, not a two-degree twitch.
+    const want = near ? clamp((dx / Math.max(44, Math.abs(dy) || 44)) * 62, -58, 58) : 0;
+    lean.current += (want - lean.current) * Math.min(1, dt / 360);
+    const sway = reduced ? 0 : wobble(now / 1800, 3) * 3.2;
 
     if (near) light.current.still += dt; else light.current.still = 0;
     if (light.current.still > 2600 && bloom < 1) setBloom((b) => Math.min(1, b + 0.02));
@@ -44,7 +54,7 @@ export function Flower() {
     if (!near && bloom > 0) setBloom((b) => Math.max(0, b - 0.004));
 
     if (stemRef.current) stemRef.current.setAttribute('transform', `rotate(${(lean.current + sway).toFixed(2)} 55 150)`);
-    if (headRef.current) headRef.current.setAttribute('transform', `scale(${(0.82 + bloom * 0.24).toFixed(3)})`);
+    if (headRef.current) headRef.current.setAttribute('transform', `rotate(${(-lean.current * 0.26).toFixed(2)} 55 44) scale(${(0.82 + bloom * 0.24).toFixed(3)})`);
   }, onScreen);
 
   return (
@@ -52,8 +62,6 @@ export function Flower() {
       <div
         className="flower"
         ref={hostRef}
-        onPointerMove={(event) => { light.current = { ...light.current, x: event.clientX, y: event.clientY, at: performance.now() }; }}
-        onPointerLeave={() => { light.current = { ...light.current, at: 0, still: 0 }; }}
       >
         <svg viewBox="0 0 110 160" aria-hidden="true">
           {/* the pot */}

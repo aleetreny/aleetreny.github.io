@@ -75,6 +75,7 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
       const dy = (ev.clientY - start.y) * k();
       if (!moved && Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 4) moved = true;
       if (!moved) return;
+      const previous = { x: at.x, y: at.y };
       at.x = from.x + dx;
       at.y = from.y + dy;
       el.style.left = `${at.x}px`;
@@ -87,13 +88,27 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
         y: velocity.y * 0.6 + ((ev.clientY - last.y) * k() / gap) * 0.4,
       };
       last = { x: ev.clientX, y: ev.clientY, t: now };
+      // Crossing the horizon takes the object from the pointer immediately.
+      // The provider owns the animation, so a held item and a thrown item are
+      // stretched into the hole in exactly the same way.
+      if (world.absorb(id, previous)) {
+        absorbed = true;
+        cleanUp();
+      }
     };
 
-    const up = () => {
+    let absorbed = false;
+    const cleanUp = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', up);
       el.classList.remove('obj--held');
+      el.releasePointerCapture?.(event.pointerId);
+    };
+
+    const up = () => {
+      cleanUp();
+      if (absorbed) return;
       if (!moved) { onActivate?.(); return; }
       const speed = Math.hypot(velocity.x, velocity.y);
       // Let go of something near the hole, or let go of it hard, and the
