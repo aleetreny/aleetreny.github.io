@@ -1485,6 +1485,62 @@
         "visible": true
       },
       {
+        "id": "montyhall",
+        "x": 364,
+        "y": 904,
+        "rot": -2,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "descent",
+        "x": 3214,
+        "y": 1264,
+        "rot": 1.5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "voronoi",
+        "x": 2254,
+        "y": 934,
+        "rot": -1,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "chloroplast",
+        "x": 1654,
+        "y": 1954,
+        "rot": 2,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "ferrofluid",
+        "x": 3664,
+        "y": 2284,
+        "rot": -1.5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "chladni",
+        "x": 604,
+        "y": 904,
+        "rot": 1,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "dunes",
+        "x": 2194,
+        "y": 664,
+        "rot": -1,
+        "scale": 1,
+        "visible": true
+      },
+      {
         "id": "garden",
         "x": 3684,
         "y": 744,

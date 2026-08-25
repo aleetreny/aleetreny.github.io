@@ -114,6 +114,24 @@ All canvas, all real, all lazy (`React.lazy`), all paused by an
 | **The game** | A probe falling through drifting masses. Steer with the pointer or the arrows, collect samples for fuel, thirty seconds is a good run. It is a gravity game because everything else on this end of the desk is. |
 | **The black hole** | See below. |
 
+### The instruments
+
+Seven more, added later and to the same rules — a canvas each, a real
+phenomenon each, and a chunk each. They carry one extra brake the older
+objects do not: `useDetail` measures how wide the object is actually drawn and
+stops the simulation below about a hundred pixels, so fitting the whole board
+into a laptop screen *stops* a dozen simulations rather than starting them.
+
+| Object | What is actually running |
+| --- | --- |
+| **Three doors** | The Monty Hall problem, played rather than explained. The host knows where the car is and never opens it, which is the entire asymmetry. The brass plate under the doors keeps the running score for staying and for switching, and after twenty rounds it has made the argument that no paragraph would. |
+| **The marble tray** | Gradient descent, `v ← βv − η∇f`, over a loss surface drawn as a shaded relief with its own contours. Turn η down and it creeps, leave it in the middle and it converges, turn it up and it overshoots, rings, and eventually leaves the tray. Two landscapes: a tilted bowl with one answer, and four Gaussian wells where the answer depends on where you dropped it. The gradients are checked against a finite difference in `descent.test.ts`, because a tray that follows the wrong vector is a lie with a nice shadow on it. |
+| **The crystal plate** | A Voronoi diagram, computed by clipping the plate with one half-plane per pair of seeds, and the Delaunay triangulation, which falls out of the same pass: two seeds are neighbours exactly when their cells share an edge. The lever dissolves one picture into the other. Exact, and tested. |
+| **The microscope slide** | Chloroplast photorelocation. Weak light and they gather under it — the accumulation response; strong light and they run for the anticlinal walls — the avoidance response. Both are real, both are ordered by the same blue-light receptors, and the threshold between them is the whole object. They move on cytoplasmic streaming, not on billiard physics. |
+| **The ferrofluid** | The Rosensweig instability. A hexagonal lattice of sites, each with a height springing toward √(B − B꜀) and lagging behind it, so the crown grows where the magnet is, follows it, and slumps when it leaves. The lattice pitch is a property of the fluid and does not change with the field, which is why the spikes keep their spacing. |
+| **The Chladni plate** | The Ritz mode shapes of a square plate, `cos(nπx)cos(mπy) − cos(mπx)cos(nπy)`. Twelve hundred grains each walk down the gradient of \|A\| and are kicked in proportion to it, so they end up on the nodal lines. Off a resonance the plate barely answers and no figure forms; the marks around the dial are where it does. Changing modes throws the old figure apart before the new one appears. |
+| **The pocket desert** | Werner's dune model: lift a slab, carry it downwind in hops, drop it with one probability on sand and a smaller one on bare tray, then avalanche anything past the angle of repose. Ripples, then dunes, then slip faces. Turn the fan and the old relief is eaten from the windward side and re-laid downwind rather than vanishing, which is why the tray always looks like the last several winds. The stone builds its own tail. Kept for the visit; the rake clears it. |
+
 ### The black hole
 
 The one piece that had to be more than a dark circle. Per pixel of a 400×400

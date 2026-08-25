@@ -464,6 +464,42 @@ const CATALOGUE: Record<string, Entry> = {
   'world.game.start': { es: 'empezar', en: 'start' },
   'world.game.again': { es: 'otra vez', en: 'again' },
 
+  'world.monty.label': { es: 'tres puertas', en: 'three doors' },
+  'world.monty.hint': { es: 'elige una', en: 'pick one' },
+  'world.monty.door': { es: 'puerta {n}', en: 'door {n}' },
+  'world.monty.stay': { es: 'me quedo', en: 'stay' },
+  'world.monty.switch': { es: 'cambio', en: 'switch' },
+  'world.monty.reset': { es: 'borrar la cuenta', en: 'clear the tally' },
+
+  'world.descent.label': { es: 'una bandeja con una canica', en: 'a tray with a marble' },
+  'world.descent.hint': { es: 'suéltala donde quieras', en: 'drop it anywhere' },
+  'world.descent.rate': { es: 'ritmo de aprendizaje', en: 'learning rate' },
+  'world.descent.momentum': { es: 'inercia', en: 'momentum' },
+  'world.descent.land': { es: 'otro paisaje', en: 'another landscape' },
+  'world.descent.reset': { es: 'volver a empezar', en: 'start again' },
+
+  'world.crystal.label': { es: 'una placa de cristal', en: 'a glass plate' },
+  'world.crystal.hint': { es: 'mueve las semillas · alt para quitar', en: 'move the seeds · alt to remove' },
+  'world.crystal.toggle': { es: 'cristal o armazón', en: 'crystal or wireframe' },
+
+  'world.cell.label': { es: 'un porta con una célula', en: 'a slide with a cell' },
+  'world.cell.hint': { es: 'alúmbrala', en: 'shine on it' },
+  'world.cell.lamp': { es: 'intensidad de la luz', en: 'how bright' },
+
+  'world.ferro.label': { es: 'un charco negro', en: 'a black puddle' },
+  'world.ferro.hint': { es: 'acerca el imán', en: 'bring the magnet' },
+  'world.ferro.magnet': { es: 'el imán · toca para girarlo', en: 'the magnet · tap to turn it' },
+
+  'world.chladni.label': { es: 'una placa con arena', en: 'a plate with sand' },
+  'world.chladni.hint': { es: 'gira el dial', en: 'turn the dial' },
+  'world.chladni.dial': { es: 'frecuencia', en: 'frequency' },
+
+  'world.dunes.label': { es: 'un desierto de bolsillo', en: 'a pocket desert' },
+  'world.dunes.hint': { es: 'mueve el ventilador', en: 'move the fan' },
+  'world.dunes.fan': { es: 'el ventilador · doble toque para pararlo', en: 'the fan · double tap to stop it' },
+  'world.dunes.stone': { es: 'la piedra', en: 'the stone' },
+  'world.dunes.rake': { es: 'rastrillar', en: 'rake' },
+
   'world.vote.label': { es: 'dos palancas', en: 'two levers' },
   'world.vote.plate': { es: 'ELIGE UNA', en: 'PICK ONE' },
   'world.vote.yours': { es: 'elegiste {choice}', en: 'you chose {choice}' },

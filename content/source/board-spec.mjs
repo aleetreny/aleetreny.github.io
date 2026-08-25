@@ -794,6 +794,16 @@ export const OBJECTS = [
   { id: 'telescope', x: 1824, y: 1704, rot: -3, scale: 1, visible: true },
   { id: 'passport', x: 1324, y: 2244, rot: 4, scale: 1, visible: true },
   { id: 'camera', x: 2904, y: 1404, rot: -5, scale: 1, visible: true },
+  // The instruments, laid out along the top of the slate where there is bench
+  // room for them: a game, a tray, a plate of glass, a slide, a dish, a plate
+  // of steel and a desert.
+  { id: 'montyhall', x: 364, y: 904, rot: -2, scale: 1, visible: true },
+  { id: 'descent', x: 3214, y: 1264, rot: 1.5, scale: 1, visible: true },
+  { id: 'voronoi', x: 2254, y: 934, rot: -1, scale: 1, visible: true },
+  { id: 'chloroplast', x: 1654, y: 1954, rot: 2, scale: 1, visible: true },
+  { id: 'ferrofluid', x: 3664, y: 2284, rot: -1.5, scale: 1, visible: true },
+  { id: 'chladni', x: 604, y: 904, rot: 1, scale: 1, visible: true },
+  { id: 'dunes', x: 2194, y: 664, rot: -1, scale: 1, visible: true },
   { id: 'garden', x: 3684, y: 744, rot: 0, scale: 1, visible: true },
   { id: 'life', x: 2344, y: 64, rot: 2.5, scale: 1, visible: true },
   { id: 'pcalamp', x: 3244, y: 2238, rot: -2, scale: 1, visible: true },

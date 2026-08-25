@@ -9,6 +9,7 @@ import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
 import { useFrame, useOnScreen } from '../../../lib/world/frame';
 import { clamp, wobble } from '../../../lib/world/rng';
+import { light, watchLight } from '../../../lib/world/light';
 
 /** Where the stem meets the soil. Everything above it may lean; this point
  *  may not move. */
@@ -24,20 +25,16 @@ export function Flower() {
   const headRef = useRef<SVGGElement | null>(null);
   const onScreen = useOnScreen(hostRef);
   const lean = useRef(0);
-  const light = useRef({ x: 0, y: 0, at: 0, still: 0 });
+  /** How long the light has been holding still near enough to matter. The
+   *  light's own position is the room's, shared with the microscope slide. */
+  const still = useRef(0);
   // Opening is a number the frame loop reads and the frame loop draws; there
   // is nothing in the markup that depends on it, so it stays out of React and
   // the plant costs no re-renders while it breathes.
   const bloom = useRef(0);
   const [leaves, setLeaves] = useState(0);
 
-  useEffect(() => {
-    const follow = (event: PointerEvent) => {
-      light.current = { ...light.current, x: event.clientX, y: event.clientY, at: performance.now() };
-    };
-    window.addEventListener('pointermove', follow);
-    return () => window.removeEventListener('pointermove', follow);
-  }, []);
+  useEffect(watchLight, []);
 
   useFrame((dt, now) => {
     const at = placeRef.current.get('flower');
@@ -46,10 +43,11 @@ export function Flower() {
     const box = host.getBoundingClientRect();
     const rootX = box.left + box.width / 2;
     const rootY = box.bottom;
-    const dx = light.current.x - rootX;
-    const dy = light.current.y - rootY;
+    const sun = light();
+    const dx = sun.x - rootX;
+    const dy = sun.y - rootY;
     const distance = Math.hypot(dx, dy);
-    const near = distance < 420 && light.current.at > 0;
+    const near = distance < 420 && sun.at > 0;
 
     // Phototropism, with an honest time constant: a plant does not snap.
     // It is a deliberately theatrical flower: the cursor is its sun and the
@@ -62,10 +60,10 @@ export function Flower() {
     const sway = reduced ? 0 : wobble(now / 1800, 3) * 2.6;
     const tilt = clamp(lean.current + sway, -MAX_LEAN, MAX_LEAN);
 
-    if (near) light.current.still += dt; else light.current.still = 0;
-    if (light.current.still > 2600) bloom.current = Math.min(1, bloom.current + 0.02);
+    if (near) still.current += dt; else still.current = 0;
+    if (still.current > 2600) bloom.current = Math.min(1, bloom.current + 0.02);
     if (!near) bloom.current = Math.max(0, bloom.current - 0.004);
-    if (light.current.still > 9000 && leaves < 2) setLeaves((n) => n + 1);
+    if (still.current > 9000 && leaves < 2) setLeaves((n) => n + 1);
 
     // Hinged at the soil line, not below the pot: the base of the stem is the
     // one point that must not move, or the plant walks out of its own basket.

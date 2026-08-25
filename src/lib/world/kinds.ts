@@ -20,6 +20,9 @@ export const OBJECT_KINDS = [
   'pcalamp', 'hourglass', 'blackhole', 'telescope', 'passport', 'camera',
   'die', 'life', 'lorenz', 'regression', 'garden', 'flower', 'donotpress',
   'calculator', 'randomwalk', 'dilemma', 'curiosity', 'arcade',
+  // The instruments: each one a door onto a real phenomenon, and each one a
+  // thing you could pick up off a bench rather than a chart in a box.
+  'montyhall', 'descent', 'voronoi', 'chloroplast', 'ferrofluid', 'chladni', 'dunes',
 ] as const;
 export type ObjectKind = (typeof OBJECT_KINDS)[number];
 
@@ -87,6 +90,15 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
   dilemma: { w: 180, h: 132, traits: SITTING },
   curiosity: { w: 150, h: 210, traits: SITTING },
   arcade: { w: 160, h: 150, traits: HEAVY_SITTING },
+
+  // ---- the instruments ----
+  montyhall: { w: 196, h: 158, traits: SITTING },
+  descent: { w: 208, h: 176, traits: HEAVY_SITTING },
+  voronoi: { w: 186, h: 186, traits: HEAVY_SITTING },
+  chloroplast: { w: 172, h: 196, traits: HEAVY_SITTING },
+  ferrofluid: { w: 226, h: 178, traits: HEAVY_SITTING },
+  chladni: { w: 182, h: 214, traits: HEAVY_SITTING },
+  dunes: { w: 244, h: 168, traits: HEAVY_SITTING },
 };
 
 export function hasTrait(kind: ObjectKind, trait: ObjectTrait): boolean {

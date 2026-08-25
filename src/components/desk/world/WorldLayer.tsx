@@ -44,6 +44,17 @@ const Regression = lazy(() => import('./Regression').then((m) => ({ default: m.R
 const RandomWalk = lazy(() => import('./RandomWalk').then((m) => ({ default: m.RandomWalk })));
 const Arcade = lazy(() => import('./Arcade').then((m) => ({ default: m.Arcade })));
 
+// The instruments. Every one of them is a simulation behind a canvas, so they
+// arrive in their own chunks and, unlike the rest of the desk, they stop
+// running when the board is zoomed far enough out that they are a smudge.
+const MontyHall = lazy(() => import('./MontyHall').then((m) => ({ default: m.MontyHall })));
+const DescentTray = lazy(() => import('./DescentTray').then((m) => ({ default: m.DescentTray })));
+const VoronoiPlate = lazy(() => import('./VoronoiPlate').then((m) => ({ default: m.VoronoiPlate })));
+const ChloroplastSlide = lazy(() => import('./ChloroplastSlide').then((m) => ({ default: m.ChloroplastSlide })));
+const Ferrofluid = lazy(() => import('./Ferrofluid').then((m) => ({ default: m.Ferrofluid })));
+const ChladniPlate = lazy(() => import('./ChladniPlate').then((m) => ({ default: m.ChladniPlate })));
+const DuneTray = lazy(() => import('./DuneTray').then((m) => ({ default: m.DuneTray })));
+
 export type WorldLayerProps = {
   objects: DeskObject[];
   boardSize: { width: number; height: number };
@@ -110,6 +121,13 @@ export function WorldLayer({ objects, boardSize, entries, onOpenEntry }: WorldLa
       case 'regression': return <Regression key="regression" />;
       case 'randomwalk': return <RandomWalk key="randomwalk" />;
       case 'arcade': return <Arcade key="arcade" />;
+      case 'montyhall': return <MontyHall key="montyhall" />;
+      case 'descent': return <DescentTray key="descent" />;
+      case 'voronoi': return <VoronoiPlate key="voronoi" />;
+      case 'chloroplast': return <ChloroplastSlide key="chloroplast" />;
+      case 'ferrofluid': return <Ferrofluid key="ferrofluid" />;
+      case 'chladni': return <ChladniPlate key="chladni" />;
+      case 'dunes': return <DuneTray key="dunes" />;
       default: return null;
     }
   }, [boardSize, entries, onOpenEntry, world.fireAnswer]);

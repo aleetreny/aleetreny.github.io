@@ -89,3 +89,29 @@ export function useOnScreen(ref: React.RefObject<HTMLElement | null>, margin = '
   }, [margin, ref]);
   return seen;
 }
+
+/** Is this object drawn large enough on screen to be worth simulating?
+ *
+ *  A board fitted to a laptop draws a two-hundred-pixel instrument about
+ *  twenty pixels across, and at twenty pixels a fluid, a vibrating plate and a
+ *  field of dunes are all the same grey smudge. The heavy instruments hang
+ *  their loop off this as well as off `useOnScreen`, so zooming out to look at
+ *  the whole desk *stops* a dozen simulations instead of starting them, and
+ *  zooming into one starts exactly that one.
+ *
+ *  Sampled on a slow timer rather than per frame: it is a layout read, and the
+ *  answer only changes when the camera does. */
+export function useDetail(ref: React.RefObject<HTMLElement | null>, minPx = 96, every = 480): boolean {
+  const [big, setBig] = useState(true);
+  useEffect(() => {
+    const check = () => {
+      const el = ref.current;
+      if (!el) return;
+      setBig(el.getBoundingClientRect().width >= minPx);
+    };
+    check();
+    const timer = window.setInterval(check, every);
+    return () => window.clearInterval(timer);
+  }, [every, minPx, ref]);
+  return big;
+}
