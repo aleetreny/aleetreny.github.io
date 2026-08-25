@@ -281,6 +281,9 @@ export function WorldProvider({
       placeRef.current.set(object.id, { x: object.x, y: object.y, rot: object.rot, scale: object.scale });
       const el = nodes.current.get(object.id);
       if (!el) continue;
+      // A fall that ended with `fill: 'forwards'` is still holding the element
+      // at the singularity; cancel it before putting the thing back.
+      for (const run of el.getAnimations?.() ?? []) run.cancel();
       el.style.left = `${object.x}px`;
       el.style.top = `${object.y}px`;
       el.style.transform = `rotate(${object.rot}deg) scale(${object.scale})`;
@@ -348,9 +351,29 @@ export function WorldProvider({
           }
           if (d < hole.r * 0.42) {
             // Across the horizon. Nothing is deleted — the object simply is not
-            // here any more, and "reset the world" is one click away.
-            swallowRef.current(id);
+            // here any more, and "reset the world" is one click away. It goes
+            // the way things go: wound in, stretched along the fall, and
+            // reddened, because the last light off it arrives late.
             live.delete(id);
+            const el = nodes.current.get(id);
+            const finish = () => swallowRef.current(id);
+            if (!el || reducedMotion()) { finish(); continue; }
+            const spin = dx >= 0 ? 1 : -1;
+            const run = el.animate([
+              { transform: `rotate(${at.rot}deg) scale(${at.scale})`, filter: 'none', opacity: 1 },
+              {
+                transform: `translate(${(dx * 0.55).toFixed(1)}px, ${(dy * 0.55).toFixed(1)}px) rotate(${at.rot + spin * 220}deg) scale(${at.scale * 0.52})`,
+                filter: 'hue-rotate(-28deg) saturate(1.5) brightness(.8)',
+                opacity: 0.9,
+                offset: 0.55,
+              },
+              {
+                transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${at.rot + spin * 620}deg) scale(${at.scale * 0.04})`,
+                filter: 'hue-rotate(-70deg) saturate(2.2) brightness(.35)',
+                opacity: 0,
+              },
+            ], { duration: 780, easing: 'cubic-bezier(.5,0,.85,.4)', fill: 'forwards' });
+            run.addEventListener('finish', finish, { once: true });
             continue;
           }
         }

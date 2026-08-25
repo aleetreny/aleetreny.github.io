@@ -33,6 +33,7 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
   const spare = useRef(new Uint8Array(N * N));
   const clock = useRef(0);
   const found = useRef(false);
+  const ticks = useRef(0);
   const [running, setRunning] = useState(false);
   const [gen, setGen] = useState(0);
   const [glider, setGlider] = useState(false);
@@ -110,17 +111,15 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
     cells.current = b;
     spare.current = a;
     draw();
+    ticks.current += 1;
+    setGen(ticks.current);
     // Checked on a beat rather than every generation: it is a search over the
     // whole board and nobody needs the news within 130ms.
-    setGen((g) => {
-      const next = g + 1;
-      if (next % 8 === 0 && !found.current && findGlider()) {
-        found.current = true;
-        setGlider(true);
-        onGlider();
-      }
-      return next;
-    });
+    if (ticks.current % 8 === 0 && !found.current && findGlider()) {
+      found.current = true;
+      setGlider(true);
+      onGlider();
+    }
   }, running && onScreen && !reduced);
 
   const at = useCallback((event: React.PointerEvent<HTMLCanvasElement>, toggle: boolean) => {
@@ -142,6 +141,7 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
     setGlider(false);
     setRunning(false);
     found.current = false;
+    ticks.current = 0;
     draw();
   }, [draw]);
 

@@ -51,7 +51,11 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
     const target = event.target as HTMLElement;
     // Anything with its own job — a button, a canvas that draws, a text box —
     // keeps the pointer. The rest of the object is a handle.
-    if (target.closest('[data-nodrag]')) return;
+    //
+    // The object's own root carries `data-nodrag` too, so that the board below
+    // never tries to pan or drag it; that one is the handle, not an exception.
+    const claimed = target.closest('[data-nodrag]');
+    if (claimed && claimed !== ref.current) return;
     event.stopPropagation();
     if (fixed || world.tool) return;
 

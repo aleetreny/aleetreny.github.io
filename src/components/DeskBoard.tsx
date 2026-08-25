@@ -11,6 +11,7 @@ import {
   parseTheme,
   patternLayers,
   slateBackground,
+  slateGround,
   slateInk,
   tintLuminance,
   themeVars,
@@ -2013,6 +2014,9 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     return {
       ...themeVars(theme),
       '--board-ink': slateInk(theme.backdrop, texture),
+      // One flat colour for the slate, so a canvas drawing a small picture of
+      // the board has a ground to start from.
+      '--board-ground': slateGround(theme.backdrop, texture),
       '--plate-shade': pale ? '0.14' : '0.55',
       '--plate-gloss': pale ? '0.5' : '0.06',
     };
@@ -2368,7 +2372,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
       {/* The chrome a held tool needs, outside the camera so it stays the size
           the screen drew it. */}
-      {!openEntry ? <WorldOverlay /> : null}
+      {!openEntry ? <WorldOverlay boardSize={board.size} /> : null}
 
       {error ? <div className="board-error" role="alert">{error}</div> : null}
 

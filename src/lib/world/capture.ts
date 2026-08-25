@@ -56,6 +56,14 @@ function readRotation(el: HTMLElement): number {
   return match ? parseFloat(match[1]) : 0;
 }
 
+/** The slate's flat colour, published by the board as a custom property. The
+ *  board element itself is transparent — the slate is a separate plate behind
+ *  it — so there is nothing useful to read off `backgroundColor`. */
+function slateGround(board: HTMLElement): string {
+  const own = getComputedStyle(board).getPropertyValue('--board-ground').trim();
+  return own || '#1b2724';
+}
+
 function paintable(value: string): string | null {
   if (!value || value === 'transparent' || value.startsWith('rgba(0, 0, 0, 0)')) return null;
   return value;
@@ -186,7 +194,7 @@ export function renderRegion(
   ctx.clearRect(0, 0, out.w, out.h);
 
   if (options.stars) drawStars(ctx, rect, out);
-  const ground = options.ground ?? getComputedStyle(board).backgroundColor;
+  const ground = options.ground ?? slateGround(board);
   if (paintable(ground)) {
     ctx.fillStyle = ground;
     const x0 = Math.max(0, -rect.x * k);

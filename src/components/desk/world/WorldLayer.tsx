@@ -24,7 +24,7 @@ import { NotePad } from './NotePad';
 import { PaintGun } from './PaintGun';
 import { Hourglass } from './Hourglass';
 import { LorenzCup } from './LorenzCup';
-import { Telescope } from './Telescope';
+import { ScopeField, Telescope } from './Telescope';
 import { Passport } from './Passport';
 import { PolaroidCamera } from './PolaroidCamera';
 import { Flower } from './Flower';
@@ -52,7 +52,6 @@ export type WorldLayerProps = {
 };
 
 export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
-  const t = useUiText();
   const world = useWorld();
   const { splats, answer, nodes, placeRef, reduced, swallowed } = world;
   const [spin, setSpin] = useState(0);
@@ -116,7 +115,7 @@ export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
       case 'paintgun': return <PaintGun key="paintgun" />;
       case 'hourglass': return <Hourglass key="hourglass" />;
       case 'lorenz': return <LorenzCup key="lorenz" />;
-      case 'telescope': return <Telescope key="telescope" boardSize={boardSize} />;
+      case 'telescope': return <Telescope key="telescope" />;
       case 'passport': return <Passport key="passport" />;
       case 'camera': return <PolaroidCamera key="camera" />;
       case 'flower': return <Flower key="flower" />;
@@ -153,7 +152,6 @@ export function WorldLayer({ objects, boardSize, onJump }: WorldLayerProps) {
       </div>
 
       {alarm ? <div className="world-alarm" aria-hidden="true" /> : null}
-      {answer > 0 ? <AnswerFlash key={answer} label={t('world.answer')} /> : null}
     </>
   );
 }
@@ -172,10 +170,10 @@ function AnswerFlash({ label }: { label: string }) {
 /** The board-level chrome a held tool needs: an aiming cursor, the colour it is
  *  loaded with, and the one line of instruction that only exists while you are
  *  holding something. Rendered outside the camera, so it stays screen-sized. */
-export function WorldOverlay({ onJump }: { onJump?: (name: string) => void }) {
+export function WorldOverlay({ boardSize }: { boardSize: { width: number; height: number } }) {
   const t = useUiText();
   const world = useWorld();
-  const { tool, paintColor, hold, zeroG, setZeroG, swallowed, restoreWorld } = world;
+  const { tool, paintColor, hold, zeroG, setZeroG, swallowed, restoreWorld, answer } = world;
   const reticleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -199,6 +197,13 @@ export function WorldOverlay({ onJump }: { onJump?: (name: string) => void }) {
 
   return (
     <>
+      {/* Everything here is screen furniture rather than board furniture, and
+          it has to live outside the camera: a transformed ancestor becomes the
+          containing block for `position: fixed`, so an eyepiece rendered inside
+          the board would be pinned to the slate and zoom with it. */}
+      <ScopeField boardSize={boardSize} />
+      {answer > 0 ? <AnswerFlash key={answer} label={t('world.answer')} /> : null}
+
       {tool && tool !== 'scope' ? (
         <div className={`reticle reticle--${tool}`} ref={reticleRef} aria-hidden="true">
           <svg viewBox="-30 -30 60 60">
@@ -242,7 +247,6 @@ export function WorldOverlay({ onJump }: { onJump?: (name: string) => void }) {
           {t('world.lost', { n: swallowedCount })}
         </button>
       ) : null}
-      {onJump ? null : null}
     </>
   );
 }

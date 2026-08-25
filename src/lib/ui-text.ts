@@ -480,7 +480,7 @@ const CATALOGUE: Record<string, Entry> = {
   'world.vote.plate': { es: 'ELIGE UNA', en: 'PICK ONE' },
   'world.vote.yours': { es: 'elegiste {choice}', en: 'you chose {choice}' },
   'world.vote.cooperated': { es: 'cooperó', en: 'cooperated' },
-  'world.vote.decisions': { es: 'decisiones', en: 'decisions' },
+  'world.vote.decisions': { es: 'en total', en: 'in total' },
 
   'world.ask.label': { es: 'una máquina', en: 'a machine' },
   'world.ask.hint': { es: 'tira de la palanca', en: 'pull the lever' },

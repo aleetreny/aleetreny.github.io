@@ -52,7 +52,7 @@ export function DecisionDie({ onJump, onChaos }: { onJump: (name: string) => voi
 
   const jump = FACE_JUMP[face];
   return (
-    <ObjectShell id="die" onActivate={roll} hint={t('world.die.hint')} label={t('world.die.label')}>
+    <ObjectShell id="die" onActivate={roll} hint={settled ? undefined : t('world.die.hint')} label={t('world.die.label')}>
       <div className="die" ref={cubeRef} data-rolling={rolling || undefined}>
         <span className="die__face">{rolling ? '·' : face}</span>
         <span className="die__pip die__pip--a" />
