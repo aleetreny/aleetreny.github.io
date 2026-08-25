@@ -1797,10 +1797,15 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       if (hit?.dataset.open) setOpenSlug(hit.dataset.open);
     };
 
+    // A double click frames the card under the pointer, and does nothing at all
+    // anywhere else. It used to fit the whole board when it landed on bare
+    // slate, which meant every stray second click threw the visitor back out to
+    // the far view they had just zoomed in from. The toolbar's FIT does that on
+    // purpose, which is the only time anybody wants it.
     const onDblClick = (event: MouseEvent) => {
       if (openSlugRef.current) return;
       const card = (event.target as HTMLElement).closest<HTMLElement>('[data-card]');
-      if (card) centerNode(card); else fitAll();
+      if (card) centerNode(card);
     };
 
     vp.addEventListener('wheel', onWheel, { passive: false });

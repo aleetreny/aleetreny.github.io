@@ -296,7 +296,11 @@ export function WorldProvider({
     const dx = hx - cx;
     const dy = hy - cy;
     const distance = Math.hypot(dx, dy);
-    const horizon = (holeSpec.w * hole.scale) * 0.31;
+    // The horizon reaches a little past the drawn shadow, and a little further
+    // for a big object: a tray of soil dragged across the hole should go in
+    // when it covers it, not only when its exact centre crosses.
+    const reach = Math.min(40, (Math.min(spec.w, spec.h) * at.scale) / 2.6);
+    const horizon = (holeSpec.w * hole.scale) * 0.34 + reach;
     const previousDistance = previous
       ? distanceToSegment(
         hx,
@@ -318,20 +322,35 @@ export function WorldProvider({
     const el = nodes.current.get(id);
     if (!el || reducedMotion()) { finish(); return true; }
     const spin = dx >= 0 ? 1 : -1;
+    // The genie into the lamp.
+    //
+    // `rotate(angle)` turns the object's own X axis onto the line to the hole,
+    // so the `scale` after it stretches it *along* that line and crushes it
+    // across — a ribbon pointing at the hole rather than a thing squashed
+    // sideways whichever way it happened to be going. Then the ribbon winds
+    // round and is drawn down to nothing at the centre.
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+    const k = at.scale;
     const run = el.animate([
-      { transform: `rotate(${at.rot}deg) scale(${at.scale})`, filter: 'none', opacity: 1 },
+      { transform: `translate(0px, 0px) rotate(${at.rot}deg) scale(${k})`, filter: 'none', opacity: 1 },
       {
-        transform: `translate(${(dx * 0.48).toFixed(1)}px, ${(dy * 0.48).toFixed(1)}px) rotate(${at.rot + spin * 260}deg) scaleX(${at.scale * 0.9}) scaleY(${at.scale * 0.38})`,
-        filter: 'hue-rotate(-30deg) saturate(1.7) brightness(.78)',
-        opacity: 0.9,
-        offset: 0.54,
+        transform: `translate(${(dx * 0.3).toFixed(1)}px, ${(dy * 0.3).toFixed(1)}px) rotate(${angle.toFixed(1)}deg) scale(${(k * 1.18).toFixed(3)}, ${(k * 0.6).toFixed(3)})`,
+        filter: 'hue-rotate(-24deg) saturate(1.5) brightness(.86)',
+        opacity: 1,
+        offset: 0.32,
       },
       {
-        transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${at.rot + spin * 720}deg) scaleX(${at.scale * 0.12}) scaleY(${at.scale * 0.025})`,
-        filter: 'hue-rotate(-72deg) saturate(2.4) brightness(.28)',
+        transform: `translate(${(dx * 0.74).toFixed(1)}px, ${(dy * 0.74).toFixed(1)}px) rotate(${(angle + spin * 320).toFixed(1)}deg) scale(${(k * 1.55).toFixed(3)}, ${(k * 0.19).toFixed(3)})`,
+        filter: 'hue-rotate(-52deg) saturate(2) brightness(.6) blur(.6px)',
+        opacity: 0.92,
+        offset: 0.68,
+      },
+      {
+        transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${(angle + spin * 820).toFixed(1)}deg) scale(${(k * 0.05).toFixed(3)}, ${(k * 0.02).toFixed(3)})`,
+        filter: 'hue-rotate(-80deg) saturate(2.6) brightness(.24) blur(1.2px)',
         opacity: 0,
       },
-    ], { duration: 860, easing: 'cubic-bezier(.45,0,.86,.38)', fill: 'forwards' });
+    ], { duration: 1050, easing: 'cubic-bezier(.5,0,.85,.35)', fill: 'forwards' });
     run.addEventListener('finish', finish, { once: true });
     return true;
   }, [swallowed, swallow]);

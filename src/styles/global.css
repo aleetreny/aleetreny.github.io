@@ -1413,10 +1413,13 @@ a { color: var(--c-accent); text-decoration: none; }
 /* --------------------------------------------------------------- the book */
 .book { position: relative; width: 190px; height: 132px; }
 .book--shut {
-  border-radius: 3px 6px 6px 3px;
+  /* Square down the fore-edge side: the block of pages butts straight up
+     against it, and a rounded corner there left a gap the cover showed
+     through — which is what made a whole book read as a sliced one. */
+  border-radius: 3px 1px 1px 3px;
   background: linear-gradient(112deg, #2c4a52 0%, #35606a 22%, #24444c 60%, #1a3239 100%);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .45), inset -14px 0 18px rgba(0, 0, 0, .28);
-  padding: 14px 16px 14px 22px;
+  padding: 14px 20px 14px 22px;
   display: flex; flex-direction: column; justify-content: space-between;
 }
 .book__cover { display: flex; flex-direction: column; gap: 3px; }
@@ -1427,10 +1430,15 @@ a { color: var(--c-accent); text-decoration: none; }
   font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: .06em;
   color: var(--c-signal); text-shadow: 0 0 14px rgba(232, 196, 110, .35);
 }
+/* The fore-edge. It starts *inside* the cover and reaches a little past it, so
+   the pages are part of the book rather than a pale slab floating beside one,
+   and it is shorter than the cover at both ends so no corner pokes out around
+   it. */
 .book__edges {
-  position: absolute; right: -4px; top: 4px; bottom: 4px; width: 6px; border-radius: 0 3px 3px 0;
+  position: absolute; right: -4px; top: 3px; bottom: 3px; width: 10px;
+  border-radius: 0 3px 3px 0;
   background: repeating-linear-gradient(180deg, #efe8d6 0 1.5px, #cdc4ac 1.5px 3px);
-  box-shadow: 1px 0 3px rgba(0, 0, 0, .4);
+  box-shadow: 1px 0 3px rgba(0, 0, 0, .4), inset 3px 0 5px rgba(0, 0, 0, .3);
 }
 .book__spine { position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: rgba(0, 0, 0, .35); }
 .book__tail {
@@ -1673,6 +1681,13 @@ a { color: var(--c-accent); text-decoration: none; }
 .reticle__cross { stroke: rgba(255, 255, 255, .7); stroke-width: 1.2; }
 .reticle--camera .reticle__ring { stroke-dasharray: 4 5; }
 body.has-tool, body.has-tool .desk { cursor: none; }
+/* A held tool sees through embeds.
+   An iframe is another document: it swallows the pointer, and its events never
+   reach this one. The telescope follows `pointermove` on the window, so
+   crossing the Spotify player froze the eyepiece where it entered and left no
+   way to put the scope down over it — same for the gun's shot and the camera's
+   shutter. While something is held, the embeds stop taking the pointer. */
+body.has-tool iframe { pointer-events: none; }
 
 .toolbar-tool {
   position: fixed; left: 50%; bottom: 22px; translate: -50% 0; z-index: 1300;
@@ -2032,7 +2047,7 @@ body.has-tool, body.has-tool .desk { cursor: none; }
 }
 
 /* -------------------------------------------------------------- the PCA lamp */
-.pca { position: relative; width: 200px; height: 166px; }
+.pca { position: relative; width: 200px; height: 212px; }
 .pca__arm {
   position: absolute; left: 98px; top: 4px; width: 4px; height: 32px; border-radius: 2px;
   background: linear-gradient(#c3c9c6, #6d7573); transform-origin: bottom;

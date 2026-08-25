@@ -42,6 +42,16 @@ describe('the object catalogue', () => {
     expect(hasTrait('flower', 'gravity')).toBe(false);
   });
 
+  it('lets the hole eat anything a hand can pick up', () => {
+    for (const id of OBJECT_KINDS) {
+      if (id === 'blackhole') continue;
+      expect(hasTrait(id, 'draggable'), `${id} draggable`).toBe(true);
+      expect(hasTrait(id, 'blackhole'), `${id} edible`).toBe(true);
+    }
+    // Except itself.
+    expect(hasTrait('blackhole', 'blackhole')).toBe(false);
+  });
+
   it('merges a stored catalogue over the shipped one', () => {
     const stored = parseObjects([
       { id: 'coin', x: 10, y: 20, rot: 5, scale: 1.5, visible: false },

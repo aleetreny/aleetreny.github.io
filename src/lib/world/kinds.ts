@@ -51,10 +51,14 @@ export type ObjectSpec = {
   traits: readonly ObjectTrait[];
 };
 
+// Anything a hand can pick up, a hole can eat. The trait used to belong to the
+// six loose things alone, which meant most of the desk could be dragged
+// straight through the horizon and come out the other side — the one thing a
+// black hole must never allow.
 const LOOSE: readonly ObjectTrait[] = ['draggable', 'physics', 'gravity', 'blackhole', 'paintable', 'capture'];
-const SITTING: readonly ObjectTrait[] = ['draggable', 'gravity', 'paintable', 'capture'];
-const HEAVY_SITTING: readonly ObjectTrait[] = ['draggable', 'gravity', 'paintable', 'capture', 'heavy'];
-const ANCHORED: readonly ObjectTrait[] = ['draggable', 'paintable', 'capture'];
+const SITTING: readonly ObjectTrait[] = ['draggable', 'gravity', 'blackhole', 'paintable', 'capture'];
+const HEAVY_SITTING: readonly ObjectTrait[] = ['draggable', 'gravity', 'blackhole', 'paintable', 'capture', 'heavy'];
+const ANCHORED: readonly ObjectTrait[] = ['draggable', 'blackhole', 'paintable', 'capture'];
 
 export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
   book: { w: 190, h: 132, traits: SITTING },
@@ -64,7 +68,7 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
   petri: { w: 150, h: 150, traits: HEAVY_SITTING },
   physarum: { w: 160, h: 160, traits: HEAVY_SITTING },
   coin: { w: 92, h: 92, traits: LOOSE },
-  pcalamp: { w: 200, h: 166, traits: HEAVY_SITTING },
+  pcalamp: { w: 200, h: 212, traits: HEAVY_SITTING },
   hourglass: { w: 104, h: 152, traits: [...LOOSE, 'heavy'] },
   // The one thing on the board that is not furniture: it pulls, so it stays.
   blackhole: { w: 200, h: 200, traits: ['capture', 'heavy'] },

@@ -796,7 +796,7 @@ export const OBJECTS = [
   { id: 'camera', x: 2904, y: 1404, rot: -5, scale: 1, visible: true },
   { id: 'garden', x: 3684, y: 744, rot: 0, scale: 1, visible: true },
   { id: 'life', x: 2344, y: 64, rot: 2.5, scale: 1, visible: true },
-  { id: 'pcalamp', x: 3244, y: 2284, rot: -2, scale: 1, visible: true },
+  { id: 'pcalamp', x: 3244, y: 2238, rot: -2, scale: 1, visible: true },
   { id: 'blackhole', x: 2324, y: 1164, rot: 0, scale: 1, visible: true },
 ];
 

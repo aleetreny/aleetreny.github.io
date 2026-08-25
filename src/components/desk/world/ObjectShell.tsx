@@ -110,10 +110,17 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
       cleanUp();
       if (absorbed) return;
       if (!moved) { onActivate?.(); return; }
+      // Let go of it over the hole and the hole has it, held or not: a hand is
+      // not a reason for the horizon to make an exception.
+      if (world.absorb(id)) return;
       const speed = Math.hypot(velocity.x, velocity.y);
       // Let go of something near the hole, or let go of it hard, and the
       // physics takes over. Put it down gently and it stays put.
-      if (hasTrait(id, 'physics') && (speed > 0.05 || nearTheHole(world, id))) {
+      //
+      // Near the hole this applies to everything the hole can eat, not only
+      // the things that were already bodies: put the passport down inside its
+      // reach and it is pulled in like anything else.
+      if (nearTheHole(world, id) || (hasTrait(id, 'physics') && speed > 0.05)) {
         wake(id, velocity.x, velocity.y);
       }
     };
@@ -146,6 +153,7 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
 /** Is this object already inside the hole's reach? Letting go of something
  *  there should hand it to the hole even if the hand was perfectly still. */
 function nearTheHole(world: ReturnType<typeof useWorld>, id: ObjectKind): boolean {
+  if (id === 'blackhole') return false;
   if (!hasTrait(id, 'blackhole') || world.swallowed.includes('blackhole')) return false;
   const hole = world.placeRef.current.get('blackhole');
   const mine = world.placeRef.current.get(id);

@@ -16,7 +16,18 @@ import { mulberry32 } from '../../../lib/world/rng';
 import { useUiText } from '../ui-text-context';
 
 const W = 200;
-const H = 130;
+/** Tall on purpose. The cloud is the object: it has to be able to turn through
+ *  every angle without the far side of it hitting the wall, and at 130 the
+ *  points were pressed into a band barely deeper than the beam was wide. */
+const H = 176;
+/** The wall the shadow falls on, and how far down it the shadow lands. */
+const WALL_Y = 112;
+const WALL_H = H - 8 - WALL_Y;
+const SHADOW_Y = WALL_Y + WALL_H * 0.72;
+/** Where the cloud hangs in the beam, and how far it reaches. */
+const CLOUD_Y = 62;
+const SPREAD_X = 32;
+const SPREAD_Y = 26;
 const COUNT = 220;
 
 type Vec = [number, number, number];
@@ -134,22 +145,22 @@ export function PcaLamp() {
 
     // The wall: where the shadow falls.
     ctx.fillStyle = 'rgba(238,232,216,.92)';
-    ctx.fillRect(8, 64, W - 16, H - 72);
+    ctx.fillRect(8, WALL_Y, W - 16, WALL_H);
     ctx.strokeStyle = 'rgba(23,21,15,.2)';
-    ctx.strokeRect(8.5, 64.5, W - 17, H - 73);
+    ctx.strokeRect(8.5, WALL_Y + 0.5, W - 17, WALL_H - 1);
 
     const projected: Array<[number, number, number]> = [];
     for (const p of points) projected.push(rotate(p, v.yaw, v.pitch));
 
     // The cloud itself, floating in the beam.
     const cx = W / 2;
-    const cy = 40;
+    const cy = CLOUD_Y;
     for (const [x, y, z] of projected) {
       const depth = 1 / (1 + z * 0.22);
       ctx.globalAlpha = 0.35 + depth * 0.5;
       ctx.fillStyle = '#e8d9a8';
       ctx.beginPath();
-      ctx.arc(cx + x * 30 * depth, cy + y * 22 * depth, 1.1 + depth * 0.7, 0, Math.PI * 2);
+      ctx.arc(cx + x * SPREAD_X * depth, cy + y * SPREAD_Y * depth, 1.1 + depth * 0.7, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
@@ -167,20 +178,20 @@ export function PcaLamp() {
     for (const [x, , z] of projected) {
       const wobble = z * 0.5;
       ctx.beginPath();
-      ctx.ellipse(cx + x * 30, H - 22 + wobble * 0.6, 1.7, 1.1, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx + x * SPREAD_X, SHADOW_Y + wobble * 0.6, 1.7, 1.1, 0, 0, Math.PI * 2);
       ctx.fill();
     }
 
     // The beam.
-    const beam = ctx.createLinearGradient(cx, 8, cx, H - 16);
+    const beam = ctx.createLinearGradient(cx, 8, cx, H - 8);
     beam.addColorStop(0, 'rgba(255,238,190,.42)');
     beam.addColorStop(1, 'rgba(255,238,190,0)');
     ctx.fillStyle = beam;
     ctx.beginPath();
     ctx.moveTo(cx - 8, 6);
     ctx.lineTo(cx + 8, 6);
-    ctx.lineTo(W - 14, H - 16);
-    ctx.lineTo(14, H - 16);
+    ctx.lineTo(W - 12, H - 8);
+    ctx.lineTo(12, H - 8);
     ctx.closePath();
     ctx.fill();
 
