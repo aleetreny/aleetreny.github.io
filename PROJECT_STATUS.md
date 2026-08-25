@@ -270,6 +270,10 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
 - the catalogue synchronised on both Neon branches, reseeded on `development` and
   then `production` after the looks and language work so that `site.i18n` exists,
   `theme` carries `cards` and `dossier`, and the seeded prose is language-tagged;
+- the desk deployed: `0008_visitor_world.sql` applied and `board`, `board.layout`,
+  `board.tour`, `board.objects`, `board.passport` and `board.world` seeded on both
+  Neon branches, with the anonymous role's privileges verified against the policy
+  they were written for;
 - GitHub Environments `development` and `production` with `DATABASE_URL`,
   `NEON_API_KEY` and four public Variables;
 - GitHub Pages configured with GitHub Actions and the rollback preserved in
@@ -290,27 +294,25 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
 | Item | State | Files | Dependency | Completion criterion |
 | --- | --- | --- | --- | --- |
 | Public content | Seeded in Neon | `fixtures/demo-content.json`, `scripts/db/seed.mjs` | the owner's later subjective review | text and links approved or adjusted from the editor |
-| The desk objects | Built, tested locally against the fixtures | `src/lib/world/`, `src/components/desk/world/` | a reseed and a migration on Neon | `board`, `board.objects`, `board.passport`, `board.world` and `board.tour` seeded, and `0008_visitor_world.sql` applied on `development` then `production` |
 | The passport's writing | Countries and stamps shipped, descriptions empty | `content/source/board-spec.mjs` | the owner writing them | a photograph and a paragraph on each stamp, from inside the passport |
 | The book's pages | Binding complete, leaves deliberately blank | `src/lib/world/book.ts` | the owner's own or licensed text | leaves filled with writing there is a right to publish |
 
 ## Pending
 
-Two deployment steps, both of them ordinary and both documented:
-
-1. **Apply `0008_visitor_world.sql`** through `.github/workflows/provision-neon.yml`
-   (`development` first, then `production` with `APPLY_PRODUCTION`). Until it is
-   applied the notes, the garden, the answers and the vote fall back to the
-   visitor's own browser, which is a working board with a smaller memory.
-2. **Reseed the settings documents** through `.github/workflows/seed-content.yml`
-   with `only_settings=board,board.objects,board.passport,board.world,board.tour`.
-   The board's stored `size` predates the wider slate, `board.objects` and
-   `board.passport` do not exist there yet, and `board.layout` still holds the
-   old positions — note that seeding `board.layout` deliberately resets the
-   authored arrangement, which here is the point.
-
+No mandatory implementation, deployment, portability or QA work remains.
 Subjective approval of the wording is an editorial review, not a technical
-blocker.
+blocker, as is filling the book's leaves and the passport's descriptions.
+
+The desk shipped on 2026-08-25 in one pass: merged to `main`, CI green, Pages
+deployed, then `seed-content.yml` run against `development` and `production`
+with `only_settings=board,board.layout,board.tour,board.objects,board.passport,
+board.world`. A targeted run applies the migrations first and touches no
+dossier and no trash, which is why the 51 published entries and the 55 already
+in the trash came through untouched. Verified afterwards on both branches:
+`0008_visitor_world.sql` recorded, board at 4120×2500, 26 objects, 20 stamps,
+thirteen tour stops, and the anonymous role holding `INSERT` on the notes and
+the answers, `SELECT` on the questions, and nothing at all on the garden or the
+votes — those are reached only through their `security definer` functions.
 
 ## Blocked
 
