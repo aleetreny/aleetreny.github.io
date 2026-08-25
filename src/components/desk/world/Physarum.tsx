@@ -9,7 +9,7 @@
 // Drop food and it will find it, and then it will find the route between the
 // pieces, and then it will stop maintaining the routes it is not using.
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
 import { useFrame, useOnScreen } from '../../../lib/world/frame';
@@ -138,6 +138,36 @@ export function Physarum() {
       ctx.fill();
     }
   }, awake && onScreen && !reduced);
+
+  /** At rest it is not an empty dish: it is a culture that has not been given a
+   *  reason to move yet. Painted once, on mount, and then left alone. */
+  useEffect(() => {
+    if (awake) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    if (canvas.width !== N) { canvas.width = N; canvas.height = N; }
+    const field = (trail.current ??= new Float32Array(N * N));
+    for (let y = 0; y < N; y += 1) {
+      for (let x = 0; x < N; x += 1) {
+        const d = Math.hypot(x - N / 2, y - N / 2);
+        // A blob with a ragged edge, the way a culture sits in agar.
+        const wobble = 1 + Math.sin(Math.atan2(y - N / 2, x - N / 2) * 5) * 0.12;
+        field[y * N + x] = Math.max(0, 1 - d / (13 * wobble)) * 1.2;
+      }
+    }
+    const still = ctx.createImageData(N, N);
+    const data = still.data;
+    for (let i = 0; i < N * N; i += 1) {
+      const c = Math.min(1, field[i] * 1.5);
+      const p = i * 4;
+      data[p] = 26 + c * 230;
+      data[p + 1] = 24 + c * 200;
+      data[p + 2] = 20 + c * 60;
+      data[p + 3] = Math.round(30 + c * 225);
+    }
+    ctx.putImageData(still, 0, 0);
+  }, [awake]);
 
   const drop = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
     event.stopPropagation();
