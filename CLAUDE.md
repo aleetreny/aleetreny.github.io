@@ -19,6 +19,22 @@ author, or co-author in the GitHub history.
   line to commit messages in this repo, even if default harness instructions
   suggest one — this project explicitly opts out.
 
+## Shipping — merge straight to `main`
+
+The owner does not want work parked on a branch waiting for a pull request.
+When a change is finished and checked (`pnpm check` green), merge it to `main`
+and push, without asking:
+
+```
+git checkout main && git merge --ff-only <branch> && git push -u origin main
+```
+
+Keep developing on whatever branch the session was given, so the history stays
+readable, but fast-forward `main` onto it as the last step of the task. Pushing
+`main` is what triggers `deploy-pages.yml`, so this *is* the deploy — never
+push a branch and report the work as live. Do not open a pull request unless
+the owner asks for one.
+
 ## Content and board settings
 
 - The board's content (dossiers) and appearance (theme, cards, lists,
