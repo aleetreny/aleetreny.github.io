@@ -15,6 +15,8 @@ import {
   splitStops,
   tourAlreadySeen,
   type TourItem,
+  type TourStop,
+  stopPieces,
   MOTIFS,
   MOTIF_GLYPHS,
   MOTIF_TIMING,
@@ -50,6 +52,29 @@ describe('tour config parsing', () => {
     // Headings are authored in both languages; unlocalised they read as Spanish.
     expect(DEFAULT_TOUR.stops[0].label).toBe('Quién soy');
     expect(DEFAULT_TOUR.stops.at(-1)?.items).toContain('contact');
+  });
+
+  it('halts only on the headline cards, and carries the rest along', () => {
+    // Thirteen halts: the title, then the twelve numbered cards, in order.
+    expect(DEFAULT_TOUR.stops).toHaveLength(13);
+    expect(DEFAULT_TOUR.stops.every((stop) => stop.items.length === 1)).toBe(true);
+    expect(DEFAULT_TOUR.stops.map((stop) => stop.items[0])).toEqual([
+      'hero', 'work', 'edu', 'lab', 'repos', 'hack', 'diary', 'vol',
+      '9ab9f373-b73a-4d50-824d-06a90005c5fc', 'langs', 'random', 'pod', 'contact',
+    ]);
+    // The photos still arrive — they are simply never what the camera stops on.
+    const framed = new Set(DEFAULT_TOUR.stops.flatMap((stop) => stop.items));
+    const carried = new Set(DEFAULT_TOUR.stops.flatMap((stop) => stop.extras ?? []));
+    expect(carried.size).toBeGreaterThan(20);
+    for (const id of carried) expect(framed.has(id)).toBe(false);
+  });
+
+  it('reads a stop\'s carried pieces, and never twice', () => {
+    const parsed = parseTour({ stops: [{ id: 's', label: 'x', items: ['a', 'b'], extras: ['b', 'c', 7] }] });
+    expect(parsed.stops[0].extras).toEqual(['c']);
+    expect(stopPieces(parsed.stops[0])).toEqual(['a', 'b', 'c']);
+    // A stop that carries nothing does not grow an empty list.
+    expect(parseTour({ stops: [{ id: 's', label: 'x', items: ['a'] }] }).stops[0]).not.toHaveProperty('extras');
   });
 
   it('holds the loose notes back until the walk is over', () => {
@@ -173,6 +198,19 @@ describe('route building', () => {
     expect(buildStops(tour, items)).toEqual([{ id: 'a', label: 'first', items: ['hero'] }]);
   });
 
+  it('counts a carried piece as covered, and drops the ones that have gone', () => {
+    const tour = parseTour({
+      route: 'custom',
+      groupSize: 4,
+      stops: [{ id: 'a', label: 'first', items: ['hero'], extras: ['now', 'work', 'ghost'] }],
+    });
+    const stops = buildStops(tour, items);
+    expect(stops[0].extras).toEqual(['now', 'work']);
+    // Only `vol` and `travel` are left over, so the sweep is one stop, not two.
+    expect(stops).toHaveLength(2);
+    expect(stops[1].items).toEqual(['vol', 'travel']);
+  });
+
   it('sweeps unassigned pieces into a trailing stop', () => {
     const tour = parseTour({ route: 'custom', groupSize: 4, stops: [{ id: 'a', label: 'first', items: ['hero'] }] });
     const stops = buildStops(tour, items);
@@ -255,23 +293,31 @@ describe('narrow screens', () => {
   });
 
   it('walks a long stop a few pieces at a time under the same heading', () => {
-    const stops = splitStops(DEFAULT_TOUR.stops, 1);
+    // A route of its own rather than the authored one: what is under test is
+    // the splitting, and the board's own route is free to hold one piece per
+    // stop, which would never split at all.
+    const route: TourStop[] = [
+      { id: 'a', label: 'the lab', items: ['lab', 'note', 'photo'], motif: 'spark', reveal: { style: 'zoom' }, extras: ['hero'] },
+      { id: 'b', label: 'alone', items: ['now'] },
+    ];
+    const stops = splitStops(route, 1);
     // Nothing is dropped and nothing is reordered.
-    expect(stops.flatMap((s) => s.items)).toEqual(DEFAULT_TOUR.stops.flatMap((s) => s.items));
+    expect(stops.flatMap((s) => s.items)).toEqual(route.flatMap((s) => s.items));
     expect(stops.every((s) => s.items.length === 1)).toBe(true);
-    // One stop per piece, whatever the authored route currently holds — the
-    // count is the board's business, not this test's.
-    expect(stops).toHaveLength(DEFAULT_TOUR.stops.flatMap((s) => s.items).length);
-    expect(stops[0].label).toBe(DEFAULT_TOUR.stops[0].label);
-    expect(stops[1].label).toBe(DEFAULT_TOUR.stops[0].label);
+    expect(stops).toHaveLength(4);
+    expect(stops[0].label).toBe('the lab');
+    expect(stops[1].label).toBe('the lab');
     // A stop that splits keeps its flourish on every piece of itself.
-    expect(stops[0].motif).toBe(DEFAULT_TOUR.stops[0].motif);
-    expect(stops[1].reveal).toEqual(DEFAULT_TOUR.stops[0].reveal);
+    expect(stops[0].motif).toBe('spark');
+    expect(stops[1].reveal).toEqual({ style: 'zoom' });
+    // What it merely carries rides with the first slice, and only that one.
+    expect(stops[0].extras).toEqual(['hero']);
+    expect(stops[1].extras).toBeUndefined();
     expect(new Set(stops.map((s) => s.id)).size).toBe(stops.length);
   });
 
   it('leaves short stops and a nonsense cap alone', () => {
-    expect(splitStops(DEFAULT_TOUR.stops, 5).slice(0, 4)).toEqual(DEFAULT_TOUR.stops.slice(0, 4));
+    expect(splitStops(DEFAULT_TOUR.stops, 5)).toEqual(DEFAULT_TOUR.stops);
     expect(splitStops(DEFAULT_TOUR.stops, 0)).toBe(DEFAULT_TOUR.stops);
   });
 });

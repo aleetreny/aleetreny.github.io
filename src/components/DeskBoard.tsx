@@ -76,6 +76,7 @@ import {
   MOTIF_TIMING,
   revealSequence,
   splitStops,
+  stopPieces,
   tourAlreadySeen,
   type TourConfig,
   type TourItem,
@@ -795,7 +796,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
    *  used when a visitor jumps ahead from the tour bar's dots. */
   const showThrough = useCallback((index: number) => {
     for (let i = 0; i < index && i < stopsRef.current.length; i += 1) {
-      for (const id of stopsRef.current[i].items) {
+      for (const id of stopPieces(stopsRef.current[i])) {
         if (!shownRef.current.has(id)) showItem(id, 0, false);
       }
     }
@@ -930,15 +931,19 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         }
         if (!alive()) return;
 
-        if (stop.items.some((id) => !shownRef.current.has(id))) {
+        // What the stop frames, then what it merely carries: the camera has
+        // already come to rest on the card, and the loose photos beside it are
+        // stuck on while the visitor reads.
+        const pieces = stopPieces(stop);
+        if (pieces.some((id) => !shownRef.current.has(id))) {
           // A stop may land its pieces its own way — the work drawer slams, the
           // lab zooms in, the countries flip over.
           const reveal = revealFor(cfg, stop);
-          const order = revealSequence(stop.items.length, reveal.order);
+          const order = revealSequence(pieces.length, reveal.order);
           const stagger = reveal.order === 'together' ? 0 : reveal.stagger / speed;
           for (const index of order) {
             if (!alive()) return;
-            showItem(stop.items[index], index, true, reveal);
+            showItem(pieces[index], index, true, reveal);
             await wait(stagger);
           }
           if (!alive()) return;

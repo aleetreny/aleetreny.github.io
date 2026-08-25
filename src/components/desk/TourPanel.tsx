@@ -271,6 +271,36 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                           ))}
                         </select>
                       </div>
+                      {/* What the stop carries rather than frames. The camera
+                          never widens for these, so a loose photo lands beside
+                          the card without ever becoming a halt of its own. */}
+                      <div className="stopeditor__items stopeditor__items--extra">
+                        {(stop.extras ?? []).map((id) => (
+                          <span className={`stopeditor__chip stopeditor__chip--extra ${byId.has(id) ? '' : 'is-missing'}`} key={id}>
+                            {byId.get(id)?.label ?? id}
+                            <button
+                              type="button"
+                              className="chip__x"
+                              onClick={() => patchStop(index, { extras: (stop.extras ?? []).filter((other) => other !== id) })}
+                              aria-label={`Remove ${id}`}
+                            >×</button>
+                          </span>
+                        ))}
+                        <select
+                          className="stopeditor__add"
+                          value=""
+                          onChange={(event) => {
+                            if (!event.target.value) return;
+                            patchStop(index, { extras: [...(stop.extras ?? []), event.target.value] });
+                          }}
+                          aria-label={`Land a piece at stop ${index + 1} without framing it`}
+                        >
+                          <option value="">+ lands here</option>
+                          {items
+                            .filter((item) => !stop.items.includes(item.id) && !(stop.extras ?? []).includes(item.id))
+                            .map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                        </select>
+                      </div>
                     </div>
                   ))}
                 </div>

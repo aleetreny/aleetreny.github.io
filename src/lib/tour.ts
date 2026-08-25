@@ -86,12 +86,22 @@ export type TourStop = {
   id: string;
   label: string;
   items: string[];
+  /** Pieces that land while this stop is on screen but never decide where the
+   *  camera goes. A walk that halts on a loose photo is a walk that halts on
+   *  nothing; the photo still has to arrive, so it arrives here — stuck onto
+   *  the slate beside the card the visitor is actually reading. */
+  extras?: string[];
   /** Per-stop overrides. Anything left out falls through to the tour's own
    *  reveal, motion and motif, so a stop only carries what makes it different. */
   reveal?: Partial<TourReveal>;
   motion?: CameraMotion;
   motif?: Motif;
 };
+
+/** Everything a stop puts on the slate: what it frames, then what it carries. */
+export function stopPieces(stop: TourStop): string[] {
+  return stop.extras && stop.extras.length > 0 ? [...stop.items, ...stop.extras] : stop.items;
+}
 
 export type TourCamera = {
   motion: CameraMotion;
@@ -325,11 +335,15 @@ function parseStops(value: unknown, fallback: TourStop[]): TourStop[] {
   for (const raw of value) {
     if (!isRecord(raw)) continue;
     const items = Array.isArray(raw.items) ? raw.items.filter((id): id is string => typeof id === 'string') : [];
+    const extras = Array.isArray(raw.extras)
+      ? raw.extras.filter((id): id is string => typeof id === 'string' && !items.includes(id))
+      : [];
     const stop: TourStop = {
       id: typeof raw.id === 'string' ? raw.id : `stop-${stops.length + 1}`,
       label: text(raw.label, ''),
       items,
     };
+    if (extras.length > 0) stop.extras = extras;
     const reveal = parseStopReveal(raw.reveal);
     if (reveal) stop.reveal = reveal;
     if (typeof raw.motion === 'string' && (CAMERA_MOTIONS as readonly string[]).includes(raw.motion)) stop.motion = raw.motion as CameraMotion;
@@ -750,12 +764,18 @@ export function buildStops(tour: TourConfig, items: TourItem[], rand: () => numb
     case 'custom':
     default:
       stops = tour.stops
-        .map((stop, index) => ({
-          ...stop,
-          id: stop.id || `stop-${index + 1}`,
-          label: stop.label || labelFor(stop.items.map((id) => byId.get(id)).filter((item): item is TourItem => !!item)),
-          items: stop.items.filter((id) => byId.has(id)),
-        }))
+        .map((stop, index) => {
+          const items = stop.items.filter((id) => byId.has(id));
+          const extras = (stop.extras ?? []).filter((id) => byId.has(id) && !items.includes(id));
+          const next: TourStop = {
+            ...stop,
+            id: stop.id || `stop-${index + 1}`,
+            label: stop.label || labelFor(items.map((id) => byId.get(id)).filter((item): item is TourItem => !!item)),
+            items,
+          };
+          if (extras.length > 0) next.extras = extras; else delete next.extras;
+          return next;
+        })
         .filter((stop) => stop.items.length > 0);
       // An empty or fully stale hand-authored route would leave the board
       // hidden, so fall back to something that always covers it.
@@ -764,7 +784,7 @@ export function buildStops(tour: TourConfig, items: TourItem[], rand: () => numb
   }
 
   if (tour.includeRest) {
-    const covered = new Set(stops.flatMap((stop) => stop.items));
+    const covered = new Set(stops.flatMap(stopPieces));
     const rest = items.filter((item) => !covered.has(item.id));
     if (rest.length > 0) {
       stops.push(...toStops([rest], size).map((stop, index) => ({ ...stop, id: `rest-${index + 1}` })));
@@ -796,8 +816,12 @@ export function splitStops(stops: TourStop[], max: number): TourStop[] {
   for (const stop of stops) {
     if (stop.items.length <= max) { out.push(stop); continue; }
     chunk(stop.items, max).forEach((items, index) => {
-      // The pieces split; the heading and the stop's own flourish do not.
-      out.push({ ...stop, id: `${stop.id}-${index + 1}`, items });
+      // The pieces split; the heading and the stop's own flourish do not. What
+      // the stop merely carries rides with the first slice, so a phone still
+      // sees every photo without any of them widening a frame.
+      const piece: TourStop = { ...stop, id: `${stop.id}-${index + 1}`, items };
+      if (index > 0) delete piece.extras;
+      out.push(piece);
     });
   }
   return out;

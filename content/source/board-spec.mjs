@@ -819,8 +819,13 @@ export const I18N = {
 };
 
 // The guided tour — the slate slams onto the wall and the visitor walks the
-// board section by section, at their own pace, while each drawer, photo and
-// note is stuck onto the slate.
+// board card by card, at their own pace, while each drawer, photo and note is
+// stuck onto the slate.
+//
+// A stop is a thing worth reading, and only the thirteen headline pieces are:
+// the title and the twelve numbered cards. Everything else the board carries
+// still arrives during the walk — it rides along in a stop's `extras`, which
+// land on the slate without the camera ever widening to frame them.
 //
 // Only the authored route lives here, because the route is content: which
 // pieces are shown together, in what order, under what heading. Every
@@ -845,27 +850,101 @@ export const TOUR = {
     hint: { es: 'espacio / → siguiente · arrastra y haz zoom cuando quieras', en: 'space / → next · drag & zoom anytime' },
   },
   stops: [
-    { id: 'stop-1', label: { es: 'Quién soy', en: 'Who I am' }, reveal: { style: 'rise' }, motion: 'glide', motif: 'ink', items: ['hero', '6248ec11-6759-498b-92cb-9e3199de7fad'] },
-    { id: 'stop-2', label: { es: 'Dónde estoy ahora', en: 'Where I am now' }, reveal: { style: 'stick' }, motion: 'push', motif: 'spark', items: ['now', '76ef90fd-0892-4f81-895d-d3c499c4c591', 'scrap-coffee'] },
-    { id: 'stop-3', label: { es: 'Fotos sueltas', en: 'Loose photos' }, reveal: { style: 'fade' }, motion: 'drift', motif: 'dust', items: ['dc7efc3d-fe79-43fa-b0e9-7d8336637934', '058364fb-99aa-4218-8eb4-7dc54f2eb270'] },
-    { id: 'stop-4', label: { es: '01 · Dónde he trabajado', en: '01 · Where I have worked' }, reveal: { style: 'slam' }, motion: 'push', motif: 'pixel', items: ['work', 'scrap-arrow'] },
-    { id: 'stop-5', label: { es: '02 · Dónde he estudiado', en: '02 · Where I have studied' }, reveal: { style: 'drop' }, motion: 'glide', motif: 'ink', items: ['edu', 'scrap-spiral'] },
-    { id: 'stop-6', label: { es: 'Lo siguiente: Londres', en: 'Next stop: London' }, reveal: { style: 'flip' }, motion: 'arc', motif: 'postmark', items: ['ticket-ucl'] },
-    { id: 'stop-7', label: { es: 'Más fotos', en: 'More photos' }, reveal: { style: 'fade' }, motion: 'drift', motif: 'dust', items: ['cc5400c7-f3d0-4138-92d3-f70a5ae443f6', 'a6c656f2-3aa7-4585-97b0-a19753bf86f1'] },
-    { id: 'stop-8', label: { es: '03 · El laboratorio', en: '03 · The lab bench' }, reveal: { style: 'zoom' }, motion: 'swoop', motif: 'spark', items: ['lab', 'scrap-bulb'] },
-    { id: 'stop-9', label: { es: 'Y unas cuantas más', en: 'And a few more' }, reveal: { style: 'fade' }, motion: 'drift', motif: 'dust', items: ['fb625376-c68f-4aa8-bd2c-dbf31846b5fd', '0b7edf74-f03b-465c-afbf-eac0714a3b67'] },
-    { id: 'stop-10', label: { es: '04 · Lo que construyo', en: '04 · What I build' }, reveal: { style: 'stick' }, motion: 'glide', motif: 'pixel', items: ['repos', 'term-repos'] },
-    { id: 'stop-11', label: { es: '05 · Competiciones', en: '05 · Competitions' }, reveal: { style: 'slam' }, motion: 'spring', motif: 'confetti', items: ['hack', 'scrap-star'] },
-    { id: 'stop-12', label: { es: '06 · El negocio que monté', en: '06 · The business I built' }, reveal: { style: 'rise' }, motion: 'drift', motif: 'leaf', items: ['diary', 'scrap-wave'] },
-    { id: 'stop-13', label: { es: 'El tablero, por años', en: 'The board, by year' }, reveal: { style: 'zoom' }, motion: 'push', motif: 'grid', items: ['plot-years'] },
-    { id: 'stop-14', label: { es: '07 · Cuando se puede, ayudamos', en: '07 · When we can, we help' }, reveal: { style: 'fade' }, motion: 'drift', motif: 'leaf', items: ['vol', 'scrap-leaf'] },
-    { id: 'stop-15', label: { es: '08 · A coger mundo', en: '08 · Off to see the world' }, reveal: { style: 'flip' }, motion: 'arc', motif: 'postmark', items: ['9ab9f373-b73a-4d50-824d-06a90005c5fc', '0c77969f-c720-4b16-ae42-0d5877e05c86', 'scrap-bracket'] },
-    { id: 'stop-16', label: { es: 'Sellos en el pasaporte', en: 'Stamps in the passport' }, reveal: { style: 'zoom' }, motion: 'push', motif: 'postmark', items: ['stamp-py', 'stamp-sk'] },
-    { id: 'stop-17', label: { es: '09 · Tres idiomas', en: '09 · Three languages' }, reveal: { style: 'flip' }, motion: 'glide', motif: 'ink', items: ['langs', 'e3515a8c-9766-44c0-a0a0-3d17ff9f3a8a', 'scrap-circle'] },
-    { id: 'stop-18', label: { es: 'Otras tantas', en: 'A few others' }, reveal: { style: 'fade' }, motion: 'drift', motif: 'dust', items: ['8e9687a7-3bc6-4fb4-9efe-b967165110a8', 'abd756d1-fef8-4243-938b-4a1e59a11705'] },
-    { id: 'stop-19', label: { es: '10 · Fuera del CV', en: '10 · Off the CV' }, reveal: { style: 'swing' }, motion: 'drift', motif: 'star', items: ['random'] },
-    { id: 'stop-20', label: { es: 'Las últimas', en: 'The last of them' }, reveal: { style: 'fade' }, motion: 'drift', motif: 'dust', items: ['da4981ab-6ee3-41e9-a7a3-691faa9b3b25', 'cd8ee42e-7bd9-4bdf-a560-35576db3ce66', 'scrap-die'] },
-    { id: 'stop-21', label: { es: '11 · En el aire', en: '11 · On the air' }, reveal: { style: 'rise' }, motion: 'arc', motif: 'beat', items: ['pod', 'c8b59d16-b101-4d16-b029-3a938ed771ef', 'scrap-cross'] },
-    { id: 'stop-22', label: { es: '12 · Dónde encontrarme', en: '12 · Where to find me' }, reveal: { style: 'stick' }, motion: 'push', motif: 'spark', items: ['contact'] },
+    // The walk halts on the thirteen things worth reading: the title, and the
+    // twelve numbered cards. Everything else on the slate — the loose photos,
+    // the stamps, the drawn marks, the boarding pass — lands beside whichever
+    // card it belongs to, without the camera ever widening for it. A visitor
+    // who never touches a thing still walks the whole portfolio in thirteen
+    // taps, and the board fills in around them as they go.
+    {
+      id: 'stop-1',
+      label: { es: 'Quién soy', en: 'Who I am' },
+      reveal: { style: 'rise' }, motion: 'glide', motif: 'ink',
+      items: ['hero'],
+      extras: ['6248ec11-6759-498b-92cb-9e3199de7fad', 'now'],
+    },
+    {
+      id: 'stop-2',
+      label: { es: '01 · Dónde he trabajado', en: '01 · Where I have worked' },
+      reveal: { style: 'slam' }, motion: 'push', motif: 'pixel',
+      items: ['work'],
+      extras: ['dc7efc3d-fe79-43fa-b0e9-7d8336637934', 'scrap-arrow'],
+    },
+    {
+      id: 'stop-3',
+      label: { es: '02 · Dónde he estudiado', en: '02 · Where I have studied' },
+      reveal: { style: 'drop' }, motion: 'glide', motif: 'ink',
+      items: ['edu'],
+      extras: ['cc5400c7-f3d0-4138-92d3-f70a5ae443f6', 'scrap-spiral'],
+    },
+    {
+      id: 'stop-4',
+      label: { es: '03 · El laboratorio', en: '03 · The lab bench' },
+      reveal: { style: 'zoom' }, motion: 'swoop', motif: 'spark',
+      items: ['lab'],
+      extras: ['fb625376-c68f-4aa8-bd2c-dbf31846b5fd', 'scrap-bulb', 'ticket-ucl'],
+    },
+    {
+      id: 'stop-5',
+      label: { es: '04 · Lo que construyo', en: '04 · What I build' },
+      reveal: { style: 'stick' }, motion: 'glide', motif: 'pixel',
+      items: ['repos'],
+      extras: ['058364fb-99aa-4218-8eb4-7dc54f2eb270', 'term-repos', 'scrap-coffee', '76ef90fd-0892-4f81-895d-d3c499c4c591'],
+    },
+    {
+      id: 'stop-6',
+      label: { es: '05 · Competiciones', en: '05 · Competitions' },
+      reveal: { style: 'slam' }, motion: 'spring', motif: 'confetti',
+      items: ['hack'],
+      extras: ['a6c656f2-3aa7-4585-97b0-a19753bf86f1', 'scrap-star'],
+    },
+    {
+      id: 'stop-7',
+      label: { es: '06 · El negocio que monté', en: '06 · The business I built' },
+      reveal: { style: 'rise' }, motion: 'drift', motif: 'leaf',
+      items: ['diary'],
+      extras: ['0b7edf74-f03b-465c-afbf-eac0714a3b67', 'scrap-wave'],
+    },
+    {
+      id: 'stop-8',
+      label: { es: '07 · Cuando se puede, ayudamos', en: '07 · When we can, we help' },
+      reveal: { style: 'fade' }, motion: 'drift', motif: 'leaf',
+      items: ['vol'],
+      extras: ['plot-years', 'scrap-leaf', '0c77969f-c720-4b16-ae42-0d5877e05c86'],
+    },
+    {
+      id: 'stop-9',
+      label: { es: '08 · A coger mundo', en: '08 · Off to see the world' },
+      reveal: { style: 'flip' }, motion: 'arc', motif: 'postmark',
+      items: ['9ab9f373-b73a-4d50-824d-06a90005c5fc'],
+      extras: ['e3515a8c-9766-44c0-a0a0-3d17ff9f3a8a', 'scrap-bracket'],
+    },
+    {
+      id: 'stop-10',
+      label: { es: '09 · Tres idiomas', en: '09 · Three languages' },
+      reveal: { style: 'flip' }, motion: 'glide', motif: 'ink',
+      items: ['langs'],
+      extras: ['scrap-circle', 'stamp-py', 'stamp-sk', '8e9687a7-3bc6-4fb4-9efe-b967165110a8'],
+    },
+    {
+      id: 'stop-11',
+      label: { es: '10 · Fuera del CV', en: '10 · Off the CV' },
+      reveal: { style: 'swing' }, motion: 'drift', motif: 'star',
+      items: ['random'],
+      extras: ['da4981ab-6ee3-41e9-a7a3-691faa9b3b25', 'scrap-die', 'cd8ee42e-7bd9-4bdf-a560-35576db3ce66'],
+    },
+    {
+      id: 'stop-12',
+      label: { es: '11 · En el aire', en: '11 · On the air' },
+      reveal: { style: 'rise' }, motion: 'arc', motif: 'beat',
+      items: ['pod'],
+      extras: ['c8b59d16-b101-4d16-b029-3a938ed771ef', 'scrap-cross', 'abd756d1-fef8-4243-938b-4a1e59a11705'],
+    },
+    {
+      id: 'stop-13',
+      label: { es: '12 · Dónde encontrarme', en: '12 · Where to find me' },
+      reveal: { style: 'stick' }, motion: 'push', motif: 'spark',
+      items: ['contact'],
+    },
   ],
 };
