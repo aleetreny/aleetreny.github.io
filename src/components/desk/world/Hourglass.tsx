@@ -58,6 +58,9 @@ export function Hourglass() {
   // Sand, and then the joke about sand.
   useFrame((dt) => {
     const list = (grains.current ??= fill(true));
+    // Sand that has finished falling is sand: there is nothing left to
+    // integrate, and the pile check below is quadratic. Stop.
+    if (!reversing && list.every((grain) => grain.settled)) return;
     const step = Math.min(2, dt / 16.7);
     const down = reversing ? (flipped ? 1 : -1) : (flipped ? -1 : 1);
     for (const grain of list) {

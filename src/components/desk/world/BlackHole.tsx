@@ -39,7 +39,8 @@ export function BlackHole({ boardSize }: { boardSize: { width: number; height: n
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const disk = useRef<Array<{ r: number; a: number; w: number; hue: number }> | null>(null);
-  const image = useRef<ImageData | null>(null);
+  const sky = useRef<HTMLCanvasElement | null>(null);
+  const bent = useRef(0);
   const onScreen = useOnScreen(hostRef, '400px');
   const eaten = useMemo(() => swallowed.filter((id) => id !== 'blackhole').length, [swallowed]);
   const gone = swallowed.includes('blackhole');
@@ -128,19 +129,23 @@ export function BlackHole({ boardSize }: { boardSize: { width: number; height: n
     }
   }, [boardRef, placeRef]);
 
-  useFrame((dt, now) => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-    const px = SIZE * SCALE;
-    if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
+  /** The lensed background. Every pixel of it is a ray traced through the
+   *  weak-field deflection, which is worth doing exactly once: the map does not
+   *  change, and neither do the stars behind it. Drawn into an offscreen canvas
+   *  and blitted from then on, so the per-frame cost is the disk and nothing
+   *  else. */
+  const backdrop = useCallback((px: number): HTMLCanvasElement | null => {
+    const cached = sky.current;
+    if (cached && cached.width === px) return cached;
+    const canvas = document.createElement('canvas');
+    canvas.width = px;
+    canvas.height = px;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
     const mid = px / 2;
     const rs = RS * SCALE;
-
-    // ---- the lensed background, computed per pixel ------------------------
-    if (!image.current) image.current = ctx.createImageData(px, px);
-    const data = image.current.data;
-    const drift = now * 0.00004;
+    const image = ctx.createImageData(px, px);
+    const data = image.data;
     for (let y = 0; y < px; y += 1) {
       const dy = y - mid;
       for (let x = 0; x < px; x += 1) {
@@ -156,7 +161,7 @@ export function BlackHole({ boardSize }: { boardSize: { width: number; height: n
         // Weak-field deflection, softened at the ring so it stays finite.
         const alpha = (2 * rs) / b;
         const k = 1 + alpha * 1.55;
-        const sx = dx * k + drift * 900;
+        const sx = dx * k;
         const sy = dy * k;
         const star = starField(sx, sy);
         // Everything close to the ring is smeared and blueshifted.
@@ -173,7 +178,23 @@ export function BlackHole({ boardSize }: { boardSize: { width: number; height: n
         data[p + 3] = Math.min(255, (14 + star * 245 + grid * 62 + boost * 130) * fade);
       }
     }
-    ctx.putImageData(image.current, 0, 0);
+    ctx.putImageData(image, 0, 0);
+    sky.current = canvas;
+    return canvas;
+  }, []);
+
+  useFrame((dt) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    const px = SIZE * SCALE;
+    if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
+    const mid = px / 2;
+    const rs = RS * SCALE;
+
+    ctx.clearRect(0, 0, px, px);
+    const behind = backdrop(px);
+    if (behind) ctx.drawImage(behind, 0, 0);
 
     // ---- the photon ring --------------------------------------------------
     const ring = ctx.createRadialGradient(mid, mid, rs * 1.42, mid, mid, rs * 1.85);
@@ -213,7 +234,11 @@ export function BlackHole({ boardSize }: { boardSize: { width: number; height: n
     ctx.arc(mid, mid, rs * 1.4, 0, Math.PI * 2);
     ctx.fill();
 
-    bendNeighbours();
+    bent.current -= dt;
+    if (bent.current <= 0) {
+      bent.current = 100;
+      bendNeighbours();
+    }
   }, onScreen && !reduced && !gone);
 
   // The board goes back to being flat the moment the hole stops looking.

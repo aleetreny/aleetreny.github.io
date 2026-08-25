@@ -100,6 +100,7 @@ const CATALOGUE: Record<string, Entry> = {
   'owner.tour': { es: 'visita', en: 'tour' },
   'owner.entries': { es: 'artículos', en: 'entries' },
   'owner.wording': { es: 'textos', en: 'wording' },
+  'owner.objects': { es: 'objetos', en: 'objects' },
   'owner.preview': { es: 'vista previa', en: 'preview' },
   'owner.previewTitle': { es: 'Vista previa local — los cambios no se guardan', en: 'Local preview — changes are not saved' },
   'owner.signOut': { es: 'cerrar sesión', en: 'sign out' },

@@ -46,6 +46,32 @@ article, its width, measure, body face and size, leading, title size, weight,
 case and tracking, opening-line style, drop cap, block numbering, gap, entrance
 animation and scrim.
 
+## Things on the desk
+
+A visitor can read the twelve cards, open a dossier and leave without touching
+anything odd. Or they can start poking at the twenty-six objects lying on the
+same slate.
+
+A book whose covers swing and whose leaves you can take by the corner and pull
+over. A coin that is not fair, and quietly builds a posterior about itself. A
+petri dish running Gray–Scott reaction-diffusion, a slime mould that grows a
+network between whatever food you drop in front of it, a lamp that finds the
+angle at which a cloud's shadow keeps the most structure. A passport with a
+stamp for every country and a page behind every stamp. A camera that takes a
+real photograph of the board it is standing on. A paint gun you pick up, which
+turns the cursor into a sight and stains whatever you hit — including the
+passport, and including the photographs. A black hole with a real gravitational
+lens in it, which you can throw the coin into and get it back. A garden that
+other visitors planted, growing on the wall clock rather than on how long your
+tab was open.
+
+None of it is announced. They share one animation loop, one physics integrator
+and one set of traits, they stop dead the moment they leave the viewport, and
+they are all switched on, moved, resized or put away from the editor.
+
+[docs/desk-objects.md](docs/desk-objects.md) is the whole design: what runs, what
+is real maths, what is stored where, and what it costs.
+
 ## Two languages, written in one
 
 Write in the language you think in; the other is filled in for you and stored
@@ -57,9 +83,13 @@ start.
 ## The first visit
 
 A visitor does not get the board all at once. The slate slams onto the wall, and
-then they walk it stop by stop at their own pace while each drawer, photo and
-note is stuck on. When the run ends the board is exactly the board that ships —
-pan, zoom, drag, dossiers, toolbar.
+then they walk it card by card at their own pace while each drawer, photo and
+note is stuck on. The walk halts thirteen times — the title and the twelve
+numbered cards — and everything else the board carries lands beside whichever
+card it belongs to, without the camera ever widening to frame it. A halt on a
+loose photo is a halt on nothing. When the run ends the board is exactly the
+board that ships — pan, zoom, drag, dossiers, toolbar, and a desk covered in
+things to find.
 
 `Escape` or `skip` leaves at any point, `↻ tour` replays it, and it never runs
 under `prefers-reduced-motion: reduce` or in owner mode. Nine route shapes, three
@@ -80,7 +110,8 @@ editable.
 The public site is a static SPA. The versioned catalogue
 (`fixtures/demo-content.json`, generated with `pnpm content:build`) holds the
 dossiers, and `fixtures/site-settings.json` holds the board configuration:
-`theme`, `board`, `board.layout`, `board.tour` and `site.i18n`.
+`theme`, `board`, `board.layout`, `board.tour`, `board.objects`,
+`board.passport`, `board.world` and `site.i18n`.
 
 With `VITE_ENABLE_REMOTE_DATA=false` it runs entirely from those fixtures, with
 no database at all. With Neon configured it reads published content and settings,
@@ -341,8 +372,9 @@ repository without putting the rest of the catalogue back to what this
 repository last generated. Locally it is `SEED_ONLY=lab-kepler pnpm db:seed`.
 
 `only_settings` does the same for the settings documents — `board,board.layout,
-board.tour` republishes the cover, the positions and the guided tour without
-touching a single dossier. The two combine, and either one on its own makes the
+board.tour,board.objects,board.passport,board.world` republishes the cover, the
+positions, the guided tour and everything lying on the desk without touching a
+single dossier. The two combine, and either one on its own makes the
 run targeted. Locally it is `SEED_SETTINGS=board,board.tour pnpm db:seed`.
 Note that seeding `board.layout` resets it to what `content/source` says, which
 is deliberate: the authored positions become the board again, and any drag saved
@@ -369,6 +401,7 @@ as a backup store.
 
 ## Carrying on
 
+- The objects on the desk, and how they work: [docs/desk-objects.md](docs/desk-objects.md).
 - Feature-by-feature status and completion criteria: [PROJECT_STATUS.md](PROJECT_STATUS.md).
 - The full feature and settings reference: [docs/handbook.md](docs/handbook.md).
 - Operational handoff to another machine: [docs/handoff.md](docs/handoff.md).

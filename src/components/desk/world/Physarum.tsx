@@ -15,8 +15,11 @@ import { useWorld } from '../../../lib/world/context';
 import { useFrame, useOnScreen } from '../../../lib/world/frame';
 import { useUiText } from '../ui-text-context';
 
-const N = 128;
-const AGENTS = 3600;
+// The domain is wider than the dish on purpose, at the same resolution: the
+// culture is allowed over the rim, and the network keeps the scale it reads
+// best at.
+const N = 176;
+const AGENTS = 4800;
 const SENSE = 7;
 const SENSE_ANGLE = 0.42;
 const TURN = 0.38;
@@ -150,6 +153,9 @@ export function Physarum() {
 
   return (
     <ObjectShell id="physarum" label={t('world.slime.label')} hint={awake ? undefined : t('world.slime.hint')}>
+      {/* The dish is drawn under the culture and the culture is drawn wider
+          than the dish, so a colony that has found food near the rim crawls
+          over it and out onto the slate — which is what this organism does. */}
       <div className="slime" ref={hostRef}>
         <span className="slime__ring" aria-hidden="true" />
         <canvas
@@ -157,7 +163,7 @@ export function Physarum() {
           width={N}
           height={N}
           data-nodrag
-          style={{ width: 138, height: 138 }}
+          style={{ width: 196, height: 196 }}
           onPointerDown={drop}
         />
         {!awake ? <button className="slime__wake" type="button" data-nodrag onClick={() => setAwake(true)}>·</button> : null}

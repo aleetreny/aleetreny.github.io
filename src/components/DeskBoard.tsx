@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PortfolioEntry, StoredPortfolioEntry } from '../types/content';
 import { demoEntries, demoSettings } from '../content/demo';
 import {
@@ -111,8 +111,15 @@ import { TourBar } from './desk/TourBar';
 import { WorldProvider, type PaintMode } from '../lib/world/context';
 import { parseObjects, type DeskObject } from '../lib/world/kinds';
 import { DEFAULT_STAMPS, parseStamps, type PassportStamp } from '../lib/world/passport';
-import { WorldLayer, WorldOverlay } from './desk/world/WorldLayer';
-import { ObjectsPanel } from './desk/ObjectsPanel';
+
+// The desk is furniture, and furniture arrives after the room. Everything
+// lying on the slate — all twenty-six objects and the chrome a held tool needs
+// — is one chunk fetched once the board has already painted, so the portfolio
+// itself weighs exactly what it did before any of this existed. The ten canvas
+// objects split again from there.
+const WorldLayer = lazy(() => import('./desk/world/WorldLayer').then((m) => ({ default: m.WorldLayer })));
+const WorldOverlay = lazy(() => import('./desk/world/WorldLayer').then((m) => ({ default: m.WorldOverlay })));
+const ObjectsPanel = lazy(() => import('./desk/ObjectsPanel').then((m) => ({ default: m.ObjectsPanel })));
 import { TourPanel } from './desk/TourPanel';
 import { WordingPanel } from './desk/WordingPanel';
 import { UiTextContext } from './desk/ui-text-context';
@@ -2365,14 +2372,16 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
           {/* Everything loose on the slate. Inside the board, so it shares the
               camera, the light and the coordinates with the paper. */}
-          <WorldLayer objects={objects} boardSize={board.size} onJump={jump} />
+          <Suspense fallback={null}>
+            <WorldLayer objects={objects} boardSize={board.size} onJump={jump} />
+          </Suspense>
           </div>
         </div>
       </div>
 
       {/* The chrome a held tool needs, outside the camera so it stays the size
           the screen drew it. */}
-      {!openEntry ? <WorldOverlay boardSize={board.size} /> : null}
+      {!openEntry ? <Suspense fallback={null}><WorldOverlay boardSize={board.size} /></Suspense> : null}
 
       {error ? <div className="board-error" role="alert">{error}</div> : null}
 
@@ -2617,6 +2626,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       ) : null}
 
       {objectsOpen ? (
+        <Suspense fallback={null}>
         <ObjectsPanel
           objects={objects}
           paintMode={paintMode}
@@ -2624,6 +2634,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           onPaintMode={(mode) => commitWorld({ paint: mode })}
           onClose={() => setObjectsOpen(false)}
         />
+        </Suspense>
       ) : null}
 
       {toast ? <div className={`owner-toast ${toast.error ? 'owner-toast--err' : ''}`}>{toast.text}</div> : null}

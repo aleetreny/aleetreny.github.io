@@ -110,6 +110,22 @@ function Print({ id }: { id: string }) {
         </div>
         <span className="print__cap">{new Date(photo.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
+      <button
+        className="print__turn"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          const el = ref.current;
+          if (!el) return;
+          // A print on a desk gets nudged round rather than aligned. Six
+          // degrees a press, wrapping through a full turn.
+          const next = Math.round(((parseFloat(el.dataset.rot ?? '0') || 0) + 6) * 10) / 10;
+          el.dataset.rot = String(next > 180 ? next - 360 : next);
+          el.style.transform = `rotate(${el.dataset.rot}deg)`;
+        }}
+        aria-label={t('cardmenu.rotation')}
+        title={t('cardmenu.rotation')}
+      >↻</button>
       <button className="print__x" type="button" onClick={() => dropPhoto(photo.id)} aria-label={t('world.cam.discard')}>×</button>
       {mine.length > 0 ? <div className="obj__paint">{mine.map((splat) => <SplatMark key={splat.id} splat={splat} />)}</div> : null}
     </div>
