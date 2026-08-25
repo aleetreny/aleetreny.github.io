@@ -107,6 +107,11 @@ import { ImageSlot } from './desk/ImageSlot';
 import { ThemePanel } from './desk/ThemePanel';
 import { InventoryPanel } from './desk/InventoryPanel';
 import { TourBar } from './desk/TourBar';
+import { WorldProvider, type PaintMode } from '../lib/world/context';
+import { parseObjects, type DeskObject } from '../lib/world/kinds';
+import { DEFAULT_STAMPS, parseStamps, type PassportStamp } from '../lib/world/passport';
+import { WorldLayer, WorldOverlay } from './desk/world/WorldLayer';
+import { ObjectsPanel } from './desk/ObjectsPanel';
 import { TourPanel } from './desk/TourPanel';
 import { WordingPanel } from './desk/WordingPanel';
 import { UiTextContext } from './desk/ui-text-context';
@@ -225,6 +230,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const [tourOpen, setTourOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [wordingOpen, setWordingOpen] = useState(false);
+  const [objectsOpen, setObjectsOpen] = useState(false);
   const [cardMenu, setCardMenu] = useState<string | null>(null);
   const [overflowGroup, setOverflowGroup] = useState<string | null>(null);
   const [loginError, setLoginError] = useState('');
@@ -256,6 +262,24 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     ),
     [rawBoard, i18n.enabled, i18n.primary, activeLang],
   );
+  // The loose things on the slate, and the two documents they read from. Both
+  // fall back to what the repository ships, so a board seeded before any of
+  // this existed still gets the whole desk.
+  const objects = useMemo<DeskObject[]>(() => parseObjects(settings['board.objects']), [settings]);
+  // Localise the stored document, then parse it — the same order the tour
+  // needs, and for the same reason: parsing coerces every value to the shape it
+  // expects, and a `{ es, en }` place name is not a string yet.
+  const passport = useMemo<PassportStamp[]>(() => {
+    const stored = settings['board.passport'];
+    const parsed = parseStamps(i18n.enabled ? localise(stored, activeLang, i18n.primary) : stored);
+    return parsed.length > 0 ? parsed : DEFAULT_STAMPS;
+  }, [settings, i18n.enabled, i18n.primary, activeLang]);
+  const paintMode = useMemo<PaintMode>(() => {
+    const world = settings['board.world'];
+    const mode = world && typeof world === 'object' ? (world as Record<string, unknown>).paint : undefined;
+    return mode === 'global' || mode === 'none' ? mode : 'session';
+  }, [settings]);
+
   const tour = useMemo<TourConfig>(() => {
     // Localise the stored document, then parse it. The other way round loses
     // every bilingual field the tour carries: parsing coerces a value to the
@@ -591,8 +615,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   // props: React writes no `opacity` or `pointer-events` on these nodes, so its
   // style diffing leaves the values alone and an unrelated re-render cannot
   // undo the tour.
+  // The loose objects are hidden and revealed with everything else: a tour that
+  // walks a bare slate and then finds the desk already covered in clutter has
+  // told the visitor the wrong story. They are not *stops* — nothing routes
+  // through them — so `revealAll` at the end is what puts them out.
   const boardItems = useCallback(
-    () => Array.from(boardRef.current?.querySelectorAll<HTMLElement>('[data-card]') ?? []),
+    () => Array.from(boardRef.current?.querySelectorAll<HTMLElement>('[data-card],[data-obj]') ?? []),
     [],
   );
   const studEls = useCallback(
@@ -637,7 +665,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const revealAll = useCallback((settle = false) => {
     const held: HTMLElement[] = [];
     for (const el of boardItems()) {
-      const id = el.dataset.card;
+      const id = el.dataset.card ?? el.dataset.obj;
       const late = settle && !!id && !shownRef.current.has(id);
       el.style.opacity = '1';
       el.style.pointerEvents = '';
@@ -1097,8 +1125,30 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     }
     return next as T;
   }, [i18n.enabled, i18n.primary, activeLang]);
+
+  /** Stamps carry prose, so an edit lands in the language the owner is in. */
+  const commitPassport = useCallback((next: PassportStamp[]) => {
+    // The edit arrives in one language; the document keeps them all. Merge each
+    // stamp back over its stored record so the other language survives.
+    const stored = settings['board.passport'];
+    const byId = new Map<string, Record<string, unknown>>();
+    if (Array.isArray(stored)) {
+      for (const row of stored as Array<Record<string, unknown>>) {
+        if (row && typeof row.id === 'string') byId.set(row.id, row);
+      }
+    }
+    const merged = next.map((stamp) => patchText(
+      byId.get(stamp.id) ?? {},
+      stamp as unknown as Record<string, unknown>,
+      ['place', 'note', 'city'],
+    ));
+    setSettings((s) => ({ ...s, 'board.passport': merged }));
+    saveSetting('board.passport', merged);
+  }, [patchText, saveSetting, settings]);
   const commitLayout = useCallback((next: LayoutMap) => { setSettings((s) => ({ ...s, 'board.layout': next })); saveSetting('board.layout', next, 150); }, [saveSetting]);
   const commitTour = useCallback((next: TourConfig) => { setSettings((s) => ({ ...s, 'board.tour': next })); saveSetting('board.tour', next); }, [saveSetting]);
+  const commitObjects = useCallback((next: DeskObject[]) => { setSettings((s) => ({ ...s, 'board.objects': next })); saveSetting('board.objects', next); }, [saveSetting]);
+  const commitWorld = useCallback((next: { paint: PaintMode }) => { setSettings((s) => ({ ...s, 'board.world': next })); saveSetting('board.world', next); }, [saveSetting]);
 
   // A ref, because the translate action is declared after the edit path that
   // triggers it and neither should force the other to re-create.
@@ -1321,6 +1371,13 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     const asset = await uploadMedia(file, file.name);
     return { url: asset.publicUrl, mimeType: asset.mimeType };
   }, [remoteDataEnabled]);
+
+  /** The same upload path, in the shape the world's objects want: a URL, or a
+   *  throw. The passport's photographs are the only caller today. */
+  const uploadWorldMedia = useCallback(
+    (file: File) => uploadMediaFile(file).then((media) => media.url),
+    [uploadMediaFile],
+  );
 
   const pickPolaroidMedia = useCallback((polaroidId: string, file: File) => {
     setPolBusy(polaroidId);
@@ -1993,6 +2050,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
   return (
     <UiTextContext value={t}>
+      <WorldProvider
+        objects={objects}
+        boardRef={boardRef}
+        boardSize={board.size}
+        paintMode={paintMode}
+        onPaintMode={(mode) => commitWorld({ paint: mode })}
+        passport={passport}
+        onPassport={commitPassport}
+        editing={editing}
+        upload={uploadWorldMedia}
+      >
       <div
         className="desk"
         ref={viewportRef}
@@ -2290,9 +2358,17 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
               </div>
             );
           })}
+
+          {/* Everything loose on the slate. Inside the board, so it shares the
+              camera, the light and the coordinates with the paper. */}
+          <WorldLayer objects={objects} boardSize={board.size} onJump={jump} />
           </div>
         </div>
       </div>
+
+      {/* The chrome a held tool needs, outside the camera so it stays the size
+          the screen drew it. */}
+      {!openEntry ? <WorldOverlay /> : null}
 
       {error ? <div className="board-error" role="alert">{error}</div> : null}
 
@@ -2388,6 +2464,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                   <button className="tbtn" type="button" onClick={() => setTourOpen(true)}>{t('owner.tour')}</button>
                   <button className="tbtn" type="button" onClick={() => setInventoryOpen(true)}>{t('owner.entries')}</button>
                   <button className="tbtn" type="button" onClick={() => setWordingOpen(true)}>{t('owner.wording')}</button>
+                  <button className="tbtn" type="button" onClick={() => setObjectsOpen(true)}>{t('owner.objects')}</button>
                   {localEdit ? <span className="ownerbar__badge" title={t('owner.previewTitle')}>{t('owner.preview')}</span> : <button className="tbtn tbtn--ghost" type="button" onClick={doLogout} title={t('owner.signOut')}>⏏</button>}
                 </div>
               </div>
@@ -2535,7 +2612,18 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         />
       ) : null}
 
+      {objectsOpen ? (
+        <ObjectsPanel
+          objects={objects}
+          paintMode={paintMode}
+          onChange={commitObjects}
+          onPaintMode={(mode) => commitWorld({ paint: mode })}
+          onClose={() => setObjectsOpen(false)}
+        />
+      ) : null}
+
       {toast ? <div className={`owner-toast ${toast.error ? 'owner-toast--err' : ''}`}>{toast.text}</div> : null}
+      </WorldProvider>
     </UiTextContext>
   );
 }

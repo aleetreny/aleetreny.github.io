@@ -4,7 +4,14 @@
 // and this file only matters for a clean re-seed or the offline safe copy.
 
 // Board is authored on a fixed canvas; the app fits/zooms it to any screen.
-export const BOARD = {"width": 3390, "height": 2500};
+//
+// The slate runs 730px further right than the cards need, and that space is
+// not empty: it is where the desk keeps going. Seven of the loose objects live
+// out there, including the black hole, which needs the clearance. Widening
+// rather than heightening is deliberate — every ordinary screen is wider than
+// it is tall, so "fit the whole board" is limited by the height and the extra
+// width costs the opening view nothing at all.
+export const BOARD = {"width": 4120, "height": 2500};
 
 // Default visual theme. Every value here is editable live from the owner theme
 // panel and stored in site_settings.theme.
@@ -166,8 +173,8 @@ export const CARDS = [
     id: "hero",
     type: "hero",
     jump: "me",
-    x: 132,
-    y: 96,
+    x: 130,
+    y: 137,
     rot: 0.9,
     w: 620,
     kicker: {"es": "Portfolio", "en": "Portfolio"},
@@ -183,8 +190,8 @@ export const CARDS = [
     current: "siemens",
     next: "ucl",
     tone: "amber",
-    x: 1156,
-    y: 128,
+    x: 1064,
+    y: 1844,
     rot: -2.4,
     w: 430,
     label: {"es": "Actualmente", "en": "Currently"},
@@ -200,8 +207,8 @@ export const CARDS = [
     jump: "work",
     group: "work",
     tone: "paper",
-    x: 96,
-    y: 742,
+    x: 929,
+    y: 136,
     rot: -2.2,
     w: 620,
     kicker: {"es": "01 — Experiencia profesional", "en": "01 — Professional experience"},
@@ -218,8 +225,8 @@ export const CARDS = [
     jump: "edu",
     group: "edu",
     tone: "dark",
-    x: 148,
-    y: 1214,
+    x: 1760,
+    y: 276,
     rot: 1.7,
     w: 620,
     kicker: {"es": "02 — Estudios", "en": "02 — Studies"},
@@ -234,8 +241,8 @@ export const CARDS = [
     jump: "lab",
     group: "lab",
     tone: "slate",
-    x: 104,
-    y: 1672,
+    x: 2539,
+    y: 110,
     rot: -1.4,
     w: 620,
     kicker: {"es": "03 — Laboratorio", "en": "03 — Lab bench"},
@@ -252,8 +259,8 @@ export const CARDS = [
     jump: "repos",
     group: "repos",
     tone: "paper",
-    x: 1126,
-    y: 586,
+    x: 3478,
+    y: 93,
     rot: 2.1,
     w: 430,
     maxItems: 4,
@@ -270,8 +277,8 @@ export const CARDS = [
     jump: "hack",
     group: "hack",
     tone: "amber",
-    x: 1162,
-    y: 1306,
+    x: 3478,
+    y: 1031,
     rot: -2.8,
     w: 430,
     kicker: {"es": "05 — Competiciones", "en": "05 — Competitions"},
@@ -286,8 +293,8 @@ export const CARDS = [
     jump: "diary",
     open: "diary",
     tone: "paperCream",
-    x: 1134,
-    y: 1994,
+    x: 2621,
+    y: 961,
     rot: 2.6,
     w: 430,
     kicker: {"es": "06 — Emprendimiento", "en": "06 — Entrepreneurship"},
@@ -304,8 +311,8 @@ export const CARDS = [
     jump: "vol",
     group: "vol",
     tone: "paper",
-    x: 1984,
-    y: 136,
+    x: 1757,
+    y: 1040,
     rot: 2.3,
     w: 450,
     kicker: {"es": "07 — Voluntariado", "en": "07 — Volunteering"},
@@ -319,8 +326,8 @@ export const CARDS = [
     type: "drawer",
     group: "experiencias-internacionales",
     tone: "paper",
-    x: 1952,
-    y: 776,
+    x: 937,
+    y: 948,
     rot: -2.7,
     w: 450,
     kicker: {"es": "08 — Experiencias internacionales", "en": "08 — International experiences"},
@@ -333,8 +340,8 @@ export const CARDS = [
     type: "sticker",
     open: "languages",
     tone: "paperCream",
-    x: 2018,
-    y: 1352,
+    x: 192,
+    y: 1108,
     rot: 4.6,
     w: 320,
     kicker: {"es": "09 — Idiomas", "en": "09 — Languages"},
@@ -348,8 +355,8 @@ export const CARDS = [
     jump: "random",
     group: "random",
     tone: "slate",
-    x: 2836,
-    y: 138,
+    x: 242,
+    y: 1850,
     rot: -2.1,
     w: 450,
     kicker: {"es": "10 — Hobbies", "en": "10 — Hobbies"},
@@ -365,8 +372,8 @@ export const CARDS = [
     jump: "pod",
     open: "podcast",
     tone: "paperWarm",
-    x: 2842,
-    y: 1448,
+    x: 1885,
+    y: 1922,
     rot: 2.4,
     w: 430,
     kicker: {"es": "11 — Podcast", "en": "11 — Podcast"},
@@ -378,8 +385,8 @@ export const CARDS = [
   {
     id: "c8b59d16-b101-4d16-b029-3a938ed771ef",
     type: "spotify",
-    x: 2812,
-    y: 1836,
+    x: 2484,
+    y: 1664,
     rot: -1.6,
     w: 430,
     spotifyUrl: "https://open.spotify.com/track/5jysHNTiZcXz83qaIXl3vf?si=491ad285481a43f2",
@@ -390,8 +397,8 @@ export const CARDS = [
     jump: "contact",
     open: "contact",
     tone: "dark",
-    x: 2838,
-    y: 2094,
+    x: 3453,
+    y: 1951,
     rot: 2.8,
     w: 450,
     kicker: {"es": "12 — Contacto", "en": "12 — Contact"},
@@ -404,8 +411,8 @@ export const CARDS = [
     type: "plot",
     open: "diary",
     tone: "dark",
-    x: 2452,
-    y: 140,
+    x: 2744,
+    y: 2184,
     rot: -1.8,
     w: 296,
     kicker: {"es": "En números", "en": "In numbers"},
@@ -420,8 +427,8 @@ export const CARDS = [
     id: "stamp-py",
     type: "stamp",
     open: "alda",
-    x: 2470,
-    y: 1420,
+    x: 3164,
+    y: 1204,
     rot: 3.6,
     w: 190,
     title: {"es": "Asunción", "en": "Asunción"},
@@ -433,8 +440,8 @@ export const CARDS = [
     id: "stamp-sk",
     type: "stamp",
     open: "erasmus-programme",
-    x: 2556,
-    y: 1660,
+    x: 3204,
+    y: 44,
     rot: -4.2,
     w: 190,
     title: {"es": "Bratislava", "en": "Bratislava"},
@@ -447,8 +454,8 @@ export const CARDS = [
     type: "ticket",
     open: "ucl",
     tone: "paperCream",
-    x: 790,
-    y: 2120,
+    x: 564,
+    y: 784,
     rot: 1.9,
     w: 320,
     kicker: {"es": "Embarque", "en": "Boarding"},
@@ -463,8 +470,8 @@ export const CARDS = [
     id: "term-repos",
     type: "terminal",
     tone: "dark",
-    x: 1600,
-    y: 940,
+    x: 2284,
+    y: 744,
     rot: -1.5,
     w: 300,
     fastener: "tape",
@@ -473,8 +480,8 @@ export const CARDS = [
   {
     id: "scrap-arrow",
     type: "scrap",
-    x: 790,
-    y: 660,
+    x: 1644,
+    y: 764,
     rot: -8,
     w: 130,
     kind: "arrow",
@@ -482,8 +489,8 @@ export const CARDS = [
   {
     id: "scrap-coffee",
     type: "scrap",
-    x: 1360,
-    y: 460,
+    x: 1644,
+    y: 1724,
     rot: 6,
     w: 110,
     kind: "coffee",
@@ -491,8 +498,8 @@ export const CARDS = [
   {
     id: "scrap-spiral",
     type: "scrap",
-    x: 800,
-    y: 1455,
+    x: 3144,
+    y: 1884,
     rot: -5,
     w: 110,
     kind: "spiral",
@@ -500,8 +507,8 @@ export const CARDS = [
   {
     id: "scrap-bulb",
     type: "scrap",
-    x: 800,
-    y: 1660,
+    x: 1584,
+    y: 364,
     rot: 7,
     w: 110,
     kind: "bulb",
@@ -509,8 +516,8 @@ export const CARDS = [
   {
     id: "scrap-star",
     type: "scrap",
-    x: 1600,
-    y: 1700,
+    x: 424,
+    y: 1624,
     rot: -9,
     w: 120,
     kind: "star",
@@ -518,8 +525,8 @@ export const CARDS = [
   {
     id: "scrap-wave",
     type: "scrap",
-    x: 1620,
-    y: 2300,
+    x: 3484,
+    y: 804,
     rot: 4,
     w: 120,
     kind: "wave",
@@ -527,8 +534,8 @@ export const CARDS = [
   {
     id: "scrap-leaf",
     type: "scrap",
-    x: 1870,
-    y: 480,
+    x: 3964,
+    y: 904,
     rot: -7,
     w: 95,
     kind: "leaf",
@@ -536,8 +543,8 @@ export const CARDS = [
   {
     id: "scrap-bracket",
     type: "scrap",
-    x: 2480,
-    y: 950,
+    x: 784,
+    y: 1384,
     rot: 5,
     w: 90,
     kind: "bracket",
@@ -545,8 +552,8 @@ export const CARDS = [
   {
     id: "scrap-circle",
     type: "scrap",
-    x: 2470,
-    y: 1300,
+    x: 2324,
+    y: 1424,
     rot: -6,
     w: 100,
     kind: "circle",
@@ -554,8 +561,8 @@ export const CARDS = [
   {
     id: "scrap-cross",
     type: "scrap",
-    x: 2470,
-    y: 1900,
+    x: 1504,
+    y: 1304,
     rot: 8,
     w: 110,
     kind: "cross",
@@ -563,8 +570,8 @@ export const CARDS = [
   {
     id: "scrap-die",
     type: "scrap",
-    x: 3160,
-    y: 730,
+    x: 784,
+    y: 344,
     rot: -5,
     w: 100,
     kind: "die",
@@ -575,8 +582,8 @@ export const CARDS = [
 export const POLAROIDS = [
   {
     id: "cd8ee42e-7bd9-4bdf-a560-35576db3ce66",
-    x: 2824,
-    y: 1112,
+    x: 3004,
+    y: 1584,
     rot: -3.9,
     w: 280,
     h: 220,
@@ -587,8 +594,8 @@ export const POLAROIDS = [
   },
   {
     id: "0b7edf74-f03b-465c-afbf-eac0714a3b67",
-    x: 1608,
-    y: 2012,
+    x: 644,
+    y: 1504,
     rot: 2.9,
     w: 280,
     h: 220,
@@ -599,8 +606,8 @@ export const POLAROIDS = [
   },
   {
     id: "76ef90fd-0892-4f81-895d-d3c499c4c591",
-    x: 1636,
-    y: 164,
+    x: 1864,
+    y: 724,
     rot: 3.8,
     w: 280,
     h: 220,
@@ -611,8 +618,8 @@ export const POLAROIDS = [
   },
   {
     id: "fb625376-c68f-4aa8-bd2c-dbf31846b5fd",
-    x: 778,
-    y: 1806,
+    x: 1564,
+    y: 2184,
     rot: -3.6,
     w: 280,
     h: 220,
@@ -623,8 +630,8 @@ export const POLAROIDS = [
   },
   {
     id: "dc7efc3d-fe79-43fa-b0e9-7d8336637934",
-    x: 772,
-    y: 806,
+    x: 784,
+    y: 484,
     rot: 3.4,
     w: 280,
     h: 220,
@@ -635,8 +642,8 @@ export const POLAROIDS = [
   },
   {
     id: "058364fb-99aa-4218-8eb4-7dc54f2eb270",
-    x: 1604,
-    y: 656,
+    x: 3164,
+    y: 744,
     rot: -2.6,
     w: 280,
     h: 220,
@@ -647,8 +654,8 @@ export const POLAROIDS = [
   },
   {
     id: "a6c656f2-3aa7-4585-97b0-a19753bf86f1",
-    x: 1642,
-    y: 1388,
+    x: 2144,
+    y: 1544,
     rot: -4.4,
     w: 280,
     h: 220,
@@ -659,8 +666,8 @@ export const POLAROIDS = [
   },
   {
     id: "0c77969f-c720-4b16-ae42-0d5877e05c86",
-    x: 2486,
-    y: 682,
+    x: 1404,
+    y: 1424,
     rot: -3.3,
     w: 280,
     h: 220,
@@ -671,8 +678,8 @@ export const POLAROIDS = [
   },
   {
     id: "cc5400c7-f3d0-4138-92d3-f70a5ae443f6",
-    x: 806,
-    y: 1188,
+    x: 3784,
+    y: 1604,
     rot: -2.8,
     w: 280,
     h: 220,
@@ -683,8 +690,8 @@ export const POLAROIDS = [
   },
   {
     id: "e3515a8c-9766-44c0-a0a0-3d17ff9f3a8a",
-    x: 2456,
-    y: 1034,
+    x: 44,
+    y: 704,
     rot: 4.1,
     w: 280,
     h: 220,
@@ -695,8 +702,8 @@ export const POLAROIDS = [
   },
   {
     id: "8e9687a7-3bc6-4fb4-9efe-b967165110a8",
-    x: 2012,
-    y: 1734,
+    x: 784,
+    y: 2184,
     rot: 3.1,
     w: 280,
     h: 220,
@@ -707,8 +714,8 @@ export const POLAROIDS = [
   },
   {
     id: "abd756d1-fef8-4243-938b-4a1e59a11705",
-    x: 1978,
-    y: 2052,
+    x: 2364,
+    y: 2184,
     rot: -2.4,
     w: 280,
     h: 220,
@@ -719,8 +726,8 @@ export const POLAROIDS = [
   },
   {
     id: "da4981ab-6ee3-41e9-a7a3-691faa9b3b25",
-    x: 2856,
-    y: 786,
+    x: 1324,
+    y: 624,
     rot: 3.7,
     w: 280,
     h: 220,
@@ -731,8 +738,8 @@ export const POLAROIDS = [
   },
   {
     id: "6248ec11-6759-498b-92cb-9e3199de7fad",
-    x: 812,
-    y: 214,
+    x: 44,
+    y: 1544,
     rot: -4.2,
     w: 280,
     h: 220,
@@ -748,8 +755,8 @@ export const POLAROIDS = [
 export const MARGINALIA = [
   {
     id: "note-1",
-    x: 776,
-    y: 556,
+    x: 1824,
+    y: 164,
     rot: 5.0,
     w: 250,
     style: "amber",
@@ -757,8 +764,8 @@ export const MARGINALIA = [
   },
   {
     id: "note-2",
-    x: 2828,
-    y: 2358,
+    x: 1024,
+    y: 1524,
     rot: -4.6,
     w: 270,
     style: "amber",
@@ -766,8 +773,8 @@ export const MARGINALIA = [
   },
   {
     id: "note-3",
-    x: 1616,
-    y: 1200,
+    x: 3024,
+    y: 2044,
     rot: 3.2,
     w: 270,
     style: "paper-dashed",
@@ -775,8 +782,8 @@ export const MARGINALIA = [
   },
   {
     id: "a9a3a0f2-2c01-4281-92e6-793a43a7c6ef",
-    x: 830,
-    y: 1548,
+    x: 3224,
+    y: 464,
     rot: 4.4,
     w: 220,
     style: "amber",
@@ -784,8 +791,8 @@ export const MARGINALIA = [
   },
   {
     id: "c39bd248-9410-4a4e-906c-44e1af0e39bc",
-    x: 1974,
-    y: 1648,
+    x: 44,
+    y: 44,
     rot: -4.0,
     w: 250,
     style: "paper-dashed",
@@ -793,14 +800,107 @@ export const MARGINALIA = [
   },
   {
     id: "79c733ce-7c0f-436b-a2b3-d90012b3ba85",
-    x: 1630,
-    y: 1892,
+    x: 2024,
+    y: 1844,
     rot: -3.8,
     w: 250,
     style: "amber",
     text: {"es": "Don't Panic", "en": "Don't Panic"},
   },
 ];
+
+// The loose objects on the slate — the other half of the board.
+//
+// A card is content: written, translated, seeded, read. An object is furniture:
+// a thing on a table that does something when you touch it. This is only where
+// each one starts, how big it is and whether it is out at all; what it *does*
+// lives in src/components/desk/world/. Nineteen of them sit in the gaps between
+// the cards, next to whatever they belong with; the last seven are out at the
+// right-hand end of the slate, where the black hole has room to pull.
+export const OBJECTS = [
+  { id: 'petri', x: 3924, y: 2304, rot: -3, scale: 1, visible: true },
+  { id: 'physarum', x: 3464, y: 1604, rot: 2, scale: 1, visible: true },
+  { id: 'regression', x: 644, y: 1164, rot: -1.5, scale: 1, visible: true },
+  { id: 'lorenz', x: 364, y: 704, rot: 4, scale: 1, visible: true },
+  { id: 'calculator', x: 3944, y: 44, rot: -4, scale: 1, visible: true },
+  { id: 'book', x: 2944, y: 744, rot: 3, scale: 1, visible: true },
+  { id: 'scholarship', x: 2524, y: 1964, rot: -2.5, scale: 1, visible: true },
+  { id: 'hourglass', x: 44, y: 1304, rot: 1.5, scale: 1, visible: true },
+  { id: 'die', x: 3964, y: 1324, rot: -8, scale: 1, visible: true },
+  { id: 'coin', x: 3344, y: 1064, rot: 6, scale: 1, visible: true },
+  { id: 'flower', x: 784, y: 44, rot: 0, scale: 1, visible: true },
+  { id: 'notepad', x: 2044, y: 2284, rot: -3.5, scale: 1, visible: true },
+  { id: 'curiosity', x: 44, y: 2244, rot: 1, scale: 1, visible: true },
+  { id: 'dilemma', x: 1104, y: 524, rot: -2, scale: 1, visible: true },
+  { id: 'paintgun', x: 3284, y: 284, rot: -14, scale: 1, visible: true },
+  { id: 'donotpress', x: 1244, y: 1644, rot: 3, scale: 1, visible: true },
+  { id: 'randomwalk', x: 1584, y: 44, rot: 2, scale: 1, visible: true },
+  { id: 'arcade', x: 724, y: 1904, rot: -2, scale: 1, visible: true },
+  { id: 'galton', x: 1504, y: 1044, rot: 1, scale: 1, visible: true },
+  { id: 'telescope', x: 1824, y: 1704, rot: -3, scale: 1, visible: true },
+  { id: 'passport', x: 1324, y: 2244, rot: 4, scale: 1, visible: true },
+  { id: 'camera', x: 2904, y: 1404, rot: -5, scale: 1, visible: true },
+  { id: 'garden', x: 3684, y: 744, rot: 0, scale: 1, visible: true },
+  { id: 'life', x: 2344, y: 64, rot: 2.5, scale: 1, visible: true },
+  { id: 'pcalamp', x: 3244, y: 2284, rot: -2, scale: 1, visible: true },
+  { id: 'blackhole', x: 2324, y: 1164, rot: 0, scale: 1, visible: true },
+];
+
+// How long a splat of paint lasts: none | session | global.
+export const WORLD = { paint: 'session' };
+
+// The passport's stamps: one country per stamp, four to a leaf, dropped where
+// a bored official would drop them. `note` is mine to write and is deliberately
+// empty here — a passport full of generated travel copy would be worse than an
+// empty one. Everything below is editable from the board itself.
+const PASSPORT_COUNTRIES = [
+  ['PY', 'Paraguay', 'Paraguay', '2025'],
+  ['SK', 'Slovakia', 'Eslovaquia', '2024'],
+  ['NO', 'Norway', 'Noruega', '2023'],
+  ['SE', 'Sweden', 'Suecia', '2023'],
+  ['UK', 'United Kingdom', 'Reino Unido', '2024'],
+  ['US', 'United States', 'Estados Unidos', '2022'],
+  ['AT', 'Austria', 'Austria', '2024'],
+  ['CZ', 'Czechia', 'Chequia', '2024'],
+  ['HU', 'Hungary', 'Hungría', '2024'],
+  ['LT', 'Lithuania', 'Lituania', '2023'],
+  ['BG', 'Bulgaria', 'Bulgaria', '2023'],
+  ['FR', 'France', 'Francia', '2021'],
+  ['BE', 'Belgium', 'Bélgica', '2022'],
+  ['IT', 'Italy', 'Italia', '2022'],
+  ['HR', 'Croatia', 'Croacia', '2023'],
+  ['GR', 'Greece', 'Grecia', '2023'],
+  ['PT', 'Portugal', 'Portugal', '2019'],
+  ['MA', 'Morocco', 'Marruecos', '2019'],
+  ['IC', 'Canary Islands', 'Islas Canarias', '2021'],
+  ['ES', 'Spain', 'España', '2000'],
+];
+
+const PASSPORT_INKS = ['violet', 'teal', 'rust', 'ink', 'green'];
+const PASSPORT_SHAPES = ['round', 'rect', 'oval', 'shield', 'round', 'oval'];
+
+export const PASSPORT = PASSPORT_COUNTRIES.map(([code, en, es, year], index) => {
+  // Deterministic scatter: the same passport every time, and never a grid.
+  const seed = index * 2654435761;
+  const jx = ((seed >>> 8) & 255) / 255;
+  const jy = ((seed >>> 16) & 255) / 255;
+  const jr = ((seed >>> 3) & 255) / 255;
+  const slot = index % 4;
+  return {
+    id: `stamp-${code.toLowerCase()}`,
+    code,
+    place: { es, en },
+    year,
+    page: Math.floor(index / 4) + 1,
+    x: Math.round(((slot % 2 === 0 ? 12 : 52) + jx * 22) * 10) / 10,
+    y: Math.round(((slot < 2 ? 10 : 50) + jy * 20) * 10) / 10,
+    rot: Math.round((jr - 0.5) * 460) / 10,
+    ink: PASSPORT_INKS[index % PASSPORT_INKS.length],
+    shape: PASSPORT_SHAPES[index % PASSPORT_SHAPES.length],
+    city: { es: '', en: '' },
+    note: { es: '', en: '' },
+  };
+});
 
 // Languages. Off by default: a fork with one language behaves exactly as it
 // did before this existed. Turn it on and the board gains a switcher, the owner

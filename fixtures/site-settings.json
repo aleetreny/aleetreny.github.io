@@ -80,7 +80,7 @@
     "key": "board",
     "value": {
       "size": {
-        "width": 3390,
+        "width": 4120,
         "height": 2500
       },
       "groups": [
@@ -160,8 +160,8 @@
           "id": "hero",
           "type": "hero",
           "jump": "me",
-          "x": 132,
-          "y": 96,
+          "x": 130,
+          "y": 137,
           "rot": 0.9,
           "w": 620,
           "kicker": {
@@ -202,8 +202,8 @@
           "current": "siemens",
           "next": "ucl",
           "tone": "amber",
-          "x": 1156,
-          "y": 128,
+          "x": 1064,
+          "y": 1844,
           "rot": -2.4,
           "w": 430,
           "label": {
@@ -237,8 +237,8 @@
           "jump": "work",
           "group": "work",
           "tone": "paper",
-          "x": 96,
-          "y": 742,
+          "x": 929,
+          "y": 136,
           "rot": -2.2,
           "w": 620,
           "kicker": {
@@ -264,8 +264,8 @@
           "jump": "edu",
           "group": "edu",
           "tone": "dark",
-          "x": 148,
-          "y": 1214,
+          "x": 1760,
+          "y": 276,
           "rot": 1.7,
           "w": 620,
           "kicker": {
@@ -289,8 +289,8 @@
           "jump": "lab",
           "group": "lab",
           "tone": "slate",
-          "x": 104,
-          "y": 1672,
+          "x": 2539,
+          "y": 110,
           "rot": -1.4,
           "w": 620,
           "kicker": {
@@ -316,8 +316,8 @@
           "jump": "repos",
           "group": "repos",
           "tone": "paper",
-          "x": 1126,
-          "y": 586,
+          "x": 3478,
+          "y": 93,
           "rot": 2.1,
           "w": 430,
           "maxItems": 4,
@@ -349,8 +349,8 @@
           "jump": "hack",
           "group": "hack",
           "tone": "amber",
-          "x": 1162,
-          "y": 1306,
+          "x": 3478,
+          "y": 1031,
           "rot": -2.8,
           "w": 430,
           "kicker": {
@@ -374,8 +374,8 @@
           "jump": "diary",
           "open": "diary",
           "tone": "paperCream",
-          "x": 1134,
-          "y": 1994,
+          "x": 2621,
+          "y": 961,
           "rot": 2.6,
           "w": 430,
           "kicker": {
@@ -430,8 +430,8 @@
           "jump": "vol",
           "group": "vol",
           "tone": "paper",
-          "x": 1984,
-          "y": 136,
+          "x": 1757,
+          "y": 1040,
           "rot": 2.3,
           "w": 450,
           "kicker": {
@@ -454,8 +454,8 @@
           "type": "drawer",
           "group": "experiencias-internacionales",
           "tone": "paper",
-          "x": 1952,
-          "y": 776,
+          "x": 937,
+          "y": 948,
           "rot": -2.7,
           "w": 450,
           "kicker": {
@@ -477,8 +477,8 @@
           "type": "sticker",
           "open": "languages",
           "tone": "paperCream",
-          "x": 2018,
-          "y": 1352,
+          "x": 192,
+          "y": 1108,
           "rot": 4.6,
           "w": 320,
           "kicker": {
@@ -526,8 +526,8 @@
           "jump": "random",
           "group": "random",
           "tone": "slate",
-          "x": 2836,
-          "y": 138,
+          "x": 242,
+          "y": 1850,
           "rot": -2.1,
           "w": 450,
           "kicker": {
@@ -555,8 +555,8 @@
           "jump": "pod",
           "open": "podcast",
           "tone": "paperWarm",
-          "x": 2842,
-          "y": 1448,
+          "x": 1885,
+          "y": 1922,
           "rot": 2.4,
           "w": 430,
           "kicker": {
@@ -584,8 +584,8 @@
         {
           "id": "c8b59d16-b101-4d16-b029-3a938ed771ef",
           "type": "spotify",
-          "x": 2812,
-          "y": 1836,
+          "x": 2484,
+          "y": 1664,
           "rot": -1.6,
           "w": 430,
           "spotifyUrl": "https://open.spotify.com/track/5jysHNTiZcXz83qaIXl3vf?si=491ad285481a43f2"
@@ -596,8 +596,8 @@
           "jump": "contact",
           "open": "contact",
           "tone": "dark",
-          "x": 2838,
-          "y": 2094,
+          "x": 3453,
+          "y": 1951,
           "rot": 2.8,
           "w": 450,
           "kicker": {
@@ -632,8 +632,8 @@
           "type": "plot",
           "open": "diary",
           "tone": "dark",
-          "x": 2452,
-          "y": 140,
+          "x": 2744,
+          "y": 2184,
           "rot": -1.8,
           "w": 296,
           "kicker": {
@@ -671,8 +671,8 @@
           "id": "stamp-py",
           "type": "stamp",
           "open": "alda",
-          "x": 2470,
-          "y": 1420,
+          "x": 3164,
+          "y": 1204,
           "rot": 3.6,
           "w": 190,
           "title": {
@@ -693,8 +693,8 @@
           "id": "stamp-sk",
           "type": "stamp",
           "open": "erasmus-programme",
-          "x": 2556,
-          "y": 1660,
+          "x": 3204,
+          "y": 44,
           "rot": -4.2,
           "w": 190,
           "title": {
@@ -716,8 +716,8 @@
           "type": "ticket",
           "open": "ucl",
           "tone": "paperCream",
-          "x": 790,
-          "y": 2120,
+          "x": 564,
+          "y": 784,
           "rot": 1.9,
           "w": 320,
           "kicker": {
@@ -738,8 +738,8 @@
           "id": "term-repos",
           "type": "terminal",
           "tone": "dark",
-          "x": 1600,
-          "y": 940,
+          "x": 2284,
+          "y": 744,
           "rot": -1.5,
           "w": 300,
           "fastener": "tape",
@@ -756,8 +756,8 @@
         {
           "id": "scrap-arrow",
           "type": "scrap",
-          "x": 790,
-          "y": 660,
+          "x": 1644,
+          "y": 764,
           "rot": -8,
           "w": 130,
           "kind": "arrow"
@@ -765,8 +765,8 @@
         {
           "id": "scrap-coffee",
           "type": "scrap",
-          "x": 1360,
-          "y": 460,
+          "x": 1644,
+          "y": 1724,
           "rot": 6,
           "w": 110,
           "kind": "coffee"
@@ -774,8 +774,8 @@
         {
           "id": "scrap-spiral",
           "type": "scrap",
-          "x": 800,
-          "y": 1455,
+          "x": 3144,
+          "y": 1884,
           "rot": -5,
           "w": 110,
           "kind": "spiral"
@@ -783,8 +783,8 @@
         {
           "id": "scrap-bulb",
           "type": "scrap",
-          "x": 800,
-          "y": 1660,
+          "x": 1584,
+          "y": 364,
           "rot": 7,
           "w": 110,
           "kind": "bulb"
@@ -792,8 +792,8 @@
         {
           "id": "scrap-star",
           "type": "scrap",
-          "x": 1600,
-          "y": 1700,
+          "x": 424,
+          "y": 1624,
           "rot": -9,
           "w": 120,
           "kind": "star"
@@ -801,8 +801,8 @@
         {
           "id": "scrap-wave",
           "type": "scrap",
-          "x": 1620,
-          "y": 2300,
+          "x": 3484,
+          "y": 804,
           "rot": 4,
           "w": 120,
           "kind": "wave"
@@ -810,8 +810,8 @@
         {
           "id": "scrap-leaf",
           "type": "scrap",
-          "x": 1870,
-          "y": 480,
+          "x": 3964,
+          "y": 904,
           "rot": -7,
           "w": 95,
           "kind": "leaf"
@@ -819,8 +819,8 @@
         {
           "id": "scrap-bracket",
           "type": "scrap",
-          "x": 2480,
-          "y": 950,
+          "x": 784,
+          "y": 1384,
           "rot": 5,
           "w": 90,
           "kind": "bracket"
@@ -828,8 +828,8 @@
         {
           "id": "scrap-circle",
           "type": "scrap",
-          "x": 2470,
-          "y": 1300,
+          "x": 2324,
+          "y": 1424,
           "rot": -6,
           "w": 100,
           "kind": "circle"
@@ -837,8 +837,8 @@
         {
           "id": "scrap-cross",
           "type": "scrap",
-          "x": 2470,
-          "y": 1900,
+          "x": 1504,
+          "y": 1304,
           "rot": 8,
           "w": 110,
           "kind": "cross"
@@ -846,8 +846,8 @@
         {
           "id": "scrap-die",
           "type": "scrap",
-          "x": 3160,
-          "y": 730,
+          "x": 784,
+          "y": 344,
           "rot": -5,
           "w": 100,
           "kind": "die"
@@ -856,8 +856,8 @@
       "polaroids": [
         {
           "id": "cd8ee42e-7bd9-4bdf-a560-35576db3ce66",
-          "x": 2824,
-          "y": 1112,
+          "x": 3004,
+          "y": 1584,
           "rot": -3.9,
           "w": 280,
           "h": 220,
@@ -868,8 +868,8 @@
         },
         {
           "id": "0b7edf74-f03b-465c-afbf-eac0714a3b67",
-          "x": 1608,
-          "y": 2012,
+          "x": 644,
+          "y": 1504,
           "rot": 2.9,
           "w": 280,
           "h": 220,
@@ -880,8 +880,8 @@
         },
         {
           "id": "76ef90fd-0892-4f81-895d-d3c499c4c591",
-          "x": 1636,
-          "y": 164,
+          "x": 1864,
+          "y": 724,
           "rot": 3.8,
           "w": 280,
           "h": 220,
@@ -892,8 +892,8 @@
         },
         {
           "id": "fb625376-c68f-4aa8-bd2c-dbf31846b5fd",
-          "x": 778,
-          "y": 1806,
+          "x": 1564,
+          "y": 2184,
           "rot": -3.6,
           "w": 280,
           "h": 220,
@@ -904,8 +904,8 @@
         },
         {
           "id": "dc7efc3d-fe79-43fa-b0e9-7d8336637934",
-          "x": 772,
-          "y": 806,
+          "x": 784,
+          "y": 484,
           "rot": 3.4,
           "w": 280,
           "h": 220,
@@ -916,8 +916,8 @@
         },
         {
           "id": "058364fb-99aa-4218-8eb4-7dc54f2eb270",
-          "x": 1604,
-          "y": 656,
+          "x": 3164,
+          "y": 744,
           "rot": -2.6,
           "w": 280,
           "h": 220,
@@ -928,8 +928,8 @@
         },
         {
           "id": "a6c656f2-3aa7-4585-97b0-a19753bf86f1",
-          "x": 1642,
-          "y": 1388,
+          "x": 2144,
+          "y": 1544,
           "rot": -4.4,
           "w": 280,
           "h": 220,
@@ -940,8 +940,8 @@
         },
         {
           "id": "0c77969f-c720-4b16-ae42-0d5877e05c86",
-          "x": 2486,
-          "y": 682,
+          "x": 1404,
+          "y": 1424,
           "rot": -3.3,
           "w": 280,
           "h": 220,
@@ -952,8 +952,8 @@
         },
         {
           "id": "cc5400c7-f3d0-4138-92d3-f70a5ae443f6",
-          "x": 806,
-          "y": 1188,
+          "x": 3784,
+          "y": 1604,
           "rot": -2.8,
           "w": 280,
           "h": 220,
@@ -964,8 +964,8 @@
         },
         {
           "id": "e3515a8c-9766-44c0-a0a0-3d17ff9f3a8a",
-          "x": 2456,
-          "y": 1034,
+          "x": 44,
+          "y": 704,
           "rot": 4.1,
           "w": 280,
           "h": 220,
@@ -976,8 +976,8 @@
         },
         {
           "id": "8e9687a7-3bc6-4fb4-9efe-b967165110a8",
-          "x": 2012,
-          "y": 1734,
+          "x": 784,
+          "y": 2184,
           "rot": 3.1,
           "w": 280,
           "h": 220,
@@ -988,8 +988,8 @@
         },
         {
           "id": "abd756d1-fef8-4243-938b-4a1e59a11705",
-          "x": 1978,
-          "y": 2052,
+          "x": 2364,
+          "y": 2184,
           "rot": -2.4,
           "w": 280,
           "h": 220,
@@ -1000,8 +1000,8 @@
         },
         {
           "id": "da4981ab-6ee3-41e9-a7a3-691faa9b3b25",
-          "x": 2856,
-          "y": 786,
+          "x": 1324,
+          "y": 624,
           "rot": 3.7,
           "w": 280,
           "h": 220,
@@ -1012,8 +1012,8 @@
         },
         {
           "id": "6248ec11-6759-498b-92cb-9e3199de7fad",
-          "x": 812,
-          "y": 214,
+          "x": 44,
+          "y": 1544,
           "rot": -4.2,
           "w": 280,
           "h": 220,
@@ -1031,8 +1031,8 @@
       "marginalia": [
         {
           "id": "note-1",
-          "x": 776,
-          "y": 556,
+          "x": 1824,
+          "y": 164,
           "rot": 5,
           "w": 250,
           "style": "amber",
@@ -1043,8 +1043,8 @@
         },
         {
           "id": "note-2",
-          "x": 2828,
-          "y": 2358,
+          "x": 1024,
+          "y": 1524,
           "rot": -4.6,
           "w": 270,
           "style": "amber",
@@ -1055,8 +1055,8 @@
         },
         {
           "id": "note-3",
-          "x": 1616,
-          "y": 1200,
+          "x": 3024,
+          "y": 2044,
           "rot": 3.2,
           "w": 270,
           "style": "paper-dashed",
@@ -1067,8 +1067,8 @@
         },
         {
           "id": "a9a3a0f2-2c01-4281-92e6-793a43a7c6ef",
-          "x": 830,
-          "y": 1548,
+          "x": 3224,
+          "y": 464,
           "rot": 4.4,
           "w": 220,
           "style": "amber",
@@ -1079,8 +1079,8 @@
         },
         {
           "id": "c39bd248-9410-4a4e-906c-44e1af0e39bc",
-          "x": 1974,
-          "y": 1648,
+          "x": 44,
+          "y": 44,
           "rot": -4,
           "w": 250,
           "style": "paper-dashed",
@@ -1091,8 +1091,8 @@
         },
         {
           "id": "79c733ce-7c0f-436b-a2b3-d90012b3ba85",
-          "x": 1630,
-          "y": 1892,
+          "x": 2024,
+          "y": 1844,
           "rot": -3.8,
           "w": 250,
           "style": "amber",
@@ -1395,6 +1395,693 @@
           ]
         }
       ]
+    },
+    "is_public": true
+  },
+  {
+    "key": "board.objects",
+    "value": [
+      {
+        "id": "petri",
+        "x": 3924,
+        "y": 2304,
+        "rot": -3,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "physarum",
+        "x": 3464,
+        "y": 1604,
+        "rot": 2,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "regression",
+        "x": 644,
+        "y": 1164,
+        "rot": -1.5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "lorenz",
+        "x": 364,
+        "y": 704,
+        "rot": 4,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "calculator",
+        "x": 3944,
+        "y": 44,
+        "rot": -4,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "book",
+        "x": 2944,
+        "y": 744,
+        "rot": 3,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "scholarship",
+        "x": 2524,
+        "y": 1964,
+        "rot": -2.5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "hourglass",
+        "x": 44,
+        "y": 1304,
+        "rot": 1.5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "die",
+        "x": 3964,
+        "y": 1324,
+        "rot": -8,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "coin",
+        "x": 3344,
+        "y": 1064,
+        "rot": 6,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "flower",
+        "x": 784,
+        "y": 44,
+        "rot": 0,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "notepad",
+        "x": 2044,
+        "y": 2284,
+        "rot": -3.5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "curiosity",
+        "x": 44,
+        "y": 2244,
+        "rot": 1,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "dilemma",
+        "x": 1104,
+        "y": 524,
+        "rot": -2,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "paintgun",
+        "x": 3284,
+        "y": 284,
+        "rot": -14,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "donotpress",
+        "x": 1244,
+        "y": 1644,
+        "rot": 3,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "randomwalk",
+        "x": 1584,
+        "y": 44,
+        "rot": 2,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "arcade",
+        "x": 724,
+        "y": 1904,
+        "rot": -2,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "galton",
+        "x": 1504,
+        "y": 1044,
+        "rot": 1,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "telescope",
+        "x": 1824,
+        "y": 1704,
+        "rot": -3,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "passport",
+        "x": 1324,
+        "y": 2244,
+        "rot": 4,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "camera",
+        "x": 2904,
+        "y": 1404,
+        "rot": -5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "garden",
+        "x": 3684,
+        "y": 744,
+        "rot": 0,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "life",
+        "x": 2344,
+        "y": 64,
+        "rot": 2.5,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "pcalamp",
+        "x": 3244,
+        "y": 2284,
+        "rot": -2,
+        "scale": 1,
+        "visible": true
+      },
+      {
+        "id": "blackhole",
+        "x": 2324,
+        "y": 1164,
+        "rot": 0,
+        "scale": 1,
+        "visible": true
+      }
+    ],
+    "is_public": true
+  },
+  {
+    "key": "board.passport",
+    "value": [
+      {
+        "id": "stamp-py",
+        "code": "PY",
+        "place": {
+          "es": "Paraguay",
+          "en": "Paraguay"
+        },
+        "year": "2025",
+        "page": 1,
+        "x": 12,
+        "y": 10,
+        "rot": -23,
+        "ink": "violet",
+        "shape": "round",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-sk",
+        "code": "SK",
+        "place": {
+          "es": "Eslovaquia",
+          "en": "Slovakia"
+        },
+        "year": "2024",
+        "page": 1,
+        "x": 62.4,
+        "y": 14.3,
+        "rot": -13.3,
+        "ink": "teal",
+        "shape": "rect",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-no",
+        "code": "NO",
+        "place": {
+          "es": "Noruega",
+          "en": "Norway"
+        },
+        "year": "2023",
+        "page": 1,
+        "x": 33,
+        "y": 58.6,
+        "rot": -3.5,
+        "ink": "rust",
+        "shape": "oval",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-se",
+        "code": "SE",
+        "place": {
+          "es": "Suecia",
+          "en": "Sweden"
+        },
+        "year": "2023",
+        "page": 1,
+        "x": 61.4,
+        "y": 63,
+        "rot": 6.2,
+        "ink": "ink",
+        "shape": "shield",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-uk",
+        "code": "UK",
+        "place": {
+          "es": "Reino Unido",
+          "en": "United Kingdom"
+        },
+        "year": "2024",
+        "page": 2,
+        "x": 31.8,
+        "y": 27.3,
+        "rot": 16,
+        "ink": "green",
+        "shape": "round",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-us",
+        "code": "US",
+        "place": {
+          "es": "Estados Unidos",
+          "en": "United States"
+        },
+        "year": "2022",
+        "page": 2,
+        "x": 60.3,
+        "y": 11.6,
+        "rot": -20.5,
+        "ink": "violet",
+        "shape": "oval",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-at",
+        "code": "AT",
+        "place": {
+          "es": "Austria",
+          "en": "Austria"
+        },
+        "year": "2024",
+        "page": 2,
+        "x": 30.8,
+        "y": 56,
+        "rot": -10.7,
+        "ink": "teal",
+        "shape": "round",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-cz",
+        "code": "CZ",
+        "place": {
+          "es": "Chequia",
+          "en": "Czechia"
+        },
+        "year": "2024",
+        "page": 2,
+        "x": 59.2,
+        "y": 60.4,
+        "rot": -1,
+        "ink": "rust",
+        "shape": "rect",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-hu",
+        "code": "HU",
+        "place": {
+          "es": "Hungría",
+          "en": "Hungary"
+        },
+        "year": "2024",
+        "page": 3,
+        "x": 29.7,
+        "y": 24.7,
+        "rot": 8.9,
+        "ink": "ink",
+        "shape": "oval",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-lt",
+        "code": "LT",
+        "place": {
+          "es": "Lituania",
+          "en": "Lithuania"
+        },
+        "year": "2023",
+        "page": 3,
+        "x": 58.1,
+        "y": 29.1,
+        "rot": 18.7,
+        "ink": "green",
+        "shape": "shield",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-bg",
+        "code": "BG",
+        "place": {
+          "es": "Bulgaria",
+          "en": "Bulgaria"
+        },
+        "year": "2023",
+        "page": 3,
+        "x": 28.6,
+        "y": 53.3,
+        "rot": -17.8,
+        "ink": "violet",
+        "shape": "round",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-fr",
+        "code": "FR",
+        "place": {
+          "es": "Francia",
+          "en": "France"
+        },
+        "year": "2021",
+        "page": 3,
+        "x": 57,
+        "y": 57.7,
+        "rot": -8,
+        "ink": "teal",
+        "shape": "oval",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-be",
+        "code": "BE",
+        "place": {
+          "es": "Bélgica",
+          "en": "Belgium"
+        },
+        "year": "2022",
+        "page": 4,
+        "x": 27.5,
+        "y": 22,
+        "rot": 1.7,
+        "ink": "rust",
+        "shape": "round",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-it",
+        "code": "IT",
+        "place": {
+          "es": "Italia",
+          "en": "Italy"
+        },
+        "year": "2022",
+        "page": 4,
+        "x": 55.9,
+        "y": 26.4,
+        "rot": 11.5,
+        "ink": "ink",
+        "shape": "rect",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-hr",
+        "code": "HR",
+        "place": {
+          "es": "Croacia",
+          "en": "Croatia"
+        },
+        "year": "2023",
+        "page": 4,
+        "x": 26.4,
+        "y": 50.6,
+        "rot": 21.2,
+        "ink": "green",
+        "shape": "oval",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-gr",
+        "code": "GR",
+        "place": {
+          "es": "Grecia",
+          "en": "Greece"
+        },
+        "year": "2023",
+        "page": 4,
+        "x": 54.8,
+        "y": 55,
+        "rot": -15.2,
+        "ink": "violet",
+        "shape": "shield",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-pt",
+        "code": "PT",
+        "place": {
+          "es": "Portugal",
+          "en": "Portugal"
+        },
+        "year": "2019",
+        "page": 5,
+        "x": 25.4,
+        "y": 19.3,
+        "rot": -5.3,
+        "ink": "teal",
+        "shape": "round",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-ma",
+        "code": "MA",
+        "place": {
+          "es": "Marruecos",
+          "en": "Morocco"
+        },
+        "year": "2019",
+        "page": 5,
+        "x": 53.7,
+        "y": 23.7,
+        "rot": 4.4,
+        "ink": "rust",
+        "shape": "oval",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-ic",
+        "code": "IC",
+        "place": {
+          "es": "Islas Canarias",
+          "en": "Canary Islands"
+        },
+        "year": "2021",
+        "page": 5,
+        "x": 24.3,
+        "y": 68,
+        "rot": 14.2,
+        "ink": "ink",
+        "shape": "round",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      },
+      {
+        "id": "stamp-es",
+        "code": "ES",
+        "place": {
+          "es": "España",
+          "en": "Spain"
+        },
+        "year": "2000",
+        "page": 5,
+        "x": 52.7,
+        "y": 52.4,
+        "rot": -22.3,
+        "ink": "green",
+        "shape": "rect",
+        "city": {
+          "es": "",
+          "en": ""
+        },
+        "note": {
+          "es": "",
+          "en": ""
+        }
+      }
+    ],
+    "is_public": true
+  },
+  {
+    "key": "board.world",
+    "value": {
+      "paint": "session"
     },
     "is_public": true
   },

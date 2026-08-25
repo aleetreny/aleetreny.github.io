@@ -73,6 +73,50 @@ type SiteSettingsRow = {
   updated_at: string;
 };
 
+type VisitorNoteRow = {
+  id: string;
+  body: string;
+  lang: string;
+  visitor: string;
+  hidden: boolean;
+  created_at: string;
+};
+
+type GardenPlantRow = {
+  id: string;
+  visitor: string;
+  species: string;
+  planted_at: string;
+  watered_at: string;
+  waterings: number;
+  removed: boolean;
+};
+
+type CuriosityQuestionRow = {
+  id: string;
+  prompt: Json;
+  active: boolean;
+  position: number;
+  created_at: string;
+};
+
+type CuriosityAnswerRow = {
+  id: string;
+  question_id: string;
+  body: string;
+  lang: string;
+  visitor: string;
+  hidden: boolean;
+  created_at: string;
+};
+
+type WorldVoteRow = {
+  id: string;
+  visitor: string;
+  choice: 'cooperate' | 'betray';
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -106,6 +150,37 @@ export type Database = {
         Update: Partial<SiteSettingsRow>;
         Relationships: [];
       };
+      // ---- what visitors leave behind (0008_visitor_world.sql)
+      visitor_notes: {
+        Row: VisitorNoteRow;
+        Insert: Partial<VisitorNoteRow> & Pick<VisitorNoteRow, 'body'>;
+        Update: Partial<VisitorNoteRow>;
+        Relationships: [];
+      };
+      garden_plants: {
+        Row: GardenPlantRow;
+        Insert: Partial<GardenPlantRow> & Pick<GardenPlantRow, 'visitor' | 'species'>;
+        Update: Partial<GardenPlantRow>;
+        Relationships: [];
+      };
+      curiosity_questions: {
+        Row: CuriosityQuestionRow;
+        Insert: Partial<CuriosityQuestionRow> & Pick<CuriosityQuestionRow, 'prompt'>;
+        Update: Partial<CuriosityQuestionRow>;
+        Relationships: [];
+      };
+      curiosity_answers: {
+        Row: CuriosityAnswerRow;
+        Insert: Partial<CuriosityAnswerRow> & Pick<CuriosityAnswerRow, 'question_id' | 'body'>;
+        Update: Partial<CuriosityAnswerRow>;
+        Relationships: [];
+      };
+      world_votes: {
+        Row: WorldVoteRow;
+        Insert: Partial<WorldVoteRow> & Pick<WorldVoteRow, 'visitor' | 'choice'>;
+        Update: Partial<WorldVoteRow>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -133,6 +208,31 @@ export type Database = {
       };
       restore_deleted_content_entry: {
         Args: { p_entry_id: string; p_expected_version: number };
+        Returns: Json;
+      };
+      // ---- the garden and the vote, reached only through these
+      garden_plot: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
+      garden_mine: {
+        Args: { p_visitor: string };
+        Returns: Json;
+      };
+      garden_plant: {
+        Args: { p_visitor: string; p_species: string };
+        Returns: Json;
+      };
+      garden_water: {
+        Args: { p_visitor: string };
+        Returns: Json;
+      };
+      world_vote_tally: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
+      world_vote: {
+        Args: { p_visitor: string; p_choice: string };
         Returns: Json;
       };
       register_uploaded_asset: {
