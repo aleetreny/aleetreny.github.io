@@ -472,7 +472,7 @@ const CATALOGUE: Record<string, Entry> = {
   'world.monty.reset': { es: 'borrar la cuenta', en: 'clear the tally' },
 
   'world.descent.label': { es: 'una bandeja con una canica', en: 'a tray with a marble' },
-  'world.descent.hint': { es: 'suéltala donde quieras', en: 'drop it anywhere' },
+  'world.descent.hint': { es: 'gira el plano · toca para soltarla', en: 'turn the plot · tap to drop it' },
   'world.descent.rate': { es: 'ritmo de aprendizaje', en: 'learning rate' },
   'world.descent.momentum': { es: 'inercia', en: 'momentum' },
   'world.descent.land': { es: 'otro paisaje', en: 'another landscape' },

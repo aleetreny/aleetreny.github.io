@@ -83,7 +83,7 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
   lorenz: { w: 124, h: 124, traits: LOOSE },
   regression: { w: 200, h: 172, traits: SITTING },
   garden: { w: 240, h: 182, traits: ANCHORED },
-  flower: { w: 110, h: 160, traits: ANCHORED },
+  flower: { w: 154, h: 160, traits: ANCHORED },
   donotpress: { w: 130, h: 112, traits: SITTING },
   calculator: { w: 120, h: 180, traits: SITTING },
   randomwalk: { w: 190, h: 180, traits: SITTING },
@@ -93,7 +93,7 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
 
   // ---- the instruments ----
   montyhall: { w: 196, h: 158, traits: SITTING },
-  descent: { w: 214, h: 180, traits: HEAVY_SITTING },
+  descent: { w: 232, h: 206, traits: HEAVY_SITTING },
   voronoi: { w: 186, h: 186, traits: HEAVY_SITTING },
   chloroplast: { w: 172, h: 196, traits: HEAVY_SITTING },
   ferrofluid: { w: 226, h: 178, traits: HEAVY_SITTING },

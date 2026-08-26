@@ -13,6 +13,13 @@
 // the floor of the valley, so the path zig-zags across it, and past a point it
 // leaves the mesh altogether. Discrete steps are what make any of that legible
 // — sixty a second is an animation, eight a second is an algorithm.
+//
+// The plot turns. Drag it and the camera orbits the surface, which is the only
+// way to watch a marble fall into a basin that happens to be facing away from
+// you; tap it and the marble is dropped where you tapped. And when a fold of
+// the mesh comes between the marble and your eye, that fold goes translucent
+// rather than swallowing it, so a run behind a ridge is still a run you can
+// follow.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ObjectShell } from './ObjectShell';
@@ -22,30 +29,44 @@ import { grad, loss, type Landscape } from '../../../lib/world/descent';
 import { clamp } from '../../../lib/world/rng';
 import { useUiText } from '../ui-text-context';
 
-const W = 190;
-const H = 132;
-/** The axonometric camera: x to the right, y into the page, z up. */
-const CX = W / 2;
-/** Placed so the sheet fills the glass: the drawing runs from the back corner
- *  at its highest to the floor of the valley, which is 2·SY + SZ tall. */
-const CY = 114;
-const SX = 41;
-const SY = 22;
-const SZ = 58;
+const W = 212;
+const H = 164;
 /** Mesh resolution. Coarse on purpose — a wireframe you can count the lines of
  *  reads as a diagram; a fine one reads as a photograph of a hill. */
 const N = 21;
 /** One gradient step per this many milliseconds. */
 const STEP_MS = 125;
+/** How tall the surface stands, in the same units the sheet is wide. Loss
+ *  surfaces are always drawn with the vertical exaggerated; this is that. */
+const RISE = 1.05;
+/** The sheet is stretched a little across the screen, which is what makes a
+ *  dimetric plot sit in a landscape frame instead of a square one. */
+const XW = 1.15;
+const PAD = 8;
+/** Three quarters onto the right shoulder, tipped down: the angle every one of
+ *  these figures is drawn from, and the one the plot returns to. */
+const HOME = { yaw: Math.PI / 4, tilt: 0.52 };
+/** How translucent a fold of mesh goes when it stands in front of the marble. */
+const VEIL = 0.42;
 
-type Vec3 = { x: number; y: number };
+type Cam = { yaw: number; tilt: number };
+type Span = { lo: number; hi: number };
 
-function project(u: number, v: number, z: number): Vec3 {
-  return { x: CX + (u - v) * SX, y: CY + (u + v) * SY - z * SZ };
-}
+/** Everything the camera fixes: where each vertex of the mesh lands, how deep
+ *  it is, what order the quads have to be painted in, and the sheet itself
+ *  already drawn. Rebuilt only when the camera or the landscape moves. */
+type View = {
+  key: string;
+  cos: number; sin: number; tilt: number;
+  k: number; ox: number; oy: number;
+  x: Float32Array; y: Float32Array;
+  depth: Float32Array;
+  order: Uint16Array;
+  sheet: HTMLCanvasElement | null;
+};
 
 /** The surface's own range, so the colours and the height both scale to it. */
-function extent(kind: Landscape): { lo: number; hi: number } {
+function extent(kind: Landscape): Span {
   let lo = Infinity;
   let hi = -Infinity;
   for (let j = 0; j < N; j += 1) {
@@ -62,60 +83,107 @@ function extent(kind: Landscape): { lo: number; hi: number } {
  *  these pictures has ever used. */
 function band(t: number): string {
   const c = clamp(t, 0, 1);
-  const r = Math.round(38 + c * 200);
-  const g = Math.round(74 + c * 122);
-  const b = Math.round(96 - c * 30);
-  return `rgb(${r},${g},${b})`;
+  return `rgb(${Math.round(38 + c * 200)},${Math.round(74 + c * 122)},${Math.round(96 - c * 30)})`;
 }
 
-/** The mesh, drawn once per landscape and blitted from then on. */
-function mesh(kind: Landscape): HTMLCanvasElement | null {
-  const canvas = document.createElement('canvas');
+const QUADS = (N - 1) * (N - 1);
+
+function build(kind: Landscape, cam: Cam, span: Span, key: string, sheet: HTMLCanvasElement | null): View {
+  const cos = Math.cos(cam.yaw);
+  const sin = Math.sin(cam.yaw);
+  const count = N * N;
+  const x = new Float32Array(count);
+  const y = new Float32Array(count);
+  const depth = new Float32Array(count);
+  const tone = new Float32Array(count);
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  for (let j = 0; j < N; j += 1) {
+    const v = (j / (N - 1)) * 2 - 1;
+    for (let i = 0; i < N; i += 1) {
+      const u = (i / (N - 1)) * 2 - 1;
+      const z = (loss(u, v, kind) - span.lo) / (span.hi - span.lo || 1);
+      // Turn the sheet under the camera, then flatten it: x across, the depth
+      // axis foreshortened by the tilt, and the loss standing up out of it.
+      const a = u * cos - v * sin;
+      const b = u * sin + v * cos;
+      const px = a * XW;
+      const py = b * cam.tilt - z * RISE;
+      const at = j * N + i;
+      x[at] = px;
+      y[at] = py;
+      depth[at] = b;
+      tone[at] = z;
+      if (px < minX) minX = px;
+      if (px > maxX) maxX = px;
+      if (py < minY) minY = py;
+      if (py > maxY) maxY = py;
+    }
+  }
+
+  // Fit whatever the camera is showing to the glass, so no angle clips a
+  // corner off and none of them leaves the sheet swimming in the middle.
+  const k = Math.min((W - PAD * 2) / (maxX - minX || 1), (H - PAD * 2) / (maxY - minY || 1));
+  const ox = (W - (maxX - minX) * k) / 2 - minX * k;
+  const oy = (H - (maxY - minY) * k) / 2 - minY * k;
+  for (let at = 0; at < count; at += 1) {
+    x[at] = x[at] * k + ox;
+    y[at] = y[at] * k + oy;
+  }
+
+  // Painter's algorithm. With the sheet fixed the far corner was simply the
+  // one with the smallest i + j; once it turns, the quads have to be sorted.
+  const quadDepth = new Float32Array(QUADS);
+  for (let j = 0; j < N - 1; j += 1) {
+    for (let i = 0; i < N - 1; i += 1) {
+      quadDepth[j * (N - 1) + i] = (depth[j * N + i] + depth[j * N + i + 1]
+        + depth[(j + 1) * N + i + 1] + depth[(j + 1) * N + i]) / 4;
+    }
+  }
+  const order = Uint16Array.from(
+    Array.from({ length: QUADS }, (_unused, q) => q).sort((p, q) => quadDepth[p] - quadDepth[q]),
+  );
+
+  const canvas = sheet ?? document.createElement('canvas');
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return null;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  // The plot has its own ground: a mesh floating on brushed metal reads as a
-  // mistake, and every picture like this one has ever been drawn on a panel.
-  const ground = ctx.createLinearGradient(0, 0, 0, H);
-  ground.addColorStop(0, '#171e24');
-  ground.addColorStop(1, '#0d1216');
-  ctx.fillStyle = ground;
-  ctx.fillRect(0, 0, W, H);
-  const { lo, hi } = extent(kind);
-  const at = (i: number, j: number) => {
-    const u = (i / (N - 1)) * 2 - 1;
-    const v = (j / (N - 1)) * 2 - 1;
-    const z = (loss(u, v, kind) - lo) / (hi - lo);
-    return { ...project(u, v, z), z };
-  };
-  // Painter's algorithm: the far corner of the mesh is the one with the
-  // smallest i + j, so walking outward from it draws back to front.
-  ctx.lineJoin = 'round';
-  for (let step = 0; step < (N - 1) * 2; step += 1) {
-    for (let j = 0; j < N - 1; j += 1) {
-      const i = step - j;
-      if (i < 0 || i >= N - 1) continue;
-      const a = at(i, j);
-      const b = at(i + 1, j);
-      const c = at(i + 1, j + 1);
-      const d = at(i, j + 1);
+  if (ctx) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // The plot has its own ground: a mesh floating on brushed metal reads as a
+    // mistake, and every picture like this one has ever been drawn on a panel.
+    const ground = ctx.createLinearGradient(0, 0, 0, H);
+    ground.addColorStop(0, '#171e24');
+    ground.addColorStop(1, '#0d1216');
+    ctx.fillStyle = ground;
+    ctx.fillRect(0, 0, W, H);
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 0.5;
+    for (const q of order) {
+      const i = q % (N - 1);
+      const j = (q - i) / (N - 1);
+      const a = j * N + i;
+      const b = a + 1;
+      const c = a + N + 1;
+      const d = a + N;
       ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.lineTo(c.x, c.y);
-      ctx.lineTo(d.x, d.y);
+      ctx.moveTo(x[a], y[a]);
+      ctx.lineTo(x[b], y[b]);
+      ctx.lineTo(x[c], y[c]);
+      ctx.lineTo(x[d], y[d]);
       ctx.closePath();
-      ctx.fillStyle = band((a.z + b.z + c.z + d.z) / 4);
+      ctx.fillStyle = band((tone[a] + tone[b] + tone[c] + tone[d]) / 4);
       ctx.fill();
       ctx.strokeStyle = 'rgba(12,18,22,.42)';
-      ctx.lineWidth = 0.5;
       ctx.stroke();
     }
   }
-  return canvas;
+
+  return { key, cos, sin, tilt: cam.tilt, k, ox, oy, x, y, depth: quadDepth, order, sheet: canvas };
 }
 
 type Ball = {
@@ -137,8 +205,9 @@ export function DescentTray() {
   const { reduced } = useWorld();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const maps = useRef<Partial<Record<Landscape, HTMLCanvasElement | null>>>({});
-  const spans = useRef<Partial<Record<Landscape, { lo: number; hi: number }>>>({});
+  const view = useRef<View | null>(null);
+  const spans = useRef<Partial<Record<Landscape, Span>>>({});
+  const cam = useRef<Cam>({ ...HOME });
   const ball = useRef<Ball>(dropped(-0.74, 0.62));
   const [kind, setKind] = useState<Landscape>('bowl');
   const [rate, setRate] = useState(0.16);
@@ -147,20 +216,32 @@ export function DescentTray() {
   const onScreen = useOnScreen(hostRef);
   const detailed = useDetail(hostRef, 92);
 
-  const surface = useCallback((which: Landscape) => {
-    if (maps.current[which] === undefined) {
-      maps.current[which] = mesh(which);
-      spans.current[which] = extent(which);
-    }
-    return maps.current[which];
-  }, []);
+  const span = useCallback((which: Landscape) => (spans.current[which] ??= extent(which)), []);
 
-  /** Where a point on the surface lands on the glass. */
-  const onMesh = useCallback((u: number, v: number, which: Landscape) => {
-    const span = spans.current[which] ?? { lo: 0, hi: 1 };
-    const z = (loss(u, v, which) - span.lo) / (span.hi - span.lo || 1);
-    return project(u, v, z);
-  }, []);
+  /** The camera's current take on the landscape, rebuilt only when one of
+   *  them has actually moved. */
+  const camera = useCallback((which: Landscape) => {
+    const c = cam.current;
+    const key = `${which}|${c.yaw.toFixed(3)}|${c.tilt.toFixed(3)}`;
+    const held = view.current;
+    if (held?.key === key) return held;
+    const made = build(which, c, span(which), key, held?.sheet ?? null);
+    view.current = made;
+    return made;
+  }, [span]);
+
+  /** Where a point on the surface lands on the glass, and how near the eye. */
+  const onMesh = useCallback((u: number, v: number, which: Landscape, v0: View) => {
+    const s = span(which);
+    const z = (loss(u, v, which) - s.lo) / (s.hi - s.lo || 1);
+    const a = u * v0.cos - v * v0.sin;
+    const b = u * v0.sin + v * v0.cos;
+    return {
+      x: a * XW * v0.k + v0.ox,
+      y: (b * v0.tilt - z * RISE) * v0.k + v0.oy,
+      d: b,
+    };
+  }, [span]);
 
   const paint = useCallback(() => {
     const canvas = canvasRef.current;
@@ -170,8 +251,8 @@ export function DescentTray() {
     if (canvas.width !== W * dpr) { canvas.width = W * dpr; canvas.height = H * dpr; }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    const map = surface(kind);
-    if (map) ctx.drawImage(map, 0, 0, W, H);
+    const v0 = camera(kind);
+    if (v0.sheet) ctx.drawImage(v0.sheet, 0, 0, W, H);
 
     const b = ball.current;
     // The trajectory: one segment per step, so the zig-zag of too large a step
@@ -182,13 +263,13 @@ export function DescentTray() {
       ctx.strokeStyle = 'rgba(255,236,190,.85)';
       ctx.beginPath();
       for (let i = 0; i < b.path.length; i += 2) {
-        const at = onMesh(b.path[i], b.path[i + 1], kind);
+        const at = onMesh(b.path[i], b.path[i + 1], kind, v0);
         if (i === 0) ctx.moveTo(at.x, at.y); else ctx.lineTo(at.x, at.y);
       }
       ctx.stroke();
       ctx.fillStyle = 'rgba(255,236,190,.7)';
       for (let i = 0; i < b.path.length; i += 2) {
-        const at = onMesh(b.path[i], b.path[i + 1], kind);
+        const at = onMesh(b.path[i], b.path[i + 1], kind, v0);
         ctx.beginPath();
         ctx.arc(at.x, at.y, 1.1, 0, Math.PI * 2);
         ctx.fill();
@@ -198,24 +279,61 @@ export function DescentTray() {
     // The marble, sliding between the step it left and the step it is going to.
     const k = clamp(b.t / STEP_MS, 0, 1);
     const ease = k * k * (3 - 2 * k);
-    const u = b.fromU + (b.u - b.fromU) * ease;
-    const v = b.fromV + (b.v - b.fromV) * ease;
-    const at = onMesh(u, v, kind);
-    if (at.x > -14 && at.x < W + 14 && at.y > -14 && at.y < H + 14) {
-      const bead = ctx.createRadialGradient(at.x - 1.6, at.y - 2, 0.5, at.x, at.y, 5.2);
-      bead.addColorStop(0, '#ffffff');
-      bead.addColorStop(0.34, '#e6eef4');
-      bead.addColorStop(0.78, '#8e9aa4');
-      bead.addColorStop(1, '#414a52');
-      ctx.fillStyle = bead;
+    const at = onMesh(
+      b.fromU + (b.u - b.fromU) * ease,
+      b.fromV + (b.v - b.fromV) * ease,
+      kind,
+      v0,
+    );
+    if (at.x < -14 || at.x > W + 14 || at.y < -14 || at.y > H + 14) return;
+    const bead = ctx.createRadialGradient(at.x - 1.6, at.y - 2, 0.5, at.x, at.y, 5.2);
+    bead.addColorStop(0, '#ffffff');
+    bead.addColorStop(0.34, '#e6eef4');
+    bead.addColorStop(0.78, '#8e9aa4');
+    bead.addColorStop(1, '#414a52');
+    ctx.fillStyle = bead;
+    ctx.beginPath();
+    ctx.arc(at.x, at.y, 4.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(10,14,18,.5)';
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+
+    // Anything standing between the marble and the eye is laid back over it,
+    // but thinly: the fold is still there, and the marble is still visible
+    // through it. Only the folds that actually cover it are repainted, so this
+    // is a handful of quads and not the front half of the mesh.
+    const reach = 11;
+    ctx.save();
+    ctx.globalAlpha = VEIL;
+    ctx.lineWidth = 0.5;
+    for (const q of v0.order) {
+      if (v0.depth[q] <= at.d) continue;
+      const i = q % (N - 1);
+      const j = (q - i) / (N - 1);
+      const a0 = j * N + i;
+      const b0 = a0 + 1;
+      const c0 = a0 + N + 1;
+      const d0 = a0 + N;
+      const lox = Math.min(v0.x[a0], v0.x[b0], v0.x[c0], v0.x[d0]);
+      const hix = Math.max(v0.x[a0], v0.x[b0], v0.x[c0], v0.x[d0]);
+      if (hix < at.x - reach || lox > at.x + reach) continue;
+      const loy = Math.min(v0.y[a0], v0.y[b0], v0.y[c0], v0.y[d0]);
+      const hiy = Math.max(v0.y[a0], v0.y[b0], v0.y[c0], v0.y[d0]);
+      if (hiy < at.y - reach || loy > at.y + reach) continue;
       ctx.beginPath();
-      ctx.arc(at.x, at.y, 4.6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(10,14,18,.5)';
-      ctx.lineWidth = 0.7;
-      ctx.stroke();
+      ctx.moveTo(v0.x[a0], v0.y[a0]);
+      ctx.lineTo(v0.x[b0], v0.y[b0]);
+      ctx.lineTo(v0.x[c0], v0.y[c0]);
+      ctx.lineTo(v0.x[d0], v0.y[d0]);
+      ctx.closePath();
+      ctx.save();
+      ctx.clip();
+      if (v0.sheet) ctx.drawImage(v0.sheet, 0, 0, W, H);
+      ctx.restore();
     }
-  }, [kind, onMesh, surface]);
+    ctx.restore();
+  }, [camera, kind, onMesh]);
 
   useEffect(() => { paint(); }, [paint]);
 
@@ -243,19 +361,67 @@ export function DescentTray() {
     paint();
   }, running && onScreen && detailed && !reduced);
 
-  const drop = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
+  /** Undo the projection: solve for the ground point under the cursor, then
+   *  correct it two or three times for the height of the surface there, so
+   *  the marble lands where the mesh is and not where the floor is. */
+  const under = useCallback((px: number, py: number) => {
+    const v0 = view.current;
+    if (!v0) return null;
+    const s = span(kind);
+    const a = ((px - v0.ox) / v0.k) / XW;
+    const flat = (py - v0.oy) / v0.k;
+    let u = 0;
+    let v = 0;
+    let z = 0;
+    for (let pass = 0; pass < 4; pass += 1) {
+      const b = (flat + z * RISE) / v0.tilt;
+      u = clamp(a * v0.cos + b * v0.sin, -1, 1);
+      v = clamp(-a * v0.sin + b * v0.cos, -1, 1);
+      z = (loss(u, v, kind) - s.lo) / (s.hi - s.lo || 1);
+    }
+    return { u, v };
+  }, [kind, span]);
+
+  /** Drag turns the plot; a tap without a drag drops the marble. */
+  const grab = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
     event.stopPropagation();
     const box = event.currentTarget.getBoundingClientRect();
-    const px = ((event.clientX - box.left) / box.width) * W;
-    const py = ((event.clientY - box.top) / box.height) * H;
-    // Undo the projection at ground level: two equations, two unknowns.
-    const u = clamp((px - CX) / (2 * SX) + (py - CY) / (2 * SY), -1, 1);
-    const v = clamp((py - CY) / (2 * SY) - (px - CX) / (2 * SX), -1, 1);
-    ball.current = dropped(u, v);
-    setRunning(true);
-  }, []);
+    const zoom = box.width / W || 1;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const from = { ...cam.current };
+    let turning = false;
+    const move = (ev: PointerEvent) => {
+      const dx = (ev.clientX - startX) / zoom;
+      const dy = (ev.clientY - startY) / zoom;
+      if (!turning && Math.hypot(dx, dy) < 3.5) return;
+      turning = true;
+      cam.current = {
+        yaw: from.yaw - dx * 0.016,
+        // Not all the way flat and not straight down: past either the mesh
+        // stops being a picture of a surface.
+        tilt: clamp(from.tilt + dy * 0.009, 0.18, 0.9),
+      };
+      paint();
+    };
+    const up = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      if (turning) return;
+      const spot = under(
+        ((ev.clientX - box.left) / box.width) * W,
+        ((ev.clientY - box.top) / box.height) * H,
+      );
+      if (!spot) return;
+      ball.current = dropped(spot.u, spot.v);
+      setRunning(true);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }, [paint, under]);
 
   const reset = useCallback(() => {
+    cam.current = { ...HOME };
     ball.current = dropped(-0.74, 0.62);
     setRunning(true);
   }, []);
@@ -264,7 +430,7 @@ export function DescentTray() {
     <ObjectShell id="descent" label={t('world.descent.label')} hint={t('world.descent.hint')}>
       <div className="tray" ref={hostRef}>
         <span className="tray__rim mat-metal" aria-hidden="true" />
-        <canvas ref={canvasRef} data-nodrag style={{ width: W, height: H }} onPointerDown={drop} />
+        <canvas ref={canvasRef} data-nodrag style={{ width: W, height: H }} onPointerDown={grab} />
         <div className="tray__bar" data-nodrag>
           <label className="tray__dial" title={t('world.descent.rate')}>
             <span>η</span>

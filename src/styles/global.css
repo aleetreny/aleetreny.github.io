@@ -2374,8 +2374,10 @@ body.has-tool iframe { pointer-events: none; }
 .garden__seed { width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 -1px 1px rgba(0, 0, 0, .4); }
 
 /* ------------------------------------------------------------------ the flower */
-.flower { width: 110px; height: 160px; }
-.flower svg { width: 100%; height: 100%; display: block; overflow: visible; }
+/* The frame is cut wide enough for a full lean, so the svg no longer has to
+   paint outside its own box — which is what left petals stuck to the slate. */
+.flower { width: 154px; height: 160px; }
+.flower svg { width: 100%; height: 100%; display: block; }
 
 /* -------------------------------------------------------- the objects panel */
 .panel--objects { max-width: 640px; }
@@ -2576,15 +2578,17 @@ body.has-tool iframe { pointer-events: none; }
 }
 
 /* ── the marble on its loss surface ─────────────────────────────────────── */
-.tray { position: relative; width: 214px; height: 180px; padding: 10px; }
+.tray { position: relative; width: 232px; height: 206px; padding: 10px; }
 .tray__rim {
   position: absolute; inset: 0; border-radius: 5px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .35);
 }
+/* The plot turns under the pointer, so it is grabbed rather than aimed at. */
 .tray canvas {
-  position: relative; display: block; border-radius: 2px; cursor: crosshair;
+  position: relative; display: block; border-radius: 2px; cursor: grab;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55), 0 2px 5px rgba(0, 0, 0, .4);
 }
+.tray canvas:active { cursor: grabbing; }
 .tray__bar {
   position: relative; display: flex; align-items: center; gap: 5px; margin-top: 6px;
   font-family: var(--font-mono); font-size: 8px; color: rgba(28, 32, 30, .72);
