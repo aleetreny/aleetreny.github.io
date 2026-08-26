@@ -6,11 +6,67 @@
 // countries, the ink, where the stamp sits, the words — is the owner's from
 // inside the board.
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
-import { DEFAULT_STAMPS, type PassportStamp } from '../../../lib/world/passport';
+import {
+  clampStampPosition,
+  DEFAULT_STAMPS,
+  PASSPORT_INKS,
+  type PassportStamp,
+} from '../../../lib/world/passport';
 import { useUiText } from '../ui-text-context';
+
+type StampPosition = { x: number; y: number };
+
+type StampDrag = {
+  id: string;
+  shape: PassportStamp['shape'];
+  rot: number;
+  leaf: HTMLDivElement;
+  element: HTMLButtonElement;
+  pointerId: number;
+  leafWidth: number;
+  leafHeight: number;
+  scale: number;
+  startClientX: number;
+  startClientY: number;
+  startPosition: StampPosition;
+  position: StampPosition;
+  moved: boolean;
+};
+
+/** Read the linear part of an object's transform. The passport lives inside a
+ * rotated/scaled desk object, so screen-space pointer movement needs to be
+ * mapped back into the leaf before it can update x/y percentages. */
+function transformLinearPart(value: string): { a: number; b: number; c: number; d: number } {
+  const matrix = value.match(/^matrix\(([^)]+)\)$/)?.[1];
+  if (matrix) {
+    const [a, b, c, d] = matrix.split(',').map(Number);
+    if ([a, b, c, d].every(Number.isFinite)) return { a, b, c, d };
+  }
+  const matrix3d = value.match(/^matrix3d\(([^)]+)\)$/)?.[1];
+  if (matrix3d) {
+    const values = matrix3d.split(',').map(Number);
+    if (values.length === 16 && [values[0], values[1], values[4], values[5]].every(Number.isFinite)) {
+      return { a: values[0], b: values[1], c: values[4], d: values[5] };
+    }
+  }
+  return { a: 1, b: 0, c: 0, d: 1 };
+}
+
+function screenDeltaToLeaf(leaf: HTMLDivElement, dx: number, dy: number, scale: number): StampPosition {
+  const object = leaf.closest<HTMLElement>('.obj');
+  const matrix = object ? transformLinearPart(getComputedStyle(object).transform) : { a: 1, b: 0, c: 0, d: 1 };
+  const screenX = dx / (scale || 1);
+  const screenY = dy / (scale || 1);
+  const determinant = matrix.a * matrix.d - matrix.b * matrix.c;
+  if (!Number.isFinite(determinant) || Math.abs(determinant) < 0.0001) return { x: screenX, y: screenY };
+  return {
+    x: (matrix.d * screenX - matrix.c * screenY) / determinant,
+    y: (-matrix.b * screenX + matrix.a * screenY) / determinant,
+  };
+}
 
 export function Passport() {
   const t = useUiText();
@@ -20,7 +76,11 @@ export function Passport() {
   const [leaf, setLeaf] = useState(1);
   const [picked, setPicked] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dragPosition, setDragPosition] = useState<(StampPosition & { id: string }) | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const dragRef = useRef<StampDrag | null>(null);
+  const stampClickRef = useRef<{ id: string; wasPicked: boolean } | null>(null);
+  const suppressClickRef = useRef(false);
 
   const stamps = passport.length > 0 ? passport : DEFAULT_STAMPS;
   const pages = useMemo(() => Math.max(2, ...stamps.map((s) => s.page)), [stamps]);
@@ -30,6 +90,92 @@ export function Passport() {
   const patch = useCallback((id: string, next: Partial<PassportStamp>) => {
     savePassport(stamps.map((s) => (s.id === id ? { ...s, ...next } : s)));
   }, [savePassport, stamps]);
+
+  const onStampPointerDown = useCallback((event: ReactPointerEvent<HTMLButtonElement>, stamp: PassportStamp) => {
+    if (!editing || event.button !== 0) return;
+    const element = event.currentTarget;
+    const leafElement = element.closest<HTMLDivElement>('.pass__leaf');
+    if (!leafElement) return;
+    const leafWidth = leafElement.offsetWidth;
+    const leafHeight = leafElement.offsetHeight;
+    if (!leafWidth || !leafHeight) return;
+    const board = leafElement.closest<HTMLElement>('.desk__board');
+    const boardScale = board
+      ? board.getBoundingClientRect().width / (board.offsetWidth || 1)
+      : leafElement.getBoundingClientRect().width / leafWidth;
+    event.preventDefault();
+    event.stopPropagation();
+    stampClickRef.current = { id: stamp.id, wasPicked: picked === stamp.id };
+    suppressClickRef.current = false;
+    dragRef.current = {
+      id: stamp.id,
+      shape: stamp.shape,
+      rot: stamp.rot,
+      leaf: leafElement,
+      element,
+      pointerId: event.pointerId,
+      leafWidth,
+      leafHeight,
+      scale: boardScale || 1,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startPosition: { x: stamp.x, y: stamp.y },
+      position: { x: stamp.x, y: stamp.y },
+      moved: false,
+    };
+    setDragPosition({ id: stamp.id, x: stamp.x, y: stamp.y });
+    element.setPointerCapture?.(event.pointerId);
+  }, [editing, picked]);
+
+  const onStampPointerMove = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (!drag.moved && Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) <= 3) return;
+    drag.moved = true;
+    suppressClickRef.current = true;
+    const delta = screenDeltaToLeaf(drag.leaf, event.clientX - drag.startClientX, event.clientY - drag.startClientY, drag.scale);
+    drag.position = clampStampPosition(
+      drag.shape,
+      drag.rot,
+      drag.startPosition.x + (delta.x / drag.leafWidth) * 100,
+      drag.startPosition.y + (delta.y / drag.leafHeight) * 100,
+      drag.leafWidth,
+      drag.leafHeight,
+    );
+    setDragPosition({ id: drag.id, ...drag.position });
+  }, []);
+
+  const onStampPointerUp = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    event.stopPropagation();
+    if (drag.moved) {
+      patch(drag.id, drag.position);
+    } else if (event.type !== 'pointercancel') {
+      const click = stampClickRef.current;
+      setPicked(click?.id === drag.id && click.wasPicked ? null : drag.id);
+      // A pointerdown can suppress the browser's follow-up click on some
+      // touch implementations. Handle selection here and make a follow-up
+      // click harmless when the browser still dispatches one.
+      suppressClickRef.current = true;
+    }
+    drag.element.releasePointerCapture?.(drag.pointerId);
+    dragRef.current = null;
+    setDragPosition(null);
+  }, [patch]);
+
+  const onStampClick = useCallback((id: string) => {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      stampClickRef.current = null;
+      return;
+    }
+    const click = stampClickRef.current;
+    stampClickRef.current = null;
+    setPicked(click?.id === id && click.wasPicked ? null : id);
+  }, []);
 
   const addStamp = useCallback(() => {
     const made: PassportStamp = {
@@ -78,9 +224,18 @@ export function Passport() {
                   <button
                     key={stamp.id}
                     type="button"
-                    className={`pstamp pstamp--${stamp.shape} pstamp--${stamp.ink}${picked === stamp.id ? ' is-open' : ''}`}
-                    style={{ left: `${stamp.x}%`, top: `${stamp.y}%`, transform: `rotate(${stamp.rot}deg)` }}
-                    onClick={() => setPicked(picked === stamp.id ? null : stamp.id)}
+                    className={`pstamp pstamp--${stamp.shape} pstamp--${stamp.ink}${picked === stamp.id ? ' is-open' : ''}${dragPosition?.id === stamp.id ? ' is-dragging' : ''}`}
+                    data-nodrag
+                    style={{
+                      left: `${dragPosition?.id === stamp.id ? dragPosition.x : stamp.x}%`,
+                      top: `${dragPosition?.id === stamp.id ? dragPosition.y : stamp.y}%`,
+                      transform: `rotate(${stamp.rot}deg)`,
+                    }}
+                    onPointerDown={(event) => onStampPointerDown(event, stamp)}
+                    onPointerMove={onStampPointerMove}
+                    onPointerUp={onStampPointerUp}
+                    onPointerCancel={onStampPointerUp}
+                    onClick={() => onStampClick(stamp.id)}
                     title={stamp.place}
                   >
                     <span className="pstamp__code">{stamp.code}</span>
@@ -97,6 +252,7 @@ export function Passport() {
             <span>{leaf}–{leaf + 1} / {pages}</span>
             <button type="button" onClick={() => setLeaf((n) => Math.min(pages, n + 2))} disabled={leaf + 1 >= pages}>›</button>
             {editing ? <button type="button" className="pass__add" onClick={addStamp}>+</button> : null}
+            {editing ? <span className="pass__drag-hint">{t('world.pass.drag')}</span> : null}
           </div>
 
           {chosen ? (
@@ -130,18 +286,31 @@ export function Passport() {
                   </div>
                   <div className="pass__row">
                     <input value={chosen.city ?? ''} placeholder={t('world.pass.city')} onChange={(e) => patch(chosen.id, { city: e.target.value })} aria-label="city" />
-                    <select value={chosen.ink} onChange={(e) => patch(chosen.id, { ink: e.target.value as PassportStamp['ink'] })} aria-label="ink">
-                      {['violet', 'teal', 'rust', 'ink', 'green'].map((ink) => <option key={ink} value={ink}>{ink}</option>)}
-                    </select>
                     <select value={chosen.shape} onChange={(e) => patch(chosen.id, { shape: e.target.value as PassportStamp['shape'] })} aria-label="shape">
                       {['round', 'rect', 'oval', 'shield'].map((shape) => <option key={shape} value={shape}>{shape}</option>)}
                     </select>
                   </div>
-                  <div className="pass__row">
+                  <div className="pass__ink-field">
+                    <span className="pass__field-label">{t('world.pass.ink')}</span>
+                    <div className="pass__ink-picker" role="group" aria-label={t('world.pass.ink')}>
+                      {PASSPORT_INKS.map((ink) => (
+                        <button
+                          key={ink.id}
+                          type="button"
+                          className={`pass__ink${chosen.ink === ink.id ? ' is-selected' : ''}`}
+                          style={{ backgroundColor: ink.hex }}
+                          aria-label={ink.id}
+                          aria-pressed={chosen.ink === ink.id}
+                          title={ink.id}
+                          onClick={() => patch(chosen.id, { ink: ink.id })}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="pass__row pass__row--placement">
                     <label>{t('world.pass.page')}<input type="number" min={1} value={chosen.page} onChange={(e) => patch(chosen.id, { page: Math.max(1, Number(e.target.value) || 1) })} /></label>
-                    <label>x<input type="number" value={Math.round(chosen.x)} onChange={(e) => patch(chosen.id, { x: Number(e.target.value) })} /></label>
-                    <label>y<input type="number" value={Math.round(chosen.y)} onChange={(e) => patch(chosen.id, { y: Number(e.target.value) })} /></label>
-                    <label>↻<input type="number" value={Math.round(chosen.rot)} onChange={(e) => patch(chosen.id, { rot: Number(e.target.value) })} /></label>
+                    <label>{t('world.pass.rotation')}<input type="number" value={Math.round(chosen.rot)} onChange={(e) => patch(chosen.id, { rot: Number(e.target.value) })} /></label>
+                    <span className="pass__placement-note">{t('world.pass.drag')}</span>
                   </div>
                   <textarea
                     value={chosen.note ?? ''}

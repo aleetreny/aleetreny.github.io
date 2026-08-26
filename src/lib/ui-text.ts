@@ -430,6 +430,9 @@ const CATALOGUE: Record<string, Entry> = {
   'world.pass.note': { es: 'lo que quieras contar de este sitio', en: 'whatever you want to say about this place' },
   'world.pass.city': { es: 'ciudad', en: 'city' },
   'world.pass.page': { es: 'hoja', en: 'leaf' },
+  'world.pass.ink': { es: 'tinta', en: 'ink' },
+  'world.pass.rotation': { es: 'giro', en: 'rotation' },
+  'world.pass.drag': { es: 'arrastra el sello dentro de la hoja', en: 'drag the stamp inside the leaf' },
   'world.pass.remove': { es: 'quitar sello', en: 'remove stamp' },
 
   'world.cam.label': { es: 'una polaroid', en: 'a polaroid' },

@@ -4,7 +4,7 @@ import {
 } from './kinds';
 import { PAINT_COLORS, makeSplat, paintHex, splatBody, splatShape } from './splats';
 import { SPECIES, ago, growthOf, speciesOf } from './garden';
-import { DEFAULT_STAMPS, parseStamps } from './passport';
+import { clampStampPosition, DEFAULT_STAMPS, parseStamps } from './passport';
 import { BOOK_LENGTH, bookMarks, bookPage } from './book';
 import { hashString, mulberry32, remap } from './rng';
 
@@ -174,6 +174,16 @@ describe('the passport', () => {
     expect(stamp.x).toBe(88);
     expect(stamp.rot).toBe(180);
     expect(stamp.ink).toBe('violet');
+  });
+
+  it('accepts the expanded ink palette and keeps rotated stamps inside a leaf', () => {
+    const [stamp] = parseStamps([{ code: 'jp', place: 'Japan', ink: 'sapphire' }]);
+    expect(stamp.ink).toBe('sapphire');
+
+    const position = clampStampPosition('rect', 45, 100, 100, 180, 220);
+    expect(position.x).toBeLessThan(100);
+    expect(position.y).toBeLessThan(100);
+    expect(clampStampPosition('round', 0, -20, -20, 180, 220)).toEqual({ x: 0, y: 0 });
   });
 });
 
