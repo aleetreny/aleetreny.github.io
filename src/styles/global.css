@@ -1941,9 +1941,9 @@ body.has-tool iframe { pointer-events: none; }
   animation: sheetout .4s cubic-bezier(.2, .9, .3, 1) both;
 }
 .pass__cardclose {
-  position: absolute; right: 14px; top: 14px; z-index: 4;
-  width: 22px; height: 22px; padding: 0; display: grid; place-items: center;
-  font-size: 16px; line-height: 1; cursor: pointer;
+  position: absolute; right: 4px; top: 4px; z-index: 4;
+  width: 19px; height: 19px; padding: 0; display: grid; place-items: center;
+  font-size: 14px; line-height: 1; cursor: pointer;
   background: rgba(18, 22, 20, .88); color: #fff;
   border: 1px solid rgba(255, 255, 255, .72); border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .45);
@@ -1951,7 +1951,7 @@ body.has-tool iframe { pointer-events: none; }
 .pass__cardclose:hover, .pass__cardclose:focus-visible {
   background: #000; border-color: #fff; outline: 2px solid rgba(255, 255, 255, .72); outline-offset: 2px;
 }
-.pass__photo { position: relative; width: 100%; height: 108px; background: #ddd5c2; overflow: hidden; }
+.pass__photo { position: relative; width: 100%; height: 148px; background: #ddd5c2; overflow: hidden; }
 .pass__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pass__nophoto { position: absolute; inset: 0; display: grid; place-items: center; font-size: 7.5px; opacity: .4; }
 .pass__pick {
@@ -1981,8 +1981,15 @@ body.has-tool iframe { pointer-events: none; }
 }
 .pass__ink:hover, .pass__ink:focus-visible { outline: 2px solid rgba(60, 50, 30, .5); outline-offset: 1px; }
 .pass__ink.is-selected { outline: 2px solid #241f16; outline-offset: 1px; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .72); }
-.pass__row--placement { align-items: flex-start; }
-.pass__placement-note { flex: 1; padding-top: 3px; font-size: 7px; line-height: 1.35; opacity: .55; }
+.pass__row--placement {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px;
+  align-items: center;
+}
+.pass__row--placement label { min-width: 0; width: 100%; }
+.pass__row--placement label input { width: 0; min-width: 0; flex: 1 1 auto; }
+.pass__placement-note {
+  grid-column: 1 / -1; min-width: 0; padding-top: 0; font-size: 7px; line-height: 1.35; opacity: .55;
+}
 .pass__del {
   align-self: flex-start; font-size: 7.5px; letter-spacing: .1em; padding: 2px 6px; cursor: pointer;
   background: none; border: 1px solid rgba(150, 60, 40, .4); color: #93472a;
