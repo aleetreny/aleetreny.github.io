@@ -1,11 +1,29 @@
 # Project status
 
-Updated: 2026-08-25. Branch: `main`.
+Updated: 2026-08-26. Branch: `main`. Release: `portfolio-v2.0.0`.
 
-## The desk: twenty-six objects on the same slate (2026-08)
+## v2.0.0 release (2026-08-26)
+
+- the live passport is now the versioned source: sixty real stamps over fifteen
+  leaves, with its Spanish writing preserved and a hand-reviewed English slot
+  beside every place, city and note;
+- the remaining owner panels and desk-object labels now use the central ES/EN
+  catalogue, including dynamically generated presets, routes, traits, species,
+  shapes and all eighteen passport inks;
+- the first visit has a DOM-level world gate, so a lazy object cannot flash for
+  a frame; only the thirteen guided cards appear during the walk;
+- the ending is a distinct `outro`: first the camera fits the complete slate,
+  then paper settles and all thirty-three objects arrive on staggered meteor
+  paths using compositor-only Web Animations;
+- desktop and 390×844 mobile runs were inspected in a real browser, the thirteen
+  stops were counted one by one, and the Spanish/English passport was walked to
+  leaf fifteen;
+- the backwards book turn no longer leaves the previous leaf over the new one.
+
+## The desk: thirty-three objects on the same slate (2026-08)
 
 The board's first layer is a portfolio and stays one. The second is furniture:
-twenty-six things lying on the slate that do something when you touch them — a
+thirty-three things lying on the slate that do something when you touch them — a
 book whose leaves turn, a coin that is not fair, a Gray–Scott dish, a slime
 mould that grows a network between the food you drop, a passport with a stamp
 per country, a camera that photographs the board it is standing on, a black hole
@@ -51,9 +69,9 @@ which costs the opening view nothing on any screen wider than it is tall.
 
 The guided tour changed at the same time. It used to halt twenty-two times,
 several of them on a loose photo, which is a halt on nothing. It now halts
-thirteen times — the title and the twelve numbered cards — and everything else
-the board carries rides along in a stop's `extras`, landing on the slate without
-the camera ever widening to frame it.
+thirteen times — the title and the twelve numbered cards. Everything else stays
+behind the world gate until the final pull-back, then paper settles and the
+objects cross the slate on staggered meteor paths.
 
 ## Writing articles: wording, typing and translation (2026-08)
 
@@ -201,7 +219,8 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
 - Tour stops are framed closer: a smaller inflation and a higher zoom ceiling
   take stop one from 0.82× to 1.17× on a desktop, and from 0.55× to 0.57–0.87×
   on a phone.
-- Every visible string, `aria-label` and error message is in English.
+- Every visible string, `aria-label` and error message has a Spanish and an
+  English default, with owner overrides kept separate per language.
 
 ## Looks, article design and two languages (2026-08)
 
@@ -282,10 +301,10 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
   keyboard and touch, back/jump/skip/loop/auto/scroll, every touch gesture, and a
   regression pass over dossiers, drag, `+ N more`, jumps, scatter/reset and
   reduced motion, with no console errors;
-- local checks: repository scan, lint, types, 189 tests and build;
+- local checks: repository scan, lint, types, 245 tests and build;
 - documentation for the handbook, architecture, data, authentication, editor,
   storage, deployment, security, recovery, handoff and the desk objects;
-- every one of the twenty-six objects driven by hand in a real browser: picked
+- every one of the thirty-three objects driven by hand in a real browser: picked
   up, opened, drawn in, shot at, photographed, thrown into the black hole and
   recovered, with the guided tour rewalked end to end and no console errors.
 
@@ -294,22 +313,21 @@ The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
 | Item | State | Files | Dependency | Completion criterion |
 | --- | --- | --- | --- | --- |
 | Public content | Seeded in Neon | `fixtures/demo-content.json`, `scripts/db/seed.mjs` | the owner's later subjective review | text and links approved or adjusted from the editor |
-| The passport's writing | Countries and stamps shipped, descriptions empty | `content/source/board-spec.mjs` | the owner writing them | a photograph and a paragraph on each stamp, from inside the passport |
 | The book's pages | Binding complete, leaves deliberately blank | `src/lib/world/book.ts` | the owner's own or licensed text | leaves filled with writing there is a right to publish |
 
 ## Pending
 
 No mandatory implementation, deployment, portability or QA work remains.
 Subjective approval of the wording is an editorial review, not a technical
-blocker, as is filling the book's leaves and the passport's descriptions.
+blocker, as is filling the book's remaining leaves.
 
-The desk shipped on 2026-08-25 in one pass: merged to `main`, CI green, Pages
+The desk v2 shipped on 2026-08-26 in one pass: merged to `main`, CI green, Pages
 deployed, then `seed-content.yml` run against `development` and `production`
 with `only_settings=board,board.layout,board.tour,board.objects,board.passport,
 board.world`. A targeted run applies the migrations first and touches no
 dossier and no trash, which is why the 51 published entries and the 55 already
 in the trash came through untouched. Verified afterwards on both branches:
-`0008_visitor_world.sql` recorded, board at 4120×2500, 26 objects, 20 stamps,
+`0008_visitor_world.sql` recorded, board at 4120×2500, 33 objects, 60 stamps,
 thirteen tour stops, and the anonymous role holding `INSERT` on the notes and
 the answers, `SELECT` on the questions, and nothing at all on the garden or the
 votes — those are reached only through their `security definer` functions.

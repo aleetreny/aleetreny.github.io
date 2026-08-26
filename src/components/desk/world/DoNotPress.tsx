@@ -83,7 +83,7 @@ export function DoNotPress({ onAlarm, onSpin }: { onAlarm: () => void; onSpin: (
         >
           <span className="press__lidglass" />
         </div>
-        <span className="press__plate">DO NOT PRESS</span>
+        <span className="press__plate">{t('world.press.plate')}</span>
         {screw ? <span className="press__screw" aria-hidden="true">◉</span> : null}
       </div>
     </ObjectShell>

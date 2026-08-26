@@ -86,13 +86,13 @@ export function RandomWalk() {
           <svg viewBox="0 0 12 74"><path d="M5 0h4l1 8v58l-3 8-3-8V8z" fill="#d8a13c" /><path d="M3 66h6l-3 8z" fill="#e8d3ae" /><path d="M4.4 71.4h3.2L6 74z" fill="#2a2622" /><rect x="3" y="58" width="6" height="4" fill="#b8b2a4" /></svg>
         </span>
         <div className="walk__bar" data-nodrag>
-          <button type="button" onClick={() => setRunning((v) => !v)}>{running ? 'stop' : 'start'}</button>
-          <button type="button" onClick={clear}>clear</button>
+          <button type="button" onClick={() => setRunning((v) => !v)}>{t(running ? 'world.walk.stop' : 'world.walk.start')}</button>
+          <button type="button" onClick={clear}>{t('world.walk.clear')}</button>
           <button type="button" className="walk__more" onClick={() => setDials((v) => !v)} aria-label={t('world.walk.dials')}>⋯</button>
         </div>
         {dials ? (
           <div className="walk__dials" data-nodrag>
-            <label>drift<input type="range" min={-1.2} max={1.2} step={0.05} value={drift} onChange={(e) => setDrift(Number(e.target.value))} /></label>
+            <label>{t('world.walk.drift')}<input type="range" min={-1.2} max={1.2} step={0.05} value={drift} onChange={(e) => setDrift(Number(e.target.value))} /></label>
             <label>σ<input type="range" min={0.3} max={4} step={0.1} value={sigma} onChange={(e) => setSigma(Number(e.target.value))} /></label>
           </div>
         ) : null}

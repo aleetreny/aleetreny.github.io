@@ -19,11 +19,14 @@ import { useFrame } from '../../../lib/world/frame';
 import { OBJECT_SPECS } from '../../../lib/world/kinds';
 import { mulberry32 } from '../../../lib/world/rng';
 import { BAD } from '../../../lib/world/crew';
+import type { UiText } from '../../../lib/ui-text';
 import { damageOf } from './UvCrew';
+import { useUiText } from '../ui-text-context';
 
 type Box = { id: string; x: number; y: number; w: number; h: number; damage: number };
 
 export function UvWorld({ boardSize }: { boardSize: { width: number; height: number } }) {
+  const t = useUiText();
   const { objects, placeRef, swallowed } = useWorld();
   const [decor, setDecor] = useState<ReactNode[]>([]);
   const leaning = useRef<HTMLElement[]>([]);
@@ -61,9 +64,9 @@ export function UvWorld({ boardSize }: { boardSize: { width: number; height: num
 
   // One frame late, so the cards have been laid out and their boxes are real.
   useEffect(() => {
-    const id = requestAnimationFrame(() => setDecor(chalk(boardSize, boxes())));
+    const id = requestAnimationFrame(() => setDecor(chalk(boardSize, boxes(), t)));
     return () => cancelAnimationFrame(id);
-  }, [boardSize, boxes]);
+  }, [boardSize, boxes, t]);
 
   /** The worst-damaged cards are leaning, because somebody has them jacked up.
    *  `rotate` is its own property, so this composes with the rotation the board
@@ -113,7 +116,7 @@ export function UvWorld({ boardSize }: { boardSize: { width: number; height: num
 
 /** What the light finds on the slate: the crew's own marks, laid out from where
  *  things actually are. Written once, never animated. */
-function chalk(size: { width: number; height: number }, boxes: Box[]): ReactNode[] {
+function chalk(size: { width: number; height: number }, boxes: Box[], t: UiText): ReactNode[] {
   const r = mulberry32(7801);
   const bits: ReactNode[] = [];
 
@@ -154,7 +157,7 @@ function chalk(size: { width: number; height: number }, boxes: Box[]): ReactNode
     const name = box.id.startsWith('card:') ? '' : box.id.toUpperCase();
     bits.push(
       <text key={`bay${box.id}`} className="uvmarks__bay" x={cx.toFixed(0)} y={base.toFixed(0)}>
-        {`BAY ${String(i + 1).padStart(2, '0')}`}
+        {t('world.uv.bay', { n: String(i + 1).padStart(2, '0') })}
       </text>,
     );
     if (name) {
@@ -192,13 +195,13 @@ function chalk(size: { width: number; height: number }, boxes: Box[]): ReactNode
           />
           {/* And the tape that says do not lean on it. */}
           <path className="uvmarks__tape" d={`M${box.x - 14} ${(box.y + box.h * 0.5).toFixed(0)}h${box.w + 28}`} />
-          <text className="uvmarks__warn" x={cx.toFixed(0)} y={(box.y - inset - 6).toFixed(0)}>EN OBRAS</text>
+          <text className="uvmarks__warn" x={cx.toFixed(0)} y={(box.y - inset - 6).toFixed(0)}>{t('world.uv.works')}</text>
         </g>,
       );
     }
   }
 
   bits.push(<text key="sign" className="uvmarks__sign" x={size.width - 96} y={size.height - 62}>A·T</text>);
-  bits.push(<text key="since" className="uvmarks__since" x={size.width - 96} y={size.height - 50}>MAINT. CREW · 14 TRADES</text>);
+  bits.push(<text key="since" className="uvmarks__since" x={size.width - 96} y={size.height - 50}>{t('world.uv.maint')}</text>);
   return bits;
 }

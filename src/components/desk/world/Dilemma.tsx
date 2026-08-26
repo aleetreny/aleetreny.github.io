@@ -47,13 +47,13 @@ export function Dilemma() {
               >
                 <span className="vote__stem" />
                 <span className="vote__knob" />
-                <span className="vote__word">{option === 'cooperate' ? 'COOPERATE' : 'BETRAY'}</span>
+                <span className="vote__word">{t(`world.vote.${option}`)}</span>
               </button>
             ))}
           </div>
         ) : (
           <div className="vote__result" data-nodrag>
-            <span className="vote__yours">{t('world.vote.yours', { choice: choice === 'cooperate' ? 'COOPERATE' : 'BETRAY' })}</span>
+            <span className="vote__yours">{t('world.vote.yours', { choice: t(`world.vote.${choice}`) })}</span>
             <span className="vote__bar" aria-hidden="true">
               <i className="vote__fill" style={{ width: `${share}%` }} />
             </span>

@@ -144,8 +144,9 @@ type Rect = { x: number; y: number; w: number; h: number };
 
 /** `pre` — fitted but empty, nothing has happened yet.
  *  `tour` — the guided run is playing, board chrome is replaced by the tour bar.
+ *  `outro` — the camera is pulling back before the rest of the desk arrives.
  *  `live` — the board as it ships: pan, zoom, drag, dossiers, toolbar. */
-type Phase = 'pre' | 'tour' | 'live';
+type Phase = 'pre' | 'tour' | 'outro' | 'live';
 
 /** What the visitor asked for while the run was parked at a stop. A number is
  *  a direct jump to that stop index (the tour bar's dots). */
@@ -267,6 +268,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   const t = useMemo(() => makeUiText(uiOverrides, activeLang, i18n.primary), [uiOverrides, activeLang, i18n.primary]);
   const tRef = useRef(t);
   useEffect(() => { tRef.current = t; }, [t]);
+  // The browser-language offer can choose a different language from the static
+  // HTML shell. Keep assistive technology and spell-checking aligned with the
+  // text that is actually on screen, including subsequent switcher changes.
+  useEffect(() => { document.documentElement.lang = activeLang; }, [activeLang]);
 
   // The raw documents keep every language; the localised copies are what the
   // board renders, so no component below here knows a second language exists.
@@ -324,6 +329,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   // The staggered CSS drop is the intro for a board that is not being toured;
   // when the tour runs it is the intro, so the drop must not also fire.
   const [introDrop, setIntroDrop] = useState(() => phase === 'live');
+  // A lazy world chunk can commit after the parent's first layout effect. This
+  // flag is therefore rendered into the DOM as a hard gate as well as enforced
+  // imperatively: no late object, paint mark or photo can flash over the tour.
+  const [worldReady, setWorldReady] = useState(() => phase === 'live');
   const [tourStep, setTourStep] = useState(0);
   const [tourTotal, setTourTotal] = useState(0);
   const [tourLabel, setTourLabel] = useState('');
@@ -700,6 +709,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
   const hideAll = useCallback(() => {
     shownRef.current.clear();
+    setWorldReady(false);
     for (const el of boardItems()) {
       // A finished CSS animation with `fill: both` outranks an inline opacity,
       // so the intro drop has to go before anything can be hidden again.
@@ -713,9 +723,9 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   }, [boardItems, studEls]);
 
   /** Everything back on the board. `settle` makes whatever the walk never
-   *  showed — the held notes, anything added since the route was written —
-   *  arrive one after another instead of appearing all at once, which is the
-   *  moment the slate stops being a presentation and becomes a board. */
+   *  showed arrive one after another. Paper lands softly; actual desk objects
+   *  cross the slate like small meteorites. Both are one-shot WAAPI animations
+   *  on compositor-friendly properties, with no React work between frames. */
   const revealAll = useCallback((settle = false) => {
     const held: HTMLElement[] = [];
     for (const el of boardItems()) {
@@ -730,12 +740,46 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     for (const stud of studEls()) stud.style.opacity = '1';
     if (held.length === 0) return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    held.forEach((el, index) => {
+    let paperIndex = 0;
+    let objectIndex = 0;
+    held.forEach((el) => {
+      const objectId = el.dataset.obj;
+      if (objectId) {
+        // Stable variety without Math.random: every replay has the same visual
+        // rhythm and the browser can prepare each independent layer at once.
+        let hash = 2166136261;
+        for (const char of objectId) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
+        const side = hash & 1 ? 1 : -1;
+        const dx = side * (260 + (Math.abs(hash) % 260));
+        const dy = -(320 + (Math.abs(hash >>> 7) % 260));
+        const spin = side * (16 + (Math.abs(hash >>> 13) % 24));
+        el.animate([
+          { opacity: 0, translate: `${dx}px ${dy}px`, scale: '.58', rotate: `${spin}deg` },
+          { opacity: 1, translate: '0 0', scale: '1.045', rotate: '-1.5deg', offset: 0.78 },
+          { opacity: 1, translate: '0 0', scale: '1', rotate: '0deg' },
+        ], {
+          duration: 760,
+          delay: objectIndex * 34,
+          easing: 'cubic-bezier(.16,.86,.22,1)',
+          // Hold the off-board first frame through the stagger delay. Without
+          // backwards fill, later objects would sit fully visible at home while
+          // waiting for their own meteor flight to begin.
+          fill: 'backwards',
+        });
+        objectIndex += 1;
+        return;
+      }
       const rot = parseFloat(el.dataset.rot || '0');
       el.animate([
-        { opacity: 0, transform: `translateY(-14px) rotate(${rot - 5}deg) scale(.94)` },
-        { opacity: 1, transform: `rotate(${rot}deg) scale(1)` },
-      ], { duration: 460, delay: index * 90, easing: 'cubic-bezier(.2,.9,.25,1.1)', fill: 'none' });
+        { opacity: 0, translate: '0 -18px', scale: '.94', rotate: `${rot < 0 ? 4 : -4}deg` },
+        { opacity: 1, translate: '0 0', scale: '1', rotate: '0deg' },
+      ], {
+        duration: 440,
+        delay: paperIndex * 58,
+        easing: 'cubic-bezier(.2,.9,.25,1.1)',
+        fill: 'backwards',
+      });
+      paperIndex += 1;
     });
   }, [boardItems, studEls]);
 
@@ -885,19 +929,33 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   }, [showItem]);
 
   const endTour = useCallback((mode: 'fit' | 'keep') => {
-    if (phaseRef.current === 'live') return;
+    if (phaseRef.current === 'live' || phaseRef.current === 'outro') return;
     tokenRef.current += 1;
     gateRef.current = null;
     cancelAnimationFrame(rafRef.current);
     clearTimers();
-    revealAll(true);
     markTourSeen(tourRef.current.replay);
-    phaseRef.current = 'live';
-    setPhase('live');
     setTourWaiting(false);
     setTourPaused(false);
-    if (mode === 'fit') restView(false);
-  }, [clearTimers, restView, revealAll]);
+    const finish = () => {
+      if (phaseRef.current !== 'outro') return;
+      revealAll(true);
+      setWorldReady(true);
+      phaseRef.current = 'live';
+      setPhase('live');
+    };
+    if (mode === 'keep') {
+      phaseRef.current = 'outro';
+      finish();
+      return;
+    }
+    // Pull all the way back first. Only after the 600ms camera transition has
+    // settled do the paper extras land and the loose objects cross the slate.
+    phaseRef.current = 'outro';
+    setPhase('outro');
+    fitAll(false);
+    timersRef.current.push(window.setTimeout(finish, 660));
+  }, [clearTimers, fitAll, revealAll]);
 
   /** Parks the run until the visitor asks for the next (or previous) stop. */
   const gate = useCallback(() => new Promise<Advance>((resolve) => { gateRef.current = resolve; }), []);
@@ -1203,7 +1261,36 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     saveSetting('board.passport', merged);
   }, [patchText, saveSetting, settings]);
   const commitLayout = useCallback((next: LayoutMap) => { setSettings((s) => ({ ...s, 'board.layout': next })); saveSetting('board.layout', next, 150); }, [saveSetting]);
-  const commitTour = useCallback((next: TourConfig) => { setSettings((s) => ({ ...s, 'board.tour': next })); saveSetting('board.tour', next); }, [saveSetting]);
+  const commitTour = useCallback((next: TourConfig) => {
+    if (!i18n.enabled) {
+      setSettings((s) => ({ ...s, 'board.tour': next }));
+      saveSetting('board.tour', next);
+      return;
+    }
+    const stored = settings['board.tour'];
+    const raw = stored && typeof stored === 'object' && !Array.isArray(stored)
+      ? stored as Record<string, unknown>
+      : {};
+    const rawStops = Array.isArray(raw.stops) ? raw.stops as Array<Record<string, unknown>> : [];
+    const stopById = new Map(rawStops.filter((stop) => typeof stop?.id === 'string').map((stop) => [stop.id as string, stop]));
+    const rawBar = raw.bar && typeof raw.bar === 'object' && !Array.isArray(raw.bar)
+      ? raw.bar as Record<string, unknown>
+      : {};
+    const bar: Record<string, unknown> = { ...next.bar };
+    for (const field of ['hint', 'nextLabel', 'finishLabel', 'backLabel', 'skipLabel'] as const) {
+      bar[field] = putText(rawBar[field], activeLang, next.bar[field], i18n.primary);
+    }
+    const merged = {
+      ...next,
+      stops: next.stops.map((stop) => {
+        const prior = stopById.get(stop.id) ?? {};
+        return { ...stop, label: putText(prior.label, activeLang, stop.label, i18n.primary) };
+      }),
+      bar,
+    };
+    setSettings((s) => ({ ...s, 'board.tour': merged }));
+    saveSetting('board.tour', merged);
+  }, [activeLang, i18n.enabled, i18n.primary, saveSetting, settings]);
   const commitObjects = useCallback((next: DeskObject[]) => { setSettings((s) => ({ ...s, 'board.objects': next })); saveSetting('board.objects', next); }, [saveSetting]);
   const commitWorld = useCallback((next: { paint: PaintMode }) => { setSettings((s) => ({ ...s, 'board.world': next })); saveSetting('board.world', next); }, [saveSetting]);
 
@@ -1410,12 +1497,12 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   // original bytes: files are never converted or recompressed in the editor.
   const uploadMediaFile = useCallback(async (file: File): Promise<{ url: string; mimeType: string }> => {
     const mimeType = mediaContentType(file);
-    if (!mimeType) throw new Error('Solo se pueden subir imágenes AVIF, GIF, HEIC, HEIF, JPEG, PNG o WebP, o vídeos MP4, MOV, M4V y WebM.');
+    if (!mimeType) throw new Error(tRef.current('msg.invalidMedia'));
     const maxBytes = maxUploadBytesForMediaType(mimeType);
     if (!maxBytes || file.size > maxBytes) {
-      const kind = isVideoMedia(mimeType) ? 'vídeo' : 'imagen';
+      const kind = tRef.current(isVideoMedia(mimeType) ? 'msg.video' : 'msg.image');
       const limit = Math.round((maxBytes ?? 0) / (1024 * 1024));
-      throw new Error(`La ${kind} supera el límite de ${limit} MB.`);
+      throw new Error(tRef.current('msg.mediaTooLarge', { kind, limit }));
     }
     if (!remoteDataEnabled) {
       return new Promise<{ url: string; mimeType: string }>((resolve, reject) => {
@@ -2132,6 +2219,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         ref={viewportRef}
         style={viewportStyle}
         aria-label={t('board.aria')}
+        data-world-ready={worldReady ? 'true' : 'false'}
         data-edge={theme.cards.edge}
         data-lift={theme.cards.lift}
       >
@@ -2239,7 +2327,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                         {!CHROMELESS_CARDS.includes(card.type) && card.type !== 'stamp' ? (
                           <label>{t('cardmenu.tone')}
                             <select value={card.tone ?? 'paper'} onChange={(e) => editCard(card.id, { tone: e.target.value as CardTone })}>
-                              {TONES.map((t) => <option key={t} value={t}>{t}</option>)}
+                              {TONES.map((tone) => <option key={tone} value={tone}>{t(`option.${tone}`)}</option>)}
                             </select>
                           </label>
                         ) : null}
@@ -2247,14 +2335,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                           <label>{t('cardmenu.fastener')}
                             <select value={card.fastener ?? ''} onChange={(e) => editCard(card.id, { fastener: (e.target.value || undefined) as CardFastener | undefined })}>
                               <option value="">{t('cardmenu.fastenerTheme')}</option>
-                              {CARD_FASTENERS.map((f) => <option key={f} value={f}>{f}</option>)}
+                              {CARD_FASTENERS.map((f) => <option key={f} value={f}>{t(`option.${f}`)}</option>)}
                             </select>
                           </label>
                         ) : null}
                         {card.type === 'scrap' ? (
                           <label>{t('cardmenu.scrapKind')}
                             <select value={card.kind ?? 'star'} onChange={(e) => editCard(card.id, { kind: e.target.value as ScrapKind })}>
-                              {SCRAP_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
+                              {SCRAP_KINDS.map((k) => <option key={k} value={k}>{t(`option.${k}`)}</option>)}
                             </select>
                           </label>
                         ) : null}
@@ -2277,7 +2365,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
                             </label>
                             <label>{t('cardmenu.layout')}
                               <select value={card.layout ?? 'list'} onChange={(e) => editCard(card.id, { layout: e.target.value as BoardCard['layout'] })}>
-                                {DRAWER_LAYOUTS.map((l) => <option key={l} value={l}>{l}</option>)}
+                                {DRAWER_LAYOUTS.map((l) => <option key={l} value={l}>{t(`option.${l}`)}</option>)}
                               </select>
                             </label>
                             <label>{t('cardmenu.maxItems')}
@@ -2577,7 +2665,14 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
       {openEntry ? (
         <Suspense fallback={null}>
-        <DossierErrorBoundary key={openEntry.id} onClose={() => setOpenSlug(null)} closeLabel={t('dossier.close')}>
+        <DossierErrorBoundary
+          key={openEntry.id}
+          onClose={() => setOpenSlug(null)}
+          closeLabel={t('dossier.close')}
+          errorAria={t('dossier.errorAria')}
+          errorTitle={t('dossier.errorTitle')}
+          errorBody={t('dossier.errorBody')}
+        >
           <DossierPlate
             entry={openEntry}
             articles={entries}
@@ -2682,6 +2777,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
         <ObjectsPanel
           objects={objects}
           paintMode={paintMode}
+          activeLanguage={activeLang}
           onChange={commitObjects}
           onPaintMode={(mode) => commitWorld({ paint: mode })}
           onClose={() => setObjectsOpen(false)}

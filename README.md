@@ -1,4 +1,4 @@
-# The working board
+# The Working Board — v2
 
 A portfolio that is not a page. It is a **board**: one large canvas with paper
 cards pinned to a slate hanging on a wall — drawers listing your work, spotlights
@@ -9,7 +9,10 @@ opens a full-page dossier. Drag the paper, scroll or pinch to zoom.
 Treny's actual portfolio, and the worked example of this template. Fork it, empty
 it, and it becomes yours.
 
-![The board](docs/images/board-01-live.jpg)
+![The v2 board](docs/images/v2-board-live.jpg)
+
+Current release: **v2.0.0**. See [CHANGELOG.md](CHANGELOG.md) for the release
+record and the verification behind it.
 
 Two things make it worth forking:
 
@@ -48,8 +51,8 @@ animation and scrim.
 
 ## Things on the desk
 
-A visitor can read the twelve cards, open a dossier and leave without touching
-anything odd. Or they can start poking at the twenty-six objects lying on the
+A visitor can read the twelve numbered cards, open a dossier and leave without
+touching anything odd. Or they can start poking at the thirty-three objects lying on the
 same slate.
 
 A book whose covers swing and whose leaves you can take by the corner and pull
@@ -75,21 +78,28 @@ is real maths, what is stored where, and what it costs.
 ## Two languages, written in one
 
 Write in the language you think in; the other is filled in for you and stored
-next to it. Visitors get a switcher and a remembered choice. Machine translation
-runs **while you edit, never while a visitor reads**, so the published site has
-no runtime dependency on any service — and it is free, with no key needed to
-start.
+next to it. Visitors get a switcher and a remembered choice. Cards, dossiers,
+owner panels, object controls, errors, accessibility labels and all sixty
+passport stamps ship with Spanish and English wording. Machine translation runs
+**while you edit, never while a visitor reads**, so the published site has no
+runtime dependency on any translation service.
 
 ## The first visit
 
-A visitor does not get the board all at once. The slate slams onto the wall, and
-then they walk it card by card at their own pace while each drawer, photo and
-note is stuck on. The walk halts thirteen times — the title and the twelve
-numbered cards — and everything else the board carries lands beside whichever
-card it belongs to, without the camera ever widening to frame it. A halt on a
-loose photo is a halt on nothing. When the run ends the board is exactly the
-board that ships — pan, zoom, drag, dossiers, toolbar, and a desk covered in
-things to find.
+A visitor does not get the board all at once. The slate lands first, then the
+camera walks exactly thirteen authored stops — the title and the twelve numbered
+cards. During that walk only those thirteen cards may exist on screen: loose
+photographs, notes, paint and all thirty-three objects are held behind a rendered
+gate, including lazy chunks that finish loading halfway through the tour.
+
+After the last stop, the camera pulls out to the complete slate. Paper lands
+softly and the objects arrive on staggered, deterministic meteor paths. The
+motion uses one-shot compositor animations rather than a React frame loop; with
+reduced motion it resolves instantly to the same complete board.
+
+| Desktop | Phone |
+| --- | --- |
+| ![The first v2 tour stop on desktop](docs/images/v2-tour-first-stop.jpg) | ![The first v2 tour stop on a phone](docs/images/v2-tour-mobile.jpg) |
 
 `Escape` or `skip` leaves at any point, `↻ tour` replays it, and it never runs
 under `prefers-reduced-motion: reduce` or in owner mode. Nine route shapes, three

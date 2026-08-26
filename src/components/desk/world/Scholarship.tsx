@@ -39,9 +39,9 @@ export function Scholarship() {
             <div className="letter__crest" aria-hidden="true">
               <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" /><path d="M20 6l4 9 10 1-7.5 7 2 10-8.5-5-8.5 5 2-10L6 16l10-1z" /></svg>
             </div>
-            <h4 className="letter__title">Kareema Excellence Scholarship</h4>
+            <h4 className="letter__title">{t('world.letter.title')}</h4>
             <p className="letter__amount">€45,000</p>
-            <p className="letter__line">MSc Data Science &amp; Machine Learning</p>
+            <p className="letter__line">{t('world.letter.degree')}</p>
             <p className="letter__line letter__line--quiet">University College London · 2026</p>
             <span className="letter__sign" aria-hidden="true">
               <svg viewBox="0 0 120 34"><path d="M4 26c10-18 16 4 22-6s10 10 17-2 11 8 18-4 12 6 20-6 14 4 18-2" /></svg>

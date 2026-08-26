@@ -134,7 +134,7 @@ export function LorenzCup() {
           onClick={() => setTold((v) => !v)}
           aria-label={t('world.lorenz.ask')}
         >?</button>
-        {told ? <span className="lorenz__told">deterministic ≠ predictable</span> : null}
+        {told ? <span className="lorenz__told">{t('world.lorenz.answer')}</span> : null}
       </div>
 
       <ObjectShell id="lorenz" hint={t('world.cup.hint')} label={t('world.cup.label')}>

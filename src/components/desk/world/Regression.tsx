@@ -144,7 +144,7 @@ export function Regression() {
         </svg>
         <div className="fit__bar" data-nodrag>
           <button type="button" className={robust ? '' : 'is-on'} onClick={() => setRobust(false)}>OLS</button>
-          <button type="button" className={robust ? 'is-on' : ''} onClick={() => setRobust(true)}>Robust</button>
+          <button type="button" className={robust ? 'is-on' : ''} onClick={() => setRobust(true)}>{t('world.fit.robust')}</button>
           <span className="fit__slope">{fit ? `β ${(-fit.m).toFixed(2)}` : '—'}</span>
         </div>
       </div>

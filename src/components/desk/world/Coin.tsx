@@ -86,7 +86,7 @@ export function Coin() {
       {flips > 0 ? (
         <div className="coin__tally" data-nodrag>
           <span className="coin__count">{heads}/{flips}</span>
-          {flips >= 8 ? <span className="coin__p">P(heads) ≈ {posterior.toFixed(2)}</span> : null}
+          {flips >= 8 ? <span className="coin__p">{t('world.coin.posterior', { p: posterior.toFixed(2) })}</span> : null}
           {suspicious ? <span className="coin__doubt">{t('world.coin.doubt')}</span> : null}
         </div>
       ) : null}

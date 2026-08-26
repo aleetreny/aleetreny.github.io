@@ -300,14 +300,14 @@ export function Passport() {
               {editing ? (
                 <div className="pass__edit">
                   <div className="pass__row">
-                    <input value={chosen.code} maxLength={3} onChange={(e) => patch(chosen.id, { code: e.target.value.toUpperCase() })} aria-label="code" />
-                    <input value={chosen.place} onChange={(e) => patch(chosen.id, { place: e.target.value })} aria-label="place" />
-                    <input value={chosen.year} maxLength={9} onChange={(e) => patch(chosen.id, { year: e.target.value })} aria-label="year" />
+                    <input value={chosen.code} maxLength={3} onChange={(e) => patch(chosen.id, { code: e.target.value.toUpperCase() })} aria-label={t('world.pass.code')} />
+                    <input value={chosen.place} onChange={(e) => patch(chosen.id, { place: e.target.value })} aria-label={t('world.pass.place')} />
+                    <input value={chosen.year} maxLength={9} onChange={(e) => patch(chosen.id, { year: e.target.value })} aria-label={t('world.pass.year')} />
                   </div>
                   <div className="pass__row">
-                    <input value={chosen.city ?? ''} placeholder={t('world.pass.city')} onChange={(e) => patch(chosen.id, { city: e.target.value })} aria-label="city" />
-                    <select value={chosen.shape} onChange={(e) => patch(chosen.id, { shape: e.target.value as PassportStamp['shape'] })} aria-label="shape">
-                      {['round', 'rect', 'oval', 'shield'].map((shape) => <option key={shape} value={shape}>{shape}</option>)}
+                    <input value={chosen.city ?? ''} placeholder={t('world.pass.city')} onChange={(e) => patch(chosen.id, { city: e.target.value })} aria-label={t('world.pass.city')} />
+                    <select value={chosen.shape} onChange={(e) => patch(chosen.id, { shape: e.target.value as PassportStamp['shape'] })} aria-label={t('world.pass.shape')}>
+                      {['round', 'rect', 'oval', 'shield'].map((shape) => <option key={shape} value={shape}>{t(`world.pass.shape.${shape}`)}</option>)}
                     </select>
                   </div>
                   <div className="pass__ink-field">
@@ -319,9 +319,9 @@ export function Passport() {
                           type="button"
                           className={`pass__ink${chosen.ink === ink.id ? ' is-selected' : ''}`}
                           style={{ backgroundColor: ink.hex }}
-                          aria-label={ink.id}
+                          aria-label={t(`world.pass.ink.${ink.id}`)}
                           aria-pressed={chosen.ink === ink.id}
-                          title={ink.id}
+                          title={t(`world.pass.ink.${ink.id}`)}
                           onClick={() => patch(chosen.id, { ink: ink.id })}
                         />
                       ))}

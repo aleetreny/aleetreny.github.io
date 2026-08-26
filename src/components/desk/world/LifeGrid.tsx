@@ -172,7 +172,7 @@ export function LifeGrid({ onGlider }: { onGlider: () => void }) {
           <span className="life__gen" ref={genRef}>0</span>
           <button type="button" onClick={clear}>◻</button>
         </div>
-        {glider ? <span className="life__found">↗ glider</span> : null}
+        {glider ? <span className="life__found">↗ {t('world.life.glider')}</span> : null}
       </div>
     </ObjectShell>
   );

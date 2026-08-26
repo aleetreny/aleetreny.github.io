@@ -1,6 +1,6 @@
 # Handoff between machines
 
-Updated: 2026-08-08 (Atlantic/Canary).
+Updated: 2026-08-26 (Europe/Madrid).
 
 ## Stable point and branches
 
@@ -9,7 +9,8 @@ Updated: 2026-08-08 (Atlantic/Canary).
 - remote backup of the previous site: `backup/static-terminal-2025`;
 - original rollback commit: `df975cda5ff8b2390a0ad72e316ecda5eb9fcf9c`;
 - last remote commit before the redesign: `c5b48c82bb57f2133f5678391359924f62bf253c`;
-- stable tag from the earlier phase: `portfolio-v0.2.0`.
+- stable tag from the earlier phase: `portfolio-v0.2.0`;
+- current release: `portfolio-v2.0.0`.
 
 GitHub Pages must keep **Settings > Pages > Source: GitHub Actions**.
 

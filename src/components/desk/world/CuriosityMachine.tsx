@@ -76,7 +76,7 @@ export function CuriosityMachine() {
             <span className="ask__coil" />
           </span>
           <span className="ask__slot" aria-hidden="true" />
-          <span className="ask__plate">CURIOSITY</span>
+          <span className="ask__plate">{t('world.ask.plate')}</span>
           <button
             className={`ask__lever${pulling ? ' is-pulled' : ''}`}
             type="button"

@@ -97,7 +97,7 @@ never moves a card, even if it started on one.
 
 ### Things on the desk
 
-Lying on the same slate, between the cards, are twenty-six objects. They are
+Lying on the same slate, between the cards, are thirty-three objects. They are
 furniture rather than content: a card is written, translated, seeded and read,
 an object is a thing on a table that does something when you touch it.
 
@@ -150,8 +150,10 @@ page through every dossier on the board in list order; `Escape` closes.
 ## 3 · The guided tour
 
 A first-time visitor does not get the whole board at once. The slate slams onto
-the wall, and then they walk it stop by stop at their own pace while each piece
-is stuck on. When the run ends the board is exactly the board that ships.
+the wall, and then they walk exactly thirteen cards at their own pace. All loose
+paper and all desk objects stay hidden until the final pull-back; paper settles
+gently and the objects cross the slate on staggered meteor paths. When the run
+ends the board is exactly the board that ships.
 
 | | |
 | --- | --- |
@@ -996,7 +998,7 @@ still reaches you, and one you switched off stays off.
 
 | Field | Values | Default | What it does |
 | --- | --- | --- | --- |
-| `id` | one of the twenty-six kinds | — | Which object. The id *is* the kind; there is one of each. |
+| `id` | one of the thirty-three kinds | — | Which object. The id *is* the kind; there is one of each. |
 | `x` `y` | board units | the authored spot | Where it starts. Drag it on the board and press **take positions** rather than typing these. |
 | `rot` | −180 – 180° | a small tilt | Things on a desk are not square to it. |
 | `scale` | 0.4 – 2.4 × | 1 | How big. They are authored small on purpose: the board zooms, and a thing you had to zoom into is a thing you found. |
@@ -1021,7 +1023,7 @@ the passport in owner mode and click a stamp. A list of
 | `page` | 1 upward | Which leaf it is on. Four to a leaf reads like a real passport. |
 | `x` `y` | 2 – 88 % of the leaf | Where on it. Imperfect on purpose. |
 | `rot` | −180 – 180° | A bored official's angle. |
-| `ink` | `violet` `teal` `rust` `ink` `green` | Five pads, so a passport is not one rubber stamp. |
+| `ink` | one of eighteen named inks | A broad pad set, so a passport is not one rubber stamp. |
 | `shape` | `round` `rect` `oval` `shield` | Nor one die. |
 | `assetUrl` | a URL | The photograph behind the stamp. Uploaded through the same bucket as everything else. |
 

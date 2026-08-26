@@ -791,58 +791,10 @@ export const OBJECTS = [
 // How long a splat of paint lasts: none | session | global.
 export const WORLD = { paint: 'session' };
 
-// The passport's stamps: one country per stamp, four to a leaf, dropped where
-// a bored official would drop them. `note` is mine to write and is deliberately
-// empty here — a passport full of generated travel copy would be worse than an
-// empty one. Everything below is editable from the board itself.
-const PASSPORT_COUNTRIES = [
-  ['PY', 'Paraguay', 'Paraguay', '2025'],
-  ['SK', 'Slovakia', 'Eslovaquia', '2024'],
-  ['NO', 'Norway', 'Noruega', '2023'],
-  ['SE', 'Sweden', 'Suecia', '2023'],
-  ['UK', 'United Kingdom', 'Reino Unido', '2024'],
-  ['US', 'United States', 'Estados Unidos', '2022'],
-  ['AT', 'Austria', 'Austria', '2024'],
-  ['CZ', 'Czechia', 'Chequia', '2024'],
-  ['HU', 'Hungary', 'Hungría', '2024'],
-  ['LT', 'Lithuania', 'Lituania', '2023'],
-  ['BG', 'Bulgaria', 'Bulgaria', '2023'],
-  ['FR', 'France', 'Francia', '2021'],
-  ['BE', 'Belgium', 'Bélgica', '2022'],
-  ['IT', 'Italy', 'Italia', '2022'],
-  ['HR', 'Croatia', 'Croacia', '2023'],
-  ['GR', 'Greece', 'Grecia', '2023'],
-  ['PT', 'Portugal', 'Portugal', '2019'],
-  ['MA', 'Morocco', 'Marruecos', '2019'],
-  ['IC', 'Canary Islands', 'Islas Canarias', '2021'],
-  ['ES', 'Spain', 'España', '2000'],
-];
-
-const PASSPORT_INKS = ['violet', 'teal', 'rust', 'ink', 'green'];
-const PASSPORT_SHAPES = ['round', 'rect', 'oval', 'shield', 'round', 'oval'];
-
-export const PASSPORT = PASSPORT_COUNTRIES.map(([code, en, es, year], index) => {
-  // Deterministic scatter: the same passport every time, and never a grid.
-  const seed = index * 2654435761;
-  const jx = ((seed >>> 8) & 255) / 255;
-  const jy = ((seed >>> 16) & 255) / 255;
-  const jr = ((seed >>> 3) & 255) / 255;
-  const slot = index % 4;
-  return {
-    id: `stamp-${code.toLowerCase()}`,
-    code,
-    place: { es, en },
-    year,
-    page: Math.floor(index / 4) + 1,
-    x: Math.round(((slot % 2 === 0 ? 12 : 52) + jx * 22) * 10) / 10,
-    y: Math.round(((slot < 2 ? 10 : 50) + jy * 20) * 10) / 10,
-    rot: Math.round((jr - 0.5) * 460) / 10,
-    ink: PASSPORT_INKS[index % PASSPORT_INKS.length],
-    shape: PASSPORT_SHAPES[index % PASSPORT_SHAPES.length],
-    city: { es: '', en: '' },
-    note: { es: '', en: '' },
-  };
-});
+// The complete public travel log lives in its own source file: sixty authored
+// stamps, their photographs and the faithful Spanish/English copy shipped by
+// the live board. It is still generated into the same fixture below.
+export { PASSPORT } from './passport-data.mjs';
 
 // Languages. Off by default: a fork with one language behaves exactly as it
 // did before this existed. Turn it on and the board gains a switcher, the owner
@@ -866,8 +818,8 @@ export const I18N = {
 //
 // A stop is a thing worth reading, and only the thirteen headline pieces are:
 // the title and the twelve numbered cards. Everything else the board carries
-// still arrives during the walk — it rides along in a stop's `extras`, which
-// land on the slate without the camera ever widening to frame them.
+// is associated through `extras` but held until the final overview, where the
+// paper lands and the loose objects arrive after the camera has pulled back.
 //
 // Only the authored route lives here, because the route is content: which
 // pieces are shown together, in what order, under what heading. Every

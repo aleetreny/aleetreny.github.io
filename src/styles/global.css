@@ -799,6 +799,7 @@ a { color: var(--c-accent); text-decoration: none; }
 .panel__hint { font-size: 11.5px; line-height: 1.55; color: rgba(243, 236, 221, .6); margin-bottom: 16px; }
 .field { width: 100%; font-family: var(--font-mono); font-size: 13px; background: var(--c-control-bg); border: 1px solid rgba(243, 236, 221, .28); color: var(--c-dark-ink); padding: 10px 12px; outline: none; margin-bottom: 10px; }
 .field-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 0; font-size: 12px; }
+.field-row--stacked { align-items: stretch; flex-direction: column; }
 .field-row label { color: rgba(243, 236, 221, .75); }
 .field-row input[type='color'] { width: 44px; height: 26px; border: 1px solid rgba(243, 236, 221, .28); background: transparent; padding: 0; cursor: pointer; }
 .field-row input[type='range'] { width: 150px; }
@@ -1201,6 +1202,17 @@ a { color: var(--c-accent); text-decoration: none; }
 .world-paint { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
 .world-paint--slate { z-index: 4; }
 .world-paint--paper { z-index: 250; }
+
+/* The world is code-split. A chunk that resolves halfway through the guided
+   walk must still be born invisible; otherwise it bypasses the layout effect
+   that hid the first commit and flashes for a frame. The gate stays closed
+   through the final camera pull-back and opens with the meteor arrival. */
+.desk[data-world-ready='false'] [data-obj],
+.desk[data-world-ready='false'] .world-paint,
+.desk[data-world-ready='false'] .world-alarm {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
 
 /* Shared surfaces. Objects are made of a small number of real materials, so
    twenty-six of them read as one set of things rather than twenty-six styles. */

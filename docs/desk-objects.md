@@ -2,7 +2,7 @@
 
 The board's first layer is a portfolio: somebody can arrive, read the twelve
 cards, open a dossier and leave without touching anything odd. This document is
-about the second layer — the twenty-six objects lying on the same slate, what
+about the second layer — the thirty-three objects lying on the same slate, what
 holds them together, and what it costs to have them there.
 
 The rule the whole design hangs on: **an object is furniture, a card is
@@ -42,7 +42,7 @@ heavy       worth loading late and pausing off screen
 
 That is what lets the paint gun stain the passport without either of them
 knowing the other exists, and what makes "everything loose floats" one line
-rather than twenty-six.
+rather than thirty-three.
 
 ### Drag
 
@@ -73,8 +73,8 @@ A crest, a signature, an embossed ring, a paperclip. Not a badge.
 **the note pad** — write on the top sheet, tear it off, watch it land on the
 spike. The visitor never sees anybody else's.
 
-**the passport** — a stamp per country, four to a leaf, scattered the way a bored
-official scatters them, in five inks and four shapes. Every stamp opens a card
+**the passport** — sixty stamps, four to a leaf across fifteen leaves, scattered
+the way a bored official scatters them, in eighteen inks and four shapes. Every stamp opens a card
 with a photograph and something written by hand. All of it owner-editable from
 inside the passport.
 
@@ -259,7 +259,7 @@ No second CMS. Everything lands in `site_settings` beside the theme:
 
 The board has to stay a portfolio.
 
-1. **One loop.** Twenty-six `requestAnimationFrame` callbacks is twenty-six
+1. **One loop.** Thirty-three `requestAnimationFrame` callbacks is thirty-three
    things the browser schedules separately. There is one.
 2. **Nothing runs off screen.** Every heavy object hangs its subscription off an
    `IntersectionObserver`. Measured: **zero frames per second** with the board

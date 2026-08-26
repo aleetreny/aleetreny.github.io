@@ -69,6 +69,9 @@ export class DossierErrorBoundary extends Component<{
   children: ReactNode;
   onClose: () => void;
   closeLabel: string;
+  errorAria: string;
+  errorTitle: string;
+  errorBody: string;
 }, { failed: boolean }> {
   state = { failed: false };
 
@@ -85,10 +88,10 @@ export class DossierErrorBoundary extends Component<{
     return (
       <div className="dossier" data-editing="false">
         <div className="dossier__scrim" onClick={this.props.onClose} />
-        <section className="dossier__plate" role="alertdialog" aria-modal="true" aria-label="Editor error">
+        <section className="dossier__plate" role="alertdialog" aria-modal="true" aria-label={this.props.errorAria}>
           <div className="dossier__inner">
-            <h2 className="dossier__title">No se ha podido mostrar este dossier.</h2>
-            <p className="dossier__lede">El tablero sigue disponible y puedes volver a él sin recargar la página.</p>
+            <h2 className="dossier__title">{this.props.errorTitle}</h2>
+            <p className="dossier__lede">{this.props.errorBody}</p>
             <button className="pbtn" type="button" onClick={this.props.onClose}>{this.props.closeLabel}</button>
           </div>
         </section>

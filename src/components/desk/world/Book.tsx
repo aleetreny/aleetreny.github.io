@@ -383,9 +383,9 @@ export function Book() {
       ) : (
         <div className="book book--shut">
           <span className="book__cover">
-            <span className="book__title">THE HITCHHIKER’S GUIDE</span>
-            <span className="book__sub">TO THE GALAXY</span>
-            <span className="book__panic">DON’T PANIC</span>
+            <span className="book__title">{t('world.book.coverTitle')}</span>
+            <span className="book__sub">{t('world.book.coverSub')}</span>
+            <span className="book__panic">{t('world.book.panic')}</span>
           </span>
           <span className="book__edges" aria-hidden="true" />
           <span className="book__spine" aria-hidden="true" />

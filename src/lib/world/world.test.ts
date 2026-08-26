@@ -7,6 +7,7 @@ import { SPECIES, ago, growthOf, speciesOf } from './garden';
 import { clampStampPosition, DEFAULT_STAMPS, parseStamps } from './passport';
 import { ANSWER, BOOK_LENGTH, STEPS, bookMarks, bookPage } from './book';
 import { hashString, mulberry32, remap } from './rng';
+import siteSettingsFixture from '../../../fixtures/site-settings.json';
 
 describe('the object catalogue', () => {
   it('ships every kind, laid out by the board rather than by the fallback', () => {
@@ -159,18 +160,37 @@ describe('the garden', () => {
 });
 
 describe('the passport', () => {
-  it('ships a stamp for every country, on numbered leaves', () => {
-    expect(DEFAULT_STAMPS.length).toBeGreaterThan(15);
+  it('ships the complete public travel log on fifteen numbered leaves', () => {
+    expect(DEFAULT_STAMPS).toHaveLength(60);
     for (const stamp of DEFAULT_STAMPS) {
       expect(stamp.code).toMatch(/^[A-Z]{2,3}$/);
       expect(stamp.page).toBeGreaterThanOrEqual(1);
       expect(stamp.x).toBeGreaterThan(0);
       expect(stamp.y).toBeGreaterThan(0);
-      // No generated travel copy, ever. The words are their owner's to write.
-      expect(stamp.note).toBe('');
+      expect(stamp.assetUrl).toMatch(/^https:\/\//);
+    }
+    expect(Math.max(...DEFAULT_STAMPS.map((stamp) => stamp.page))).toBe(15);
+    for (let page = 1; page <= 15; page += 1) {
+      expect(DEFAULT_STAMPS.filter((stamp) => stamp.page === page), `leaf ${page}`).toHaveLength(4);
     }
     // Never a grid: four to a leaf, all at different angles.
     expect(new Set(DEFAULT_STAMPS.map((s) => s.rot)).size).toBeGreaterThan(10);
+  });
+
+  it('keeps faithful Spanish and English prose on every stamp', () => {
+    const raw = siteSettingsFixture.find((row) => row.key === 'board.passport')?.value;
+    expect(Array.isArray(raw)).toBe(true);
+    for (const stamp of raw as Array<Record<string, unknown>>) {
+      for (const field of ['place', 'city', 'note']) {
+        expect(stamp[field], `${stamp.id}.${field}`).toEqual(expect.objectContaining({ es: expect.any(String), en: expect.any(String) }));
+      }
+    }
+    const sardinia = (raw as Array<Record<string, unknown>>).find((stamp) => stamp.id === 'stamp-py');
+    expect(sardinia?.place).toEqual({ es: 'Italia', en: 'Italy' });
+    expect(sardinia?.city).toEqual({ es: 'Cerdeña', en: 'Sardinia' });
+    const thailand = (raw as Array<Record<string, unknown>>).find((stamp) => stamp.id === 'stamp-mta9u2ay');
+    expect(thailand?.place).toEqual({ es: 'Tailandia', en: 'Thailand' });
+    expect(thailand?.note).toEqual({ es: 'Nuevo bestie', en: 'New bestie' });
   });
 
   it('reads a stored document and returns exactly what it holds', () => {

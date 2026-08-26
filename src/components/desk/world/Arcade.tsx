@@ -129,7 +129,7 @@ export function Arcade() {
             {over ? <><b>{score}</b><span>{t('world.game.again')}</span></> : <span>{t('world.game.start')}</span>}
           </button>
         ) : null}
-        <div className="game__hud" data-nodrag><span>↑ / espacio</span><span className="game__best">★ {best}</span></div>
+        <div className="game__hud" data-nodrag><span>↑ / {t('world.game.space')}</span><span className="game__best">★ {best}</span></div>
       </div>
     </ObjectShell>
   );

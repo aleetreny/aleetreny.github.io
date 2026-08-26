@@ -14,6 +14,7 @@ import {
   type TourItem,
   type TourStop,
 } from '../../lib/tour';
+import { useUiText } from './ui-text-context';
 
 type TourPanelProps = {
   tour: TourConfig;
@@ -24,18 +25,6 @@ type TourPanelProps = {
   onClose: () => void;
 };
 
-const ROUTE_HINT: Record<(typeof TOUR_ROUTES)[number], string> = {
-  custom: 'the stops you write below, in your order',
-  lists: 'one stop per drawer list, then the loose pieces',
-  columns: 'column by column, left to right',
-  rows: 'band by band, top to bottom',
-  reading: 'like reading a page: across, then down',
-  spiral: 'from the middle of the board outwards',
-  clock: 'around the board, starting at twelve',
-  random: 'a fresh shuffle every time it plays',
-  solo: 'one piece at a time, nothing skipped',
-};
-
 function Section({ title }: { title: string }) {
   return <div className="panel__section">{title}</div>;
 }
@@ -43,12 +32,13 @@ function Section({ title }: { title: string }) {
 function SelectRow<T extends string>({ id, label, value, options, onChange, hint }: {
   id: string; label: string; value: T; options: readonly T[]; onChange: (value: T) => void; hint?: string;
 }) {
+  const t = useUiText();
   return (
     <>
       <div className="field-row">
         <label htmlFor={id}>{label}</label>
         <select id={id} value={value} onChange={(event) => onChange(event.target.value as T)}>
-          {options.map((option) => <option key={option} value={option}>{option}</option>)}
+          {options.map((option) => <option key={option} value={option}>{t(`option.${option}`)}</option>)}
         </select>
       </div>
       {hint ? <div className="panel__note">{hint}</div> : null}
@@ -71,7 +61,7 @@ function NumberRow({ id, label, value, min, max, step = 1, suffix, onChange }: {
           step={step}
           value={value}
           onChange={(event) => onChange(Number(event.target.value))}
-          aria-label={`${label} slider`}
+          aria-label={label}
         />
         <input
           id={id}
@@ -115,6 +105,7 @@ function TextRow({ id, label, value, onChange }: {
 }
 
 export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPanelProps) {
+  const t = useUiText();
   const [openGroup, setOpenGroup] = useState<string>('route');
   const byId = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
   const generated = useMemo(
@@ -140,7 +131,7 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
 
   const addStop = () => setStops([
     ...tour.stops,
-    { id: `stop-${Date.now().toString(36)}`, label: 'a new stop', items: [] },
+    { id: `stop-${Date.now().toString(36)}`, label: t('tourpanel.newStopLabel'), items: [] },
   ]);
 
   const moveStop = (index: number, delta: number) => {
@@ -168,65 +159,58 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
   return (
     <div className="overlay" role="presentation">
       <div className="overlay__scrim" onClick={onClose} />
-      <div className="panel panel--theme" role="dialog" aria-modal="true" aria-label="Edit the guided tour">
-        <div className="panel__eyebrow">guided tour</div>
-        <div className="panel__title">The board tour</div>
-        <p className="panel__hint">
-          The slate lands on the wall, then the visitor walks the board stop by stop. Everything below is
-          live — press preview to watch the run with the current settings.
-        </p>
+      <div className="panel panel--theme" role="dialog" aria-modal="true" aria-label={t('tourpanel.aria')}>
+        <div className="panel__eyebrow">{t('tourpanel.eyebrow')}</div>
+        <div className="panel__title">{t('tourpanel.title')}</div>
+        <p className="panel__hint">{t('tourpanel.hint')}</p>
 
         <div className="panel__actions">
-          <button className="tbtn tbtn--on" type="button" onClick={onPreview}>↻ preview</button>
-          <button className="tbtn" type="button" onClick={onClose}>done</button>
+          <button className="tbtn tbtn--on" type="button" onClick={onPreview}>↻ {t('tourpanel.preview')}</button>
+          <button className="tbtn" type="button" onClick={onClose}>{t('tourpanel.done')}</button>
         </div>
 
-        <Section title="run" />
-        <CheckRow id="tour-enabled" label="Play for visitors" value={tour.enabled} onChange={(v) => set('enabled', v)} />
+        <Section title={t('tourpanel.run')} />
+        <CheckRow id="tour-enabled" label={t('tourpanel.playVisitors')} value={tour.enabled} onChange={(v) => set('enabled', v)} />
         <SelectRow
           id="tour-replay"
-          label="Show it"
+          label={t('tourpanel.showIt')}
           value={tour.replay}
           options={REPLAY_MODES}
           onChange={(v) => set('replay', v)}
-          hint={{ always: 'every single visit', session: 'once per browser session', once: 'once, then never again on this device' }[tour.replay]}
+          hint={t(`tourpanel.replayHint.${tour.replay}`)}
         />
         <SelectRow
           id="tour-advance"
-          label="Advance"
+          label={t('tourpanel.advance')}
           value={tour.advance}
           options={ADVANCE_MODES}
           onChange={(v) => set('advance', v)}
-          hint={{
-            manual: 'the visitor clicks next (or presses space)',
-            auto: 'moves on by itself after the dwell below',
-            scroll: 'the wheel steps forward and back instead of zooming',
-          }[tour.advance]}
+          hint={t(`tourpanel.advanceHint.${tour.advance}`)}
         />
         {tour.advance === 'auto' ? (
-          <NumberRow id="tour-dwell" label="Dwell" value={tour.dwell} min={600} max={20000} step={100} suffix="ms" onChange={(v) => set('dwell', v)} />
+          <NumberRow id="tour-dwell" label={t('tourpanel.dwell')} value={tour.dwell} min={600} max={20000} step={100} suffix="ms" onChange={(v) => set('dwell', v)} />
         ) : null}
-        <NumberRow id="tour-speed" label="Speed" value={tour.speed} min={0.3} max={3} step={0.1} suffix="×" onChange={(v) => set('speed', v)} />
-        <CheckRow id="tour-loop" label="Loop at the end" value={tour.loop} onChange={(v) => set('loop', v)} />
+        <NumberRow id="tour-speed" label={t('tourpanel.speed')} value={tour.speed} min={0.3} max={3} step={0.1} suffix="×" onChange={(v) => set('speed', v)} />
+        <CheckRow id="tour-loop" label={t('tourpanel.loop')} value={tour.loop} onChange={(v) => set('loop', v)} />
 
-        {group('route', `route · ${tour.route}`, (
+        {group('route', `${t('tourpanel.route')} · ${t(`option.${tour.route}`)}`, (
           <>
             <SelectRow
               id="tour-route"
-              label="Shape"
+              label={t('tourpanel.shape')}
               value={tour.route}
               options={TOUR_ROUTES}
               onChange={(v) => set('route', v)}
-              hint={ROUTE_HINT[tour.route]}
+              hint={t(`tourpanel.routeHint.${tour.route}`)}
             />
             {tour.route !== 'custom' && tour.route !== 'solo' ? (
-              <NumberRow id="tour-group" label="Pieces per stop" value={tour.groupSize} min={1} max={8} onChange={(v) => set('groupSize', v)} />
+              <NumberRow id="tour-group" label={t('tourpanel.piecesPerStop')} value={tour.groupSize} min={1} max={8} onChange={(v) => set('groupSize', v)} />
             ) : null}
-            <CheckRow id="tour-rest" label="Sweep up the leftovers" value={tour.includeRest} onChange={(v) => set('includeRest', v)} />
+            <CheckRow id="tour-rest" label={t('tourpanel.leftovers')} value={tour.includeRest} onChange={(v) => set('includeRest', v)} />
 
             {tour.route === 'custom' ? (
               <>
-                <div className="panel__note">{tour.stops.length} stops · drag order with the arrows</div>
+                <div className="panel__note">{t('tourpanel.stopsCount', { count: tour.stops.length })}</div>
                 <div className="stopeditor">
                   {tour.stops.map((stop, index) => (
                     <div className="stopeditor__stop" key={stop.id}>
@@ -236,13 +220,13 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                           className="field-inline"
                           type="text"
                           value={stop.label}
-                          placeholder="stop label"
+                          placeholder={t('tourpanel.stopLabel')}
                           onChange={(event) => patchStop(index, { label: event.target.value })}
-                          aria-label={`Stop ${index + 1} heading`}
+                          aria-label={t('tourpanel.stopHeading', { index: index + 1 })}
                         />
-                        <button className="editdel" type="button" onClick={() => moveStop(index, -1)} aria-label="Move up">↑</button>
-                        <button className="editdel" type="button" onClick={() => moveStop(index, 1)} aria-label="Move down">↓</button>
-                        <button className="editdel" type="button" onClick={() => setStops(tour.stops.filter((_, i) => i !== index))} aria-label="Delete stop">×</button>
+                        <button className="editdel" type="button" onClick={() => moveStop(index, -1)} aria-label={t('tourpanel.moveUp')}>↑</button>
+                        <button className="editdel" type="button" onClick={() => moveStop(index, 1)} aria-label={t('tourpanel.moveDown')}>↓</button>
+                        <button className="editdel" type="button" onClick={() => setStops(tour.stops.filter((_, i) => i !== index))} aria-label={t('tourpanel.deleteStop')}>×</button>
                       </div>
                       <div className="stopeditor__items">
                         {stop.items.map((id) => (
@@ -252,7 +236,7 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                               type="button"
                               className="chip__x"
                               onClick={() => patchStop(index, { items: stop.items.filter((other) => other !== id) })}
-                              aria-label={`Remove ${id}`}
+                              aria-label={t('tourpanel.removePiece', { id })}
                             >×</button>
                           </span>
                         ))}
@@ -263,17 +247,16 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                             if (!event.target.value) return;
                             patchStop(index, { items: [...stop.items, event.target.value] });
                           }}
-                          aria-label={`Add a piece to stop ${index + 1}`}
+                          aria-label={t('tourpanel.addPieceToStop', { index: index + 1 })}
                         >
-                          <option value="">+ piece</option>
+                          <option value="">{t('tourpanel.addPiece')}</option>
                           {items.filter((item) => !stop.items.includes(item.id)).map((item) => (
                             <option key={item.id} value={item.id}>{item.label}</option>
                           ))}
                         </select>
                       </div>
-                      {/* What the stop carries rather than frames. The camera
-                          never widens for these, so a loose photo lands beside
-                          the card without ever becoming a halt of its own. */}
+                      {/* Associated pieces are edited here but held until the
+                          final overview; they never interrupt the 13 halts. */}
                       <div className="stopeditor__items stopeditor__items--extra">
                         {(stop.extras ?? []).map((id) => (
                           <span className={`stopeditor__chip stopeditor__chip--extra ${byId.has(id) ? '' : 'is-missing'}`} key={id}>
@@ -282,7 +265,7 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                               type="button"
                               className="chip__x"
                               onClick={() => patchStop(index, { extras: (stop.extras ?? []).filter((other) => other !== id) })}
-                              aria-label={`Remove ${id}`}
+                              aria-label={t('tourpanel.removePiece', { id })}
                             >×</button>
                           </span>
                         ))}
@@ -293,9 +276,9 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                             if (!event.target.value) return;
                             patchStop(index, { extras: [...(stop.extras ?? []), event.target.value] });
                           }}
-                          aria-label={`Land a piece at stop ${index + 1} without framing it`}
+                          aria-label={t('tourpanel.landPieceAtStop', { index: index + 1 })}
                         >
-                          <option value="">+ lands here</option>
+                          <option value="">{t('tourpanel.landPiece')}</option>
                           {items
                             .filter((item) => !stop.items.includes(item.id) && !(stop.extras ?? []).includes(item.id))
                             .map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
@@ -305,12 +288,12 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                   ))}
                 </div>
                 <div className="panel__actions">
-                  <button className="tbtn" type="button" onClick={addStop}>+ stop</button>
+                  <button className="tbtn" type="button" onClick={addStop}>{t('tourpanel.addStop')}</button>
                 </div>
               </>
             ) : (
               <>
-                <div className="panel__note">{generated.length} stops, rebuilt from the board every run:</div>
+                <div className="panel__note">{t('tourpanel.generatedStops', { count: generated.length })}</div>
                 <ol className="stopeditor__preview">
                   {generated.map((stop) => <li key={stop.id}>{stop.label}<span> · {stop.items.length}</span></li>)}
                 </ol>
@@ -320,7 +303,7 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
                     type="button"
                     onClick={() => onChange({ ...tour, route: 'custom', stops: generated })}
                   >
-                    copy into custom
+                    {t('tourpanel.copyCustom')}
                   </button>
                 </div>
               </>
@@ -328,145 +311,116 @@ export function TourPanel({ tour, items, onChange, onPreview, onClose }: TourPan
           </>
         ))}
 
-        {group('camera', `camera · ${tour.camera.motion}`, (
+        {group('camera', `${t('tourpanel.camera')} · ${t(`option.${tour.camera.motion}`)}`, (
           <>
             <SelectRow
               id="tour-motion"
-              label="Motion"
+              label={t('tourpanel.motion')}
               value={tour.camera.motion}
               options={CAMERA_MOTIONS}
               onChange={(v) => setCamera('motion', v)}
-              hint={{
-                glide: 'a straight, eased flight',
-                arc: 'lifts over the board on the way',
-                swoop: 'pulls back mid-flight, then drops in',
-                push: 'slides across first, zooms in after',
-                pull: 'zooms out first, slides across after',
-                drift: 'constant speed, no ease at all',
-                spring: 'overshoots the mark and settles',
-                cut: 'no travel — hard cut to the next stop',
-              }[tour.camera.motion]}
+              hint={t(`tourpanel.motionHint.${tour.camera.motion}`)}
             />
-            <SelectRow id="tour-ease" label="Easing" value={tour.camera.easing} options={EASINGS} onChange={(v) => setCamera('easing', v)} />
-            <NumberRow id="tour-first" label="First flight" value={tour.camera.firstDuration} min={0} max={4000} step={10} suffix="ms" onChange={(v) => setCamera('firstDuration', v)} />
-            <NumberRow id="tour-dur" label="Later flights" value={tour.camera.duration} min={0} max={4000} step={10} suffix="ms" onChange={(v) => setCamera('duration', v)} />
+            <SelectRow id="tour-ease" label={t('tourpanel.easing')} value={tour.camera.easing} options={EASINGS} onChange={(v) => setCamera('easing', v)} />
+            <NumberRow id="tour-first" label={t('tourpanel.firstFlight')} value={tour.camera.firstDuration} min={0} max={4000} step={10} suffix="ms" onChange={(v) => setCamera('firstDuration', v)} />
+            <NumberRow id="tour-dur" label={t('tourpanel.laterFlights')} value={tour.camera.duration} min={0} max={4000} step={10} suffix="ms" onChange={(v) => setCamera('duration', v)} />
             {tour.camera.motion === 'arc' ? (
-              <NumberRow id="tour-arc" label="Arc height" value={tour.camera.arc} min={0} max={400} suffix="px" onChange={(v) => setCamera('arc', v)} />
+              <NumberRow id="tour-arc" label={t('tourpanel.arcHeight')} value={tour.camera.arc} min={0} max={400} suffix="px" onChange={(v) => setCamera('arc', v)} />
             ) : null}
             {tour.camera.motion === 'swoop' ? (
-              <NumberRow id="tour-swoop" label="Swoop depth" value={tour.camera.swoop} min={0} max={0.7} step={0.01} onChange={(v) => setCamera('swoop', v)} />
+              <NumberRow id="tour-swoop" label={t('tourpanel.swoopDepth')} value={tour.camera.swoop} min={0} max={0.7} step={0.01} onChange={(v) => setCamera('swoop', v)} />
             ) : null}
-            <NumberRow id="tour-maxscale" label="Zoom ceiling" value={tour.camera.maxScale} min={0.2} max={2.4} step={0.05} suffix="×" onChange={(v) => setCamera('maxScale', v)} />
-            <NumberRow id="tour-inflate" label="Breathing room" value={tour.camera.inflate} min={0} max={400} suffix="px" onChange={(v) => setCamera('inflate', v)} />
-            <NumberRow id="tour-padx" label="Pad · sides" value={tour.camera.padX} min={0} max={400} suffix="px" onChange={(v) => setCamera('padX', v)} />
-            <NumberRow id="tour-padtop" label="Pad · top" value={tour.camera.padTop} min={0} max={400} suffix="px" onChange={(v) => setCamera('padTop', v)} />
-            <NumberRow id="tour-padbottom" label="Pad · bottom" value={tour.camera.padBottom} min={0} max={500} suffix="px" onChange={(v) => setCamera('padBottom', v)} />
+            <NumberRow id="tour-maxscale" label={t('tourpanel.zoomCeiling')} value={tour.camera.maxScale} min={0.2} max={2.4} step={0.05} suffix="×" onChange={(v) => setCamera('maxScale', v)} />
+            <NumberRow id="tour-inflate" label={t('tourpanel.breathingRoom')} value={tour.camera.inflate} min={0} max={400} suffix="px" onChange={(v) => setCamera('inflate', v)} />
+            <NumberRow id="tour-padx" label={t('tourpanel.padSides')} value={tour.camera.padX} min={0} max={400} suffix="px" onChange={(v) => setCamera('padX', v)} />
+            <NumberRow id="tour-padtop" label={t('tourpanel.padTop')} value={tour.camera.padTop} min={0} max={400} suffix="px" onChange={(v) => setCamera('padTop', v)} />
+            <NumberRow id="tour-padbottom" label={t('tourpanel.padBottom')} value={tour.camera.padBottom} min={0} max={500} suffix="px" onChange={(v) => setCamera('padBottom', v)} />
           </>
         ))}
 
-        {group('mobile', `phones · ${tour.mobile.enabled ? `${tour.mobile.maxPerStop} per stop` : 'off'}`, (
+        {group('mobile', `${t('tourpanel.phones')} · ${tour.mobile.enabled ? t('tourpanel.perStop', { count: tour.mobile.maxPerStop }) : t('tourpanel.off')}`, (
           <>
             <CheckRow
               id="tour-mobile"
-              label="Adapt on small screens"
+              label={t('tourpanel.adaptSmall')}
               value={tour.mobile.enabled}
               onChange={(v) => setMobile('enabled', v)}
             />
-            <div className="panel__note">
-              The board is 2540px wide, so a phone always sees a detail of it. Below the width
-              here the same route is walked a few pieces at a time, with padding a small screen
-              can afford — otherwise three cards at once are three cards nobody can read.
-            </div>
+            <div className="panel__note">{t('tourpanel.mobileHint')}</div>
             {tour.mobile.enabled ? (
               <>
-                <NumberRow id="tour-mbreak" label="Applies below" value={tour.mobile.breakpoint} min={320} max={1400} step={10} suffix="px" onChange={(v) => setMobile('breakpoint', v)} />
-                <NumberRow id="tour-mmax" label="Pieces per stop" value={tour.mobile.maxPerStop} min={1} max={8} onChange={(v) => setMobile('maxPerStop', v)} />
-                <NumberRow id="tour-mscale" label="Zoom ceiling" value={tour.mobile.maxScale} min={0.2} max={2.4} step={0.05} suffix="×" onChange={(v) => setMobile('maxScale', v)} />
-                <NumberRow id="tour-minflate" label="Breathing room" value={tour.mobile.inflate} min={0} max={300} suffix="px" onChange={(v) => setMobile('inflate', v)} />
-                <NumberRow id="tour-mpadx" label="Pad · sides" value={tour.mobile.padX} min={0} max={200} suffix="px" onChange={(v) => setMobile('padX', v)} />
-                <NumberRow id="tour-mpadtop" label="Pad · top" value={tour.mobile.padTop} min={0} max={300} suffix="px" onChange={(v) => setMobile('padTop', v)} />
-                <NumberRow id="tour-mpadbottom" label="Pad · bottom" value={tour.mobile.padBottom} min={0} max={400} suffix="px" onChange={(v) => setMobile('padBottom', v)} />
+                <NumberRow id="tour-mbreak" label={t('tourpanel.appliesBelow')} value={tour.mobile.breakpoint} min={320} max={1400} step={10} suffix="px" onChange={(v) => setMobile('breakpoint', v)} />
+                <NumberRow id="tour-mmax" label={t('tourpanel.piecesPerStop')} value={tour.mobile.maxPerStop} min={1} max={8} onChange={(v) => setMobile('maxPerStop', v)} />
+                <NumberRow id="tour-mscale" label={t('tourpanel.zoomCeiling')} value={tour.mobile.maxScale} min={0.2} max={2.4} step={0.05} suffix="×" onChange={(v) => setMobile('maxScale', v)} />
+                <NumberRow id="tour-minflate" label={t('tourpanel.breathingRoom')} value={tour.mobile.inflate} min={0} max={300} suffix="px" onChange={(v) => setMobile('inflate', v)} />
+                <NumberRow id="tour-mpadx" label={t('tourpanel.padSides')} value={tour.mobile.padX} min={0} max={200} suffix="px" onChange={(v) => setMobile('padX', v)} />
+                <NumberRow id="tour-mpadtop" label={t('tourpanel.padTop')} value={tour.mobile.padTop} min={0} max={300} suffix="px" onChange={(v) => setMobile('padTop', v)} />
+                <NumberRow id="tour-mpadbottom" label={t('tourpanel.padBottom')} value={tour.mobile.padBottom} min={0} max={400} suffix="px" onChange={(v) => setMobile('padBottom', v)} />
               </>
             ) : null}
           </>
         ))}
 
-        {group('reveal', `pieces · ${tour.reveal.style}`, (
+        {group('reveal', `${t('tourpanel.pieces')} · ${t(`option.${tour.reveal.style}`)}`, (
           <>
             <SelectRow
               id="tour-reveal"
-              label="Landing"
+              label={t('tourpanel.landing')}
               value={tour.reveal.style}
               options={REVEAL_STYLES}
               onChange={(v) => setReveal('style', v)}
-              hint={{
-                stick: 'thrown in from off-slate and pinned',
-                drop: 'falls in from above',
-                rise: 'comes up from below',
-                fade: 'plain fade, nothing moves',
-                zoom: 'scales up past the mark and settles',
-                flip: 'turns over onto its face',
-                swing: 'swings in like it is on a hinge',
-                slam: 'lands big and shrinks into place',
-                none: 'appears with no animation at all',
-              }[tour.reveal.style]}
+              hint={t(`tourpanel.revealHint.${tour.reveal.style}`)}
             />
-            <SelectRow id="tour-revealorder" label="Order" value={tour.reveal.order} options={REVEAL_ORDERS} onChange={(v) => setReveal('order', v)} />
-            <SelectRow id="tour-revealease" label="Easing" value={tour.reveal.easing} options={EASINGS} onChange={(v) => setReveal('easing', v)} />
-            <NumberRow id="tour-revealdur" label="Duration" value={tour.reveal.duration} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setReveal('duration', v)} />
-            <NumberRow id="tour-stagger" label="Stagger" value={tour.reveal.stagger} min={0} max={1200} step={10} suffix="ms" onChange={(v) => setReveal('stagger', v)} />
-            <NumberRow id="tour-distance" label="Travel" value={tour.reveal.distance} min={0} max={600} suffix="px" onChange={(v) => setReveal('distance', v)} />
-            <NumberRow id="tour-blur" label="Motion blur" value={tour.reveal.blur} min={0} max={20} suffix="px" onChange={(v) => setReveal('blur', v)} />
+            <SelectRow id="tour-revealorder" label={t('tourpanel.order')} value={tour.reveal.order} options={REVEAL_ORDERS} onChange={(v) => setReveal('order', v)} />
+            <SelectRow id="tour-revealease" label={t('tourpanel.easing')} value={tour.reveal.easing} options={EASINGS} onChange={(v) => setReveal('easing', v)} />
+            <NumberRow id="tour-revealdur" label={t('tourpanel.duration')} value={tour.reveal.duration} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setReveal('duration', v)} />
+            <NumberRow id="tour-stagger" label={t('tourpanel.stagger')} value={tour.reveal.stagger} min={0} max={1200} step={10} suffix="ms" onChange={(v) => setReveal('stagger', v)} />
+            <NumberRow id="tour-distance" label={t('tourpanel.travel')} value={tour.reveal.distance} min={0} max={600} suffix="px" onChange={(v) => setReveal('distance', v)} />
+            <NumberRow id="tour-blur" label={t('tourpanel.motionBlur')} value={tour.reveal.blur} min={0} max={20} suffix="px" onChange={(v) => setReveal('blur', v)} />
           </>
         ))}
 
-        {group('intro', `slate · ${tour.intro.style}`, (
+        {group('intro', `${t('tourpanel.slate')} · ${t(`option.${tour.intro.style}`)}`, (
           <>
             <SelectRow
               id="tour-intro"
-              label="Arrival"
+              label={t('tourpanel.arrival')}
               value={tour.intro.style}
               options={INTRO_STYLES}
               onChange={(v) => setIntro('style', v)}
-              hint={{
-                slam: 'slams onto the wall from above',
-                fade: 'fades up out of the wall',
-                raise: 'lifts into place from below',
-                sweep: 'wipes in from the left edge',
-                none: 'already hanging there',
-              }[tour.intro.style]}
+              hint={t(`tourpanel.introHint.${tour.intro.style}`)}
             />
-            <NumberRow id="tour-hold" label="Empty wall" value={tour.intro.hold} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setIntro('hold', v)} />
-            <NumberRow id="tour-introdur" label="Duration" value={tour.intro.duration} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setIntro('duration', v)} />
-            <NumberRow id="tour-settle" label="Settle" value={tour.intro.settle} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setIntro('settle', v)} />
-            <CheckRow id="tour-shake" label="Impact shake" value={tour.intro.shake} onChange={(v) => setIntro('shake', v)} />
-            <CheckRow id="tour-dust" label="Dust flash" value={tour.intro.dust} onChange={(v) => setIntro('dust', v)} />
-            <CheckRow id="tour-studs" label="Studs pop in" value={tour.intro.studs} onChange={(v) => setIntro('studs', v)} />
+            <NumberRow id="tour-hold" label={t('tourpanel.emptyWall')} value={tour.intro.hold} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setIntro('hold', v)} />
+            <NumberRow id="tour-introdur" label={t('tourpanel.duration')} value={tour.intro.duration} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setIntro('duration', v)} />
+            <NumberRow id="tour-settle" label={t('tourpanel.settle')} value={tour.intro.settle} min={0} max={3000} step={10} suffix="ms" onChange={(v) => setIntro('settle', v)} />
+            <CheckRow id="tour-shake" label={t('tourpanel.impactShake')} value={tour.intro.shake} onChange={(v) => setIntro('shake', v)} />
+            <CheckRow id="tour-dust" label={t('tourpanel.dustFlash')} value={tour.intro.dust} onChange={(v) => setIntro('dust', v)} />
+            <CheckRow id="tour-studs" label={t('tourpanel.studsPop')} value={tour.intro.studs} onChange={(v) => setIntro('studs', v)} />
             {tour.intro.studs ? (
-              <NumberRow id="tour-studstagger" label="Stud stagger" value={tour.intro.studStagger} min={0} max={400} step={5} suffix="ms" onChange={(v) => setIntro('studStagger', v)} />
+              <NumberRow id="tour-studstagger" label={t('tourpanel.studStagger')} value={tour.intro.studStagger} min={0} max={400} step={5} suffix="ms" onChange={(v) => setIntro('studStagger', v)} />
             ) : null}
           </>
         ))}
 
-        {group('bar', 'tour bar', (
+        {group('bar', t('tourpanel.tourBar'), (
           <>
-            <CheckRow id="tour-barshow" label="Show the bar" value={tour.bar.show} onChange={(v) => setBar('show', v)} />
-            <SelectRow id="tour-barpos" label="Position" value={tour.bar.position} options={BAR_POSITIONS} onChange={(v) => setBar('position', v)} />
-            <CheckRow id="tour-barcounter" label="Stop counter" value={tour.bar.counter} onChange={(v) => setBar('counter', v)} />
-            <CheckRow id="tour-barlabel" label="Stop label" value={tour.bar.label} onChange={(v) => setBar('label', v)} />
-            <CheckRow id="tour-barprogress" label="Progress bar" value={tour.bar.progress} onChange={(v) => setBar('progress', v)} />
-            <CheckRow id="tour-bardots" label="Jump dots" value={tour.bar.dots} onChange={(v) => setBar('dots', v)} />
-            <TextRow id="tour-barhint" label="Hint" value={tour.bar.hint} onChange={(v) => setBar('hint', v)} />
-            <TextRow id="tour-barnext" label="Next" value={tour.bar.nextLabel} onChange={(v) => setBar('nextLabel', v)} />
-            <TextRow id="tour-barfinish" label="Last stop" value={tour.bar.finishLabel} onChange={(v) => setBar('finishLabel', v)} />
-            <TextRow id="tour-barback" label="Back" value={tour.bar.backLabel} onChange={(v) => setBar('backLabel', v)} />
-            <TextRow id="tour-barskip" label="Skip" value={tour.bar.skipLabel} onChange={(v) => setBar('skipLabel', v)} />
+            <CheckRow id="tour-barshow" label={t('tourpanel.showBar')} value={tour.bar.show} onChange={(v) => setBar('show', v)} />
+            <SelectRow id="tour-barpos" label={t('tourpanel.position')} value={tour.bar.position} options={BAR_POSITIONS} onChange={(v) => setBar('position', v)} />
+            <CheckRow id="tour-barcounter" label={t('tourpanel.stopCounter')} value={tour.bar.counter} onChange={(v) => setBar('counter', v)} />
+            <CheckRow id="tour-barlabel" label={t('tourpanel.stopLabel')} value={tour.bar.label} onChange={(v) => setBar('label', v)} />
+            <CheckRow id="tour-barprogress" label={t('tourpanel.progressBar')} value={tour.bar.progress} onChange={(v) => setBar('progress', v)} />
+            <CheckRow id="tour-bardots" label={t('tourpanel.jumpDots')} value={tour.bar.dots} onChange={(v) => setBar('dots', v)} />
+            <TextRow id="tour-barhint" label={t('tourpanel.hintField')} value={tour.bar.hint} onChange={(v) => setBar('hint', v)} />
+            <TextRow id="tour-barnext" label={t('tourpanel.next')} value={tour.bar.nextLabel} onChange={(v) => setBar('nextLabel', v)} />
+            <TextRow id="tour-barfinish" label={t('tourpanel.lastStop')} value={tour.bar.finishLabel} onChange={(v) => setBar('finishLabel', v)} />
+            <TextRow id="tour-barback" label={t('tourpanel.back')} value={tour.bar.backLabel} onChange={(v) => setBar('backLabel', v)} />
+            <TextRow id="tour-barskip" label={t('tourpanel.skip')} value={tour.bar.skipLabel} onChange={(v) => setBar('skipLabel', v)} />
           </>
         ))}
 
         <div className="panel__actions">
-          <button className="tbtn tbtn--on" type="button" onClick={onPreview}>↻ preview</button>
-          <button className="tbtn" type="button" onClick={onClose}>done</button>
+          <button className="tbtn tbtn--on" type="button" onClick={onPreview}>↻ {t('tourpanel.preview')}</button>
+          <button className="tbtn" type="button" onClick={onClose}>{t('tourpanel.done')}</button>
         </div>
       </div>
     </div>
