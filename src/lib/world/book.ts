@@ -1,119 +1,106 @@
-// The book on the desk, and what is written in it.
+// The book on the desk, and how its pages get here.
 //
 // The object is a real multi-page book: covers that swing, leaves that turn one
-// at a time, a ribbon that remembers where you were. What it *contains* is
-// deliberately almost empty, and that is not an oversight.
+// at a time, a ribbon that remembers where you were. What it contains is the
+// owner's own copy of the Guide, laid out at build time by
+// scripts/content/build-guide.mjs and shipped as static leaves under
+// public/guide — a dozen pages to a file.
 //
-// The Hitchhiker's Guide to the Galaxy is Douglas Adams's, and it is in
-// copyright. None of its text is reproduced here and none ever should be. What
-// this ships is the binding: a title leaf, a colophon that says as much, a few
-// leaves written for this board, and forty-odd ruled blanks waiting for
-// whatever the owner has the right to put in them — their own writing, a
-// public-domain passage, a quotation short enough to be fair.
+// Nothing of it is bundled. Opening the book fetches the one file holding the
+// leaf you are on, and turning towards the end of that file quietly fetches the
+// next one, so a visitor who never opens the book pays nothing at all and a
+// visitor who reads it pays about six kilobytes a dozen pages.
 //
-// Page 42 is left as a number. The joke needs nothing else.
+// Folios are the print edition's, not a reflow's: every page is measured
+// against the leaf (see fit.ts) and set in the largest of six type sizes it
+// fits in. Page 42 is therefore page 42, which is the entire reason for the
+// trouble.
 
 export type BookPage = {
-  /** Printed folio. Page one is the first leaf after the cover. */
+  /** Printed folio. */
   n: number;
-  kind: 'title' | 'text' | 'colophon' | 'blank' | 'answer' | 'plate';
-  heading?: string;
-  lines?: string[];
-  /** A small mark in the margin: something to find on a leaf that is otherwise
-   *  empty. Nothing is announced anywhere. */
-  margin?: string;
+  /** Index into STEPS: the type size this page is set in, worked out once,
+   *  the first time the page is asked for. */
+  fit: number;
+  lines: string[];
 };
 
-/** How long the book is. The binding does not care; this is just the paper. */
-export const BOOK_LENGTH = 64;
+import { fitFor } from './fit';
 
-const WRITTEN: Record<number, Omit<BookPage, 'n'>> = {
-  1: {
-    kind: 'title',
-    heading: 'THE HITCHHIKER’S GUIDE\nTO THE GALAXY',
-    lines: ['a borrowed copy', 'left on the desk'],
-  },
-  2: {
-    kind: 'colophon',
-    heading: 'A NOTE ON THIS COPY',
-    lines: [
-      'The text of the Guide belongs to Douglas Adams',
-      'and is not reproduced here.',
-      '',
-      'These leaves are blank on purpose. What goes on',
-      'them is mine to write, or mine to have the right',
-      'to quote.',
-      '',
-      'The binding, however, is real. Turn the corners.',
-    ],
-  },
-  3: {
-    kind: 'text',
-    heading: 'WHY THIS BOOK',
-    lines: [
-      'Because a book that tells you not to panic on the',
-      'cover is a good piece of engineering.',
-      '',
-      'Because I read it at fourteen and decided that a',
-      'sense of scale and a sense of humour were the same',
-      'instrument.',
-      '',
-      'Because it is the only reference work I know of',
-      'that is mostly wrong and still useful.',
-    ],
-    margin: '☞',
-  },
-  7: { kind: 'blank', margin: '·' },
-  12: {
-    kind: 'text',
-    heading: 'MARGINALIA',
-    lines: [
-      'Somebody has written in this copy, in pencil,',
-      'in a hand that is probably mine:',
-      '',
-      '    “the plural of anecdote is not data,”',
-      '    “but it is where the data comes from.”',
-    ],
-  },
-  23: { kind: 'blank', margin: '✦' },
-  41: { kind: 'blank', margin: '→' },
-  42: {
-    kind: 'answer',
-    heading: '¡La respuesta!',
-    lines: [],
-  },
-  43: { kind: 'blank', margin: '←' },
-  57: {
-    kind: 'text',
-    heading: 'ON TOWELS',
-    lines: [
-      'A towel is the most massively useful thing an',
-      'interstellar hitchhiker can carry — which is a',
-      'claim I am not allowed to quote at length, so',
-      'here is mine instead:',
-      '',
-      'A pencil is the most massively useful thing a',
-      'data scientist can carry. It cannot be updated',
-      'remotely and it never asks for a login.',
-    ],
-    margin: '✎',
-  },
-  64: {
-    kind: 'colophon',
-    heading: 'END OF THE BORROWED COPY',
-    lines: ['', 'Close the book. It stays where you left it.'],
-  },
-};
+export { STEPS } from './fit';
 
-export function bookPage(n: number): BookPage {
-  const written = WRITTEN[n];
-  return written ? { n, ...written } : { n, kind: 'blank' };
+export const BOOK_LENGTH = 227;
+/** Pages to a file. Must match CHUNK in scripts/content/build-guide.mjs. */
+const CHUNK = 12;
+/** The one page that is not like the others. */
+export const ANSWER = 42;
+
+type Raw = { n: number; lines: string[] };
+type Chunk = { from: number; pages: Raw[] };
+
+const leaves = new Map<number, BookPage>();
+const asked = new Map<number, Promise<void>>();
+
+function chunkOf(page: number): number {
+  return Math.floor((page - 1) / CHUNK);
 }
 
-/** The leaves worth jumping to: the ones with something on them. */
-export function bookMarks(): Array<{ n: number; label: string }> {
-  return Object.entries(WRITTEN)
-    .filter(([, page]) => page.kind !== 'blank')
-    .map(([n, page]) => ({ n: Number(n), label: (page.heading ?? '').split('\n')[0] }))
-    .sort((a, b) => a.n - b.n);
+function url(chunk: number): string {
+  const base = import.meta.env.BASE_URL || '/';
+  return `${base}guide/${String(chunk).padStart(2, '0')}.json`;
+}
+
+/** Fetch the file holding this page, once. Repeated calls while it is in
+ *  flight share the one request; a failed file may be asked for again. */
+export function fetchAround(page: number): Promise<void> {
+  if (page < 1 || page > BOOK_LENGTH) return Promise.resolve();
+  const chunk = chunkOf(page);
+  const already = asked.get(chunk);
+  if (already) return already;
+  const run = fetch(url(chunk))
+    .then((response) => {
+      if (!response.ok) throw new Error(`guide chunk ${chunk}: ${response.status}`);
+      return response.json() as Promise<Chunk>;
+    })
+    .then((body) => {
+      for (const leaf of body.pages ?? []) {
+        if (typeof leaf?.n !== 'number' || !Array.isArray(leaf.lines)) continue;
+        const lines = leaf.lines.map(String);
+        leaves.set(leaf.n, { n: leaf.n, fit: fitFor(lines), lines });
+      }
+    })
+    .catch(() => {
+      // A leaf that did not arrive is a leaf you can ask for again by turning
+      // back to it; it is not a broken book.
+      asked.delete(chunk);
+    });
+  asked.set(chunk, run);
+  return run;
+}
+
+/** Everything the open spread needs, and the file after it if the reader is
+ *  close enough to the edge of this one to be about to want it. */
+export function fetchSpread(leaf: number): Promise<unknown> {
+  const jobs = [fetchAround(leaf), fetchAround(leaf + 1)];
+  const ahead = leaf + 4;
+  if (ahead <= BOOK_LENGTH && chunkOf(ahead) !== chunkOf(leaf)) jobs.push(fetchAround(ahead));
+  const behind = leaf - 2;
+  if (behind >= 1 && chunkOf(behind) !== chunkOf(leaf)) jobs.push(fetchAround(behind));
+  return Promise.all(jobs);
+}
+
+/** What is on a page right now. Null while its file is still coming, which the
+ *  leaf draws as ruled blanks rather than as an error. */
+export function bookPage(n: number): BookPage | null {
+  if (n < 1 || n > BOOK_LENGTH) return null;
+  return leaves.get(n) ?? null;
+}
+
+export function hasPage(n: number): boolean {
+  return leaves.has(n);
+}
+
+/** The three places worth going straight to. */
+export function bookMarks(): number[] {
+  return [1, ANSWER, BOOK_LENGTH];
 }

@@ -396,6 +396,13 @@ const CATALOGUE: Record<string, Entry> = {
   'world.book.close': { es: 'cerrar el libro', en: 'close the book' },
   'world.book.prev': { es: 'página anterior', en: 'previous page' },
   'world.book.next': { es: 'página siguiente', en: 'next page' },
+  'world.uv.label': { es: 'un interruptor', en: 'a switch' },
+  'world.uv.on': { es: 'échalo', en: 'throw it' },
+  'world.uv.off': { es: 'vuelve a echarlo', en: 'throw it back' },
+  'world.uv.crew': { es: 'el turno de noche', en: 'the night shift' },
+  'world.book.start': { es: 'el principio', en: 'the beginning' },
+  'world.book.answer': { es: 'la respuesta', en: 'the answer' },
+  'world.book.end': { es: 'el final', en: 'the end' },
 
   'world.letter.label': { es: 'una carta', en: 'a letter' },
   'world.letter.hint': { es: 'ábrela', en: 'open it' },

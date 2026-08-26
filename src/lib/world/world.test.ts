@@ -5,7 +5,7 @@ import {
 import { PAINT_COLORS, makeSplat, paintHex, splatBody, splatShape } from './splats';
 import { SPECIES, ago, growthOf, speciesOf } from './garden';
 import { clampStampPosition, DEFAULT_STAMPS, parseStamps } from './passport';
-import { BOOK_LENGTH, bookMarks, bookPage } from './book';
+import { ANSWER, BOOK_LENGTH, STEPS, bookMarks, bookPage } from './book';
 import { hashString, mulberry32, remap } from './rng';
 
 describe('the object catalogue', () => {
@@ -42,14 +42,21 @@ describe('the object catalogue', () => {
     expect(hasTrait('flower', 'gravity')).toBe(false);
   });
 
-  it('lets the hole eat anything a hand can pick up', () => {
+  it('lets the hole eat anything a hand can pick up, and nothing that is bolted down', () => {
+    // Two things on this board are fixed: the hole, which pulls, and the mains
+    // switch the lights are on — a switch that could be carried into the hole
+    // would take the lights with it. Everything else is loose, and everything
+    // loose is edible.
+    const bolted: readonly string[] = ['blackhole', 'uvswitch'];
     for (const id of OBJECT_KINDS) {
-      if (id === 'blackhole') continue;
+      if (bolted.includes(id)) {
+        expect(hasTrait(id, 'draggable'), `${id} bolted`).toBe(false);
+        expect(hasTrait(id, 'blackhole'), `${id} edible`).toBe(false);
+        continue;
+      }
       expect(hasTrait(id, 'draggable'), `${id} draggable`).toBe(true);
       expect(hasTrait(id, 'blackhole'), `${id} edible`).toBe(true);
     }
-    // Except itself.
-    expect(hasTrait('blackhole', 'blackhole')).toBe(false);
   });
 
   it('merges a stored catalogue over the shipped one', () => {
@@ -188,26 +195,24 @@ describe('the passport', () => {
 });
 
 describe('the borrowed copy', () => {
-  it('is a binding with almost nothing in it, on purpose', () => {
-    expect(BOOK_LENGTH).toBeGreaterThan(40);
-    const blanks = Array.from({ length: BOOK_LENGTH }, (_, i) => bookPage(i + 1))
-      .filter((page) => page.kind === 'blank');
-    // Most of the book is waiting for text its owner has the right to put in it.
-    expect(blanks.length).toBeGreaterThan(BOOK_LENGTH * 0.7);
+  it('is as long as the print edition, and knows where the answer is', () => {
+    expect(BOOK_LENGTH).toBe(227);
+    expect(bookMarks()).toContain(ANSWER);
+    for (const n of bookMarks()) expect(n).toBeGreaterThanOrEqual(1);
+    for (const n of bookMarks()) expect(n).toBeLessThanOrEqual(BOOK_LENGTH);
+    expect(bookMarks()).toEqual([...bookMarks()].sort((a, b) => a - b));
   });
 
-  it('keeps the answer as the only content on page forty-two', () => {
-    const page = bookPage(42);
-    expect(page.kind).toBe('answer');
-    expect(page.heading).toBe('¡La respuesta!');
-    expect(page.lines).toEqual([]);
+  it('has no page until its file has landed, and never one off the end', () => {
+    // Nothing has been fetched in this process, so every leaf is still coming.
+    expect(bookPage(1)).toBeNull();
+    expect(bookPage(0)).toBeNull();
+    expect(bookPage(BOOK_LENGTH + 1)).toBeNull();
   });
 
-  it('lists only the leaves with something on them', () => {
-    const marks = bookMarks();
-    expect(marks.length).toBeGreaterThan(3);
-    expect(marks.map((m) => m.n)).toEqual([...marks.map((m) => m.n)].sort((a, b) => a - b));
-    for (const mark of marks) expect(bookPage(mark.n).kind).not.toBe('blank');
+  it('offers type sizes largest first', () => {
+    expect(STEPS[0]).toBeGreaterThan(STEPS[STEPS.length - 1]);
+    for (let i = 1; i < STEPS.length; i += 1) expect(STEPS[i]).toBeLessThan(STEPS[i - 1]);
   });
 });
 
