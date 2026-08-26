@@ -407,32 +407,6 @@ export const CARDS = [
     links: [["alejandrotreny100@gmail.com", "mailto:alejandrotreny100@gmail.com"], ["github.com/aleetreny", "https://github.com/aleetreny"], ["linkedin.com/in/aleetreny", "https://linkedin.com/in/aleetreny"]],
   },
   {
-    id: "stamp-py",
-    type: "stamp",
-    open: "alda",
-    x: 3164,
-    y: 1204,
-    rot: 3.6,
-    w: 190,
-    title: {"es": "Asunción", "en": "Asunción"},
-    denom: {"es": "PY · 2025", "en": "PY · 2025"},
-    postmark: {"es": "3 meses", "en": "3 months"},
-    glyph: "☼",
-  },
-  {
-    id: "stamp-sk",
-    type: "stamp",
-    open: "erasmus-programme",
-    x: 3204,
-    y: 44,
-    rot: -4.2,
-    w: 190,
-    title: {"es": "Bratislava", "en": "Bratislava"},
-    denom: {"es": "SK · 2024", "en": "SK · 2024"},
-    postmark: {"es": "45 países", "en": "45 countries"},
-    glyph: "⛰",
-  },
-  {
     id: "scrap-arrow",
     type: "scrap",
     x: 1644,
@@ -799,7 +773,7 @@ export const OBJECTS = [
   // of steel and a desert.
   { id: 'montyhall', x: 364, y: 904, rot: -2, scale: 1, visible: true },
   { id: 'descent', x: 3214, y: 1264, rot: 1.5, scale: 1, visible: true },
-  { id: 'voronoi', x: 2254, y: 934, rot: -1, scale: 1, visible: true },
+  { id: 'voronoi', x: 1534, y: 1074, rot: -1, scale: 1, visible: true },
   { id: 'chloroplast', x: 1654, y: 1954, rot: 2, scale: 1, visible: true },
   { id: 'ferrofluid', x: 3664, y: 2284, rot: -1.5, scale: 1, visible: true },
   { id: 'chladni', x: 604, y: 904, rot: 1, scale: 1, visible: true },
@@ -916,10 +890,11 @@ export const TOUR = {
   stops: [
     // The walk halts on the thirteen things worth reading: the title, and the
     // twelve numbered cards. Everything else on the slate — the loose photos,
-    // the stamps, the drawn marks, the boarding pass — lands beside whichever
-    // card it belongs to, without the camera ever widening for it. A visitor
-    // who never touches a thing still walks the whole portfolio in thirteen
-    // taps, and the board fills in around them as they go.
+    // the drawn marks, the instruments — is held back while the walk is on and
+    // lands with the rest of the board at the end, so the camera never has a
+    // photograph fading up half in shot beside the card it is holding. A
+    // visitor who never touches a thing still walks the whole portfolio in
+    // thirteen taps.
     {
       id: 'stop-1',
       label: { es: 'Quién soy', en: 'Who I am' },
@@ -988,7 +963,7 @@ export const TOUR = {
       label: { es: '09 · Tres idiomas', en: '09 · Three languages' },
       reveal: { style: 'flip' }, motion: 'glide', motif: 'ink',
       items: ['langs'],
-      extras: ['scrap-circle', 'stamp-py', 'stamp-sk', '8e9687a7-3bc6-4fb4-9efe-b967165110a8'],
+      extras: ['scrap-circle', '8e9687a7-3bc6-4fb4-9efe-b967165110a8'],
     },
     {
       id: 'stop-11',

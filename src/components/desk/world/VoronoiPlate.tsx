@@ -50,6 +50,8 @@ export function VoronoiPlate() {
   const [seeds, setSeeds] = useState<Point[]>(() => startingSeeds(9));
   const [wire, setWire] = useState(false);
   const mix = useRef(0);
+  /** The last seed tapped, so a second tap on the same one lifts it out. */
+  const lastTap = useRef({ seed: -1, at: 0 });
   const [morphing, setMorphing] = useState(false);
   const onScreen = useOnScreen(hostRef);
 
@@ -146,13 +148,19 @@ export function VoronoiPlate() {
       if (d < best) { best = d; nearest = i; }
     });
 
-    // Alt on a seed lifts it out; anywhere empty drops a new one in.
-    if (nearest >= 0 && (event.altKey || event.shiftKey)) {
-      if (seeds.length > MIN_SEEDS) setSeeds((current) => current.filter((_, i) => i !== nearest));
-      return;
-    }
+    // Anywhere empty drops a new seed in. Taking one out is two quick taps on
+    // it — no modifier key, because half the keyboards in the world do not
+    // have the one this used to want.
     if (nearest < 0) {
       if (seeds.length < MAX_SEEDS) setSeeds((current) => [...current, at]);
+      return;
+    }
+    const now = performance.now();
+    const twice = lastTap.current.seed === nearest && now - lastTap.current.at < 380;
+    lastTap.current = { seed: nearest, at: now };
+    if (twice) {
+      if (seeds.length > MIN_SEEDS) setSeeds((current) => current.filter((_, i) => i !== nearest));
+      lastTap.current = { seed: -1, at: 0 };
       return;
     }
 

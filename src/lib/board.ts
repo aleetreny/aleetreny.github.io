@@ -800,10 +800,22 @@ function withShippedCards(cards: BoardCard[], dismissed: string[]): BoardCard[] 
 
 const SUPPORTED = new Set<string>(CARD_TYPES);
 
+/** Cards taken down by name rather than by kind.
+ *
+ *  Asunción and Bratislava were franked squares pinned to the slate, each a
+ *  second door onto a dossier that its drawer already opens. Two doors onto
+ *  one room is one door too many, so the pins are gone and the rooms are
+ *  reached the way everything else is. The stamp *shape* stays available to
+ *  the owner bar; it is these two that are retired. */
+export const RETIRED_CARDS: ReadonlySet<string> = new Set(['stamp-py', 'stamp-sk']);
+
 /** A stored card list, minus the shapes the board no longer draws. */
 function supportedCards(cards: unknown[]): BoardCard[] {
   return cards.filter((card): card is BoardCard => (
-    isRecord(card) && typeof card.type === 'string' && SUPPORTED.has(card.type)
+    isRecord(card)
+    && typeof card.type === 'string'
+    && SUPPORTED.has(card.type)
+    && !(typeof card.id === 'string' && RETIRED_CARDS.has(card.id))
   ));
 }
 

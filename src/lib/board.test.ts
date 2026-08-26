@@ -3,6 +3,7 @@ import {
   BOARD_STYLE_IDS,
   BOARD_TEXTURES,
   CHROMELESS_CARDS,
+  RETIRED_CARDS,
   SCRAP_KINDS,
   DEFAULT_BACKDROP,
   DEFAULT_BOARD,
@@ -100,12 +101,27 @@ describe('board settings parsing', () => {
 });
 
 describe('the shapes on the board', () => {
-  it('keeps the stamp and drawn marks, without the removed plot, ticket or terminal', () => {
+  it('keeps the drawn marks, without the removed plot, ticket or terminal', () => {
     const types = new Set(DEFAULT_BOARD.cards.map((card) => card.type));
-    for (const type of ['stamp', 'scrap'] as const) {
-      expect(types.has(type)).toBe(true);
-    }
+    expect(types.has('scrap')).toBe(true);
     for (const type of ['plot', 'ticket', 'terminal']) expect(types.has(type as never)).toBe(false);
+  });
+
+  it('takes down the two stamps that were second doors onto a dossier', () => {
+    // They are gone from the shipped board, and a stored board that still has
+    // them stops showing them: both countries are reached from their drawers.
+    expect(DEFAULT_BOARD.cards.some((card) => RETIRED_CARDS.has(card.id))).toBe(false);
+    const parsed = parseBoard({
+      size: DEFAULT_BOARD.size,
+      groups: DEFAULT_BOARD.groups,
+      cards: [
+        { id: 'stamp-py', type: 'stamp', x: 0, y: 0, rot: 0, w: 190 },
+        { id: 'stamp-sk', type: 'stamp', x: 0, y: 0, rot: 0, w: 190 },
+        { id: 'contact', type: 'contact', x: 0, y: 0, rot: 0, w: 300 },
+      ],
+      dismissed: DEFAULT_BOARD.cards.map((card) => card.id),
+    });
+    expect(parsed.cards.map((card) => card.id)).toEqual(['contact']);
   });
 
   it('drops a retired shape a stored board still carries', () => {

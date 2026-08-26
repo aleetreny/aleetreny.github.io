@@ -479,7 +479,7 @@ const CATALOGUE: Record<string, Entry> = {
   'world.descent.reset': { es: 'volver a empezar', en: 'start again' },
 
   'world.crystal.label': { es: 'una placa de cristal', en: 'a glass plate' },
-  'world.crystal.hint': { es: 'mueve las semillas · alt para quitar', en: 'move the seeds · alt to remove' },
+  'world.crystal.hint': { es: 'mueve las semillas · dos toques para quitar', en: 'move the seeds · tap twice to remove' },
   'world.crystal.toggle': { es: 'cristal o armazón', en: 'crystal or wireframe' },
 
   'world.cell.label': { es: 'un porta con una célula', en: 'a slide with a cell' },

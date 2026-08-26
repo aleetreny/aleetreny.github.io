@@ -45,6 +45,9 @@ const MODES: Array<{ n: number; m: number; hz: number }> = [
 ];
 const LO = 80;
 const HI = 1850;
+/** The dial's whole range is three quarters of a turn, the way a bench dial's
+ *  is, so a hand that sweeps ten degrees moves it ten degrees' worth. */
+const PER_DEGREE = (1850 - 80) / 270;
 /** How far off a resonance the plate still answers. */
 const BAND = 26;
 
@@ -103,6 +106,7 @@ export function ChladniPlate() {
   const grains = useRef<Float32Array | null>(null);
   const stir = useRef(1);
   const [hz, setHz] = useState(396);
+  const [turning, setTurning] = useState(false);
   const onScreen = useOnScreen(hostRef);
   const detailed = useDetail(hostRef, 92);
 
@@ -194,24 +198,40 @@ export function ChladniPlate() {
     draw();
   }, onScreen && detailed && !reduced);
 
-  /** Turned by hand, the way a bench dial is: the pointer's travel turns it,
-   *  rather than the pointer's *angle* setting it — on a knob this small an
-   *  absolute mapping swings a thousand hertz for a twitch of the wrist. It
-   *  clicks into the nearest resonance when let go, which is what the marks
-   *  around the rim are. */
+  /** Turned, not dragged.
+   *
+   *  Grab it anywhere and swing your hand around it: the dial follows the
+   *  *angle* your hand sweeps, degree for degree, which is the one mapping a
+   *  round knob can have that nobody has to be told. Deltas rather than the
+   *  absolute angle, so taking hold of the rim does not snap it somewhere
+   *  first. It clicks into the nearest resonance when let go — that is what
+   *  the marks around it are.
+   */
   const turn = useCallback((event: React.PointerEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    const start = { x: event.clientX, y: event.clientY };
+    const box = event.currentTarget.getBoundingClientRect();
+    const cx = box.left + box.width / 2;
+    const cy = box.top + box.height / 2;
+    const angleAt = (x: number, y: number) => Math.atan2(y - cy, x - cx);
+    let last = angleAt(event.clientX, event.clientY);
     let value = hz;
+    setTurning(true);
     const move = (ev: PointerEvent) => {
-      const travel = (start.y - ev.clientY) + (ev.clientX - start.x);
-      value = clamp(hz + travel * 4, LO, HI);
+      const now = angleAt(ev.clientX, ev.clientY);
+      let swept = now - last;
+      // Across the ±π seam a hand that moved two degrees looks like it moved
+      // three hundred and fifty-eight the other way.
+      while (swept > Math.PI) swept -= Math.PI * 2;
+      while (swept < -Math.PI) swept += Math.PI * 2;
+      last = now;
+      value = clamp(value + ((swept * 180) / Math.PI) * PER_DEGREE, LO, HI);
       setHz(Math.round(value));
     };
     const up = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
+      setTurning(false);
       let near = MODES[0];
       let gap = Infinity;
       for (const mode of MODES) {
@@ -233,7 +253,7 @@ export function ChladniPlate() {
         <canvas ref={canvasRef} data-nodrag style={{ width: SIZE, height: SIZE }} />
         <div className="chladni__panel mat-dark">
           <button
-            className="chladni__knob"
+            className={`chladni__knob${turning ? ' is-turning' : ''}`}
             type="button"
             data-nodrag
             onPointerDown={turn}
@@ -248,6 +268,9 @@ export function ChladniPlate() {
                   style={{ transform: `rotate(${((mode.hz - LO) / (HI - LO)) * 270 - 135}deg)` }}
                 />
               ))}
+            </span>
+            <span className="chladni__grip" style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true">
+              <i /><i /><i /><i /><i /><i />
             </span>
             <span className="chladni__pointer" style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
           </button>

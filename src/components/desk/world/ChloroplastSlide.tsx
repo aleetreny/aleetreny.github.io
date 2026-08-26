@@ -12,6 +12,10 @@
 // motion is billiard-ball: they are carried on cytoplasmic streaming, so they
 // slide in slow arcs, crowd without touching, and keep drifting after the
 // light has gone.
+//
+// What you are looking at is what Elodea actually looks like at ×400: not one
+// specimen in the middle of an empty circle, but a brick wall of long cells
+// that runs off every edge of the coverslip, each one streaming on its own.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ObjectShell } from './ObjectShell';
@@ -21,31 +25,87 @@ import { AMBIENT, light, watchLight } from '../../../lib/world/light';
 import { clamp, mulberry32 } from '../../../lib/world/rng';
 import { useUiText } from '../ui-text-context';
 
-const W = 150;
+const W = 156;
 const H = 150;
-const R = 71;
-const COUNT = 38;
+/** One cell of leaf: long, blunt-ended, about twice as wide as it is tall. */
+const CW = 96;
+const CH = 50;
+const PER_CELL = 9;
+/** How close to its own wall a chloroplast can get. */
+const MARGIN = 8;
 /** Above this the response flips from gathering to fleeing. Real leaves switch
  *  somewhere around the light a bright window gives; this is that number. */
 const AVOID = 0.5;
 
-type Plastid = { x: number; y: number; vx: number; vy: number; a: number; va: number; seed: number };
+type Cell = { x: number; y: number; cx: number; cy: number };
+type Plastid = { home: number; x: number; y: number; vx: number; vy: number; a: number; seed: number };
 
-function seedCell(): Plastid[] {
+/** Elodea is laid like brickwork, so alternate rows are offset by half a cell.
+ *  The lattice deliberately overruns the coverslip on every side: a leaf does
+ *  not stop at the edge of the field of view, and pretending it does is what
+ *  makes a micrograph look like a cut-out. */
+function lattice(): Cell[] {
+  const made: Cell[] = [];
+  for (let row = 0; row < 4; row += 1) {
+    const y = row * CH - 12;
+    const shift = row % 2 === 0 ? -30 : -78;
+    for (let col = 0; col < 3; col += 1) {
+      const x = col * CW + shift;
+      if (x >= W || x + CW <= 0) continue;
+      made.push({ x, y, cx: x + CW / 2, cy: y + CH / 2 });
+    }
+  }
+  return made;
+}
+
+const CELLS = lattice();
+
+function seedLeaf(): Plastid[] {
   const rand = mulberry32(31415);
   const made: Plastid[] = [];
-  for (let i = 0; i < COUNT; i += 1) {
-    const t = rand() * Math.PI * 2;
-    const r = Math.sqrt(rand()) * (R - 16);
-    made.push({
-      x: W / 2 + Math.cos(t) * r,
-      y: H / 2 + Math.sin(t) * r,
-      vx: 0, vy: 0,
-      a: rand() * Math.PI,
-      va: 0,
-      seed: rand(),
-    });
+  for (let c = 0; c < CELLS.length; c += 1) {
+    const cell = CELLS[c];
+    for (let i = 0; i < PER_CELL; i += 1) {
+      made.push({
+        home: c,
+        x: cell.x + MARGIN + rand() * (CW - MARGIN * 2),
+        y: cell.y + MARGIN + rand() * (CH - MARGIN * 2),
+        vx: 0, vy: 0,
+        a: rand() * Math.PI,
+        seed: rand(),
+      });
+    }
   }
+  return made;
+}
+
+/** One chloroplast, stamped once and then rubber-stamped ninety times a frame.
+ *  Building the gradient per organelle per frame was the whole cost of this
+ *  object; a sprite makes it a blit. */
+const SPW = 14;
+const SPH = 9;
+function stamp(dpr: number): HTMLCanvasElement {
+  const made = document.createElement('canvas');
+  made.width = SPW * dpr;
+  made.height = SPH * dpr;
+  const ctx = made.getContext('2d')!;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.translate(SPW / 2, SPH / 2);
+  ctx.fillStyle = '#4c8a36';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 6.2, 3.7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(26,56,20,.65)';
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+  // Grana: the stacks that do the actual absorbing.
+  ctx.fillStyle = 'rgba(22,58,18,.5)';
+  ctx.fillRect(-3.2, -1.1, 2.1, 2.2);
+  ctx.fillRect(0.7, -1.5, 2.3, 2.5);
+  ctx.fillStyle = 'rgba(224,242,202,.55)';
+  ctx.beginPath();
+  ctx.ellipse(-1.9, -1.7, 2.3, 1, -0.4, 0, Math.PI * 2);
+  ctx.fill();
   return made;
 }
 
@@ -55,7 +115,8 @@ export function ChloroplastSlide() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const fieldRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const cell = useRef<Plastid[] | null>(null);
+  const leaf = useRef<Plastid[] | null>(null);
+  const sprite = useRef<{ at: number; canvas: HTMLCanvasElement } | null>(null);
   const beam = useRef({ x: -999, y: -999, on: 0 });
   const [lamp, setLamp] = useState(0.62);
   const onScreen = useOnScreen(hostRef);
@@ -70,72 +131,58 @@ export function ChloroplastSlide() {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     if (canvas.width !== W * dpr) { canvas.width = W * dpr; canvas.height = H * dpr; }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
 
-    // The cell: a wall, a wash of cytoplasm, and the vacuole that takes up
-    // most of the room and is the reason everything lives at the edges.
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(W / 2, H / 2, R, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.fillStyle = '#dfe6d3';
+    // The gaps between the cells: middle lamella, and darker than either.
+    ctx.fillStyle = '#b9c9a2';
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = 'rgba(150,176,128,.34)';
-    ctx.beginPath();
-    ctx.roundRect(W / 2 - 56, H / 2 - 44, 112, 88, 22);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(88,112,66,.55)';
-    ctx.lineWidth = 3.2;
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(120,150,96,.4)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.ellipse(W / 2 + 4, H / 2 + 2, 38, 27, 0.2, 0, Math.PI * 2);
-    ctx.stroke();
+
+    for (const cell of CELLS) {
+      ctx.beginPath();
+      ctx.roundRect(cell.x + 1.6, cell.y + 1.6, CW - 3.2, CH - 3.2, 7);
+      ctx.fillStyle = '#dde8ca';
+      ctx.fill();
+      // The vacuole is most of the cell, and the reason everything lives at
+      // the edges even when nothing is shining on it.
+      ctx.beginPath();
+      ctx.ellipse(cell.cx, cell.cy, CW / 2 - 13, CH / 2 - 9, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(176,200,152,.42)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(cell.x + 1.6, cell.y + 1.6, CW - 3.2, CH - 3.2, 7);
+      ctx.strokeStyle = 'rgba(74,102,54,.72)';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.3)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
 
     // The torch, as the slide sees it.
     const b = beam.current;
     if (b.on > 0.01) {
-      const glow = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 46);
+      const glow = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 48);
       const heat = clamp(lamp, 0, 1);
-      glow.addColorStop(0, `rgba(255,${Math.round(248 - heat * 40)},${Math.round(196 - heat * 96)},${(0.5 * b.on).toFixed(3)})`);
+      glow.addColorStop(0, `rgba(255,${Math.round(248 - heat * 40)},${Math.round(196 - heat * 96)},${(0.52 * b.on).toFixed(3)})`);
       glow.addColorStop(1, 'rgba(255,240,190,0)');
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, W, H);
     }
 
+    const mark = (sprite.current ??= { at: dpr, canvas: stamp(dpr) });
+    if (mark.at !== dpr) { mark.at = dpr; mark.canvas = stamp(dpr); }
     for (const p of list) {
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.a);
-      const body = ctx.createLinearGradient(-6, -4, 6, 4);
-      body.addColorStop(0, '#7fb35a');
-      body.addColorStop(0.5, '#4f8b39');
-      body.addColorStop(1, '#2f5f26');
-      ctx.fillStyle = body;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 6.4, 3.9, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(28,58,22,.55)';
-      ctx.lineWidth = 0.6;
-      ctx.stroke();
-      // Grana: the stacks that do the actual absorbing.
-      ctx.fillStyle = 'rgba(24,62,20,.5)';
-      ctx.fillRect(-3.4, -1.1, 2.2, 2.2);
-      ctx.fillRect(0.8, -1.6, 2.4, 2.6);
-      ctx.fillStyle = 'rgba(226,244,206,.5)';
-      ctx.beginPath();
-      ctx.ellipse(-2, -1.8, 2.4, 1.1, -0.4, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.drawImage(mark.canvas, -SPW / 2, -SPH / 2, SPW, SPH);
       ctx.restore();
     }
-    ctx.restore();
   }, [lamp]);
 
-  useEffect(() => { draw(cell.current ??= seedCell()); }, [draw]);
+  useEffect(() => { draw(leaf.current ??= seedLeaf()); }, [draw]);
 
   useFrame((dt, now) => {
-    const list = (cell.current ??= seedCell());
+    const list = (leaf.current ??= seedLeaf());
     const step = Math.min(2.2, dt / 16.7);
 
     // Where the torch is, in the slide's own coordinates.
@@ -157,6 +204,7 @@ export function ChloroplastSlide() {
     const heat = AMBIENT + (clamp(lamp, 0, 1) - AMBIENT) * b.on;
 
     for (const p of list) {
+      const cell = CELLS[p.home];
       let dx = p.x - b.x;
       let dy = p.y - b.y;
       let d = Math.hypot(dx, dy);
@@ -178,22 +226,22 @@ export function ChloroplastSlide() {
       p.vx += (-dx / d) * pull * step;
       p.vy += (-dy / d) * pull * step;
 
-      // Cytoplasmic streaming: a slow circulation that never stops, and the
-      // reason none of this looks like billiards.
-      const rx = p.x - W / 2;
-      const ry = p.y - H / 2;
+      // Cytoplasmic streaming: a slow circulation round the vacuole of its own
+      // cell that never stops, and the reason none of this looks like billiards.
+      const rx = p.x - cell.cx;
+      const ry = (p.y - cell.cy) * (CW / CH);
       const rr = Math.hypot(rx, ry) || 1;
-      p.vx += (-ry / rr) * 0.016 * step;
-      p.vy += (rx / rr) * 0.016 * step;
+      p.vx += (-ry / rr) * 0.02 * step;
+      p.vy += (rx / rr) * 0.02 * step * (CH / CW);
       p.vx += Math.sin(now / 900 + p.seed * 31) * 0.006 * step;
       p.vy += Math.cos(now / 1100 + p.seed * 17) * 0.006 * step;
 
       // Fleeing means standing against the wall, so the harder the light the
-      // more they are held out at the rim rather than merely pushed.
+      // more they are driven outward until the wall stops them.
       if (lit > AVOID) {
-        const want = R - 12;
-        p.vx += (rx / rr) * (want - rr) * -0.0016 * step * (lit - AVOID) * 6;
-        p.vy += (ry / rr) * (want - rr) * -0.0016 * step * (lit - AVOID) * 6;
+        const drive = (lit - AVOID) * 0.34 * step;
+        p.vx += (rx / rr) * drive;
+        p.vy += (ry / rr) * drive * (CH / CW);
       }
 
       p.vx *= 0.9;
@@ -201,16 +249,15 @@ export function ChloroplastSlide() {
       p.x += p.vx * step;
       p.y += p.vy * step;
 
-      // The wall. Nothing leaves the cell.
-      const cr = Math.hypot(p.x - W / 2, p.y - H / 2);
-      const edge = R - 9;
-      if (cr > edge) {
-        const k = edge / cr;
-        p.x = W / 2 + (p.x - W / 2) * k;
-        p.y = H / 2 + (p.y - H / 2) * k;
-        p.vx *= 0.5;
-        p.vy *= 0.5;
-      }
+      // The wall. Nothing leaves its own cell.
+      const lo = cell.x + MARGIN;
+      const hi = cell.x + CW - MARGIN;
+      const top = cell.y + MARGIN;
+      const bot = cell.y + CH - MARGIN;
+      if (p.x < lo) { p.x = lo; p.vx *= -0.35; }
+      if (p.x > hi) { p.x = hi; p.vx *= -0.35; }
+      if (p.y < top) { p.y = top; p.vy *= -0.35; }
+      if (p.y > bot) { p.y = bot; p.vy *= -0.35; }
 
       // They lie along the way they are travelling, and turn slowly.
       const heading = Math.atan2(p.vy, p.vx);
@@ -221,19 +268,23 @@ export function ChloroplastSlide() {
       p.a += turn * 0.06 * moving * step;
     }
 
-    // Elbow room: they crowd, they do not merge.
-    for (let i = 0; i < list.length; i += 1) {
-      const a = list[i];
-      for (let j = i + 1; j < list.length; j += 1) {
-        const c = list[j];
-        const dx = c.x - a.x;
-        const dy = c.y - a.y;
-        const d2 = dx * dx + dy * dy;
-        if (d2 > 169 || d2 < 1e-4) continue;
-        const d = Math.sqrt(d2);
-        const push = (13 - d) * 0.035 * step;
-        a.vx -= (dx / d) * push; a.vy -= (dy / d) * push;
-        c.vx += (dx / d) * push; c.vy += (dy / d) * push;
+    // Elbow room: they crowd, they do not merge. Only ever with their own
+    // neighbours, which keeps this linear in the number of cells.
+    for (let c = 0; c < CELLS.length; c += 1) {
+      const base = c * PER_CELL;
+      for (let i = 0; i < PER_CELL; i += 1) {
+        const a = list[base + i];
+        for (let j = i + 1; j < PER_CELL; j += 1) {
+          const other = list[base + j];
+          const dx = other.x - a.x;
+          const dy = other.y - a.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 > 121 || d2 < 1e-4) continue;
+          const d = Math.sqrt(d2);
+          const push = (11 - d) * 0.035 * step;
+          a.vx -= (dx / d) * push; a.vy -= (dy / d) * push;
+          other.vx += (dx / d) * push; other.vy += (dy / d) * push;
+        }
       }
     }
 
@@ -244,23 +295,25 @@ export function ChloroplastSlide() {
     <ObjectShell id="chloroplast" label={t('world.cell.label')} hint={t('world.cell.hint')}>
       <div className="slide" ref={hostRef}>
         <span className="slide__glass" aria-hidden="true" />
-        <span className="slide__frost" aria-hidden="true">Elodea sp.</span>
         <div className="slide__field" ref={fieldRef} data-nodrag>
           <canvas ref={canvasRef} style={{ width: W, height: H }} />
           <span className="slide__ring" aria-hidden="true" />
         </div>
-        <label className="slide__dial" data-nodrag title={t('world.cell.lamp')}>
-          <input
-            type="range"
-            min={0.06}
-            max={1}
-            step={0.02}
-            value={lamp}
-            onChange={(event) => setLamp(Number(event.target.value))}
-            aria-label={t('world.cell.lamp')}
-          />
-          <span className="slide__lux" style={{ opacity: 0.35 + lamp * 0.65 }} aria-hidden="true" />
-        </label>
+        <span className="slide__frost" aria-hidden="true">
+          <em>Elodea sp.</em>
+          <label className="slide__dial" data-nodrag title={t('world.cell.lamp')}>
+            <input
+              type="range"
+              min={0.06}
+              max={1}
+              step={0.02}
+              value={lamp}
+              onChange={(event) => setLamp(Number(event.target.value))}
+              aria-label={t('world.cell.lamp')}
+            />
+            <i className="slide__lux" style={{ opacity: 0.35 + lamp * 0.65 }} />
+          </label>
+        </span>
       </div>
     </ObjectShell>
   );

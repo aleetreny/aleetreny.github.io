@@ -26,6 +26,19 @@ const W = 232;
 const H = 132;
 const GX = 84;
 const GY = 48;
+/** Flat ochre steps, low to high. A continuous hillshade made the tray look
+ *  like a photograph of a desert; quantising the relief into a handful of
+ *  tones with a line at every step makes it a survey of one instead, which
+ *  is the register the rest of the board is drawn in. */
+const BANDS: readonly (readonly [number, number, number])[] = [
+  [52, 42, 31], [67, 55, 39], [81, 68, 46], [96, 81, 54], [110, 94, 62], [125, 107, 70],
+  [140, 120, 77], [154, 133, 85], [169, 146, 93], [183, 159, 100], [198, 172, 108],
+];
+/** Slabs of sand between one contour and the next. */
+const PER_BAND = 1.15;
+/** Where a smooth, unblown tray sits in that palette — high enough that a
+ *  hollow scoured out of it still has somewhere darker to go. */
+const FLOOR = 3;
 const KEY = 'board.dunes';
 /** Slabs moved per frame. Enough for the relief to change while you watch,
  *  few enough that a dozen frames is still a dozen frames. */
@@ -63,6 +76,8 @@ export function DuneTray() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const relief = useRef<HTMLCanvasElement | null>(null);
+  const blur = useRef<{ a: Float32Array; b: Float32Array } | null>(null);
+  const level = useRef<Uint8Array | null>(null);
   const sand = useRef<Uint8Array | null>(null);
   const fan = useRef({ x: 18, y: 22 });
   const stone = useRef<Stone>({ gx: 52, gy: 24 });
@@ -102,38 +117,75 @@ export function DuneTray() {
     if (!canvas || !ctx || !field) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     if (canvas.width !== W * dpr) { canvas.width = W * dpr; canvas.height = H * dpr; }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     const small = (relief.current ??= (() => {
       const made = document.createElement('canvas');
-      made.width = GX;
-      made.height = GY;
+      made.width = W;
+      made.height = H;
       return made;
     })());
     const sctx = small.getContext('2d');
     if (!sctx) return;
-    const image = sctx.createImageData(GX, GY);
-    const data = image.data;
+
+    // A contour drawn round every single grain is speckle, not a map, so the
+    // field is smoothed first — separably, two cheap passes. The detail comes
+    // back from the contour spacing rather than from the noise: many closely
+    // ruled steps read as relief where a raw heightfield reads as dither.
+    const soft = (blur.current ??= { a: new Float32Array(GX * GY), b: new Float32Array(GX * GY) });
     for (let y = 0; y < GY; y += 1) {
       for (let x = 0; x < GX; x += 1) {
-        const i = y * GX + x;
-        const h = field[i];
-        // Hillshade from a low sun over the left shoulder: the windward slopes
-        // catch it and the slip faces fall into shadow, which is what makes a
-        // heightfield read as a desert.
-        const gx = field[at(x + 1, y)] - field[at(x - 1, y)];
-        const gy = field[at(x, y + 1)] - field[at(x, y - 1)];
-        const shade = clamp(0.62 - gx * 0.16 - gy * 0.1 + h * 0.018, 0.2, 1.25);
-        data[i * 4] = clamp(214 * shade, 0, 255);
-        data[i * 4 + 1] = clamp(190 * shade, 0, 255);
-        data[i * 4 + 2] = clamp(146 * shade, 0, 255);
-        data[i * 4 + 3] = 255;
+        soft.a[y * GX + x] = (field[at(x - 2, y)] + 2 * field[at(x - 1, y)] + 3 * field[at(x, y)]
+          + 2 * field[at(x + 1, y)] + field[at(x + 2, y)]) / 9;
+      }
+    }
+    for (let y = 0; y < GY; y += 1) {
+      for (let x = 0; x < GX; x += 1) {
+        soft.b[y * GX + x] = (soft.a[at(x, y - 2)] + 2 * soft.a[at(x, y - 1)] + 3 * soft.a[at(x, y)]
+          + 2 * soft.a[at(x, y + 1)] + soft.a[at(x, y + 2)]) / 9;
+      }
+    }
+
+    const step = (level.current ??= new Uint8Array(W * H));
+    const top = BANDS.length - 1;
+    for (let py = 0; py < H; py += 1) {
+      const fy = (py / H) * GY - 0.5;
+      const y0 = Math.floor(fy);
+      const ty = fy - y0;
+      for (let px = 0; px < W; px += 1) {
+        const fx = (px / W) * GX - 0.5;
+        const x0 = Math.floor(fx);
+        const tx = fx - x0;
+        const h = (soft.b[at(x0, y0)] * (1 - tx) + soft.b[at(x0 + 1, y0)] * tx) * (1 - ty)
+          + (soft.b[at(x0, y0 + 1)] * (1 - tx) + soft.b[at(x0 + 1, y0 + 1)] * tx) * ty;
+        step[py * W + px] = clamp(Math.round((h - 3.5) / PER_BAND) + FLOOR, 0, top);
+      }
+    }
+
+    const image = sctx.createImageData(W, H);
+    const data = image.data;
+    for (let py = 0; py < H; py += 1) {
+      for (let px = 0; px < W; px += 1) {
+        const i = py * W + px;
+        const band = step[i];
+        const tone = BANDS[band];
+        // A contour is simply where the step changes: no line on flat sand,
+        // and lines that crowd together exactly where the slope is steep.
+        // Every third one is an index contour, drawn heavier, the way a survey
+        // sheet does it — it gives the relief a hierarchy to read at a glance.
+        const edge = (px + 1 < W && step[i + 1] !== band) || (py + 1 < H && step[i + W] !== band);
+        const ink = edge ? (band % 3 === 0 ? 0.4 : 0.66) : 1;
+        const o = i * 4;
+        data[o] = tone[0] * ink;
+        data[o + 1] = tone[1] * ink;
+        data[o + 2] = tone[2] * ink;
+        data[o + 3] = 255;
       }
     }
     sctx.putImageData(image, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(small, 0, 0, W, H);
+    // Nearest neighbour, so the contours stay drawn rather than smudged.
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(small, 0, 0, W * dpr, H * dpr);
   }, [at]);
 
   useEffect(() => {

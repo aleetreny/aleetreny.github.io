@@ -93,7 +93,7 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
 
   // ---- the instruments ----
   montyhall: { w: 196, h: 158, traits: SITTING },
-  descent: { w: 208, h: 176, traits: HEAVY_SITTING },
+  descent: { w: 214, h: 180, traits: HEAVY_SITTING },
   voronoi: { w: 186, h: 186, traits: HEAVY_SITTING },
   chloroplast: { w: 172, h: 196, traits: HEAVY_SITTING },
   ferrofluid: { w: 226, h: 178, traits: HEAVY_SITTING },

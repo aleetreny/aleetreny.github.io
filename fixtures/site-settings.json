@@ -628,50 +628,6 @@
           ]
         },
         {
-          "id": "stamp-py",
-          "type": "stamp",
-          "open": "alda",
-          "x": 3164,
-          "y": 1204,
-          "rot": 3.6,
-          "w": 190,
-          "title": {
-            "es": "Asunción",
-            "en": "Asunción"
-          },
-          "denom": {
-            "es": "PY · 2025",
-            "en": "PY · 2025"
-          },
-          "postmark": {
-            "es": "3 meses",
-            "en": "3 months"
-          },
-          "glyph": "☼"
-        },
-        {
-          "id": "stamp-sk",
-          "type": "stamp",
-          "open": "erasmus-programme",
-          "x": 3204,
-          "y": 44,
-          "rot": -4.2,
-          "w": 190,
-          "title": {
-            "es": "Bratislava",
-            "en": "Bratislava"
-          },
-          "denom": {
-            "es": "SK · 2024",
-            "en": "SK · 2024"
-          },
-          "postmark": {
-            "es": "45 países",
-            "en": "45 countries"
-          },
-          "glyph": "⛰"
-        },
-        {
           "id": "scrap-arrow",
           "type": "scrap",
           "x": 1644,
@@ -1249,8 +1205,6 @@
           ],
           "extras": [
             "scrap-circle",
-            "stamp-py",
-            "stamp-sk",
             "8e9687a7-3bc6-4fb4-9efe-b967165110a8"
           ]
         },
@@ -1502,8 +1456,8 @@
       },
       {
         "id": "voronoi",
-        "x": 2254,
-        "y": 934,
+        "x": 1534,
+        "y": 1074,
         "rot": -1,
         "scale": 1,
         "visible": true

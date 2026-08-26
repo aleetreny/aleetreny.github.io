@@ -129,8 +129,8 @@ export function MontyHall() {
                   <b style={{ height: `${Math.round(stayShare * 100)}%` }} />
                   <b className="is-switch" style={{ height: `${Math.round(switchShare * 100)}%` }} />
                 </i>
-                <em>{t('world.monty.stay')} {tally.stayWins}/{tally.stayPlays} · {rate(tally.stayWins, tally.stayPlays)}</em>
-                <em>{t('world.monty.switch')} {tally.switchWins}/{tally.switchPlays} · {rate(tally.switchWins, tally.switchPlays)}</em>
+                <em>{t('world.monty.stay')} {rate(tally.stayWins, tally.stayPlays)} ·{tally.stayPlays}</em>
+                <em>{t('world.monty.switch')} {rate(tally.switchWins, tally.switchPlays)} ·{tally.switchPlays}</em>
               </span>
             )}
           </div>
