@@ -28,7 +28,7 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
   const world = useWorld();
   const ref = useRef<HTMLDivElement | null>(null);
   const spec = OBJECT_SPECS[id];
-  const { register, place, bump, scale, wake, swallowed } = world;
+  const { register, place, bump, scale, wake, swallowed, uv } = world;
   const gone = swallowed.includes(id);
 
   // The starting position is written once, imperatively, exactly like the
@@ -59,6 +59,11 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
     event.stopPropagation();
     if (fixed || world.tool) return;
 
+    // Under the blacklight the board is a building site and the site is set:
+    // nothing on it can be shoved about by accident while you are trying to
+    // pick up one of the crew. A press still counts as a press — the book
+    // opens, the switch throws — it simply does not carry anything with it.
+    const frozen = uv;
     const at = place(id);
     const start = { x: event.clientX, y: event.clientY };
     const from = { x: at.x, y: at.y };
@@ -74,7 +79,7 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
       const dx = (ev.clientX - start.x) * k();
       const dy = (ev.clientY - start.y) * k();
       if (!moved && Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 4) moved = true;
-      if (!moved) return;
+      if (!moved || frozen) return;
       const previous = { x: at.x, y: at.y };
       at.x = from.x + dx;
       at.y = from.y + dy;
@@ -110,6 +115,8 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
       cleanUp();
       if (absorbed) return;
       if (!moved) { onActivate?.(); return; }
+      // A drag that moved nothing throws nothing either.
+      if (frozen) return;
       // Let go of it over the hole and the hole has it, held or not: a hand is
       // not a reason for the horizon to make an exception.
       if (world.absorb(id)) return;
@@ -128,7 +135,7 @@ export function ObjectShell({ id, children, hint, onActivate, className = '', fi
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
-  }, [bump, fixed, id, onActivate, place, scale, wake, world]);
+  }, [bump, fixed, id, onActivate, place, scale, uv, wake, world]);
 
   return (
     <div

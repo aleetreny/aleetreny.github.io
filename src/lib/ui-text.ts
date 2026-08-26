@@ -400,6 +400,7 @@ const CATALOGUE: Record<string, Entry> = {
   'world.uv.on': { es: 'échalo', en: 'throw it' },
   'world.uv.off': { es: 'vuelve a echarlo', en: 'throw it back' },
   'world.uv.crew': { es: 'el turno de noche', en: 'the night shift' },
+  'world.uv.esc': { es: 'esc para volver', en: 'esc to come back' },
   'world.book.start': { es: 'el principio', en: 'the beginning' },
   'world.book.answer': { es: 'la respuesta', en: 'the answer' },
   'world.book.end': { es: 'el final', en: 'the end' },

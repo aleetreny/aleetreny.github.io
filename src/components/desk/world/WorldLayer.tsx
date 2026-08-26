@@ -222,6 +222,13 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
         <>
           <div className="uvroom" aria-hidden="true" />
           <Suspense fallback={null}><UvCrew boardSize={boardSize} /></Suspense>
+          {/* Screen furniture, not board furniture: the switch you came in by
+              may be a long way off the edge by now, so the way out is pinned
+              to the window rather than to a spot on the slate. */}
+          <div className="uvsay" aria-hidden="true">
+            <span className="uvsay__sign">{t('world.uv.crew')}</span>
+            <span className="uvsay__way">{t('world.uv.esc')}</span>
+          </div>
         </>
       ) : null}
 

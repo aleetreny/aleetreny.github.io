@@ -3061,11 +3061,25 @@ body.board-uv .obj--book-open { filter: saturate(.12) brightness(1.28) hue-rotat
   fill: rgba(255, 214, 64, .78); font-size: 11px; letter-spacing: .3em; text-anchor: middle;
 }
 
-.uvworld__sign {
-  position: absolute; left: 50%; top: 26px; translate: -50% 0;
-  font-family: var(--font-mono); font-size: 22px; letter-spacing: .5em; text-transform: uppercase;
+/* What the world is, and the way out of it. Both are pinned to the window: a
+   world you cannot leave is a trap, and the switch you came in by may be a
+   long way off the edge of the screen by now. */
+.uvsay {
+  position: fixed; left: 0; right: 0; top: 52px; z-index: 42;
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  pointer-events: none; text-align: center;
+}
+.uvsay__sign {
+  font-family: var(--font-mono); font-size: 20px; letter-spacing: .5em; text-transform: uppercase;
   color: rgba(212, 174, 255, .74); text-shadow: 0 0 22px rgba(150, 92, 255, .9);
   animation: uvRise 1.4s ease-out both;
+}
+.uvsay__way {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .32em; text-transform: uppercase;
+  color: rgba(255, 214, 64, .8); text-shadow: 0 0 14px rgba(255, 190, 60, .6);
+  border: 1px solid rgba(255, 214, 64, .34); padding: 4px 12px;
+  background: rgba(14, 6, 30, .6);
+  animation: uvRise 1.9s ease-out both;
 }
 
 /* ---- the crew ---- */
@@ -3090,7 +3104,7 @@ body.board-uv [data-card].is-uv-propped {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .uvveil, .uvcity, .uvmarks, .uvworld__sign, .uvcrew { animation: none; }
+  .uvveil, .uvcity, .uvmarks, .uvsay__sign, .uvsay__way, .uvcrew { animation: none; }
   .uvcity__fog ellipse, .uvrain i { animation: none; }
   body.board-uv [data-card].is-uv-propped { rotate: 0deg; translate: none; }
 }

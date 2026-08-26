@@ -20,12 +20,10 @@ import { OBJECT_SPECS } from '../../../lib/world/kinds';
 import { mulberry32 } from '../../../lib/world/rng';
 import { BAD } from '../../../lib/world/crew';
 import { damageOf } from './UvCrew';
-import { useUiText } from '../ui-text-context';
 
 type Box = { id: string; x: number; y: number; w: number; h: number; damage: number };
 
 export function UvWorld({ boardSize }: { boardSize: { width: number; height: number } }) {
-  const t = useUiText();
   const { objects, placeRef, swallowed } = useWorld();
   const [decor, setDecor] = useState<ReactNode[]>([]);
   const leaning = useRef<HTMLElement[]>([]);
@@ -109,7 +107,6 @@ export function UvWorld({ boardSize }: { boardSize: { width: number; height: num
         {decor}
       </svg>
 
-      <span className="uvworld__sign">{t('world.uv.crew')}</span>
     </div>
   );
 }

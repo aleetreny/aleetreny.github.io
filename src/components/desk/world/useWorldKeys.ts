@@ -3,7 +3,9 @@
 // Two of them, and neither is advertised:
 //
 //   42     typed anywhere that is not a text box
-//   esc    puts down whatever you are holding, and turns the gravity back on
+//   esc    puts down whatever you are holding, turns the blacklight off, and
+//          turns the gravity back on — in that order, so one press undoes one
+//          thing and you always know which
 //
 // The 42 listener is deliberately dumb: it keeps the last two printable keys
 // and checks them. A sequence matcher would also fire on "1042", which is not
@@ -21,7 +23,7 @@ function typing(target: EventTarget | null): boolean {
 }
 
 export function useWorldKeys(): void {
-  const { fireAnswer, hold, tool, zeroG, setZeroG } = useWorld();
+  const { fireAnswer, hold, tool, uv, setUv, zeroG, setZeroG } = useWorld();
 
   useEffect(() => {
     let last = '';
@@ -29,6 +31,7 @@ export function useWorldKeys(): void {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         if (tool) hold(null);
+        else if (uv) setUv(false);
         else if (zeroG) setZeroG(false);
         return;
       }
@@ -44,5 +47,5 @@ export function useWorldKeys(): void {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [fireAnswer, hold, setZeroG, tool, zeroG]);
+  }, [fireAnswer, hold, setUv, setZeroG, tool, uv, zeroG]);
 }

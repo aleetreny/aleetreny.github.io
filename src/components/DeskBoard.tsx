@@ -1726,7 +1726,11 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       const startX = event.clientX;
       const startY = event.clientY;
 
-      if (card && !positionsLocked) {
+      // The strange world is fixed: with the lamp on, nothing on the slate is
+      // dragged by accident. The class is set by the world layer, which is the
+      // only thing that knows the switch has been thrown.
+      const frozen = document.body.classList.contains('board-uv');
+      if (card && !positionsLocked && !frozen) {
         card.style.zIndex = String(++zTop.current);
         const rot = parseFloat(card.dataset.rot || '0');
         const ox = parseFloat(card.style.left || '0');
