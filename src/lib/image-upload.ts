@@ -42,6 +42,11 @@ const TYPE_BY_EXTENSION: Record<string, string> = {
 
 export const MEDIA_INPUT_ACCEPT = '.avif,.gif,.heic,.heif,.jpeg,.jpg,.png,.webp,.m4v,.mov,.mp4,.webm,image/avif,image/gif,image/heic,image/heif,image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,video/x-m4v';
 
+/** The passport takes photographs only. Keep its picker aligned with the
+ * dashboard's supported image formats, including the HEIC files Photos often
+ * exposes without a useful MIME type. */
+export const IMAGE_INPUT_ACCEPT = '.avif,.gif,.heic,.heif,.jpeg,.jpg,.png,.webp,image/avif,image/gif,image/heic,image/heif,image/jpeg,image/png,image/webp';
+
 type MediaFile = Pick<File, 'name' | 'type'>;
 
 /** Return the safe content type to send to storage, or null for an unsupported

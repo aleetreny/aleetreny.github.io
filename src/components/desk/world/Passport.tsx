@@ -7,8 +7,10 @@
 // inside the board.
 
 import { useCallback, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { ImageSlot } from '../ImageSlot';
 import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
+import { IMAGE_CONTENT_TYPES, IMAGE_INPUT_ACCEPT, mediaContentType } from '../../../lib/image-upload';
 import {
   clampStampPosition,
   DEFAULT_STAMPS,
@@ -76,8 +78,8 @@ export function Passport() {
   const [leaf, setLeaf] = useState(1);
   const [picked, setPicked] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragPosition, setDragPosition] = useState<(StampPosition & { id: string }) | null>(null);
-  const fileRef = useRef<HTMLInputElement | null>(null);
   const dragRef = useRef<StampDrag | null>(null);
   const dragMoveHandlerRef = useRef<((event: PointerEvent) => void) | null>(null);
   const dragEndHandlerRef = useRef<((event: PointerEvent) => void) | null>(null);
@@ -203,20 +205,26 @@ export function Passport() {
   }, [leaf, savePassport, stamps]);
 
   const pickPhoto = useCallback((file: File) => {
-    if (!chosen) return;
+    if (!chosen || busy) return;
+    const mimeType = mediaContentType(file);
+    if (!mimeType || !IMAGE_CONTENT_TYPES.has(mimeType)) {
+      setUploadError(t('world.pass.invalidPhoto'));
+      return;
+    }
+    setUploadError(null);
     setBusy(true);
     const done = (url: string) => { patch(chosen.id, { assetUrl: url }); setBusy(false); };
     if (upload) {
-      upload(file).then(done).catch(() => setBusy(false));
+      upload(file).then(done).catch(() => { setUploadError(t('world.pass.uploadFailed')); setBusy(false); });
       return;
     }
     // No bucket wired up: a data URL still shows the photograph, it simply
     // lives in this settings document rather than in storage.
     const reader = new FileReader();
     reader.onload = () => done(String(reader.result));
-    reader.onerror = () => setBusy(false);
+    reader.onerror = () => { setUploadError(t('world.pass.uploadFailed')); setBusy(false); };
     reader.readAsDataURL(file);
-  }, [chosen, patch, upload]);
+  }, [busy, chosen, patch, t, upload]);
 
   return (
     <ObjectShell
@@ -270,23 +278,16 @@ export function Passport() {
             <div className="pass__card mat-paper">
               <button className="pass__cardclose" type="button" onClick={() => setPicked(null)} aria-label={t('world.pass.close')}>×</button>
               <div className="pass__photo">
-                {chosen.assetUrl
-                  ? <img src={chosen.assetUrl} alt={chosen.place} />
-                  : <span className="pass__nophoto">{editing ? t('world.pass.addPhoto') : ''}</span>}
-                {editing ? (
-                  <>
-                    <button className="pass__pick" type="button" disabled={busy} onClick={() => fileRef.current?.click()}>
-                      {busy ? '…' : t('world.pass.photo')}
-                    </button>
-                    <input
-                      ref={fileRef}
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={(event) => { const file = event.target.files?.[0]; if (file) pickPhoto(file); event.target.value = ''; }}
-                    />
-                  </>
-                ) : null}
+                <ImageSlot
+                  url={chosen.assetUrl}
+                  alt={chosen.place}
+                  placeholder={t('world.pass.dropPhoto')}
+                  editable={editing}
+                  busy={busy}
+                  accept={IMAGE_INPUT_ACCEPT}
+                  onPick={pickPhoto}
+                />
+                {uploadError ? <span className="pass__photo-error" role="alert">{uploadError}</span> : null}
               </div>
               {editing ? (
                 <div className="pass__edit">

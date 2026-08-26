@@ -10,6 +10,9 @@ type ImageSlotProps = {
   placeholder?: string;
   editable?: boolean;
   busy?: boolean;
+  /** Defaults to the dashboard's image-and-video selection. Callers such as
+   * passport stamps can narrow the native picker to photographs only. */
+  accept?: string;
   onPick?: (file: File) => void | Promise<void>;
   /** Optional because dossier media keeps its natural size. Board photos pass
    * this in to expose a non-destructive crop/reframe control. */
@@ -34,7 +37,7 @@ function resolvedFrame(frame: MediaFrame | undefined): Required<MediaFrame> {
   };
 }
 
-export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, busy = false, onPick, frame, onFrameChange }: ImageSlotProps) {
+export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, busy = false, accept = MEDIA_INPUT_ACCEPT, onPick, frame, onFrameChange }: ImageSlotProps) {
   const t = useUiText();
   const slotText = placeholder ?? t('card.dropMedia');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -203,7 +206,7 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
         <input
           ref={inputRef}
           type="file"
-          accept={MEDIA_INPUT_ACCEPT}
+          accept={accept}
           style={{ display: 'none' }}
           onClick={(event) => event.stopPropagation()}
           onChange={(event) => { handleFiles(event.target.files); event.target.value = ''; }}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_VIDEO_UPLOAD_BYTES, isSupportedMediaFile, isVideoMedia, maxUploadBytesForMediaType, mediaContentType } from './image-upload';
+import { IMAGE_INPUT_ACCEPT, MAX_VIDEO_UPLOAD_BYTES, isSupportedMediaFile, isVideoMedia, maxUploadBytesForMediaType, mediaContentType } from './image-upload';
 
 describe('media upload type detection', () => {
   it('accepts HEIC from Photos and a HEIF extension with no browser MIME type', () => {
@@ -17,5 +17,11 @@ describe('media upload type detection', () => {
   it('keeps the upload allowlist explicit', () => {
     expect(isSupportedMediaFile({ name: 'document.svg', type: 'image/svg+xml' })).toBe(false);
     expect(isSupportedMediaFile({ name: 'document.pdf', type: 'application/pdf' })).toBe(false);
+  });
+
+  it('keeps passport pickers limited to supported image formats', () => {
+    expect(IMAGE_INPUT_ACCEPT).toContain('.heic');
+    expect(IMAGE_INPUT_ACCEPT).toContain('image/jpeg');
+    expect(IMAGE_INPUT_ACCEPT).not.toContain('video/mp4');
   });
 });
