@@ -145,7 +145,11 @@ app.post('/uploads/presign', async (context) => {
         Bucket: bucket,
         Key: key,
         ContentType: request.contentType,
-        ContentLength: request.byteSize,
+        // Do not sign Content-Length here. Browser fetch treats it as a
+        // forbidden request header and may omit or calculate it differently
+        // from the Node verifier, which makes the otherwise valid signed URL
+        // fail at the storage PUT. The declared size is still checked before
+        // signing and again by register_uploaded_asset.
       }),
       { expiresIn: 300 },
     );

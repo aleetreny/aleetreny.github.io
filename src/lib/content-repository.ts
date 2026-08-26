@@ -390,6 +390,12 @@ export async function uploadMedia(file: File, altText: string): Promise<StoredAs
     throw new Error('Solo se pueden subir imágenes AVIF, GIF, HEIC, HEIF, JPEG, PNG o WebP, o vídeos MP4, MOV, M4V y WebM.');
   }
 
+  // A few drag sources (notably Photos on macOS) hand the browser a File
+  // without a name. The bytes and MIME type are still valid, so give the
+  // broker a safe extension instead of letting its filename schema reject the
+  // upload before it reaches storage.
+  const filename = file.name.trim() || `upload.${contentType.slice(contentType.indexOf('/') + 1).replace('jpeg', 'jpg')}`;
+
   const token = await getOwnerToken();
   const presignResponse = await fetch(`${runtimeConfig.storageFunctionUrl}/uploads/presign`, {
     method: 'POST',
@@ -397,7 +403,7 @@ export async function uploadMedia(file: File, altText: string): Promise<StoredAs
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ filename: file.name, contentType, byteSize: file.size }),
+    body: JSON.stringify({ filename, contentType, byteSize: file.size }),
   });
   if (!presignResponse.ok) {
     const body = (await presignResponse.json().catch(() => null)) as { error?: string } | null;

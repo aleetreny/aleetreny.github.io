@@ -215,7 +215,15 @@ export function Passport() {
     setBusy(true);
     const done = (url: string) => { patch(chosen.id, { assetUrl: url }); setBusy(false); };
     if (upload) {
-      upload(file).then(done).catch(() => { setUploadError(t('world.pass.uploadFailed')); setBusy(false); });
+      upload(file).then(done).catch((reason: unknown) => {
+        // Keep the friendly fallback for unknown failures, but preserve the
+        // actionable validation/auth/storage message from the shared dashboard
+        // uploader so an owner can fix the actual cause instead of retrying
+        // blindly.
+        const detail = reason instanceof Error ? reason.message.trim() : '';
+        setUploadError(detail || t('world.pass.uploadFailed'));
+        setBusy(false);
+      });
       return;
     }
     // No bucket wired up: a data URL still shows the photograph, it simply

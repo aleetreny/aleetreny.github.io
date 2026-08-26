@@ -1415,7 +1415,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     if (!maxBytes || file.size > maxBytes) {
       const kind = isVideoMedia(mimeType) ? 'vídeo' : 'imagen';
       const limit = Math.round((maxBytes ?? 0) / (1024 * 1024));
-      throw new Error(`El ${kind} supera el límite de ${limit} MB.`);
+      throw new Error(`La ${kind} supera el límite de ${limit} MB.`);
     }
     if (!remoteDataEnabled) {
       return new Promise<{ url: string; mimeType: string }>((resolve, reject) => {
