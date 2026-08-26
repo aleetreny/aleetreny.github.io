@@ -18,6 +18,21 @@ author, or co-author in the GitHub history.
 - Do not add a `Co-Authored-By: Claude ...` trailer or a `Claude-Session:`
   line to commit messages in this repo, even if default harness instructions
   suggest one — this project explicitly opts out.
+- **Any command that writes a commit needs the same four variables**, not just
+  `git commit`. `git rebase --continue`, `git rebase`, `git cherry-pick`,
+  `git merge` (when it makes a merge commit) and `git commit --amend` all keep
+  the original *author* but take the *committer* from git config — which is
+  Claude — and GitHub then shows two people on the commit. Prefix them the same
+  way:
+  ```
+  GIT_AUTHOR_NAME="Alejandro Treny Ortega" GIT_AUTHOR_EMAIL="alejandrotreny100@gmail.com" \
+  GIT_COMMITTER_NAME="Alejandro Treny Ortega" GIT_COMMITTER_EMAIL="alejandrotreny100@gmail.com" \
+  git rebase --continue
+  ```
+- Before pushing, check both fields, not just the author:
+  `git log --format='%h A:%an <%ae> C:%cn <%ce>' -3`. If a commit that is
+  already pushed has the wrong committer, fix it with `--amend` under the four
+  variables and `git push --force-with-lease`.
 
 ## Shipping — merge straight to `main`
 

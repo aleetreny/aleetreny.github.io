@@ -23,6 +23,8 @@ export const OBJECT_KINDS = [
   // The instruments: each one a door onto a real phenomenon, and each one a
   // thing you could pick up off a bench rather than a chart in a box.
   'montyhall', 'descent', 'voronoi', 'chloroplast', 'ferrofluid', 'chladni', 'dunes',
+  // The switch on the wall. Throw it and the board is lit from somewhere else.
+  'uvswitch',
 ] as const;
 export type ObjectKind = (typeof OBJECT_KINDS)[number];
 
@@ -99,6 +101,12 @@ export const OBJECT_SPECS: Record<ObjectKind, ObjectSpec> = {
   ferrofluid: { w: 226, h: 178, traits: HEAVY_SITTING },
   chladni: { w: 182, h: 214, traits: HEAVY_SITTING },
   dunes: { w: 244, h: 168, traits: HEAVY_SITTING },
+
+  // ---- the light ----
+  // Bolted to the slate like a real isolator: you throw it, you do not carry
+  // it about. Everything else on this board can go through the black hole; a
+  // mains switch that could be eaten would take the lights with it.
+  uvswitch: { w: 132, h: 168, traits: ['paintable', 'capture'] },
 };
 
 export function hasTrait(kind: ObjectKind, trait: ObjectTrait): boolean {

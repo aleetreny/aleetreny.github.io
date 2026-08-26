@@ -31,6 +31,7 @@ import { Flower } from './Flower';
 import { Garden } from './Garden';
 import { Dilemma } from './Dilemma';
 import { CuriosityMachine } from './CuriosityMachine';
+import { UvSwitch } from './UvSwitch';
 import { Photos } from './Photos';
 
 // The heavy ones: a canvas each, and a simulation behind it. They arrive after
@@ -54,6 +55,10 @@ const ChloroplastSlide = lazy(() => import('./ChloroplastSlide').then((m) => ({ 
 const Ferrofluid = lazy(() => import('./Ferrofluid').then((m) => ({ default: m.Ferrofluid })));
 const ChladniPlate = lazy(() => import('./ChladniPlate').then((m) => ({ default: m.ChladniPlate })));
 const DuneTray = lazy(() => import('./DuneTray').then((m) => ({ default: m.DuneTray })));
+
+// The night shift. Nothing of it — not the veil, not the crew, not their
+// rulebook — is fetched until somebody throws the switch.
+const UvWorld = lazy(() => import('./UvWorld').then((m) => ({ default: m.UvWorld })));
 
 export type WorldLayerProps = {
   objects: DeskObject[];
@@ -128,6 +133,7 @@ export function WorldLayer({ objects, boardSize, entries, onOpenEntry }: WorldLa
       case 'ferrofluid': return <Ferrofluid key="ferrofluid" />;
       case 'chladni': return <ChladniPlate key="chladni" />;
       case 'dunes': return <DuneTray key="dunes" />;
+      case 'uvswitch': return <UvSwitch key="uvswitch" />;
       default: return null;
     }
   }, [boardSize, entries, onOpenEntry, world.fireAnswer]);
@@ -147,6 +153,13 @@ export function WorldLayer({ objects, boardSize, entries, onOpenEntry }: WorldLa
       <div className="world-paint world-paint--paper" aria-hidden="true">
         {paperSplats.map((splat) => <SplatMark key={splat.id} splat={splat} />)}
       </div>
+
+      {/* Over everything on the slate, and only while the switch is thrown. */}
+      {world.uv ? (
+        <Suspense fallback={null}>
+          <UvWorld boardSize={boardSize} />
+        </Suspense>
+      ) : null}
 
       {alarm ? <div className="world-alarm" aria-hidden="true" /> : null}
     </>
@@ -178,6 +191,16 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
     return () => document.body.classList.remove('has-tool');
   }, [tool]);
 
+  // Paper really does fluoresce under 365 nm — optical brighteners, put there
+  // to make it look whiter in daylight. The cards are told to before the veil
+  // gets to them, so under the lamp the writing on the board is the brightest
+  // thing on it rather than the darkest.
+  useEffect(() => {
+    if (!world.uv) return undefined;
+    document.body.classList.add('board-uv');
+    return () => document.body.classList.remove('board-uv');
+  }, [world.uv]);
+
   const colour = paintHex(paintColor);
   const swallowedCount = swallowed.length;
 
@@ -188,6 +211,10 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
           containing block for `position: fixed`, so an eyepiece rendered inside
           the board would be pinned to the slate and zoom with it. */}
       <ScopeField boardSize={boardSize} />
+
+      {/* The room the board is in goes over too — the slate has its own veil
+          inside the camera, and this is the light spilling past it. */}
+      {world.uv ? <div className="uvroom" aria-hidden="true" /> : null}
 
       {tool && tool !== 'scope' ? (
         <div className={`reticle reticle--${tool}`} ref={reticleRef} aria-hidden="true">

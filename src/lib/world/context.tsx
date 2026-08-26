@@ -81,6 +81,11 @@ type WorldValue = {
   zeroG: boolean;
   setZeroG: (on: boolean) => void;
 
+  /** The blacklight. One switch bolted to the slate turns the whole board over
+   *  to it, and everything that only shows up under it comes out. */
+  uv: boolean;
+  setUv: (on: boolean) => void;
+
   swallowed: ObjectKind[];
   swallow: (id: ObjectKind) => void;
   /** Start the black-hole capture immediately when an object crosses the
@@ -166,6 +171,7 @@ export function WorldProvider({
         : []
   ));
   const [zeroG, setZeroGState] = useState(false);
+  const [uv, setUv] = useState(false);
   const [swallowed, setSwallowed] = useState<ObjectKind[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [answer, setAnswer] = useState(0);
@@ -545,6 +551,8 @@ export function WorldProvider({
     setPaintMode: onPaintMode,
     zeroG,
     setZeroG,
+    uv,
+    setUv,
     swallowed,
     swallow,
     absorb,
@@ -563,7 +571,7 @@ export function WorldProvider({
     reduced,
   }), [
     objects, register, boardRef, scale, place, moveTo, bump, tool, hold, paintColor,
-    splats, addSplat, clearSplats, paintMode, onPaintMode, zeroG, setZeroG, swallowed,
+    splats, addSplat, clearSplats, paintMode, onPaintMode, zeroG, setZeroG, uv, swallowed,
     swallow, absorb, restoreWorld, photos, addPhoto, dropPhoto, clearPhotos, answer, fireAnswer,
     passport, onPassport, editing, upload, wake, reduced,
   ]);
