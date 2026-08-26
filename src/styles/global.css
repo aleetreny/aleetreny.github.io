@@ -2890,7 +2890,7 @@ body.has-tool iframe { pointer-events: none; }
 
 /* The room, outside the camera: what the tube throws past the board itself. */
 .uvroom {
-  position: fixed; inset: 0; z-index: 640; pointer-events: none;
+  position: fixed; inset: 0; z-index: 41; pointer-events: none;
   background:
     radial-gradient(120% 82% at 50% 4%, rgba(146, 88, 255, .26), transparent 62%),
     radial-gradient(140% 110% at 50% 50%, transparent 34%, rgba(12, 4, 30, .62) 100%);
@@ -2905,10 +2905,10 @@ body.board-uv .polaroid {
   filter: saturate(.1) brightness(1.34) contrast(1.04) hue-rotate(-14deg);
   transition: filter .5s ease;
 }
-/* And a thing with no paper in it is a silhouette. */
-body.board-uv .obj {
-  filter: saturate(.22) brightness(.62) hue-rotate(-18deg) drop-shadow(0 6px 10px rgba(0, 0, 0, .5));
-}
+/* And a thing with no paper in it is a silhouette. No drop-shadow here: it is
+   a blur, every animating instrument on the board pays for it every frame, and
+   under a single overhead lamp there is nothing for it to be a shadow of. */
+body.board-uv .obj { filter: saturate(.22) brightness(.62) hue-rotate(-18deg); }
 /* The slate under all of it. One flat colour on an element that is already
    painted is free; a filter on something this big is not. */
 body.board-uv .desk__plate-shade {
@@ -2923,28 +2923,111 @@ body.board-uv .obj--book-open { filter: saturate(.12) brightness(1.28) hue-rotat
 /* ── under the blacklight ───────────────────────────────────────────────── */
 /* Everything here sits inside the board, so it pans and zooms with the slate
    and the crew keep their footing on it. The veil drains and darkens what is
-   below it; the marks and the crew are above the veil, and glow. */
+   below it; the city, the marks and the weather are above the veil and glow.
+   Nothing in this section is animated in JavaScript. */
 .uvworld { position: absolute; inset: 0; z-index: 900; pointer-events: none; }
+
 /* One wash over the whole slate.
-   
+
    It used to do this properly, with mix-blend-mode: colour to drain the board
    and multiply to darken it, which looks exactly right and costs forty
    milliseconds a frame — every blended pixel has to read back a backdrop that
-   thirty-eight moving figures have just invalidated. Flat paint over ten
-   megapixels costs nothing by comparison, because the compositor only ever
+   a couple of hundred moving figures have just invalidated. Flat paint over
+   ten megapixels costs nothing by comparison, because the compositor only ever
    rasterises the tiles you can see. So the drain happens where it is free, on
-   the cards and objects themselves — they are small, and have layers of their
-   own already — and what is left here is one translucent rectangle. */
+   the cards and objects themselves, and what is left here is one rectangle. */
 .uvveil {
   position: absolute; inset: 0;
   background:
-    radial-gradient(58% 42% at 50% 6%, rgba(158, 100, 255, .32), transparent 66%),
-    radial-gradient(96% 74% at 50% 104%, rgba(92, 46, 200, .24), transparent 74%),
-    linear-gradient(rgba(34, 13, 82, .56), rgba(15, 5, 38, .68));
+    radial-gradient(58% 42% at 50% 6%, rgba(158, 100, 255, .3), transparent 66%),
+    radial-gradient(96% 74% at 50% 104%, rgba(92, 46, 200, .22), transparent 74%),
+    linear-gradient(rgba(34, 13, 82, .5), rgba(15, 5, 38, .62));
   animation: uvRise .62s ease-out both;
 }
 @keyframes uvRise { from { opacity: 0; } }
 
+/* ---- the city ---- */
+.uvcity {
+  position: absolute; overflow: visible;
+  font-family: var(--font-mono);
+  animation: uvRise 1.1s ease-out both;
+}
+.uvcity__tar { fill: rgba(16, 10, 38, .82); }
+.uvcity__mark {
+  fill: none; stroke: rgba(150, 214, 255, .3); stroke-width: 2;
+  stroke-dasharray: 22 26;
+}
+.uvcity__mark--far { stroke: rgba(180, 232, 255, .5); stroke-dasharray: 40 34; stroke-width: 3; }
+/* Where a road stops being a road and becomes a horizon. */
+.uvcity__glow { fill: rgba(168, 140, 255, .16); }
+.uvcity__far { opacity: .9; }
+
+/* The hoarding: a solid board with a striped rail along the top of it. */
+.uvcity__hoard { fill: none; stroke: rgba(24, 14, 52, .92); stroke-width: 22; }
+.uvcity__hoardTop {
+  fill: none; stroke: rgba(255, 214, 64, .5); stroke-width: 5;
+  stroke-dasharray: 16 14;
+}
+.uvcity__gate { fill: none; stroke: rgba(255, 214, 64, .55); stroke-width: 3.4; }
+.uvcity__tower { fill: none; stroke: rgba(198, 214, 226, .45); stroke-width: 2.6; }
+.uvcity__beam { fill: rgba(226, 236, 246, .3); stroke: none; }
+.uvcity__flood { fill: rgba(214, 190, 255, .12); stroke: none; }
+.uvcity__wall { stroke: rgba(0, 0, 0, .5); stroke-width: 1; }
+.uvcity__pane { fill: rgba(126, 214, 255, .12); }
+/* Some of them have somebody in. */
+.uvcity__lit { fill: rgba(255, 236, 176, .34); }
+.uvcity__lit--0 { fill: rgba(180, 246, 255, .3); }
+.uvcity__lit--1 { fill: rgba(255, 236, 176, .38); }
+.uvcity__lit--2 { fill: rgba(190, 255, 226, .26); }
+.uvcity__lit--3 { fill: rgba(232, 196, 255, .32); }
+.uvcity__pane--0 { fill: rgba(140, 226, 255, .16); }
+.uvcity__pane--1 { fill: rgba(255, 228, 150, .17); }
+.uvcity__pane--2 { fill: rgba(170, 255, 210, .13); }
+.uvcity__pane--3 { fill: rgba(210, 170, 255, .15); }
+.uvcity__glass { opacity: .95; }
+.uvcity__trim { fill: none; stroke: var(--edge, #7cf9ff); stroke-width: 1.6; stroke-opacity: .5; }
+.uvcity__board { fill: rgba(10, 6, 26, .8); stroke: var(--edge, #7cf9ff); stroke-width: .8; stroke-opacity: .55; }
+.uvcity__sign {
+  fill: var(--edge, #7cf9ff); fill-opacity: .82; text-anchor: middle;
+  letter-spacing: .08em;
+}
+.uvcity__crane { fill: none; stroke: rgba(255, 232, 107, .5); stroke-width: 2; }
+.uvcity__kit { fill: none; stroke: var(--edge, #7cf9ff); stroke-width: 1.6; stroke-opacity: .62; stroke-linecap: round; }
+.uvcity__kit--hoarding, .uvcity__kit--skip, .uvcity__kit--kiosk { stroke-opacity: .5; }
+.uvcity__props { opacity: .9; }
+
+/* Fog banks drift. A transform animation and nothing else: the compositor runs
+   this one without ever waking the main thread. */
+.uvcity__fog ellipse {
+  animation-name: uvDrift; animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite; animation-direction: alternate;
+}
+@keyframes uvDrift {
+  from { transform: translate(calc(var(--drift) * -1), 0); }
+  to { transform: translate(var(--drift), 6px); }
+}
+
+/* Rain, where it is raining. A striped sheet twice as tall as its box, slid
+   upward for ever inside something that clips it — no repaint, no script. */
+/* Drizzle, and the slant is in the gradient rather than in a rotation: a
+   gradient at 180 degrees does not vary across the page, so the first attempt
+   at this drew wide horizontal bands and then tilted them, which looked like a
+   moiré rather than like rain. A gradient a few degrees off vertical gives
+   thin streaks, and sliding it downward makes them fall along themselves. */
+.uvrain { position: absolute; overflow: hidden; opacity: .3; }
+.uvrain i {
+  position: absolute; left: -20%; top: -60%; width: 140%; height: 220%;
+  display: block;
+  background: repeating-linear-gradient(
+    var(--tilt, 12deg),
+    transparent 0 10px,
+    rgba(190, 222, 255, .55) 10px 11px
+  );
+  animation: uvFall var(--rate, 1s) linear infinite;
+}
+@keyframes uvFall { to { transform: translateY(58px); } }
+
+/* ---- what the light finds on the slate ---- */
 .uvmarks {
   position: absolute; left: 0; top: 0; overflow: visible;
   font-family: var(--font-mono);
@@ -2960,14 +3043,23 @@ body.board-uv .obj--book-open { filter: saturate(.12) brightness(1.28) hue-rotat
 .uvmarks__frame { stroke: rgba(120, 214, 255, .46); stroke-width: 3; stroke-dasharray: none; }
 .uvmarks__dim path { fill: none; stroke: rgba(150, 255, 210, .5); stroke-width: 1.4; }
 .uvmarks__dim text { fill: rgba(150, 255, 210, .5); font-size: 11px; text-anchor: middle; letter-spacing: .1em; }
-.uvmarks__tag rect { fill: rgba(28, 90, 70, .5); stroke: rgba(140, 255, 200, .45); stroke-width: 1; }
-.uvmarks__tag text { fill: rgba(170, 255, 214, .8); font-size: 7px; letter-spacing: .12em; }
-.uvmarks__cross { fill: none; stroke: rgba(255, 128, 224, .45); stroke-width: 1.6; }
 .uvmarks__sign {
   fill: rgba(255, 138, 226, .5); font-family: var(--font-display); font-weight: 800;
   font-size: 26px; letter-spacing: .18em;
 }
 .uvmarks__since { fill: rgba(255, 138, 226, .34); font-size: 8px; letter-spacing: .22em; }
+
+/* The ones that are actually broken. */
+.uvmarks__crack { fill: none; stroke: rgba(255, 110, 110, .68); stroke-width: 2.4; stroke-linejoin: round; }
+.uvmarks__scaffold { fill: none; stroke: rgba(255, 232, 107, .38); stroke-width: 1.6; }
+.uvmarks__prop { fill: none; stroke: rgba(255, 232, 107, .55); stroke-width: 2.4; stroke-linecap: round; }
+.uvmarks__tape {
+  fill: none; stroke: rgba(255, 214, 64, .55); stroke-width: 7;
+  stroke-dasharray: 13 11;
+}
+.uvmarks__warn {
+  fill: rgba(255, 214, 64, .78); font-size: 11px; letter-spacing: .3em; text-anchor: middle;
+}
 
 .uvworld__sign {
   position: absolute; left: 50%; top: 26px; translate: -50% 0;
@@ -2977,115 +3069,30 @@ body.board-uv .obj--book-open { filter: saturate(.12) brightness(1.28) hue-rotat
 }
 
 /* ---- the crew ---- */
-.uvcrew { position: absolute; inset: 0; }
-.uvw {
-  position: absolute; left: 0; top: 0;
-  transform-origin: 50% 100%;
-  pointer-events: auto; cursor: grab;
-  /* Each of them gets a layer of its own. Without it, moving thirty-eight
-     figures repaints their union — which is the whole board. */
-  will-change: transform;
-  contain: layout style paint;
-}
-.uvw.is-held { cursor: grabbing; }
-.uvw__body { width: 100%; height: 100%; overflow: visible; }
-
-/* Fluorescent, not coloured: under 365 nm a thing either lights up or it is a
-   silhouette, and the trade is what decides which colour it lights up in. */
-.uvw { --hi: #7cf9ff; --skin: #efe4ff; }
-.uvw--welder { --hi: #7cf9ff; }
-.uvw--sparks { --hi: #ffe86b; }
-.uvw--porter { --hi: #a6ff6e; }
-.uvw--sweeper { --hi: #8b9cff; }
-.uvw--surveyor { --hi: #ff9de0; }
-.uvw--oiler { --hi: #ffb066; }
-.uvw--painter { --hi: #6effc4; }
-.uvw--inspector { --hi: #d3a6ff; }
-
-.uvw__torso, .uvw__leg, .uvw__arm { fill: #2a1a4e; stroke: rgba(190, 160, 255, .5); stroke-width: .5; }
-.uvw__head { fill: var(--skin); }
-.uvw__hat { fill: var(--hi); }
-.uvw__vest { fill: var(--hi); opacity: .9; }
-/* One shadow, not two: at this size the second is invisible and both have to
-   be rasterised for every one of them, every frame. */
-.uvw__body { filter: drop-shadow(0 0 2.5px color-mix(in srgb, var(--hi) 80%, transparent)); }
-.uvw__kit { fill: none; stroke: var(--hi); stroke-width: 1.5; stroke-linecap: round; }
-.uvw--welder .uvw__kit, .uvw--porter .uvw__kit, .uvw--inspector .uvw__kit,
-.uvw--painter .uvw__kit, .uvw--oiler .uvw__kit { fill: var(--hi); stroke: none; }
-.uvw--painter .uvw__kit { fill: none; stroke: var(--hi); }
-.uvw__brush { fill: var(--hi); }
-.uvw__lens { fill: var(--hi); }
-.uvw__ticks { fill: none; stroke: #2a1a4e; stroke-width: .7; stroke-linecap: round; }
-
-/* The load only exists while it is being carried. */
-.uvw__load { fill: none; opacity: 0; }
-.uvw.has-load .uvw__load {
-  opacity: 1; fill: rgba(46, 30, 84, .95); stroke: var(--hi); stroke-width: .7;
+/* Pinned to the window rather than to the board, with the camera folded into
+   the canvas transform. It must never be a pointer target: it covers
+   everything, and the board has to stay clickable underneath it. */
+.uvcrew {
+  /* Under the board's chrome. The toolbar sits at 50 and has to stay both
+     legible and clickable with the lamp on. */
+  position: fixed; inset: 0; z-index: 40;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  animation: uvRise .8s ease-out both;
 }
 
-/* ---- what each of them does ---- */
-/* Walking: legs and arms swing about hip and shoulder, out of phase, on the
-   gait the frame loop is already keeping. Driving them off --gait rather than
-   off a duration keeps stride and travel in step at any speed. */
-.uvw__leg, .uvw__arm { transform-box: fill-box; }
-.uvw__leg--back, .uvw__arm--front { transform-origin: 50% 0; }
-.uvw__leg--front, .uvw__arm--back { transform-origin: 50% 0; }
-.uvw.is-walk .uvw__leg--front { transform: rotate(calc(sin(var(--gait)) * 26deg)); }
-.uvw.is-walk .uvw__leg--back { transform: rotate(calc(sin(var(--gait)) * -26deg)); }
-.uvw.is-walk .uvw__arm--front { transform: rotate(calc(sin(var(--gait)) * -22deg)); }
-.uvw.is-walk .uvw__arm--back { transform: rotate(calc(sin(var(--gait)) * 22deg)); }
-/* Standing still, the tool is what moves. */
-.uvw.is-work .uvw__arm--front { transform-origin: 50% 0; animation: uvWork .7s ease-in-out infinite alternate; }
-.uvw.is-work .uvw__tool { transform-box: fill-box; transform-origin: 0 50%; }
-@keyframes uvWork { from { transform: rotate(-16deg); } to { transform: rotate(14deg); } }
-
-.uvw--welder.is-work .uvw__spark { animation: uvSpark .22s steps(2) infinite; }
-.uvw__spark { fill: none; stroke: #d8fbff; stroke-width: 1; stroke-linecap: round; opacity: 0; }
-@keyframes uvSpark { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: .3; } }
-.uvw--welder.is-work .uvw__kit { filter: drop-shadow(0 0 3px #b6f3ff); }
-
-.uvw__wire { fill: none; stroke: var(--hi); stroke-width: .9; opacity: .55; stroke-dasharray: 3 2; }
-.uvw--sparks.is-work .uvw__wire { animation: uvWire 1.1s linear infinite; opacity: .9; }
-@keyframes uvWire { to { stroke-dashoffset: -10; } }
-
-.uvw--sweeper.is-work .uvw__tool { animation: uvSweep 1.1s ease-in-out infinite alternate; }
-@keyframes uvSweep { from { transform: rotate(-13deg); } to { transform: rotate(11deg); } }
-
-.uvw--surveyor.is-work .uvw__lens { animation: uvBlink 2.4s ease-in-out infinite; }
-@keyframes uvBlink { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
-/* A surveyor sights: the arms stay down on the instrument. */
-.uvw--surveyor.is-work .uvw__arm--front { animation: none; transform: rotate(28deg); }
-
-.uvw__drip { fill: var(--hi); opacity: 0; }
-.uvw--oiler.is-work .uvw__drip { animation: uvDrip 1.6s ease-in infinite; }
-@keyframes uvDrip {
-  0% { opacity: 0; transform: translateY(0); }
-  20% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(7px); }
+/* A card somebody has jacked up to get under it. `rotate` is its own property,
+   so this composes with the rotation the board already gave the card. */
+body.board-uv [data-card].is-uv-propped {
+  rotate: var(--uv-tilt, 0deg);
+  translate: 0 var(--uv-shift, 0px);
+  transition: rotate .9s cubic-bezier(.4, 1.4, .5, 1), translate .9s ease;
 }
-
-.uvw__wash { fill: none; stroke: var(--hi); stroke-width: 2.6; opacity: 0; stroke-linecap: round; }
-.uvw--painter.is-work .uvw__wash { animation: uvWash 1.3s ease-in-out infinite alternate; }
-@keyframes uvWash { from { opacity: .1; transform: translateY(3px) scaleY(.4); } to { opacity: .6; transform: translateY(-2px) scaleY(1); } }
-.uvw--painter.is-work .uvw__tool { animation: uvSweep 1.3s ease-in-out infinite alternate; }
-
-.uvw--inspector.is-work .uvw__arm--front { animation: uvTap .5s ease-in-out infinite alternate; }
-@keyframes uvTap { from { transform: rotate(4deg); } to { transform: rotate(-12deg); } }
-
-/* Two of them stopped in the middle of the board are having a conversation,
-   and the only way to draw one at this size is to make them nod. */
-.uvw.is-talk .uvw__head { animation: uvNod 1.5s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
-@keyframes uvNod { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(8deg); } }
-.uvw.is-talk .uvw__arm--front { transform-origin: 50% 0; animation: uvWork 1.1s ease-in-out infinite alternate; }
-
-.uvw.is-held .uvw__leg, .uvw.is-held .uvw__arm { transform: rotate(0); }
-.uvw.is-held .uvw__body { filter: drop-shadow(0 0 6px var(--hi)); }
-.uvw.is-tumble .uvw__arm--front { transform: rotate(-52deg); }
-.uvw.is-tumble .uvw__arm--back { transform: rotate(48deg); }
 
 @media (prefers-reduced-motion: reduce) {
-  .uvveil i, .uvmarks, .uvworld__sign { animation: none; }
-  .uvw *, .uvw { animation: none !important; }
+  .uvveil, .uvcity, .uvmarks, .uvworld__sign, .uvcrew { animation: none; }
+  .uvcity__fog ellipse, .uvrain i { animation: none; }
+  body.board-uv [data-card].is-uv-propped { rotate: 0deg; translate: none; }
 }
 
 /* ── the ferrofluid ─────────────────────────────────────────────────────── */

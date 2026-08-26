@@ -59,6 +59,7 @@ const DuneTray = lazy(() => import('./DuneTray').then((m) => ({ default: m.DuneT
 // The night shift. Nothing of it — not the veil, not the crew, not their
 // rulebook — is fetched until somebody throws the switch.
 const UvWorld = lazy(() => import('./UvWorld').then((m) => ({ default: m.UvWorld })));
+const UvCrew = lazy(() => import('./UvCrew').then((m) => ({ default: m.UvCrew })));
 
 export type WorldLayerProps = {
   objects: DeskObject[];
@@ -213,8 +214,16 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
       <ScopeField boardSize={boardSize} />
 
       {/* The room the board is in goes over too — the slate has its own veil
-          inside the camera, and this is the light spilling past it. */}
-      {world.uv ? <div className="uvroom" aria-hidden="true" /> : null}
+          inside the camera, and this is the light spilling past it. The crew
+          are out here as well: one canvas pinned to the window, with the camera
+          folded into its transform, because a person on a four-thousand-unit
+          board is cheaper to draw than to lay out. */}
+      {world.uv ? (
+        <>
+          <div className="uvroom" aria-hidden="true" />
+          <Suspense fallback={null}><UvCrew boardSize={boardSize} /></Suspense>
+        </>
+      ) : null}
 
       {tool && tool !== 'scope' ? (
         <div className={`reticle reticle--${tool}`} ref={reticleRef} aria-hidden="true">

@@ -778,9 +778,9 @@ export const OBJECTS = [
   { id: 'ferrofluid', x: 3664, y: 2284, rot: -1.5, scale: 1, visible: true },
   { id: 'chladni', x: 604, y: 904, rot: 1, scale: 1, visible: true },
   { id: 'dunes', x: 2194, y: 664, rot: -1, scale: 1, visible: true },
-  // Bolted to the middle of the slate, where you cannot miss it and cannot
-  // carry it off.
-  { id: 'uvswitch', x: 2000, y: 960, rot: 0, scale: 1, visible: true },
+  // Bolted to a clear patch of slate on the right, well away from everything
+  // else: a mains isolator wants its own wall.
+  { id: 'uvswitch', x: 3054, y: 1800, rot: 0, scale: 1, visible: true },
   { id: 'garden', x: 3684, y: 744, rot: 0, scale: 1, visible: true },
   { id: 'life', x: 2344, y: 64, rot: 2.5, scale: 1, visible: true },
   { id: 'pcalamp', x: 3244, y: 2238, rot: -2, scale: 1, visible: true },
