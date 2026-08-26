@@ -79,6 +79,8 @@ export function Passport() {
   const [dragPosition, setDragPosition] = useState<(StampPosition & { id: string }) | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const dragRef = useRef<StampDrag | null>(null);
+  const dragMoveHandlerRef = useRef<((event: PointerEvent) => void) | null>(null);
+  const dragEndHandlerRef = useRef<((event: PointerEvent) => void) | null>(null);
   const stampClickRef = useRef<{ id: string; wasPicked: boolean } | null>(null);
   const suppressClickRef = useRef(false);
 
@@ -90,6 +92,52 @@ export function Passport() {
   const patch = useCallback((id: string, next: Partial<PassportStamp>) => {
     savePassport(stamps.map((s) => (s.id === id ? { ...s, ...next } : s)));
   }, [savePassport, stamps]);
+
+  const onStampPointerMove = useCallback((event: PointerEvent) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    if (!drag.moved && Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) <= 3) return;
+    drag.moved = true;
+    suppressClickRef.current = true;
+    const delta = screenDeltaToLeaf(drag.leaf, event.clientX - drag.startClientX, event.clientY - drag.startClientY, drag.scale);
+    drag.position = clampStampPosition(
+      drag.shape,
+      drag.rot,
+      drag.startPosition.x + (delta.x / drag.leafWidth) * 100,
+      drag.startPosition.y + (delta.y / drag.leafHeight) * 100,
+      drag.leafWidth,
+      drag.leafHeight,
+    );
+    setDragPosition({ id: drag.id, ...drag.position });
+  }, []);
+
+  const onStampPointerUp = useCallback((event: PointerEvent) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (drag.moved) {
+      patch(drag.id, drag.position);
+    } else if (event.type !== 'pointercancel') {
+      const click = stampClickRef.current;
+      setPicked(click?.id === drag.id && click.wasPicked ? null : drag.id);
+      // A pointerdown can suppress the browser's follow-up click on some
+      // touch implementations. Handle selection here and make a follow-up
+      // click harmless when the browser still dispatches one.
+      suppressClickRef.current = true;
+    }
+    const moveHandler = dragMoveHandlerRef.current;
+    const endHandler = dragEndHandlerRef.current;
+    if (moveHandler) window.removeEventListener('pointermove', moveHandler);
+    if (endHandler) {
+      window.removeEventListener('pointerup', endHandler);
+      window.removeEventListener('pointercancel', endHandler);
+    }
+    dragMoveHandlerRef.current = null;
+    dragEndHandlerRef.current = null;
+    drag.element.releasePointerCapture?.(drag.pointerId);
+    dragRef.current = null;
+    setDragPosition(null);
+  }, [patch]);
 
   const onStampPointerDown = useCallback((event: ReactPointerEvent<HTMLButtonElement>, stamp: PassportStamp) => {
     if (!editing || event.button !== 0) return;
@@ -124,47 +172,13 @@ export function Passport() {
       moved: false,
     };
     setDragPosition({ id: stamp.id, x: stamp.x, y: stamp.y });
+    dragMoveHandlerRef.current = onStampPointerMove;
+    dragEndHandlerRef.current = onStampPointerUp;
+    window.addEventListener('pointermove', onStampPointerMove);
+    window.addEventListener('pointerup', onStampPointerUp);
+    window.addEventListener('pointercancel', onStampPointerUp);
     element.setPointerCapture?.(event.pointerId);
-  }, [editing, picked]);
-
-  const onStampPointerMove = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if (!drag.moved && Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) <= 3) return;
-    drag.moved = true;
-    suppressClickRef.current = true;
-    const delta = screenDeltaToLeaf(drag.leaf, event.clientX - drag.startClientX, event.clientY - drag.startClientY, drag.scale);
-    drag.position = clampStampPosition(
-      drag.shape,
-      drag.rot,
-      drag.startPosition.x + (delta.x / drag.leafWidth) * 100,
-      drag.startPosition.y + (delta.y / drag.leafHeight) * 100,
-      drag.leafWidth,
-      drag.leafHeight,
-    );
-    setDragPosition({ id: drag.id, ...drag.position });
-  }, []);
-
-  const onStampPointerUp = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    event.stopPropagation();
-    if (drag.moved) {
-      patch(drag.id, drag.position);
-    } else if (event.type !== 'pointercancel') {
-      const click = stampClickRef.current;
-      setPicked(click?.id === drag.id && click.wasPicked ? null : drag.id);
-      // A pointerdown can suppress the browser's follow-up click on some
-      // touch implementations. Handle selection here and make a follow-up
-      // click harmless when the browser still dispatches one.
-      suppressClickRef.current = true;
-    }
-    drag.element.releasePointerCapture?.(drag.pointerId);
-    dragRef.current = null;
-    setDragPosition(null);
-  }, [patch]);
+  }, [editing, onStampPointerMove, onStampPointerUp, picked]);
 
   const onStampClick = useCallback((id: string) => {
     if (suppressClickRef.current) {
@@ -232,9 +246,6 @@ export function Passport() {
                       transform: `rotate(${stamp.rot}deg)`,
                     }}
                     onPointerDown={(event) => onStampPointerDown(event, stamp)}
-                    onPointerMove={onStampPointerMove}
-                    onPointerUp={onStampPointerUp}
-                    onPointerCancel={onStampPointerUp}
                     onClick={() => onStampClick(stamp.id)}
                     title={stamp.place}
                   >
