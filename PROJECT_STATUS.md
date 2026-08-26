@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-08-26. Branch: `main`. Release: `portfolio-v2.0.0`.
+Updated: 2026-08-26. Branch: `main`. Release: `portfolio-v2.0.1`.
 
 ## v2.0.0 release (2026-08-26)
 

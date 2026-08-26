@@ -11,7 +11,7 @@ it, and it becomes yours.
 
 ![The v2 board](docs/images/v2-board-live.jpg)
 
-Current release: **v2.0.0**. See [CHANGELOG.md](CHANGELOG.md) for the release
+Current release: **v2.0.1**. See [CHANGELOG.md](CHANGELOG.md) for the release
 record and the verification behind it.
 
 Two things make it worth forking:

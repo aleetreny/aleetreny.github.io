@@ -619,7 +619,13 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   }, [centerNode, fitAll]);
 
   useEffect(() => { paint(false); }, [paint, layout]);
-  useEffect(() => { restView(true); }, [restView]);
+  // Remote settings can arrive while the first camera flight is in progress.
+  // Re-applying the resting view then used to snap the public tour back to the
+  // full-board overview, even though the local fixture-only run framed the card
+  // correctly. The tour owns its camera until the outro hands it back.
+  useEffect(() => {
+    if (phaseRef.current === 'live') restView(true);
+  }, [restView]);
 
   // The article is the point of the board, so its chunk is fetched the moment
   // the browser has nothing better to do — after the first paint, before the
@@ -1144,6 +1150,9 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
       boot: () => {
         if (phaseRef.current !== 'pre') return;
         hideAll();
+        // Establish the slate's opening overview before passive effects or
+        // remote data can run; from here on every tour view is intentional.
+        fitAll(true);
         phaseRef.current = 'tour';
         setPhase('tour');
         void runTour();

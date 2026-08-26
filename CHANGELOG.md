@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.1] — 2026-08-26
+
+- Prevent remote settings that arrive during the first visit from resetting the
+  guided camera to the full-board overview. The tour now owns the camera until
+  its outro, so Pages frames every card exactly like the local build.
+
 ## [2.0.0] — 2026-08-26
 
 ### Added
