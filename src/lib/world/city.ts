@@ -252,24 +252,32 @@ export function buildCity(width: number, height: number, seed = 5150): City {
     ['depot', 'ALMACÉN'], ['workshop', 'TALLER'], ['cafe', 'CANTINA'],
     ['clinic', 'BOTIQUÍN'], ['shop', 'ECONOMATO'], ['radio', 'CONTROL'],
   ];
-  const cabin = (x: number, y: number, w: number) => {
-    const [trade, sign] = COMPOUND_TRADES[Math.floor(r() * COMPOUND_TRADES.length)];
+  // Every cabin is signed and no two neighbours share a sign. Six kinds drawn
+  // six times with a fair die still gives you three canteens in a row, and a
+  // run of identical signs is the one thing that makes a generated street look
+  // generated — so each side of the site keeps track of what it last put up.
+  const last = new Map<string, string>();
+  const cabin = (side: string, x: number, y: number, w: number) => {
+    let pick = Math.floor(r() * COMPOUND_TRADES.length);
+    if (COMPOUND_TRADES[pick][1] === last.get(side)) pick = (pick + 1) % COMPOUND_TRADES.length;
+    const [trade, sign] = COMPOUND_TRADES[pick];
+    last.set(side, sign);
     buildings.push({
       x: Math.round(x), y: Math.round(y), w: Math.round(w),
       h: Math.round(38 + r() * 46),
       trade, roof: r() < 0.4 ? 'gable' : 'flat',
       glass: Math.floor(r() * WINDOWS), tint: Math.floor(r() * TINTS),
-      sign: r() < 0.5 ? sign : undefined,
+      sign,
       crane: false,
     });
   };
   for (let x = site.x - 40; x < site.x + site.w + 40; x += 110 + r() * 130) {
-    cabin(x, site.y - 104, 60 + r() * 74);
-    cabin(x, site.y + site.h + 226, 60 + r() * 74);
+    cabin('n', x, site.y - 104, 60 + r() * 74);
+    cabin('s', x, site.y + site.h + 226, 60 + r() * 74);
   }
   for (let y = site.y + 60; y < site.y + site.h; y += 150 + r() * 190) {
-    cabin(site.x - 260 + r() * 40, y, 66 + r() * 70);
-    cabin(site.x + site.w + 150 + r() * 60, y, 66 + r() * 70);
+    cabin('w', site.x - 260 + r() * 40, y, 66 + r() * 70);
+    cabin('e', site.x + site.w + 150 + r() * 60, y, 66 + r() * 70);
   }
 
   // ---- the highways out of the corners, for a horizon the board has not got --

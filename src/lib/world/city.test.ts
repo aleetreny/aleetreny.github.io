@@ -70,6 +70,24 @@ describe('the city', () => {
     expect(top.length).toBeGreaterThan(1);
   });
 
+  it('does not put the same sign over three doors in a row', () => {
+    // The row of cabins backing onto the north side of the site is the one a
+    // visitor reads at a glance, so it has to be a street rather than a repeat.
+    // They all stand on one baseline, which is what identifies them.
+    const baseline = city.site.y - 104;
+    const compound = city.buildings
+      .filter((b) => b.y === baseline && b.sign)
+      .sort((a, b) => a.x - b.x);
+    expect(compound.length).toBeGreaterThan(8);
+    let run = 1;
+    let worst = 1;
+    for (let i = 1; i < compound.length; i += 1) {
+      run = compound[i].sign === compound[i - 1].sign ? run + 1 : 1;
+      worst = Math.max(worst, run);
+    }
+    expect(worst).toBeLessThan(3);
+  });
+
   it('puts the weather somewhere other than over the crew', () => {
     expect(city.weather.fog.length).toBeGreaterThan(3);
     expect(city.weather.rain.length).toBeGreaterThan(0);
