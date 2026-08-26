@@ -46,7 +46,7 @@ type Drag = {
 };
 
 function turnTransform(dir: 1 | -1, progress: number) {
-  const angle = dir === 1 ? progress * -180 : (progress - 1) * 180;
+  const angle = progress * (dir === 1 ? -180 : 180);
   return `rotateY(${angle}deg)`;
 }
 
@@ -339,10 +339,10 @@ export function Book() {
                 aria-hidden="true"
               >
                 <div className="book__turnface book__turnface--front">
-                  <Leaf n={flipping ? leaf + 1 : leaf - 1} side="right" bare />
+                  <Leaf n={flipping ? leaf + 1 : leaf} side={flipping ? 'right' : 'left'} bare />
                 </div>
                 <div className="book__turnface book__turnface--back">
-                  <Leaf n={flipping ? leaf + 2 : leaf} side="left" bare />
+                  <Leaf n={flipping ? leaf + 2 : leaf - 1} side={flipping ? 'left' : 'right'} bare />
                 </div>
               </div>
             ) : null}
