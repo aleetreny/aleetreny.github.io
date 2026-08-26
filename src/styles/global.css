@@ -1534,16 +1534,41 @@ a { color: var(--c-accent); text-decoration: none; }
 .book__turning {
   position: absolute; left: 50%; top: 7px; bottom: 7px; width: calc(50% - 7px);
   transform-origin: left center; transform-style: preserve-3d;
-  will-change: transform;
+  will-change: transform; pointer-events: none; z-index: 3;
 }
 .book__turning--back { left: 7px; transform-origin: right center; }
-.book__turnface { position: absolute; inset: 0; backface-visibility: hidden; display: flex; }
-.book__turnface--back { transform: rotateY(180deg); }
+.book__turnface {
+  position: absolute; inset: 0; display: flex;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  transform-style: flat;
+}
+.book__turnface--front { transform: translateZ(.15px); }
+.book__turnface--back { transform: rotateY(180deg) translateZ(.15px); }
 .book__turnface .book__leaf { flex: 1; box-shadow: 0 0 22px rgba(0, 0, 0, .3); }
+.book__turnface .book__leaf,
+.book__turnface .book__body,
+.book__turnface .book__folio,
+.book__turnface .book__glow,
+.book__turnface .book__rules {
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.book__turnshadow {
+  position: absolute; top: 7px; bottom: 7px; width: calc(50% - 7px);
+  opacity: 0; pointer-events: none; z-index: 2; will-change: opacity;
+}
+.book__turnshadow--fwd {
+  left: 50%;
+  background: linear-gradient(90deg, rgba(35, 27, 14, .48), rgba(35, 27, 14, .12) 26%, transparent 68%);
+}
+.book__turnshadow--back {
+  left: 7px;
+  background: linear-gradient(270deg, rgba(35, 27, 14, .48), rgba(35, 27, 14, .12) 26%, transparent 68%);
+}
 
 .book__corner {
   position: absolute; width: 42px; height: 42px; bottom: 7px; cursor: grab;
   background: linear-gradient(315deg, rgba(0, 0, 0, .16), transparent 58%);
+  touch-action: none; user-select: none; z-index: 4;
 }
 .book__corner--r { right: 7px; }
 .book__corner--l { left: 7px; background: linear-gradient(45deg, rgba(0, 0, 0, .16), transparent 58%); }
@@ -1559,6 +1584,7 @@ a { color: var(--c-accent); text-decoration: none; }
 }
 .book__nav { font-size: 14px; line-height: 1; }
 .book__nav:disabled { opacity: .28; cursor: default; }
+.book__ribbon:disabled { cursor: default; }
 .book__ribbon { border-bottom: 1px solid rgba(232, 196, 110, .5); color: var(--c-signal-soft); }
 .book__close {
   position: absolute; right: -8px; top: -10px; z-index: 2;
@@ -1575,6 +1601,7 @@ a { color: var(--c-accent); text-decoration: none; }
   padding: 3px 4px; cursor: pointer; background: none; border: none; color: rgba(243, 236, 221, .78);
 }
 .book__marks button:hover { background: rgba(232, 196, 110, .14); color: var(--c-signal-soft); }
+.book__marks button:disabled { cursor: default; opacity: .45; }
 .book__marks span { display: inline-block; width: 18px; color: var(--c-signal); }
 
 /* ------------------------------------------------------------- the letter */
