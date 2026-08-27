@@ -13,8 +13,9 @@
 - The route is not new content: `src/lib/mobile.ts` reads `board.tour` through
   the same `buildStops` the desktop camera uses, so renaming a stop, reordering
   the walk or adding a card from the tour panel moves the phone with it, in both
-  languages. Each screen also carries the instant photographs and the loose note
-  pinned nearest its card on the slate.
+  languages. A screen is a card and nothing else — the instant photographs and
+  the pinned notes stay on the slate, where they are something to rest on rather
+  than something to scroll past.
 - A door to the full slate from the last screen and from the index sheet, at
   `?board=1`, with a return chip and a working back gesture. It arrives without
   replaying the tour the visitor has just walked by hand.

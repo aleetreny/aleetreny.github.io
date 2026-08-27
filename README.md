@@ -119,9 +119,12 @@ pushes its dossier over the walk, and the phone's own back gesture closes it.
 
 The route is not a second thing to maintain: it is `board.tour`, read through
 the same `buildStops` the desktop camera uses. Rename a stop, reorder the walk
-or add a card from the tour panel and the phone follows, in both languages. Each
-screen also carries the instant photographs and the loose note pinned nearest to
-its card on the slate, so the board's asides survive the trip.
+or add a card from the tour panel and the phone follows, in both languages.
+
+A screen is a card, and nothing else. The instant photographs and the pinned
+notes are what the eye rests on *between* two drawers on a slate; stacked in a
+single column they are only something to scroll past on the way to the work, so
+they stay on the desk.
 
 What a phone cannot use stays on the desk: the pan-and-zoom canvas, the
 thirty-three interactive objects, the drag, and the editor. The last screen and

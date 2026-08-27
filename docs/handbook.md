@@ -258,12 +258,18 @@ Below **720px wide**, or **500px tall with a coarse pointer** (a phone on its
 side), the walkthrough loads instead of the board. Dragging a desktop window
 narrow switches over too, and back again.
 
-**One card per screen.** Every stop in `board.tour` becomes a screen: the stop's
-heading, the card it frames, and underneath it whatever else that stop carries —
-the `now` card under the cover, the music player under the podcast, the instant
-photographs, and the loose note pinned nearest that card on the slate. A stop
-that frames two cards becomes two screens under one heading. A stop that frames
-nothing but drawn marks does not become a screen at all.
+**One card per screen, and nothing else.** Every stop in `board.tour` becomes a
+screen: the stop's heading, the card it frames, and underneath it any other
+*card* that stop carries — the `now` card under the cover, the music player
+under the podcast. A stop that frames two cards becomes two screens under one
+heading. A stop that frames nothing a reader can read — a drawn mark, a
+photograph — does not become a screen at all.
+
+The board's furniture stays on the board. The instant photographs and the
+pinned notes are what the eye rests on *between* one drawer and the next on a
+slate; stacked in a single column they are only something to scroll past on the
+way to the work, so the walk does not draw them. They are still there on the
+full slate, one tap away from the last screen.
 
 **Nothing to keep in sync.** The route is read through the same `buildStops` the
 desktop camera uses, so renaming a stop, reordering the walk or adding a card

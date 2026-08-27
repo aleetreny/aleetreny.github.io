@@ -18,16 +18,11 @@ import type { PortfolioEntry } from '../../types/content';
 import type { MobileChapter } from '../../lib/mobile';
 import { splitLabel } from '../../lib/mobile';
 import { useUiText } from '../desk/ui-text-context';
-import { MobileNote, MobilePhoto } from './MobilePieces';
 
 type ChapterProps = {
   chapter: MobileChapter;
   entries: PortfolioEntry[];
   groupLabel: (id: string | undefined) => string;
-  /** True for the screen on show and its immediate neighbours. A photograph
-   *  waits for it, so opening the app fetches one image rather than fourteen
-   *  and the next screen's picture is already there when the thumb arrives. */
-  near: boolean;
   /** True only for the screen on show. A third-party player is mounted on it
    *  alone: two Spotify frames to look at one is two too many. */
   active: boolean;
@@ -302,7 +297,7 @@ function CardBody({ card, entries, groupLabel, active, numbered, onOpen }: {
   );
 }
 
-export function MobileChapterView({ chapter, entries, groupLabel, near, active, onOpen, footer }: ChapterProps) {
+export function MobileChapterView({ chapter, entries, groupLabel, active, onOpen, footer }: ChapterProps) {
   const heading = splitLabel(chapter.label);
   // The cover is its own heading: printing "Who I am" above a card that says
   // the name in 46px says it twice.
@@ -320,11 +315,6 @@ export function MobileChapterView({ chapter, entries, groupLabel, near, active, 
 
       {chapter.extras.map((extra) => (
         <CardBody key={extra.id} card={extra} entries={entries} groupLabel={groupLabel} active={active} numbered={Boolean(heading.number)} onOpen={onOpen} />
-      ))}
-
-      {chapter.note ? <MobileNote note={chapter.note} /> : null}
-      {chapter.photos.map((photo) => (
-        <MobilePhoto key={photo.id} photo={photo} near={near} />
       ))}
 
       {footer}

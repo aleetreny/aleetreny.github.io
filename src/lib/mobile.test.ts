@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildChapters, splitLabel } from './mobile';
+import { buildChapters, splitLabel, withLayout } from './mobile';
 import { parseBoard, type BoardCard, type BoardConfig, type Marginal, type Polaroid } from './board';
 import { parseTour, type TourConfig } from './tour';
 
@@ -44,6 +44,16 @@ describe('the walk a phone takes', () => {
     expect(chapters.map((chapter) => chapter.label)).toEqual(['Who I am', '01 · Work']);
   });
 
+  it('splits a stop that frames two cards into two screens under one heading', () => {
+    const chapters = buildChapters(
+      board({ cards: [card('work'), card('edu')] }),
+      customTour([{ id: 'a', label: '01 · Both', items: ['work', 'edu'] }]),
+    );
+    expect(chapters.map((chapter) => chapter.card.id)).toEqual(['work', 'edu']);
+    expect(chapters.map((chapter) => chapter.label)).toEqual(['01 · Both', '01 · Both']);
+    expect(chapters.map((chapter) => chapter.id)).toEqual(['a', 'a-2']);
+  });
+
   it('carries the stop’s other cards under the one it is about', () => {
     const chapters = buildChapters(
       board({ cards: [card('hero', { type: 'hero' }), card('now', { type: 'now' })] }),
@@ -76,36 +86,24 @@ describe('the walk a phone takes', () => {
     expect(chapters.map((chapter) => chapter.id)).toEqual(['a']);
   });
 
-  it('keeps the photographs and notes a stop carries', () => {
+  // A screen is a card. The board's furniture stays on the desk, whether the
+  // route names it or not.
+  it('leaves the photographs and notes a stop carries on the slate', () => {
     const chapters = buildChapters(
       board({ cards: [card('work')], polaroids: [photo('p1')], marginalia: [note('n1')] }),
       customTour([{ id: 'a', label: 'Work', items: ['work'], extras: ['p1', 'n1'] }]),
     );
-    expect(chapters[0].photos.map((item) => item.id)).toEqual(['p1']);
-    expect(chapters[0].note?.id).toBe('n1');
+    expect(chapters).toHaveLength(1);
+    expect(chapters[0].extras).toEqual([]);
+    expect(Object.keys(chapters[0])).toEqual(['id', 'label', 'card', 'extras']);
   });
 
-  it('files a photograph the route never mentions with the nearest card', () => {
+  it('never routes a generated walk through a photograph', () => {
     const chapters = buildChapters(
-      board({
-        cards: [card('work', { x: 0, y: 0 }), card('edu', { x: 3000, y: 0 })],
-        polaroids: [photo('near-edu', 3100, 40)],
-      }),
-      customTour([
-        { id: 'a', label: 'Work', items: ['work'] },
-        { id: 'b', label: 'Study', items: ['edu'] },
-      ]),
+      board({ cards: [card('work', { x: 0 })], polaroids: [photo('p1', 900)], marginalia: [note('n1', 1800)] }),
+      parseTour({ route: 'reading', groupSize: 1 }),
     );
-    expect(chapters[0].photos).toHaveLength(0);
-    expect(chapters[1].photos.map((item) => item.id)).toEqual(['near-edu']);
-  });
-
-  it('gives a screen at most one loose note', () => {
-    const chapters = buildChapters(
-      board({ cards: [card('work')], marginalia: [note('n1', 10, 10), note('n2', 20, 20)] }),
-      customTour([{ id: 'a', label: 'Work', items: ['work'] }]),
-    );
-    expect(chapters[0].note?.id).toBe('n1');
+    expect(chapters.map((chapter) => chapter.card.id)).toEqual(['work']);
   });
 
   it('still opens on something when the whole route is stale', () => {
@@ -124,6 +122,15 @@ describe('the walk a phone takes', () => {
     expect(chapters.map((chapter) => chapter.card.id)).toEqual(['a', 'b']);
   });
 
+  it('walks a generated route in the order the cards were last dragged to', () => {
+    const shifted = withLayout(
+      board({ cards: [card('a', { x: 0, y: 0 }), card('b', { x: 900, y: 0 })] }),
+      { a: { x: 1800, y: 0, rot: 0 } },
+    );
+    const chapters = buildChapters(shifted, parseTour({ route: 'reading', groupSize: 1 }));
+    expect(chapters.map((chapter) => chapter.card.id)).toEqual(['b', 'a']);
+  });
+
   it('walks the board this repository ships', () => {
     const shipped = parseBoard(undefined);
     const chapters = buildChapters(shipped, parseTour(undefined));
@@ -131,6 +138,8 @@ describe('the walk a phone takes', () => {
     // Every readable card on the slate reaches a screen, and none twice.
     const seen = chapters.map((chapter) => chapter.card.id);
     expect(new Set(seen).size).toBe(seen.length);
+    // And nothing that is not a card reaches one.
+    expect(chapters.every((chapter) => chapter.card.type !== 'scrap')).toBe(true);
   });
 });
 

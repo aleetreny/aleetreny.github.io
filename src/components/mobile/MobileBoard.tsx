@@ -397,7 +397,6 @@ export function MobileBoard({ onOpenBoard }: MobileBoardProps) {
                   chapter={chapter}
                   entries={entries}
                   groupLabel={groupLabel}
-                  near={Math.abs(i - index) <= 1}
                   active={i === index}
                   onOpen={openArticle}
                   footer={i === count - 1 ? (
