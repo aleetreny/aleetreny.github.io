@@ -1,65 +1,90 @@
 import { describe, expect, it } from 'vitest';
-import { grad, loss, type Landscape } from './descent';
+import {
+  barycentric,
+  createLandscape,
+  descend,
+  grad,
+  landscapeStart,
+  loss,
+  OPTIMIZER_DOMAIN,
+  STEP_CAP,
+  type OptimizerState,
+} from './descent';
 
-const KINDS: Landscape[] = ['bowl', 'ridges'];
+const SEEDS = [7, 90210, 20260827, 0xf00dcafe];
 
-describe('the loss surfaces', () => {
-  it('hands back the real gradient, not a plausible one', () => {
-    // The whole object is a demonstration of following ∇f. If the vector the
-    // marble follows is not the gradient of the surface it is drawn on, the
-    // tray is a lie with a nice shadow on it.
+describe('procedural loss landscapes', () => {
+  it('replays a seed exactly while keeping every landscape deliberately strange', () => {
+    for (const seed of SEEDS) {
+      const first = createLandscape(seed);
+      expect(createLandscape(seed)).toEqual(first);
+      expect(first.gaussians).toHaveLength(8);
+      expect(first.waves).toHaveLength(4);
+      expect(first.rings).toHaveLength(2);
+      expect(first.gaussians.filter((term) => term.amplitude < 0).length).toBeGreaterThanOrEqual(4);
+      expect(first.gaussians.some((term) => term.amplitude > 0)).toBe(true);
+      expect(Math.abs(first.twist)).toBeGreaterThanOrEqual(0.14);
+    }
+    expect(createLandscape(SEEDS[0])).not.toEqual(createLandscape(SEEDS[1]));
+  });
+
+  it('hands back the real gradient of every generated surface', () => {
     const h = 1e-5;
-    for (const kind of KINDS) {
+    for (const seed of SEEDS) {
+      const landscape = createLandscape(seed);
       for (const u of [-0.83, -0.2, 0, 0.37, 0.91]) {
         for (const v of [-0.7, -0.11, 0.24, 0.88]) {
-          const [gu, gv] = grad(u, v, kind);
-          const du = (loss(u + h, v, kind) - loss(u - h, v, kind)) / (2 * h);
-          const dv = (loss(u, v + h, kind) - loss(u, v - h, kind)) / (2 * h);
-          expect(gu, `∂u at ${u},${v} on ${kind}`).toBeCloseTo(du, 4);
-          expect(gv, `∂v at ${u},${v} on ${kind}`).toBeCloseTo(dv, 4);
+          const [gu, gv] = grad(u, v, landscape);
+          const du = (loss(u + h, v, landscape) - loss(u - h, v, landscape)) / (2 * h);
+          const dv = (loss(u, v + h, landscape) - loss(u, v - h, landscape)) / (2 * h);
+          expect(gu, `∂u at ${u},${v} for ${seed}`).toBeCloseTo(du, 4);
+          expect(gv, `∂v at ${u},${v} for ${seed}`).toBeCloseTo(dv, 4);
         }
       }
     }
   });
 
-  it('puts the bowl’s one minimum at the middle', () => {
-    expect(loss(0, 0, 'bowl')).toBe(0);
-    for (const [u, v] of [[0.3, 0], [0, 0.3], [-0.4, 0.2], [0.9, -0.9]] as const) {
-      expect(loss(u, v, 'bowl')).toBeGreaterThan(0);
-    }
-    const [gu, gv] = grad(0, 0, 'bowl');
-    expect(gu).toBe(0);
-    expect(gv).toBe(0);
-  });
-
-  it('gives the ridged one somewhere else to end up', () => {
-    // A landscape worth switching to is one where the answer depends on where
-    // you dropped the marble: it needs more than one flat spot.
-    const flats: Array<[number, number]> = [];
-    for (let u = -0.98; u <= 0.98; u += 0.02) {
-      for (let v = -0.98; v <= 0.98; v += 0.02) {
-        const [gu, gv] = grad(u, v, 'ridges');
-        if (Math.hypot(gu, gv) < 0.02) flats.push([u, v]);
+  it('starts on a shoulder and never lets the optimiser leave the visible sheet', () => {
+    for (const seed of SEEDS) {
+      const landscape = createLandscape(seed);
+      const start = landscapeStart(landscape);
+      expect(Math.hypot(start.u, start.v)).toBeGreaterThanOrEqual(0.7);
+      let state: OptimizerState = { ...start, vu: 0, vv: 0 };
+      for (let step = 0; step < 500; step += 1) {
+        const next = descend(state, landscape, 0.055, 0.58);
+        expect(Math.abs(next.u)).toBeLessThanOrEqual(OPTIMIZER_DOMAIN);
+        expect(Math.abs(next.v)).toBeLessThanOrEqual(OPTIMIZER_DOMAIN);
+        expect(Math.hypot(next.u - state.u, next.v - state.v)).toBeLessThanOrEqual(STEP_CAP + 1e-9);
+        state = next;
       }
     }
-    // Cluster them, so one basin is not counted a dozen times.
-    const basins: Array<[number, number]> = [];
-    for (const point of flats) {
-      if (basins.every((b) => Math.hypot(b[0] - point[0], b[1] - point[1]) > 0.25)) basins.push(point);
-    }
-    expect(basins.length).toBeGreaterThan(1);
   });
 
-  it('slopes back toward the middle from every edge', () => {
-    // Whatever else it does, the tray has to be a tray: nothing may run
-    // downhill off the side of it.
-    for (const kind of KINDS) {
-      for (const t of [-0.9, -0.4, 0.4, 0.9]) {
-        expect(grad(0.99, t, kind)[0], `right edge on ${kind}`).toBeGreaterThan(0);
-        expect(grad(-0.99, t, kind)[0], `left edge on ${kind}`).toBeLessThan(0);
-        expect(grad(t, 0.99, kind)[1], `bottom edge on ${kind}`).toBeGreaterThan(0);
-        expect(grad(t, -0.99, kind)[1], `top edge on ${kind}`).toBeLessThan(0);
-      }
+  it('keeps the default no-momentum stride slow enough to watch', () => {
+    for (const seed of SEEDS) {
+      const landscape = createLandscape(seed);
+      const start = landscapeStart(landscape);
+      const next = descend({ ...start, vu: 0, vv: 0 }, landscape, 0.012, 0);
+      expect(Math.hypot(next.u - start.u, next.v - start.v)).toBeLessThanOrEqual(0.016);
     }
+  });
+});
+
+describe('surface picking', () => {
+  const a = { x: 0, y: 0 };
+  const b = { x: 10, y: 0 };
+  const c = { x: 0, y: 10 };
+
+  it('returns exact triangle weights for a visible point', () => {
+    const weights = barycentric({ x: 2, y: 3 }, a, b, c);
+    expect(weights).not.toBeNull();
+    expect(weights?.[0]).toBeCloseTo(0.5);
+    expect(weights?.[1]).toBeCloseTo(0.2);
+    expect(weights?.[2]).toBeCloseTo(0.3);
+  });
+
+  it('rejects points outside or on a degenerate triangle', () => {
+    expect(barycentric({ x: 8, y: 8 }, a, b, c)).toBeNull();
+    expect(barycentric({ x: 2, y: 0 }, a, { x: 5, y: 0 }, b)).toBeNull();
   });
 });

@@ -2702,9 +2702,9 @@ body.has-tool iframe { pointer-events: none; }
   position: absolute; inset: 0; border-radius: 5px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .35);
 }
-/* The plot turns under the pointer, so it is grabbed rather than aimed at. */
+/* A crosshair makes the exact drop point explicit; a drag still orbits it. */
 .tray canvas {
-  position: relative; display: block; border-radius: 2px; cursor: grab;
+  position: relative; display: block; border-radius: 2px; cursor: crosshair; touch-action: none;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55), 0 2px 5px rgba(0, 0, 0, .4);
 }
 .tray canvas:active { cursor: grabbing; }
@@ -2714,6 +2714,7 @@ body.has-tool iframe { pointer-events: none; }
 }
 .tray__dial { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
 .tray__dial input { flex: 1; min-width: 0; height: 10px; }
+.tray__dial output { width: 25px; font-size: 6px; font-variant-numeric: tabular-nums; opacity: .72; }
 .tray__bar button {
   font: inherit; font-size: 9px; line-height: 1; padding: 2px 5px; cursor: pointer;
   background: rgba(255, 255, 255, .34); border: 1px solid rgba(28, 32, 30, .3); color: inherit;
