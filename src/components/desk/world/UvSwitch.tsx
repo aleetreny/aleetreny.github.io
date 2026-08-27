@@ -16,25 +16,47 @@ import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
 import { useUiText } from '../ui-text-context';
 
-export function UvSwitch() {
+export function UvSwitch({ prepare }: { prepare?: () => Promise<unknown> }) {
   const t = useUiText();
   const { uv, setUv, reduced } = useWorld();
   const [throwing, setThrowing] = useState(0);
   const leverRef = useRef<HTMLSpanElement | null>(null);
   const timers = useRef<number[]>([]);
+  const activation = useRef(0);
 
-  useEffect(() => () => { for (const id of timers.current) window.clearTimeout(id); }, []);
+  useEffect(() => () => {
+    activation.current += 1;
+    for (const id of timers.current) window.clearTimeout(id);
+  }, []);
 
   const flip = useCallback((next: boolean) => {
     if (next === uv) return;
-    setUv(next);
-    if (reduced) return;
-    // The strike. Two stutters and then it holds — off is a clean fade, the way
-    // a tube actually behaves at each end.
-    setThrowing(next ? 1 : 2);
+    const token = (activation.current += 1);
     for (const id of timers.current) window.clearTimeout(id);
-    timers.current = [window.setTimeout(() => setThrowing(0), next ? 900 : 520)];
-  }, [reduced, setUv, uv]);
+    timers.current = [];
+
+    const commit = () => {
+      if (token !== activation.current) return;
+      setUv(next);
+      if (reduced) return;
+      setThrowing(next ? 1 : 2);
+      timers.current = [window.setTimeout(() => setThrowing(0), next ? 900 : 520)];
+    };
+
+    if (!next || !prepare) { commit(); return; }
+
+    // Start the fluorescent stutter in daylight, then throw the world over
+    // only after both visual layers are executable. A failed fetch leaves the
+    // visitor safely in daylight.
+    if (!reduced) setThrowing(1);
+    void prepare().then(commit, () => {
+      if (token === activation.current) setThrowing(0);
+    });
+  }, [prepare, reduced, setUv, uv]);
+
+  const warm = useCallback(() => {
+    void prepare?.().catch(() => { /* Activation remains safely in daylight. */ });
+  }, [prepare]);
 
   /** Throw it. A pointer that travels is a lever being pushed over; a pointer
    *  that does not is a lever being slapped, and both are the same throw. */
@@ -103,6 +125,8 @@ export function UvSwitch() {
             aria-checked={uv}
             aria-label={t('world.uv.label')}
             tabIndex={0}
+            onPointerEnter={warm}
+            onFocus={warm}
             onPointerDown={grab}
             onKeyDown={(event) => {
               if (event.key !== ' ' && event.key !== 'Enter') return;

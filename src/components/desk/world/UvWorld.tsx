@@ -13,7 +13,7 @@
 // The only thing here that touches the DOM after the first frame is the small,
 // slow job of leaning the broken cards over, and that runs twice a second.
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useWorld } from '../../../lib/world/context';
 import { useFrame } from '../../../lib/world/frame';
 import { OBJECT_SPECS } from '../../../lib/world/kinds';
@@ -60,6 +60,29 @@ export function UvWorld({ boardSize }: { boardSize: { width: number; height: num
   const [decor, setDecor] = useState<ReactNode[]>([]);
   const leaning = useRef<HTMLElement[]>([]);
   const due = useRef(0);
+
+  // This is the commit point for night mode: the overlay exists now, so it is
+  // safe to darken the slate. It also makes night inspection-only for pointer,
+  // keyboard and assistive technology, leaving only the fixed UV switch live.
+  useLayoutEffect(() => {
+    document.body.classList.add('board-uv');
+    const locked = [...document.querySelectorAll<HTMLElement>(
+      '.desk__board [data-card], .desk__board [data-obj]:not([data-obj="uvswitch"])',
+    )];
+    for (const node of locked) {
+      if (node.inert) continue;
+      node.inert = true;
+      node.dataset.uvLocked = '';
+    }
+    return () => {
+      document.body.classList.remove('board-uv');
+      for (const node of locked) {
+        if (node.dataset.uvLocked === undefined) continue;
+        node.inert = false;
+        delete node.dataset.uvLocked;
+      }
+    };
+  }, []);
 
   /** Every box on the board worth drawing over: objects where they are now,
    *  and the cards, whose geometry belongs to the board rather than the world

@@ -56,10 +56,21 @@ const Ferrofluid = lazy(() => import('./Ferrofluid').then((m) => ({ default: m.F
 const ChladniPlate = lazy(() => import('./ChladniPlate').then((m) => ({ default: m.ChladniPlate })));
 const DuneTray = lazy(() => import('./DuneTray').then((m) => ({ default: m.DuneTray })));
 
-// The night shift. Nothing of it — not the veil, not the crew, not their
-// rulebook — is fetched until somebody throws the switch.
-const UvWorld = lazy(() => import('./UvWorld').then((m) => ({ default: m.UvWorld })));
-const UvCrew = lazy(() => import('./UvCrew').then((m) => ({ default: m.UvCrew })));
+// Keep the night shift in its own chunks, but warm both of them while the
+// visitor is reading the board. The switch awaits the same module loaders, so
+// a cold first throw never darkens the room before its light exists.
+const loadUvWorld = () => import('./UvWorld').then((m) => ({ default: m.UvWorld }));
+const loadUvCrew = () => import('./UvCrew').then((m) => ({ default: m.UvCrew }));
+let nightShiftPreparation: Promise<unknown> | undefined;
+const prepareNightShift = () => {
+  nightShiftPreparation ??= Promise.all([loadUvWorld(), loadUvCrew()]).catch((error: unknown) => {
+    nightShiftPreparation = undefined;
+    throw error;
+  });
+  return nightShiftPreparation;
+};
+const UvWorld = lazy(loadUvWorld);
+const UvCrew = lazy(loadUvCrew);
 
 export type WorldLayerProps = {
   objects: DeskObject[];
@@ -76,6 +87,21 @@ export function WorldLayer({ objects, boardSize, entries, onOpenEntry }: WorldLa
   useWorldKeys();
 
   const visible = useMemo(() => objects.filter((o) => o.visible), [objects]);
+
+  useEffect(() => {
+    let active = true;
+    const warm = () => {
+      if (!active) return;
+      void prepareNightShift().catch(() => { /* Activation remains safely in daylight. */ });
+    };
+    const idle = window.requestIdleCallback?.(warm, { timeout: 1400 });
+    const timer = idle === undefined ? window.setTimeout(warm, 700) : undefined;
+    return () => {
+      active = false;
+      if (idle !== undefined) window.cancelIdleCallback?.(idle);
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, []);
 
   // ---- the third press: something turns -------------------------------------
   useEffect(() => {
@@ -134,7 +160,7 @@ export function WorldLayer({ objects, boardSize, entries, onOpenEntry }: WorldLa
       case 'ferrofluid': return <Ferrofluid key="ferrofluid" />;
       case 'chladni': return <ChladniPlate key="chladni" />;
       case 'dunes': return <DuneTray key="dunes" />;
-      case 'uvswitch': return <UvSwitch key="uvswitch" />;
+      case 'uvswitch': return <UvSwitch key="uvswitch" prepare={prepareNightShift} />;
       default: return null;
     }
   }, [boardSize, entries, onOpenEntry, world.fireAnswer]);
@@ -192,34 +218,13 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
     return () => document.body.classList.remove('has-tool');
   }, [tool]);
 
-  // Paper really does fluoresce under 365 nm — optical brighteners, put there
-  // to make it look whiter in daylight. The cards are told to before the veil
-  // gets to them, so under the lamp the writing on the board is the brightest
-  // thing on it rather than the darkest.
+  // Drop a held tool as soon as the switch is thrown. UvWorld applies the
+  // actual night class and interaction lock only when its lazy visual layer is
+  // mounted, so a cold chunk can never leave a dark, empty intermediate frame.
   useEffect(() => {
     if (!world.uv) return undefined;
-    document.body.classList.add('board-uv');
-    // Night is a viewing mode, not a second set of controls. Drop any tool the
-    // visitor was holding and make every card/object inert for pointer,
-    // keyboard and assistive technology. The UV switch is the sole exception:
-    // it must always remain a dependable way back to daylight.
     hold(null);
-    const locked = [...document.querySelectorAll<HTMLElement>(
-      '.desk__board [data-card], .desk__board [data-obj]:not([data-obj="uvswitch"])',
-    )];
-    for (const node of locked) {
-      if (node.inert) continue;
-      node.inert = true;
-      node.dataset.uvLocked = '';
-    }
-    return () => {
-      document.body.classList.remove('board-uv');
-      for (const node of locked) {
-        if (node.dataset.uvLocked === undefined) continue;
-        node.inert = false;
-        delete node.dataset.uvLocked;
-      }
-    };
+    return undefined;
   }, [hold, world.uv]);
 
   const colour = paintHex(paintColor);
@@ -239,9 +244,9 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
           folded into its transform, because a person on a four-thousand-unit
           board is cheaper to draw than to lay out. */}
       {world.uv ? (
-        <>
+        <Suspense fallback={null}>
           <div className="uvroom" aria-hidden="true" />
-          <Suspense fallback={null}><UvCrew boardSize={boardSize} /></Suspense>
+          <UvCrew boardSize={boardSize} />
           {/* Screen furniture, not board furniture: the switch you came in by
               may be a long way off the edge by now, so the way out is pinned
               to the window rather than to a spot on the slate. */}
@@ -249,7 +254,7 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
             <span className="uvsay__sign">{t('world.uv.crew')}</span>
             <span className="uvsay__way">{t('world.uv.esc')}</span>
           </div>
-        </>
+        </Suspense>
       ) : null}
 
       {tool && tool !== 'scope' ? (
