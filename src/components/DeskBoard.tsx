@@ -136,6 +136,16 @@ import { EditableText } from './desk/EditableText';
 type DeskBoardProps = {
   remoteDataEnabled: boolean;
   ownerIntent: boolean;
+  /** Do not run the guided tour on this arrival, whatever the replay setting
+   *  says. Set when the visitor reaches the slate from the phone walkthrough:
+   *  they have just been walked through the same thirteen stops by hand, and
+   *  the board is the thing they asked for. */
+  skipTour?: boolean;
+  /** Show a way back to the phone walkthrough. Set only when the visitor came
+   *  from it, and drawn here rather than beside the board so it uses the same
+   *  wording catalogue as everything else — and so it disappears with the rest
+   *  of the board chrome during the tour and under an open dossier. */
+  onLeave?: () => void;
 };
 
 type Geom = { x: number; y: number; rot: number; w: number };
@@ -230,7 +240,7 @@ const CARD_WIDTH_MIN = 220;
 const CARD_WIDTH_MAX = 1_000;
 const CARD_WIDTH_STEP = 10;
 
-export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
+export function DeskBoard({ remoteDataEnabled, ownerIntent, skipTour = false, onLeave }: DeskBoardProps) {
   const [rawEntries, setEntries] = useState<StoredPortfolioEntry[]>(demoEntries);
   const [settings, setSettings] = useState<Record<string, unknown>>(demoSettings);
   const [error, setError] = useState('');
@@ -320,7 +330,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
   // populated before the tour has a chance to hide it. The editor must not
   // fight an animation, and reduced motion means no tour at all.
   const [phase, setPhase] = useState<Phase>(() => {
-    if (localEdit || ownerIntent) return 'live';
+    if (localEdit || ownerIntent || skipTour) return 'live';
     if (!tour.enabled) return 'live';
     if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return 'live';
     if (tourAlreadySeen(tour.replay)) return 'live';
@@ -2637,6 +2647,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
           ) : (
             <button className="signin" type="button" onClick={() => setLoginOpen(true)}>{t('board.signIn')}</button>
           )}
+
+          {onLeave ? (
+            <button className="m-return" type="button" onClick={onLeave}>{t('mobile.backToApp')}</button>
+          ) : null}
 
           <div className="toolbar">
             <div className="toolbar__inner">

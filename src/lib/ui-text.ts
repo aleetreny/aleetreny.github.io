@@ -54,6 +54,24 @@ const CATALOGUE: Record<string, Entry> = {
   },
   'board.offlineDetail': { es: 'contenido remoto no disponible', en: 'remote content unavailable' },
 
+  // ---------------------------------------------------------------- the phone app
+  // A phone does not get the slate; it gets the same route, walked one screen
+  // at a time. These are the words that walk it.
+  'mobile.aria': { es: 'Recorrido del tablero', en: 'Board walkthrough' },
+  'mobile.next': { es: 'siguiente', en: 'next' },
+  'mobile.back': { es: 'atrás', en: 'back' },
+  'mobile.startOver': { es: 'al principio', en: 'start over' },
+  'mobile.close': { es: 'cerrar', en: 'close' },
+  'mobile.indexAria': { es: 'Índice del recorrido', en: 'Walkthrough index' },
+  'mobile.progressAria': { es: 'Ir a una parada', en: 'Jump to a stop' },
+  'mobile.readFile': { es: 'leer la ficha', en: 'read the file' },
+  'mobile.openBoard': { es: 'abrir el tablero entero', en: 'open the whole board' },
+  'mobile.openBoardHint': {
+    es: 'El tablero completo, con los objetos, las fotos sueltas y el zoom. Está pensado para pantalla grande, pero puedes curiosear.',
+    en: 'The full board, with the objects, the loose photographs and the zoom. It is built for a big screen, but have a poke around.',
+  },
+  'mobile.backToApp': { es: '‹ recorrido', en: '‹ walkthrough' },
+
   // ---------------------------------------------------------------- jumps
   'jump.me': { es: 'quién', en: 'who' },
   'jump.work': { es: 'trabajo', en: 'work' },
@@ -1084,6 +1102,7 @@ export const UI_KEYS: string[] = Object.keys(CATALOGUE);
  *  than a flat list of two hundred strings. */
 export const UI_SECTIONS: Array<{ prefix: string; label: Entry }> = [
   { prefix: 'board.', label: { es: 'El tablero', en: 'The board' } },
+  { prefix: 'mobile.', label: { es: 'El recorrido en móvil', en: 'The phone walkthrough' } },
   { prefix: 'jump.', label: { es: 'Los saltos', en: 'Jump buttons' } },
   { prefix: 'owner.', label: { es: 'Tu barra', en: 'Your bar' } },
   { prefix: 'cardmenu.', label: { es: 'Menú de la tarjeta', en: 'Card menu' } },

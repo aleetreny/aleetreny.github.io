@@ -1,0 +1,723 @@
+/* The phone walkthrough.
+ *
+ * Every colour, face and measure here comes from the same custom properties
+ * the slate is painted with (`themeVars` in src/lib/board.ts), so a look picked
+ * in the theme panel recolours the app and the board together. What the phone
+ * adds is shape: an app bar, a progress rail, a pager, a thumb-sized footer,
+ * and one pushed screen for an article.
+ *
+ * Two rules run through all of it:
+ *
+ *   · nothing tappable is smaller than 44px,
+ *   · nothing scrolls except the page you are on, and only downwards.
+ *
+ * Class prefix `m-` throughout, so none of it can reach the desk board — with
+ * two deliberate exceptions, `.card__surface--*` and the `db-*` article
+ * classes, which are shared on purpose.
+ */
+
+.boot { position: fixed; inset: 0; background: var(--c-slate, #1d2733); }
+
+/* Focus is visible on every control here too, on the same terms as the board:
+   a keyboard is not a desktop-only thing, and neither is a screen reader
+   driving the walk from an external one. */
+.m-app :focus-visible,
+.m-article :focus-visible,
+.m-sheetwrap :focus-visible,
+.m-return:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: -2px;
+}
+.m-row:focus-visible, .m-open:focus-visible, .m-outro__btn:focus-visible { outline-offset: -3px; }
+
+.m-app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  color: var(--board-ink, #f0ece1);
+  background-color: var(--c-slate, #1d2733);
+  /* The camera is gone, so nothing on this surface wants a pinch or a
+     double-tap zoom; both only ever fire here by accident. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ------------------------------------------------------------------ app bar */
+.m-bar {
+  position: relative;
+  z-index: 4;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 0 14px;
+  padding-top: env(safe-area-inset-top);
+  height: calc(46px + env(safe-area-inset-top));
+  background: color-mix(in oklch, var(--c-dark, #171510) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border-bottom: 1px solid rgba(243, 236, 221, .1);
+  color: var(--c-dark-ink, #f3ecdd);
+}
+.m-bar__mark {
+  font-size: 9.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  opacity: .78;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.m-bar__right { display: flex; align-items: center; gap: 6px; flex: none; }
+
+.m-lang { display: flex; }
+.m-lang button {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 4px;
+  background: transparent;
+  color: inherit;
+  border: 1px solid rgba(243, 236, 221, .2);
+  cursor: pointer;
+  opacity: .55;
+}
+.m-lang button + button { border-left: none; }
+.m-lang button.is-on { opacity: 1; color: var(--c-signal-soft); border-color: color-mix(in oklch, var(--c-signal) 55%, transparent); }
+
+.m-bar__index {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: rgba(243, 236, 221, .08);
+  border: 1px solid rgba(243, 236, 221, .18);
+  color: inherit;
+  cursor: pointer;
+}
+.m-bar__count { font-size: 11px; letter-spacing: .04em; }
+.m-bar__count i { font-style: normal; opacity: .4; margin: 0 1px; }
+
+/* ------------------------------------------------------------------ progress */
+/* Thirteen stops, drawn as thirteen ticks. It says how long the walk is before
+   the first tap — the one thing a pager cannot say on its own — and each tick
+   is a jump. */
+.m-rail {
+  flex: none;
+  display: flex;
+  gap: 3px;
+  padding: 0 12px;
+  height: 20px;
+  align-items: center;
+  background: color-mix(in oklch, var(--c-dark, #171510) 88%, transparent);
+  backdrop-filter: blur(14px);
+  z-index: 3;
+}
+.m-rail__tick {
+  flex: 1 1 0;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+.m-rail__tick::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: rgba(243, 236, 221, .16);
+  transition: background .25s ease, height .2s ease, margin-top .2s ease;
+}
+.m-rail__tick.is-done::after { background: color-mix(in oklch, var(--c-signal) 62%, transparent); }
+.m-rail__tick.is-on::after { background: var(--c-signal); height: 4px; margin-top: -2px; }
+
+/* ------------------------------------------------------------------ the pager */
+.m-stage { position: relative; flex: 1 1 auto; overflow: hidden; }
+/* No fade at the foot of the stage. A screen cut off mid-row is already the
+   plainest possible "there is more below", and a slate-coloured gradient laid
+   over a cream sheet reads as a smudge on the paper rather than as depth. */
+.m-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+  transition: transform .4s cubic-bezier(.22, .61, .36, 1);
+}
+.m-stage.is-dragging .m-track { transition: none; }
+
+.m-page {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  /* The browser keeps the vertical axis; the pager takes the horizontal one. */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+.m-page__inner {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 14px calc(26px + env(safe-area-inset-bottom));
+}
+/* No arrival animation on a page. The slide is the transition, and a fade
+   layered on top of it flickers when a swipe drops a page that is already
+   halfway on screen. */
+
+/* ------------------------------------------------------------------ heading */
+.m-head { display: flex; align-items: baseline; gap: 10px; padding: 2px 4px 0; }
+.m-head__no {
+  flex: none;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: var(--c-signal);
+  padding-top: 3px;
+}
+.m-head__text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1.1;
+  letter-spacing: calc(-.02em + var(--font-tracking, 0em));
+  color: var(--board-ink, #f0ece1);
+}
+
+/* ------------------------------------------------------------------ the sheet */
+/* A card, opened out to the width of the screen. The tone classes and the
+   shadow are the board's own (`.card__surface--*`); only the padding changes,
+   because a phone has no room for a desk's margins. */
+.m-sheet {
+  padding: 18px 16px 20px;
+  width: 100%;
+}
+.m-sheet__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.m-sheet__head .k b { font-weight: 600; font-style: normal; color: var(--c-accent); }
+.m-sheet__kicker { display: block; color: color-mix(in oklch, currentColor 66%, transparent); }
+.m-sheet__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 1.06;
+  letter-spacing: -.025em;
+  margin: 12px 0 0;
+  white-space: pre-line;
+}
+.m-sheet__title--big { font-size: 33px; font-weight: 800; letter-spacing: -.035em; }
+.m-sheet__blurb { font-size: 13px; line-height: 1.62; margin: 11px 0 0; opacity: .78; white-space: pre-line; }
+.m-sheet__note { font-size: 12px; line-height: 1.6; margin: 12px 0 0; opacity: .6; white-space: pre-line; }
+.m-sheet__footlink {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  color: var(--c-accent);
+  border-bottom: 1px solid color-mix(in oklch, var(--c-accent) 45%, transparent);
+  padding-bottom: 2px;
+}
+.card__surface--dark .m-sheet__footlink,
+.card__surface--slate .m-sheet__footlink { color: var(--c-signal-soft); border-bottom-color: color-mix(in oklch, var(--c-signal) 45%, transparent); }
+
+/* ------------------------------------------------------------------ list rows */
+.m-rows { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.m-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 11px 12px 11px 13px;
+  text-align: left;
+  font-family: var(--font-mono);
+  color: inherit;
+  background: color-mix(in oklch, currentColor calc(var(--row-contrast, .5) * 9%), transparent);
+  border: none;
+  border-left: var(--row-rule, 3px) solid color-mix(in oklch, var(--row-accent, var(--c-accent)) 70%, transparent);
+  cursor: pointer;
+}
+.m-row:active { background: color-mix(in oklch, currentColor 16%, transparent); }
+.m-row__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1 1 auto; }
+.m-row__title { font-family: var(--font-display); font-weight: 600; font-size: 15px; line-height: 1.25; }
+.m-row__meta { font-size: 10.5px; letter-spacing: .04em; opacity: .55; }
+.m-row__go { flex: none; font-size: 19px; line-height: 1; opacity: .35; }
+.card__surface--dark { --row-accent: var(--c-signal-soft); }
+.card__surface--slate { --row-accent: var(--c-lab); }
+.card__surface--amber .m-row { border-left: none; background: rgba(25, 21, 9, .12); }
+/* Amber is the one surface where "quieter" runs out of room: dimmed ink on a
+   mid-tone ground loses contrast in both directions at once, so the secondary
+   type is only slightly quieter there rather than half as loud. */
+.card__surface--amber .m-row__meta,
+.card__surface--amber .m-sheet__note { opacity: .74; }
+.card__surface--amber .m-sheet__kicker { color: color-mix(in oklch, currentColor 80%, transparent); }
+.card__surface--amber .m-stat dd { opacity: .74; }
+
+.m-rows--links .m-row__title { font-family: var(--font-mono); font-size: 13px; word-break: break-word; }
+
+/* ------------------------------------------------------------------ numbers, chips */
+.m-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid color-mix(in oklch, currentColor 16%, transparent);
+}
+.m-stat { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.m-stat dt { font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1; letter-spacing: -.02em; }
+.m-stat dd { margin: 0; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .58; line-height: 1.35; }
+
+.m-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; }
+.m-chips span {
+  font-size: 10px;
+  letter-spacing: .06em;
+  padding: 5px 8px;
+  border: 1px solid color-mix(in oklch, currentColor 26%, transparent);
+  opacity: .78;
+}
+
+.m-bars { display: flex; align-items: flex-end; gap: 3px; height: 46px; margin: 18px 0 0; }
+.m-bars span { flex: 1 1 0; background: color-mix(in oklch, currentColor 28%, transparent); }
+.m-bars span.is-peak { background: var(--c-accent); }
+.m-bars--wave span { border-radius: 1px; }
+
+/* ------------------------------------------------------------------ the one action */
+.m-open {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 50px;
+  margin: 18px 0 0;
+  padding: 13px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: var(--c-ink, #17150f);
+  color: var(--c-paper, #fbf7ef);
+  border: none;
+  cursor: pointer;
+}
+.m-open:active { background: var(--c-accent); }
+.card__surface--dark .m-open, .card__surface--slate .m-open { background: var(--c-signal); color: #191509; }
+
+/* ------------------------------------------------------------------ the cover */
+.m-page__inner--open { gap: 20px; }
+.m-hero { padding: 6px 4px 0; }
+.m-hero__kicker {
+  display: block;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--c-signal);
+}
+.m-hero__name {
+  font-family: var(--font-display);
+  font-weight: var(--font-display-weight, 800);
+  font-size: clamp(31px, 10.8vw, 48px);
+  line-height: .9;
+  letter-spacing: -.04em;
+  margin: 12px 0 0;
+  white-space: pre-line;
+  color: var(--board-ink, #f0ece1);
+}
+.m-hero__tags { display: flex; flex-wrap: wrap; gap: 7px; margin: 18px 0 0; }
+.m-hero__tags span {
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  padding: 5px 9px;
+  border: 1px solid color-mix(in oklch, var(--board-ink, #f0ece1) 34%, transparent);
+  opacity: .85;
+}
+.m-hero__tags .is-accent { border-color: var(--c-signal); color: var(--c-signal-soft); }
+.m-hero__intro {
+  margin: 18px 0 0;
+  font-size: 15px;
+  line-height: 1.58;
+  color: color-mix(in oklch, var(--board-ink, #f0ece1) 88%, transparent);
+  white-space: pre-line;
+}
+.m-hero__hint {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: color-mix(in oklch, var(--board-ink, #f0ece1) 62%, transparent);
+  white-space: pre-line;
+}
+
+/* ------------------------------------------------------------------ currently */
+.m-now__label { display: flex; align-items: center; gap: 7px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; }
+.m-now__dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: blip 1.8s ease-in-out infinite; }
+.m-now__block {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 4px 10px;
+  width: 100%;
+  margin: 12px 0 0;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+.m-now__block:disabled { cursor: default; }
+.m-now__title { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1.06; letter-spacing: -.025em; white-space: pre-line; }
+.m-now__title--small { font-size: 18px; }
+.m-now__sub { grid-column: 1 / -1; font-size: 12px; line-height: 1.55; opacity: .8; margin-top: 6px; white-space: pre-line; }
+.m-now__go { font-size: 22px; line-height: 1.1; opacity: .45; }
+.m-now__rule { height: 1px; background: color-mix(in oklch, currentColor 25%, transparent); margin: 18px 0 12px; }
+.m-now__next-label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; opacity: .72; }
+
+/* ------------------------------------------------------------------ languages */
+.m-levels { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.m-levels li { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; }
+.m-levels__code { font-size: 12px; font-weight: 600; letter-spacing: .1em; opacity: .85; }
+.m-levels__label { font-size: 12px; line-height: 1.35; opacity: .72; }
+.m-levels__marks { display: flex; gap: 4px; }
+.m-levels__marks i { width: 9px; height: 9px; border: 1px solid color-mix(in oklch, currentColor 40%, transparent); }
+.m-levels__marks i.is-on { background: var(--c-accent); border-color: var(--c-accent); }
+
+/* ------------------------------------------------------------------ music */
+.m-spotify { display: flex; flex-direction: column; gap: 8px; }
+.m-spotify .k { opacity: .55; padding-left: 2px; }
+.m-spotify iframe { width: 100%; height: 152px; border: 0; display: block; }
+
+/* ------------------------------------------------------------------ photographs */
+.m-photo { margin: 0; align-self: center; width: min(100%, 340px); transform: rotate(var(--tilt, 0deg)); }
+.m-photo__frame {
+  position: relative;
+  background: #fdfbf6;
+  padding: 11px 11px 0;
+  border: 1px solid #e2dac9;
+  box-shadow: 0 20px 34px -18px rgba(0, 0, 0, .65);
+  border-radius: var(--card-radius, 0px);
+}
+.m-photo__tape {
+  position: absolute; left: 50%; top: -12px;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 92px; height: 23px;
+  background: oklch(0.86 0.05 90 / .7);
+  border: 1px solid rgba(23, 21, 15, .07);
+}
+.m-photo__window { width: 100%; overflow: hidden; background: #e8e1d2; }
+.m-photo__window img, .m-photo__window video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.m-photo__cap { padding: 10px 2px 12px; font-family: var(--font-display); font-size: 14px; font-weight: 500; color: var(--c-ink); }
+.m-photo:has(.m-photo__cap) .m-photo__frame { padding-bottom: 0; }
+.m-photo:not(:has(.m-photo__cap)) .m-photo__frame { padding-bottom: 11px; }
+
+/* ------------------------------------------------------------------ loose notes */
+.m-note {
+  align-self: flex-start;
+  max-width: 84%;
+  padding: 13px 15px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-ink);
+  white-space: pre-line;
+  transform: rotate(var(--tilt, 0deg));
+  box-shadow: 0 13px 22px -12px rgba(0, 0, 0, .6);
+  border-radius: var(--card-radius, 0px);
+}
+.m-note--amber { background: oklch(0.9 0.09 100); }
+.m-note--paper-dashed { background: #fdfbf6; border: 1px dashed #cfc5b0; }
+
+/* ------------------------------------------------------------------ the way out */
+.m-outro { margin-top: 8px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.m-outro__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--board-ink, #f0ece1);
+  border: 1px solid color-mix(in oklch, var(--board-ink, #f0ece1) 34%, transparent);
+  cursor: pointer;
+}
+.m-outro__btn:active { border-color: var(--c-signal); color: var(--c-signal-soft); }
+.m-outro__hint { margin: 0; font-size: 11.5px; line-height: 1.55; opacity: .5; color: var(--board-ink, #f0ece1); }
+
+/* ------------------------------------------------------------------ footer */
+.m-foot {
+  position: relative;
+  z-index: 4;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  padding-bottom: calc(9px + env(safe-area-inset-bottom));
+  background: color-mix(in oklch, var(--c-dark, #171510) 90%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border-top: 1px solid rgba(243, 236, 221, .1);
+  color: var(--c-dark-ink, #f3ecdd);
+}
+.m-foot__back {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-family: var(--font-mono);
+  background: transparent;
+  color: inherit;
+  border: 1px solid rgba(243, 236, 221, .2);
+  cursor: pointer;
+}
+.m-foot__back:disabled { opacity: .28; cursor: default; }
+.m-foot__where {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 11px;
+  letter-spacing: .04em;
+  opacity: .62;
+}
+.m-foot__where b { color: var(--c-signal); font-weight: 500; }
+.m-foot__where span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-foot__next {
+  flex: none;
+  min-height: 46px;
+  padding: 0 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  background: var(--c-signal);
+  color: #191509;
+  border: none;
+  cursor: pointer;
+}
+.m-foot__next:active { background: var(--c-signal-soft); }
+
+/* ------------------------------------------------------------------ index sheet */
+.m-sheetwrap { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; justify-content: flex-end; }
+.m-sheetwrap__scrim { position: absolute; inset: 0; background: rgba(6, 10, 12, .62); backdrop-filter: blur(3px); animation: scrimin .22s ease both; }
+.m-index {
+  position: relative;
+  max-height: 82%;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-dark, #171510);
+  color: var(--c-dark-ink, #f3ecdd);
+  border-top: 1px solid rgba(243, 236, 221, .16);
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: m-sheet-up .3s cubic-bezier(.22, .61, .36, 1) both;
+}
+@keyframes m-sheet-up { from { transform: translateY(101%); } to { transform: none; } }
+.m-index__grip { width: 44px; height: 4px; margin: 9px auto 4px; background: rgba(243, 236, 221, .28); }
+.m-index__head { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px 10px; border-bottom: 1px solid rgba(243, 236, 221, .12); }
+.m-index__head .k { color: var(--c-signal-soft); }
+.m-index__head button {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em;
+  min-height: 36px; padding: 0 10px;
+  background: transparent; color: inherit;
+  border: 1px solid rgba(243, 236, 221, .22); cursor: pointer;
+}
+.m-index__list { list-style: none; margin: 0; padding: 4px 0; overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; }
+.m-index__list button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--font-mono);
+  background: transparent;
+  color: inherit;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+.m-index__list button.is-on { border-left-color: var(--c-signal); background: rgba(243, 236, 221, .06); }
+.m-index__no { flex: none; width: 24px; font-size: 11px; letter-spacing: .06em; color: var(--c-signal); opacity: .85; }
+.m-index__label { flex: 1 1 auto; font-family: var(--font-display); font-weight: 500; font-size: 15px; line-height: 1.25; }
+.m-index__go { flex: none; font-size: 18px; opacity: .3; }
+.m-index__board {
+  flex: none;
+  min-height: 50px;
+  margin: 6px 14px 14px;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--c-dark-ink, #f3ecdd);
+  border: 1px solid rgba(243, 236, 221, .25);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ the article */
+/* A pushed screen, not a modal: it comes in from the right, it has a named way
+   back, and the phone's own back gesture closes it. */
+.m-article {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-paper, #fbf7ef);
+  /* The walk is light type on a dark slate; the article is a printed page.
+     Without this the inherited ink follows it in and the title disappears. */
+  color: var(--c-ink, #17150f);
+  animation: m-push .32s cubic-bezier(.22, .61, .36, 1) both;
+}
+@keyframes m-push { from { transform: translateX(100%); } to { transform: none; } }
+
+.m-bar--article { justify-content: space-between; padding-left: 4px; }
+.m-bar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: transparent;
+  color: inherit;
+  border: none;
+  cursor: pointer;
+  min-width: 0;
+}
+.m-bar__back > span:first-child { font-size: 22px; line-height: 1; margin-top: -2px; color: var(--c-signal); }
+.m-bar__back-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .82; }
+.m-bar__pos { flex: none; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; padding-right: 12px; }
+
+.m-article__sheet { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.m-article__inner {
+  padding: 24px 18px calc(40px + env(safe-area-inset-bottom));
+  max-width: none;
+}
+.m-article .dossier__title { font-size: clamp(28px, 8.5vw, 38px); margin-top: 12px; }
+.m-article .dossier__lede { font-size: calc(17px * var(--font-scale)); margin-top: 14px; }
+.m-article .dossier__body { margin-top: 24px; }
+.m-article .db-block { max-width: none; }
+.m-article__media { display: block; width: 100%; height: auto; }
+.m-article .db-image figcaption { padding: 8px 1px 0; }
+.m-article[data-numbered='true'] .db-block--text::before,
+.m-article[data-numbered='true'] .db-block--heading::before,
+.m-article[data-numbered='true'] .db-block--quote::before,
+.m-article[data-numbered='true'] .db-block--list::before {
+  counter-increment: dossier-block;
+  content: counter(dossier-block, decimal-leading-zero);
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--c-accent);
+  margin-bottom: 5px;
+}
+.m-article[data-dropcap='true'] .db-block--text:first-of-type .db-text::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 3.1em;
+  line-height: .82;
+  padding: 4px 8px 0 0;
+}
+.m-article[data-lede='plain'] .dossier__lede { font-style: normal; }
+.m-article[data-lede='large'] .dossier__lede { font-style: normal; font-size: calc(20px * var(--font-scale)); font-weight: 500; }
+.m-article[data-lede='kicker'] .dossier__lede {
+  font-style: normal; font-family: var(--font-mono);
+  font-size: calc(12px * var(--font-scale)); letter-spacing: .14em; text-transform: uppercase; opacity: .8;
+}
+
+.m-article__nav { display: flex; flex-direction: column; gap: 1px; margin-top: 34px; border-top: 1px solid #e2dac9; }
+.m-article__nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: 60px;
+  padding: 14px 2px;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-ink, #17150f);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #ece5d6;
+  cursor: pointer;
+}
+.m-article__nav .k { color: var(--c-accent); opacity: .85; }
+.m-article__nav button:last-child { align-items: flex-end; text-align: right; }
+
+/* ------------------------------------------------------------------ back to the walk */
+/* Drawn by DeskBoard, next to the toolbar, when a phone visitor asked to see
+   the whole slate: the way back is then on screen rather than only in the
+   browser's gesture, and it comes and goes with the rest of the board chrome. */
+.m-return {
+  position: fixed;
+  left: 10px;
+  bottom: calc(66px + env(safe-area-inset-bottom));
+  z-index: 70;
+  min-height: 40px;
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  background: color-mix(in oklch, var(--c-dark, #171510) 92%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--c-dark-ink, #f3ecdd);
+  border: 1px solid rgba(243, 236, 221, .28);
+  cursor: pointer;
+}
+/* A phone on its side has no vertical room to spare: the chrome shrinks and
+   the walk keeps every pixel it can. */
+@media (max-height: 500px) {
+  .m-bar { height: calc(40px + env(safe-area-inset-top)); }
+  .m-rail { height: 14px; }
+  .m-rail__tick { height: 14px; }
+  .m-page__inner { padding-top: 14px; gap: 13px; }
+  .m-hero__name { font-size: clamp(29px, 7.4vw, 40px); }
+  .m-foot { padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
+  .m-foot__back, .m-foot__next { min-height: 42px; }
+  .m-foot__back { height: 42px; width: 42px; }
+}
+
+/* Wide enough to read two columns of a card, still small enough to be walked:
+   a large phone in landscape, or a small tablet. */
+@media (min-width: 620px) {
+  .m-page__inner,
+  .m-rail,
+  .m-bar,
+  .m-foot { padding-inline: max(16px, calc((100% - 660px) / 2)); }
+  .m-article__inner { padding-inline: max(20px, calc((100% - 660px) / 2)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-track { transition: none; }
+  .m-article,
+  .m-index { animation: none; }
+  .m-now__dot { animation: none; }
+}

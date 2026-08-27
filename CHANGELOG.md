@@ -1,5 +1,35 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **A phone gets an app, not a smaller board.** Below 720px wide — or 500px tall
+  with a coarse pointer — the site loads a walkthrough of the same board: one
+  card per screen, in the order the guided tour is authored in, with a
+  thumb-sized `next`, a swipe, a tappable progress rail and an index sheet.
+  Tapping a line pushes its dossier over the walk, and the phone's own back
+  gesture closes it.
+- The route is not new content: `src/lib/mobile.ts` reads `board.tour` through
+  the same `buildStops` the desktop camera uses, so renaming a stop, reordering
+  the walk or adding a card from the tour panel moves the phone with it, in both
+  languages. Each screen also carries the instant photographs and the loose note
+  pinned nearest its card on the slate.
+- A door to the full slate from the last screen and from the index sheet, at
+  `?board=1`, with a return chip and a working back gesture. It arrives without
+  replaying the tour the visitor has just walked by hand.
+- `mobile.*` wording, Spanish and English, in the central catalogue and editable
+  from the wording panel like everything else.
+
+### Changed
+
+- The desk board and the walkthrough are separate lazy chunks chosen in
+  `App.tsx`, so a phone no longer downloads the camera, the world loop or the
+  editing panels: 20 kB against 103 kB.
+- The page is served `viewport-fit=cover`, and every band of board chrome
+  anchored to a screen edge now adds the display cut-out back through
+  `--sa-*`.
+
 ## [2.0.1] — 2026-08-26
 
 - Prevent remote settings that arrive during the first visit from resetting the

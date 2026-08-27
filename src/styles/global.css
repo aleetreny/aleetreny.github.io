@@ -25,6 +25,15 @@
   /* Destructive marks keep the rust hue but need lifting to stay legible on
      the dark panels, where --c-accent lands at 2.9:1. */
   --c-danger-ink: oklch(0.79 0.12 45);
+  /* The page is served `viewport-fit=cover`, so the phone walkthrough can paint
+     under the status bar and the home indicator. That also lets the board's own
+     fixed chrome slide under them, so every band anchored to an edge adds the
+     cut-out back through these. On a screen without one they are all 0 and
+     nothing below moves a pixel. */
+  --sa-t: env(safe-area-inset-top, 0px);
+  --sa-r: env(safe-area-inset-right, 0px);
+  --sa-b: env(safe-area-inset-bottom, 0px);
+  --sa-l: env(safe-area-inset-left, 0px);
 }
 
 * { box-sizing: border-box; }
@@ -458,7 +467,7 @@ a { color: var(--c-accent); text-decoration: none; }
 .slot__frame-save { width: 27px; height: 27px; justify-content: center; padding: 0; background: var(--c-signal); color: #191509; border-color: color-mix(in oklch, var(--c-signal) 72%, #fff); font-size: 15px; font-weight: 800; }
 
 /* ------------------------------------------------------------------ dossier plate */
-.dossier { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px 26px 22px; }
+.dossier { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: calc(26px + var(--sa-t)) calc(26px + var(--sa-r)) calc(22px + var(--sa-b)) calc(26px + var(--sa-l)); }
 .dossier__scrim { position: absolute; inset: 0; background: var(--dossier-scrim, rgba(8, 16, 22, .78)); backdrop-filter: blur(var(--dossier-blur, 5px)); animation: scrimin .28s ease both; cursor: zoom-out; }
 .dossier__plate { position: relative; width: min(var(--dossier-width, 860px), 100%); max-height: 100%; display: flex; flex-direction: column; background: var(--c-paper); box-shadow: 0 50px 90px -40px rgba(0, 0, 0, .85), 0 0 0 1px rgba(23, 21, 15, .35); animation: plateup .42s cubic-bezier(.2, .9, .2, 1) both; overflow: hidden; border-radius: var(--card-radius, 0px); }
 /* How the plate arrives, chosen by the theme. */
@@ -711,10 +720,10 @@ a { color: var(--c-accent); text-decoration: none; }
 
 /* ------------------------------------------------------------------ chrome */
 .stamp { position: fixed; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; color: rgba(240, 236, 225, .72); background: rgba(18, 22, 21, .9); backdrop-filter: blur(6px); padding: 6px 10px; z-index: 40; }
-.stamp--tl { left: 18px; top: 16px; pointer-events: none; }
-.stamp--tr { right: 18px; top: 58px; letter-spacing: .16em; line-height: 1.5; text-align: right; pointer-events: none; }
+.stamp--tl { left: calc(18px + var(--sa-l)); top: calc(16px + var(--sa-t)); pointer-events: none; }
+.stamp--tr { right: calc(18px + var(--sa-r)); top: calc(58px + var(--sa-t)); letter-spacing: .16em; line-height: 1.5; text-align: right; pointer-events: none; }
 
-.toolbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; padding: 0 16px 18px; pointer-events: none; z-index: 50; }
+.toolbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; padding: 0 calc(16px + var(--sa-r)) calc(18px + var(--sa-b)) calc(16px + var(--sa-l)); pointer-events: none; z-index: 50; }
 .toolbar__inner { pointer-events: auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; background: rgba(18, 22, 21, .94); backdrop-filter: blur(8px); color: var(--c-dark-ink); padding: 7px 8px; box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .85); max-width: 100%; }
 .toolbar__label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--c-signal-soft); padding: 0 10px 0 6px; white-space: nowrap; }
 .toolbar__sep { width: 1px; height: 22px; background: rgba(243, 236, 221, .2); margin: 0 6px; }
@@ -728,9 +737,9 @@ a { color: var(--c-accent); text-decoration: none; }
 .langpick .tbtn.is-on { color: var(--c-signal); border-bottom: 2px solid var(--c-signal); }
 
 /* ---- tour bar (replaces the toolbar while the guided tour runs) ---- */
-.tourbar { position: fixed; left: 0; right: 0; display: flex; justify-content: center; padding: 0 16px 22px; pointer-events: none; z-index: 60; }
+.tourbar { position: fixed; left: 0; right: 0; display: flex; justify-content: center; padding: 0 calc(16px + var(--sa-r)) calc(22px + var(--sa-b)) calc(16px + var(--sa-l)); pointer-events: none; z-index: 60; }
 .tourbar--bottom { bottom: 0; }
-.tourbar--top { top: 0; padding: 22px 16px 0; }
+.tourbar--top { top: 0; padding: calc(22px + var(--sa-t)) calc(16px + var(--sa-r)) 0 calc(16px + var(--sa-l)); }
 .tourbar__inner {
   pointer-events: auto;
   width: min(800px, calc(100vw - 32px));
@@ -760,9 +769,9 @@ a { color: var(--c-accent); text-decoration: none; }
 .tourbar__dot.is-here { background: var(--c-signal); border-color: var(--c-signal); }
 .tourbar__dot:hover { border-color: var(--c-signal-soft); }
 
-.signin { position: fixed; right: 18px; top: 14px; z-index: 95; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; background: rgba(18, 22, 21, .9); backdrop-filter: blur(6px); color: rgba(243, 236, 221, .5); border: 1px solid rgba(243, 236, 221, .22); padding: 7px 11px; cursor: pointer; }
+.signin { position: fixed; right: calc(18px + var(--sa-r)); top: calc(14px + var(--sa-t)); z-index: 95; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; background: rgba(18, 22, 21, .9); backdrop-filter: blur(6px); color: rgba(243, 236, 221, .5); border: 1px solid rgba(243, 236, 221, .22); padding: 7px 11px; cursor: pointer; }
 .signin:hover { color: var(--c-signal-soft); border-color: color-mix(in oklch, var(--c-signal-soft) 60%, transparent); }
-.ownerbar { position: fixed; right: 18px; top: 14px; z-index: 95; display: block; width: max-content; max-width: calc(100vw - 258px); min-width: 0; background: rgba(18, 22, 21, .92); backdrop-filter: blur(6px); padding: 6px; border: 1px solid rgba(243, 236, 221, .22); }
+.ownerbar { position: fixed; right: calc(18px + var(--sa-r)); top: calc(14px + var(--sa-t)); z-index: 95; display: block; width: max-content; max-width: calc(100vw - 258px); min-width: 0; background: rgba(18, 22, 21, .92); backdrop-filter: blur(6px); padding: 6px; border: 1px solid rgba(243, 236, 221, .22); }
 .ownerbar__controls { display: flex; min-width: 0; max-width: 100%; align-items: center; justify-content: flex-end; gap: 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 .ownerbar__controls::-webkit-scrollbar { display: none; }
 .ownerbar__row { display: contents; }
@@ -863,9 +872,9 @@ a { color: var(--c-accent); text-decoration: none; }
   font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
   color: var(--c-dark-ink); background: rgba(18, 22, 21, .9); padding: 12px 18px; z-index: 60; text-align: center;
 }
-.board-error { top: auto; bottom: 96px; max-width: 90vw; text-transform: none; letter-spacing: 0; color: var(--c-signal-soft); }
+.board-error { top: auto; bottom: calc(96px + var(--sa-b)); max-width: 90vw; text-transform: none; letter-spacing: 0; color: var(--c-signal-soft); }
 
-.owner-toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 70; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; background: rgba(18, 22, 21, .94); color: var(--c-dark-ink); border: 1px solid rgba(243, 236, 221, .22); padding: 8px 14px; }
+.owner-toast { position: fixed; left: 50%; bottom: calc(90px + var(--sa-b)); transform: translateX(-50%); z-index: 70; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; background: rgba(18, 22, 21, .94); color: var(--c-dark-ink); border: 1px solid rgba(243, 236, 221, .22); padding: 8px 14px; }
 .owner-toast--err { color: var(--c-signal-soft); }
 
 /* ------------------------------------------------------------------ phones */
@@ -876,11 +885,11 @@ a { color: var(--c-accent); text-decoration: none; }
    gets the same treatment. */
 @media (max-width: 720px), (max-height: 460px) {
   .stamp--tr { display: none; }
-  .stamp--tl { left: 10px; top: 10px; font-size: 9px; letter-spacing: .16em; padding: 5px 8px; }
+  .stamp--tl { left: calc(10px + var(--sa-l)); top: calc(10px + var(--sa-t)); font-size: 9px; letter-spacing: .16em; padding: 5px 8px; }
   .stamp--tl--owner { display: none; }
   .card__title { font-size: 28px; }
 
-  .toolbar { padding: 0 0 10px; }
+  .toolbar { padding: 0 var(--sa-r) calc(10px + var(--sa-b)) var(--sa-l); }
   .toolbar__inner {
     flex-wrap: nowrap;
     justify-content: flex-start;
@@ -897,7 +906,7 @@ a { color: var(--c-accent); text-decoration: none; }
   .toolbar__sep { margin: 0 2px; }
 
   .ownerbar {
-    left: 10px; right: 10px; top: 10px;
+    left: calc(10px + var(--sa-l)); right: calc(10px + var(--sa-r)); top: calc(10px + var(--sa-t));
     width: auto;
     max-width: none;
     max-height: 40vh;
@@ -905,10 +914,10 @@ a { color: var(--c-accent); text-decoration: none; }
   }
   .ownerbar--editing .ownerbar__controls { align-items: stretch; }
   .ownerbar--editing .ownerbar__row { width: 100%; }
-  .signin { right: 10px; top: 10px; }
+  .signin { right: calc(10px + var(--sa-r)); top: calc(10px + var(--sa-t)); }
 
-  .tourbar { padding: 0 8px 10px; }
-  .tourbar--top { padding: 10px 8px 0; }
+  .tourbar { padding: 0 calc(8px + var(--sa-r)) calc(10px + var(--sa-b)) calc(8px + var(--sa-l)); }
+  .tourbar--top { padding: calc(10px + var(--sa-t)) calc(8px + var(--sa-r)) 0 calc(8px + var(--sa-l)); }
   .tourbar__inner { min-width: 0; width: 100%; padding: 10px 12px 9px; }
   .tourbar__head { flex: 1 0 100%; margin-bottom: 9px; }
   .tourbar__row { flex: 1 0 100%; justify-content: flex-end; align-items: center; }
@@ -921,7 +930,7 @@ a { color: var(--c-accent); text-decoration: none; }
   .panel--login, .panel--theme { width: calc(100% - 20px); max-height: 90vh; }
   .panel__title { font-size: 22px; }
   .field-pair input[type='range'] { width: 84px; }
-  .dossier { padding: 10px 10px 8px; }
+  .dossier { padding: calc(10px + var(--sa-t)) calc(10px + var(--sa-r)) calc(8px + var(--sa-b)) calc(10px + var(--sa-l)); }
   .dossier__bar { flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
   .dossier__bar-meta { flex-basis: 100%; }
   .dossier__bar-actions { flex-wrap: wrap; width: 100%; justify-content: flex-start; }
@@ -929,8 +938,8 @@ a { color: var(--c-accent); text-decoration: none; }
   .dossier[data-editing='true'] .dossier__inner { padding-inline: 64px; }
   .db-block__ctrl { left: -60px; flex-direction: column; }
   .dossier__foot { padding: 10px 14px; }
-  .owner-toast { bottom: 78px; left: 10px; right: 10px; transform: none; text-align: center; }
-  .board-error { bottom: 78px; left: 10px; right: 10px; transform: none; max-width: none; }
+  .owner-toast { bottom: calc(78px + var(--sa-b)); left: calc(10px + var(--sa-l)); right: calc(10px + var(--sa-r)); transform: none; text-align: center; }
+  .board-error { bottom: calc(78px + var(--sa-b)); left: calc(10px + var(--sa-l)); right: calc(10px + var(--sa-r)); transform: none; max-width: none; }
 }
 
 /* Fingers need a target, not a hairline. */
@@ -953,7 +962,7 @@ a { color: var(--c-accent); text-decoration: none; }
   .tourbar__inner { padding: 8px 12px 7px; }
   .tourbar__row--foot { margin-top: 7px; }
   .tourbar__label { font-size: 14px; }
-  .dossier { padding: 6px; }
+  .dossier { padding: calc(6px + var(--sa-t)) calc(6px + var(--sa-r)) calc(6px + var(--sa-b)) calc(6px + var(--sa-l)); }
   .dossier__inner { padding: 20px 18px 28px; }
   .dossier[data-editing='true'] .dossier__inner { padding-inline: 64px; }
   .panel--theme, .panel--login { max-height: 94vh; }

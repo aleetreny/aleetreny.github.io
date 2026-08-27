@@ -97,23 +97,41 @@ softly and the objects arrive on staggered, deterministic meteor paths. The
 motion uses one-shot compositor animations rather than a React frame loop; with
 reduced motion it resolves instantly to the same complete board.
 
-| Desktop | Phone |
-| --- | --- |
-| ![The first v2 tour stop on desktop](docs/images/v2-tour-first-stop.jpg) | ![The first v2 tour stop on a phone](docs/images/v2-tour-mobile.jpg) |
+![The first v2 tour stop on desktop](docs/images/v2-tour-first-stop.jpg)
 
 `Escape` or `skip` leaves at any point, `↻ tour` replays it, and it never runs
 under `prefers-reduced-motion: reduce` or in owner mode. Nine route shapes, three
 ways to advance, eight camera motions and nine landing animations are all
 editable from the tour panel.
 
-## On a phone
+## On a phone it is an app
 
-Real touch: pinch to zoom, two fingers to pan, double-tap to frame a card. The
-canvas is 2540px wide, so below 720px wide — or 460px tall, with the phone on its
-side — the tour walks the same route a few pieces at a time with padding a small
-screen can afford, the board rests on the first card rather than an illegible
-whole, and the toolbar collapses to one scrolling row. Every threshold is
-editable.
+A 4120px slate on a 390px screen is either a mosaic nobody can read or a maze
+nobody can leave, so a phone does not get a smaller board. It gets the same
+board **walked**: one card per screen, in the order the guided tour is authored
+in, with a thumb-sized `next` at the bottom, a swipe if you prefer, a progress
+rail you can tap to jump and an index sheet for the whole route. Tapping a line
+pushes its dossier over the walk, and the phone's own back gesture closes it.
+
+| The cover | A list | A dossier | The index |
+| --- | --- | --- | --- |
+| ![The walkthrough cover on a phone](docs/images/phone-01-walk.jpg) | ![A drawer as a list of rows](docs/images/phone-02-list.jpg) | ![A dossier pushed over the walk](docs/images/phone-03-article.jpg) | ![The walkthrough index sheet](docs/images/phone-04-index.jpg) |
+
+The route is not a second thing to maintain: it is `board.tour`, read through
+the same `buildStops` the desktop camera uses. Rename a stop, reorder the walk
+or add a card from the tour panel and the phone follows, in both languages. Each
+screen also carries the instant photographs and the loose note pinned nearest to
+its card on the slate, so the board's asides survive the trip.
+
+What a phone cannot use stays on the desk: the pan-and-zoom canvas, the
+thirty-three interactive objects, the drag, and the editor. The last screen and
+the index both offer a door to the whole slate, and it is a real URL
+(`?board=1`) with a way back. The two are separate lazy chunks, so a phone never
+downloads the camera, the world loop or the editing panels at all.
+
+Below 720px wide — or 500px tall with a coarse pointer, a phone on its side — the
+walkthrough is what loads. `?owner=1` always gets the board, because that is
+where the editor lives.
 
 ## How it runs
 
@@ -137,6 +155,9 @@ locking, and `site_settings` for theme, layout and tour.
 
 - GitHub Pages serves the static build produced by Vite.
 - React + TypeScript render the portfolio and owner mode.
+- The desk board and the phone walkthrough are two lazy chunks behind one
+  screen-size decision in `App.tsx`; neither is downloaded by the other's
+  visitor.
 - Managed Better Auth issues the session/JWT.
 - The Neon Data API queries Postgres and enforces `GRANT` + RLS.
 - Neon Object Storage keeps images in the public-read `portfolio-assets` bucket.

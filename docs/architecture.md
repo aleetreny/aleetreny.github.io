@@ -32,8 +32,11 @@ flowchart LR
 - **GitHub Pages:** serves `dist/` and nothing else; it runs no backend and
   stores no secrets.
 - **Frontend:** presents the content as a pan/zoom board with expandable
-  dossiers; renders fixtures when there is no backend and, with Neon, queries
-  content and manages the session.
+  dossiers on a large screen, and as a one-screen-at-a-time walkthrough of the
+  same authored tour route on a small one; the two are lazy chunks chosen in
+  `App.tsx` from the viewport, so neither ships to the other's visitor. It
+  renders fixtures when there is no backend and, with Neon, queries content and
+  manages the session.
 - **Auth:** creates sessions/JWTs. Being authenticated is not being the owner.
 - **Data API:** turns SDK queries into Postgres operations and picks the role
   from the JWT.

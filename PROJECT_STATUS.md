@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-08-26. Branch: `main`. Release: `portfolio-v2.0.1`.
+Updated: 2026-08-27. Branch: `main`. Release: `portfolio-v2.0.1`.
 
 ## v2.0.0 release (2026-08-26)
 
@@ -183,9 +183,49 @@ and every editable setting.
   board; the bar is real Tab-reachable buttons; `Escape` always exits; nothing
   depends on the tour to be reachable.
 
+## The phone walkthrough (2026-08)
+
+A 4120px slate on a 390px screen is either a mosaic nobody can read or a maze
+nobody can leave. Every fix under [Mobile](#mobile-2026-08) below made the board
+*less bad* on a phone; none of them made it good, because the thing being fixed
+was a canvas, and a canvas is not a phone interface. So a phone now gets a
+different program: the same board, walked.
+
+- **The route is the tour.** `src/lib/mobile.ts` reads `board.tour` through the
+  same `buildStops` the desktop camera uses and turns each stop into one screen:
+  its heading, the card it frames, and whatever else it carries — the `now` card
+  under the cover, the player under the podcast, the instant photographs, and
+  the loose note pinned nearest that card on the slate. Photographs and notes
+  the route never mentions are filed with the nearest screen, so the board's
+  asides survive the trip. Pure, and covered by `src/lib/mobile.test.ts`.
+- **Nothing to maintain twice.** Rename a stop, reorder the walk or add a card
+  from the tour panel and the phone follows, in both languages. The sheets are
+  the board's own `.card__surface--*` tones and the article is the board's own
+  `db-*` typography, so a look picked in the theme panel recolours both.
+- **Navigation a thumb already knows.** A 46px `next`, a swipe with velocity and
+  rubber-banding at the ends, a progress rail whose ticks are jumps, and an
+  index sheet that opens on the screen you are standing on. A jump of more than
+  one screen cuts instead of sliding. A dossier is a pushed screen, and the
+  phone's own back gesture closes it — as it does the index sheet.
+- **What it costs.** The walkthrough is 20 kB (6 kB gzipped) against the board's
+  103 kB, and the two are separate lazy chunks chosen in `App.tsx`, so a phone
+  never downloads the camera, the world loop or the editing panels. Photographs
+  load for the screen on show and its two neighbours; the music player mounts
+  only on the screen it belongs to.
+- **The door back.** The last screen and the index sheet both open the whole
+  slate at `?board=1`, with a return chip and the back gesture; it arrives
+  without replaying the tour the visitor has just walked by hand (`skipTour`).
+  `?owner=1` always gets the board, because that is where the editor lives.
+- **Verified in a browser**, not in a mental model: all thirteen screens at
+  390×844 and 375×667, the 320px case, landscape at 844×390, both languages, the
+  index sheet, the pushed article, the history stack after every open and close,
+  and the desktop board re-checked for regressions.
+
 ## Mobile (2026-08)
 
 The board is drawn on a 2540px canvas, so a phone always sees a detail of it.
+These are the phone behaviours of the **board itself**; since the walkthrough
+above, they apply to a visitor who deliberately asks for the full slate.
 
 - Touch gestures that did not exist before: pinch to zoom (anchored between the
   fingers), two fingers to pan, double-tap to frame a card or return to the

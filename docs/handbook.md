@@ -137,7 +137,8 @@ showing the **real** total (`21 entries`), so nothing is silently hidden.
 | jump list | Fly to a named card. The names come from each card's `jump` field. |
 | `−` / `+` | Zoom out and in from the centre. |
 
-On a phone the toolbar becomes a single horizontally scrolling row.
+On a phone the toolbar becomes a single horizontally scrolling row — though a
+phone does not normally see this board at all; see [On phones](#on-phones).
 
 ### Dossiers
 
@@ -245,15 +246,49 @@ have any of them.
 
 ### On phones
 
-| | | |
-| --- | --- | --- |
-| ![The tour on a phone](images/phone-01-tour.jpg) | ![The board on a phone](images/phone-02-board.jpg) | ![An article on a phone](images/phone-03-article.jpg) |
+A phone does not get the slate. It gets the same route, walked one screen at a
+time — the tour, with the visitor holding the "next" button instead of the
+camera.
 
-The board is 2540px wide, so a phone is always looking at a detail of it.
-Below 720px wide **or** 460px tall — a phone on its side is just as cramped, only
-in the other direction — the tour walks the same route a few pieces at a time,
-with padding a small screen can afford. That takes a stop from about 0.22× to
-0.55× on a 390px phone. Every threshold is editable.
+| The cover | A list | A dossier | The index |
+| --- | --- | --- | --- |
+| ![The walkthrough cover](images/phone-01-walk.jpg) | ![A drawer as a list of rows](images/phone-02-list.jpg) | ![A dossier pushed over the walk](images/phone-03-article.jpg) | ![The index sheet](images/phone-04-index.jpg) |
+
+Below **720px wide**, or **500px tall with a coarse pointer** (a phone on its
+side), the walkthrough loads instead of the board. Dragging a desktop window
+narrow switches over too, and back again.
+
+**One card per screen.** Every stop in `board.tour` becomes a screen: the stop's
+heading, the card it frames, and underneath it whatever else that stop carries —
+the `now` card under the cover, the music player under the podcast, the instant
+photographs, and the loose note pinned nearest that card on the slate. A stop
+that frames two cards becomes two screens under one heading. A stop that frames
+nothing but drawn marks does not become a screen at all.
+
+**Nothing to keep in sync.** The route is read through the same `buildStops` the
+desktop camera uses, so renaming a stop, reordering the walk or adding a card
+from the tour panel ([`board.tour`](#74--boardtour)) moves the phone with it, in both
+languages. The sheets are painted with the board's own `.card__surface--*`
+tones, so a look picked in [the theme panel](#5--looks-changing-everything-at-once) recolours the
+phone at the same time as the slate. There is no separate mobile content.
+
+**Moving around.** `next` at the bottom, or a swipe; the progress rail under the
+app bar shows how long the walk is and each tick is a jump; the index sheet
+lists the whole route and opens on the screen you are standing on. Jumping more
+than one screen cuts rather than slides. Tapping a row pushes its dossier in
+from the right, and the phone's own back gesture closes it — as it does the
+index sheet.
+
+**What is not there.** The pan-and-zoom canvas, the thirty-three
+[desk objects](#things-on-the-desk), the paint gun, card dragging and the whole
+editor stay on the desk. The last screen and the index sheet both offer a door
+to the full slate; it is a real address (`?board=1`) with a way back, and it
+arrives without replaying the tour the visitor has just walked by hand.
+`?owner=1` always gets the board, because that is where the editor lives.
+
+The board's own phone settings — `breakpoint`, `shortSide`, `maxPerStop` and the
+mobile camera padding, listed under [`board.tour`](#74--boardtour) — now apply
+only to a visitor who asks for the full slate from a small screen.
 
 ---
 
@@ -1140,12 +1175,16 @@ fixtures/                generated JSON: the offline copy and the seed payload
   site-settings.json     theme, board, board.layout, board.tour,
                          board.objects, board.passport, board.world
 src/
+  App.tsx                       which of the two portfolios this screen gets
   components/DeskBoard.tsx      the board, the camera, the tour state machine
   components/desk/              cards, dossier, panels, tour bar
+  components/mobile/            the phone walkthrough: shell, screens, article
   lib/board.ts                  theme + board parsing, textures, walls
   lib/tour.ts                   routes, camera motions, reveals, easings
+  lib/mobile.ts                 the tour route, turned into phone screens
   lib/content-repository.ts     every read and write against Neon
   styles/global.css             the whole visual system
+  styles/mobile.css             the phone app's chrome, on the same tokens
 db/migrations/           schema, RLS policies, editor functions
 docs/                    this handbook and the operational docs
 ```
