@@ -199,8 +199,28 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
   useEffect(() => {
     if (!world.uv) return undefined;
     document.body.classList.add('board-uv');
-    return () => document.body.classList.remove('board-uv');
-  }, [world.uv]);
+    // Night is a viewing mode, not a second set of controls. Drop any tool the
+    // visitor was holding and make every card/object inert for pointer,
+    // keyboard and assistive technology. The UV switch is the sole exception:
+    // it must always remain a dependable way back to daylight.
+    hold(null);
+    const locked = [...document.querySelectorAll<HTMLElement>(
+      '.desk__board [data-card], .desk__board [data-obj]:not([data-obj="uvswitch"])',
+    )];
+    for (const node of locked) {
+      if (node.inert) continue;
+      node.inert = true;
+      node.dataset.uvLocked = '';
+    }
+    return () => {
+      document.body.classList.remove('board-uv');
+      for (const node of locked) {
+        if (node.dataset.uvLocked === undefined) continue;
+        node.inert = false;
+        delete node.dataset.uvLocked;
+      }
+    };
+  }, [hold, world.uv]);
 
   const colour = paintHex(paintColor);
   const swallowedCount = swallowed.length;

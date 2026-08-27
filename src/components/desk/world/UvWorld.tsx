@@ -254,14 +254,13 @@ function chalk(size: { width: number; height: number }, boxes: Box[], photos: Ph
 
   bits.push(<text key="sign" className="uvmarks__sign" x={size.width - 96} y={size.height - 62}>A·T</text>);
   bits.push(<text key="since" className="uvmarks__since" x={size.width - 96} y={size.height - 50}>{t('world.uv.maint')}</text>);
-  bits.push(...graffiti(boxes, photos, t));
+  bits.push(...graffiti(boxes, photos));
   return bits;
 }
 
-/** Twenty-four little acts of editorial vandalism. They are deliberately
- * ordinary SVG geometry: crisp at any zoom, one paint, and no work after the
- * blacklight has switched on. */
-function graffiti(boxes: Box[], photos: PhotoBox[], t: UiText): ReactNode[] {
+/** Twenty-five silent acts of editorial vandalism. They are ordinary SVG
+ * geometry: crisp at any zoom, one paint, and no work after switch-on. */
+function graffiti(boxes: Box[], photos: PhotoBox[]): ReactNode[] {
   const bits: ReactNode[] = [];
   for (const gag of PHOTO_GAGS) {
     const photo = photos[gag.photo];
@@ -274,17 +273,13 @@ function graffiti(boxes: Box[], photos: PhotoBox[], t: UiText): ReactNode[] {
   }
   for (const gag of CARD_GAGS) {
     const card = cards.get(gag.card);
-    if (card) bits.push(cardGraffiti(gag, card, t));
+    if (card) bits.push(cardGraffiti(gag, card));
   }
   return bits;
 }
 
 function photoGraffiti(gag: PhotoGag, photo: PhotoBox): ReactNode {
-  const x = photo.x + photo.w * gag.x;
-  const y = photo.y + photo.h * gag.y;
-  const scale = (Math.min(photo.w, photo.h) / 150) * gag.scale;
-  const transform = `rotate(${photo.rot.toFixed(2)} ${photo.cardCx.toFixed(1)} ${photo.cardCy.toFixed(1)})`
-    + ` translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${gag.rotate ?? 0}) scale(${scale.toFixed(3)})`;
+  const cardRotation = `rotate(${photo.rot.toFixed(2)} ${photo.cardCx.toFixed(1)} ${photo.cardCy.toFixed(1)})`;
 
   let drawing: ReactNode;
   switch (gag.kind) {
@@ -314,7 +309,14 @@ function photoGraffiti(gag: PhotoGag, photo: PhotoBox): ReactNode {
           <circle className="uvgraffiti__spark" cx="10" cy="-70" r="5" />
           <ellipse cx="0" cy="2" rx="38" ry="45" />
           <path className="uvgraffiti__fat" d="M-22-8q12-14 20 1m4 0q9-15 20 1M-11 24q11 8 22 0" />
-          <text y="63">100% HUMANO</text>
+        </>
+      );
+      break;
+    case 'halo':
+      drawing = (
+        <>
+          <ellipse className="uvgraffiti__spark uvgraffiti__fat" cx="0" cy="-45" rx="31" ry="8" />
+          <path className="uvgraffiti__spark" d="M-40-52l6 6m-13 3h9M40-52l-6 6m13 3h-9" />
         </>
       );
       break;
@@ -345,13 +347,12 @@ function photoGraffiti(gag: PhotoGag, photo: PhotoBox): ReactNode {
         </>
       );
       break;
-    case 'crown':
+    case 'cape':
       drawing = (
         <>
-          <path className="uvgraffiti__fill" d="M-39-19L-43-58L-18-39L0-68L18-39L43-58L39-19Z" />
-          <path className="uvgraffiti__fat" d="M-40-19Q0-10 40-19" />
-          <circle className="uvgraffiti__hot" cx="0" cy="-34" r="4" />
-          <text y="50">CEO DEL MANGO</text>
+          <path className="uvgraffiti__hot uvgraffiti__fill" d="M-7-25C-38-18-47 5-45 38C-27 28-15 27-5 35Z" />
+          <path className="uvgraffiti__spark" d="M7-31l5 10 11 2-8 8 2 11L7-5-3 0l2-11-8-8 11-2z" />
+          <path d="M-3 30l8 10 8-10" />
         </>
       );
       break;
@@ -372,7 +373,6 @@ function photoGraffiti(gag: PhotoGag, photo: PhotoBox): ReactNode {
         <>
           <path className="uvgraffiti__pixel" d="M-42-15h34v23h-34zM8-15h34v23H8zM-8-8H8v7H-8zM-31 8h9v9h-9zm50 0h9v9h-9z" />
           <path d="M-27 29q27 16 54 0" />
-          <text y="56">MODO INCÓGNITO</text>
         </>
       );
       break;
@@ -392,7 +392,6 @@ function photoGraffiti(gag: PhotoGag, photo: PhotoBox): ReactNode {
           <circle cx="-19" cy="0" r="17" /><circle cx="19" cy="0" r="17" />
           <path d="M-2 0h4M-4-40l11 9-9 10 12 8" />
           <path className="uvgraffiti__fat" d="M-43-20Q0-57 43-20" />
-          <text y="48">9¾ €</text>
         </>
       );
       break;
@@ -402,59 +401,140 @@ function photoGraffiti(gag: PhotoGag, photo: PhotoBox): ReactNode {
           <path className="uvgraffiti__hot" d="M-17 20l7 20 7-21M3 19l7 21 7-20" />
           <path className="uvgraffiti__fill" d="M-45 48L-23 18L0 45L23 18L45 48L32 72H-32Z" />
           <path d="M-54-27q10-11 20 0q-10-5-20 0m88 0q10-11 20 0q-10-5-20 0" />
-          <text y="88">BECARIO DE NOCHE</text>
+        </>
+      );
+      break;
+    case 'snorkel':
+      drawing = (
+        <>
+          <path className="uvgraffiti__fill" d="M-30-15Q0-23 30-15L25 8Q0 15-25 8Z" />
+          <path d="M0-18v28M30-8h10v-33q0-9 8-9" />
+          <path className="uvgraffiti__spark" d="M43-53h10m-5-5v10" />
         </>
       );
       break;
   }
 
   return (
-    <g key={`gag:${gag.id}`} data-uv-gag={gag.id} className={`uvgraffiti uvgraffiti--photo uvgraffiti--${gag.kind}`} transform={transform}>
-      {drawing}
+    <g key={`gag:${gag.id}`} data-uv-gag={gag.id} className={`uvgraffiti uvgraffiti--photo uvgraffiti--${gag.kind}`} transform={cardRotation}>
+      {gag.anchors.map((anchor, index) => {
+        const x = photo.x + photo.w * anchor.x;
+        const y = photo.y + photo.h * anchor.y;
+        const scale = (Math.min(photo.w, photo.h) / 100) * anchor.scale;
+        const transform = `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${anchor.rotate ?? 0}) scale(${scale.toFixed(3)})`;
+        return <g key={index} transform={transform}>{drawing}</g>;
+      })}
     </g>
   );
 }
 
-function cardGraffiti(gag: CardGag, card: Box, t: UiText): ReactNode {
+function cardGraffiti(gag: CardGag, card: Box): ReactNode {
   const x = card.x + card.w * gag.x;
   const y = card.y + card.h * gag.y;
   const width = card.w * gag.width;
   const rotate = card.rot + (gag.rotate ?? 0);
-  const transform = `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rotate.toFixed(2)})`;
-  const copy = t(gag.copyKey);
+  const transform = `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rotate.toFixed(2)}) scale(${(width / 100).toFixed(3)})`;
 
   let drawing: ReactNode;
   switch (gag.kind) {
-    case 'rewrite':
+    case 'halo':
       drawing = (
         <>
-          <path d={`M${(-width / 2).toFixed(1)} -7Q0 2 ${(width / 2).toFixed(1)} -5M${(-width / 2).toFixed(1)} 0Q0 -8 ${(width / 2).toFixed(1)} 3`} />
-          <text y="22">{copy}</text>
+          <ellipse className="uvgraffiti__spark uvgraffiti__fat" cx="0" cy="0" rx="38" ry="11" />
+          <path d="M-48-10l7 7m-13 5h9M48-10l-7 7m13 5h-9" />
         </>
       );
       break;
-    case 'stamp':
+    case 'briefcase-wings':
       drawing = (
         <>
-          <rect className="uvgraffiti__stamp" x={-width / 2} y="-17" width={width} height="34" rx="3" />
-          <text y="5">{copy}</text>
+          <rect className="uvgraffiti__fill" x="-22" y="-13" width="44" height="31" rx="4" />
+          <path d="M-10-13v-8h20v8M-22 1h44M-23-5C-43-27-52-16-46 4C-38-6-31-8-23-5ZM23-5C43-27 52-16 46 4C38-6 31-8 23-5Z" />
         </>
       );
       break;
-    case 'arrow':
+    case 'grad-cap':
       drawing = (
         <>
-          <path d={`M${(-width / 2).toFixed(1)} 18Q${(-width * 0.1).toFixed(1)} -15 ${(width / 2).toFixed(1)} -4l-13-8m13 8l-11 10`} />
-          <text x={-width / 2} y="35" textAnchor="start">{copy}</text>
+          <path className="uvgraffiti__fill" d="M-42-8L0-28L42-8L0 12Z" />
+          <path className="uvgraffiti__fat" d="M-25 4v20q25 14 50 0V4M42-8v30l-7 9" />
         </>
       );
       break;
-    case 'ring':
+    case 'flask-burst':
       drawing = (
         <>
-          <ellipse className="uvgraffiti__ring-copy" cx="0" cy="0" rx={width / 2} ry="21" />
-          <path d={`M${(-width * 0.42).toFixed(1)} 8Q0 22 ${(width * 0.42).toFixed(1)} 5`} />
-          <text y="40">{copy}</text>
+          <path className="uvgraffiti__fill" d="M-12-31h24m-17 0v22l-25 37q30 15 60 0L5-9v-22" />
+          <path className="uvgraffiti__hot" d="M-22 17q22-12 44 0M-38-16l-11-8m56-17l7-13M36-10l14-4" />
+          <circle className="uvgraffiti__spark" cx="-12" cy="22" r="4" />
+          <circle className="uvgraffiti__spark" cx="8" cy="10" r="3" />
+        </>
+      );
+      break;
+    case 'bug-parade':
+      drawing = (
+        <>
+          {[-28, 0, 28].map((cx, index) => (
+            <g key={cx} transform={`translate(${cx} ${index % 2 ? 8 : -6}) rotate(${index * 16 - 12})`}>
+              <ellipse className="uvgraffiti__hot" cy="0" rx="8" ry="11" />
+              <path d="M-7-5l-8-7m8 13l-10 3m24-9l8-7M7 1l10 3M-3-11l-3-7m9 7l3-7" />
+            </g>
+          ))}
+          <path className="uvgraffiti__spark" d="M-43 26q43-18 86 0" strokeDasharray="2 8" />
+        </>
+      );
+      break;
+    case 'crossed-dice':
+      drawing = (
+        <>
+          <rect className="uvgraffiti__fill" x="-37" y="-19" width="31" height="31" rx="4" transform="rotate(-18 -21 -3)" />
+          <rect className="uvgraffiti__fill" x="7" y="-15" width="31" height="31" rx="4" transform="rotate(17 22 0)" />
+          <path className="uvgraffiti__spark" d="M-30-8h1m12 9h1m33-6h1m10 11h1M-42 29L42-29M-42-29L42 29" />
+        </>
+      );
+      break;
+    case 'mango-rocket':
+      drawing = (
+        <>
+          <path className="uvgraffiti__fill uvgraffiti__spark" d="M0-37C27-34 30-6 7 19C-17 31-31 5-19-17C-13-29-8-36 0-37Z" />
+          <path d="M0-37q8-15 21-13M-14 22l-9 19 18-11M11 18l14 17-18-7" />
+          <path className="uvgraffiti__hot" d="M-6 31L0 53L7 30" />
+        </>
+      );
+      break;
+    case 'angel-wings':
+      drawing = (
+        <>
+          <path className="uvgraffiti__fill" d="M-3 4C-20-33-53-35-47 7C-37-5-26-9-16-5C-31 3-35 17-30 29C-20 15-11 9-3 4ZM3 4C20-33 53-35 47 7C37-5 26-9 16-5C31 3 35 17 30 29C20 15 11 9 3 4Z" />
+          <ellipse className="uvgraffiti__spark" cx="0" cy="-34" rx="20" ry="6" />
+        </>
+      );
+      break;
+    case 'game-crown':
+      drawing = (
+        <>
+          <path className="uvgraffiti__fill" d="M-36 13L-40-25L-17-8L0-35L17-8L40-25L36 13Z" />
+          <path className="uvgraffiti__fat" d="M-36 13Q0 23 36 13" />
+          <circle className="uvgraffiti__hot" cx="0" cy="-10" r="4" />
+        </>
+      );
+      break;
+    case 'headphones':
+      drawing = (
+        <>
+          <path className="uvgraffiti__fat" d="M-38 6C-38-44 38-44 38 6" />
+          <rect className="uvgraffiti__fill" x="-46" y="-2" width="17" height="35" rx="7" />
+          <rect className="uvgraffiti__fill" x="29" y="-2" width="17" height="35" rx="7" />
+          <path className="uvgraffiti__spark" d="M-15-6q15-13 30 0M-12 7q12 11 24 0" />
+        </>
+      );
+      break;
+    case 'coffee-ring':
+      drawing = (
+        <>
+          <ellipse className="uvgraffiti__hot" cx="0" cy="0" rx="35" ry="29" />
+          <ellipse cx="2" cy="1" rx="29" ry="23" strokeDasharray="4 5" />
+          <path className="uvgraffiti__hot" d="M25 19q28 17 34-5M-22-32q-9-13 0-23m14 23q-9-13 0-23" />
         </>
       );
       break;

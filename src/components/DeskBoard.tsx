@@ -1889,6 +1889,10 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
 
     const onClick = (event: MouseEvent) => {
       if (didDrag.current) return;
+      // Blacklight is deliberately read-only. CSS/inert remove the direct
+      // targets; this guard also prevents delegated article clicks if a
+      // browser retargets an event through an inert subtree.
+      if (document.body.classList.contains('board-uv')) return;
       const target = event.target as HTMLElement;
       if (isInteractive(target) || target.isContentEditable) return;
       const more = target.closest<HTMLElement>('[data-more]');
@@ -1903,6 +1907,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent }: DeskBoardProps) {
     // the far view they had just zoomed in from. The toolbar's FIT does that on
     // purpose, which is the only time anybody wants it.
     const onDblClick = (event: MouseEvent) => {
+      if (document.body.classList.contains('board-uv')) return;
       if (openSlugRef.current) return;
       const card = (event.target as HTMLElement).closest<HTMLElement>('[data-card]');
       if (card) centerNode(card);

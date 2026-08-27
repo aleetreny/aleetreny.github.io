@@ -2973,6 +2973,14 @@ body.board-uv .desk__plate-shade {
   transition: background .5s ease;
 }
 body.board-uv .obj--uvswitch { filter: none; }
+/* The blacklight is inspection-only. Pointer events fall through to the slate
+   so the camera can still pan/zoom, while inert (set by WorldOverlay) also
+   removes every descendant control from keyboard and accessibility focus. */
+body.board-uv .desk__board [data-card],
+body.board-uv .desk__board [data-obj]:not([data-obj="uvswitch"]) {
+  pointer-events: none !important;
+  cursor: default !important;
+}
 /* An open book is paper, and paper is the brightest thing under this lamp —
    not a silhouette you cannot read. */
 body.board-uv .obj--book-open { filter: saturate(.12) brightness(1.28) hue-rotate(-14deg); }
@@ -3139,9 +3147,12 @@ body.board-uv .obj--book-open { filter: saturate(.12) brightness(1.28) hue-rotat
 .uvgraffiti__beam { fill: rgba(166, 255, 110, .1); stroke: rgba(166, 255, 110, .82); }
 .uvgraffiti__pixel { fill: rgba(9, 6, 24, .88); stroke: #7cf9ff; stroke-width: 2; }
 .uvgraffiti__stamp, .uvgraffiti__ring-copy { fill: rgba(18, 8, 42, .48); }
-.uvgraffiti--wizard, .uvgraffiti--crown, .uvgraffiti--party, .uvgraffiti--wizard-school { --uv-ink: #ffe86b; }
-.uvgraffiti--alien, .uvgraffiti--cat, .uvgraffiti--ufo { --uv-ink: #a6ff6e; }
-.uvgraffiti--pirate, .uvgraffiti--vampire, .uvgraffiti--halo-horns { --uv-ink: #ff9de0; }
+.uvgraffiti--wizard, .uvgraffiti--party, .uvgraffiti--wizard-school,
+.uvgraffiti--grad-cap, .uvgraffiti--game-crown, .uvgraffiti--mango-rocket { --uv-ink: #ffe86b; }
+.uvgraffiti--alien, .uvgraffiti--cat, .uvgraffiti--ufo,
+.uvgraffiti--flask-burst, .uvgraffiti--bug-parade { --uv-ink: #a6ff6e; }
+.uvgraffiti--pirate, .uvgraffiti--vampire, .uvgraffiti--halo-horns,
+.uvgraffiti--cape, .uvgraffiti--briefcase-wings { --uv-ink: #ff9de0; }
 .uvgraffiti--card { stroke-width: 2.2; }
 .uvgraffiti--card text { font-size: 12px; letter-spacing: .08em; }
 .uvgraffiti--card:nth-of-type(3n + 1) { --uv-ink: #ff9de0; }
