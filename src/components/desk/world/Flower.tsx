@@ -1,205 +1,237 @@
-// A plant that thinks the cursor is the sun.
+// A Venus flytrap that mistakes the visitor for lunch.
 //
-// It leans, slowly, the way a real stem does — over seconds, not frames. Hold
-// still near it for long enough and it turns to face you properly, opens, and
-// eventually puts out a leaf. There is nothing to click and nothing to read.
-//
-// The head is not a sticker. Every petal breathes on its own clock and lifts
-// away from the disc as the flower opens, and if you swing the sun across it
-// fast enough while it is open it shakes its pollen loose.
+// The cursor is still the shared light source, so the stem follows it like the
+// old flower did. The difference is appetite: linger over the open trap (or
+// tap it) and it snaps, swallows the fluorescent fly, digests for a moment,
+// burps, counts the meal and opens again. All continuous motion stays in refs;
+// React only hears about the two semantic state changes in a feeding cycle.
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ObjectShell } from './ObjectShell';
 import { useWorld } from '../../../lib/world/context';
 import { useFrame, useOnScreen } from '../../../lib/world/frame';
 import { clamp, wobble } from '../../../lib/world/rng';
 import { light, watchLight } from '../../../lib/world/light';
+import { useUiText } from '../ui-text-context';
 
-/** Where the stem meets the soil. Everything above it may lean; this point
- *  may not move. */
-const ROOT_X = 55;
-const ROOT_Y = 124;
-/** How far the head stands above the root. */
-const STEM = ROOT_Y - 44;
-/** Degrees. Generous enough to be theatrical, small enough to stay planted. */
-const MAX_LEAN = 34;
-/** The frame. Wide enough that a head at full lean, fully open, with every
- *  petal at the top of its breath still lands inside it — a plant that paints
- *  outside its own box leaves the pixels behind when it comes back. */
-const VIEW = { x: -22, w: 154, h: 160 };
-const POLLEN = 8;
+const ROOT_X = 66;
+const ROOT_Y = 137;
+const HEAD_Y = 49;
+const MAX_LEAN = 28;
+const VIEW = { x: -8, w: 148, h: 168 };
+const BURPS = 6;
 
-const PETALS = Array.from({ length: 9 }, (_unused, i) => {
-  const a = (i / 9) * Math.PI * 2;
-  const cx = ROOT_X + Math.cos(a) * 15;
-  const cy = 44 + Math.sin(a) * 15;
-  return { a, cx, cy, deg: (a * 180) / Math.PI, warm: i % 2 === 1 };
-});
-
-type Grain = { x: number; y: number; vx: number; vy: number; life: number };
+type TrapMode = 'hunting' | 'digesting';
 
 export function Flower() {
+  const t = useUiText();
   const { reduced, placeRef } = useWorld();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const stemRef = useRef<SVGGElement | null>(null);
   const headRef = useRef<SVGGElement | null>(null);
-  const petalRef = useRef<SVGGElement | null>(null);
-  const dustRef = useRef<SVGGElement | null>(null);
-  const grains = useRef<Grain[]>(Array.from({ length: POLLEN }, () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 0 })));
-  const shed = useRef(0);
-  const wasTilt = useRef(0);
+  const upperRef = useRef<SVGGElement | null>(null);
+  const lowerRef = useRef<SVGGElement | null>(null);
+  const flyRef = useRef<SVGGElement | null>(null);
+  const bellyRef = useRef<SVGEllipseElement | null>(null);
+  const burpRef = useRef<SVGGElement | null>(null);
   const onScreen = useOnScreen(hostRef);
   const lean = useRef(0);
-  /** How long the light has been holding still near enough to matter. The
-   *  light's own position is the room's, shared with the microscope slide. */
-  const still = useRef(0);
-  // Opening is a number the frame loop reads and the frame loop draws; there
-  // is nothing in the markup that depends on it, so it stays out of React and
-  // the plant costs no re-renders while it breathes.
-  const bloom = useRef(0);
-  const [leaves, setLeaves] = useState(0);
+  const jaw = useRef(0.62);
+  const hover = useRef(0);
+  const cycle = useRef(-1);
+  /** One fly per approach: staying parked over the mouth cannot farm the
+   * counter. The visitor has to leave the trap and tempt it again. */
+  const armed = useRef(true);
+  const [mode, setMode] = useState<TrapMode>('hunting');
+  const [caught, setCaught] = useState(0);
 
   useEffect(watchLight, []);
+
+  const feed = useCallback(() => {
+    if (cycle.current >= 0) return;
+    cycle.current = 0;
+    hover.current = 0;
+    armed.current = false;
+    setMode('digesting');
+    setCaught((count) => count + 1);
+  }, []);
 
   useFrame((dt, now) => {
     const at = placeRef.current.get('flower');
     const host = hostRef.current;
     if (!at || !host) return;
     const box = host.getBoundingClientRect();
-    const rootX = box.left + box.width / 2;
-    const rootY = box.bottom;
+    const rootX = box.left + box.width * ((ROOT_X - VIEW.x) / VIEW.w);
+    const rootY = box.bottom - 8;
     const sun = light();
     const dx = sun.x - rootX;
     const dy = sun.y - rootY;
     const distance = Math.hypot(dx, dy);
-    const near = distance < 420 && sun.at > 0;
+    const awake = distance < 440 && sun.at > 0;
 
-    // Phototropism, with an honest time constant: a plant does not snap.
-    // It is a deliberately theatrical flower: the cursor is its sun and the
-    // response needs to be obvious at board scale, not a two-degree twitch.
-    // The ceiling is what keeps it a plant rather than a windscreen wiper: the
-    // stem is hinged at the soil, so this is the angle the whole thing leans
-    // at, and past forty degrees a stem stops looking rooted in its pot.
-    const want = near ? clamp((dx / Math.max(44, Math.abs(dy) || 44)) * 40, -MAX_LEAN, MAX_LEAN) : 0;
-    lean.current += (want - lean.current) * Math.min(1, dt / 360);
-    const sway = reduced ? 0 : wobble(now / 1800, 3) * 2.6;
+    const want = awake ? clamp((dx / Math.max(70, Math.abs(dy) || 70)) * 34, -MAX_LEAN, MAX_LEAN) : 0;
+    lean.current += (want - lean.current) * Math.min(1, dt / 330);
+    const sway = reduced ? 0 : wobble(now / 1900, 4) * 1.7;
     const tilt = clamp(lean.current + sway, -MAX_LEAN, MAX_LEAN);
+    stemRef.current?.setAttribute('transform', `rotate(${tilt.toFixed(2)} ${ROOT_X} ${ROOT_Y})`);
+    headRef.current?.setAttribute('transform', `rotate(${(-tilt * 0.32).toFixed(2)} ${ROOT_X} ${HEAD_Y})`);
 
-    if (near) still.current += dt; else still.current = 0;
-    if (still.current > 2600) bloom.current = Math.min(1, bloom.current + 0.02);
-    if (!near) bloom.current = Math.max(0, bloom.current - 0.004);
-    if (still.current > 9000 && leaves < 2) setLeaves((n) => n + 1);
-
-    // Hinged at the soil line, not below the pot: the base of the stem is the
-    // one point that must not move, or the plant walks out of its own basket.
-    if (stemRef.current) stemRef.current.setAttribute('transform', `rotate(${tilt.toFixed(2)} ${ROOT_X} ${ROOT_Y})`);
-    // The head keeps looking at the light while the stem leans away from it,
-    // which is the bit that reads as a plant rather than a rotating sticker.
-    const open = bloom.current;
-    if (headRef.current) {
-      const grow = (0.82 + open * 0.24).toFixed(3);
-      headRef.current.setAttribute('transform', `translate(55 44) rotate(${(-tilt * 0.3).toFixed(2)}) scale(${grow}) translate(-55 -44)`);
-    }
-
-    // Each petal on its own clock, and lifting away from the disc as it opens.
-    const petals = petalRef.current;
-    if (petals) {
-      for (let i = 0; i < PETALS.length; i += 1) {
-        const p = PETALS[i];
-        const beat = reduced ? 1 : 1 + Math.sin(now / 620 + i * 1.7) * (0.03 + open * 0.05);
-        const push = open * 2.4;
-        const node = petals.children[i] as SVGElement | undefined;
-        node?.setAttribute(
-          'transform',
-          `translate(${(Math.cos(p.a) * push).toFixed(2)} ${(Math.sin(p.a) * push).toFixed(2)})`
-          + ` rotate(${p.deg.toFixed(2)} ${p.cx.toFixed(2)} ${p.cy.toFixed(2)})`
-          + ` translate(${p.cx.toFixed(2)} ${p.cy.toFixed(2)}) scale(${beat.toFixed(3)})`
-          + ` translate(${(-p.cx).toFixed(2)} ${(-p.cy).toFixed(2)})`,
-        );
+    if (cycle.current < 0) {
+      const tempting = distance < 150 && sun.at > 0;
+      if (!tempting) {
+        hover.current = Math.max(0, hover.current - dt * 2.2);
+        if (distance > 190) armed.current = true;
+      } else if (armed.current) {
+        hover.current += dt;
+      }
+      const wantJaw = tempting ? 1 : awake ? 0.78 : 0.58;
+      jaw.current += (wantJaw - jaw.current) * Math.min(1, dt / 180);
+      if (armed.current && hover.current > 760) feed();
+    } else {
+      cycle.current += dt;
+      const elapsed = cycle.current;
+      if (elapsed < 115) {
+        jaw.current += (0 - jaw.current) * Math.min(1, dt / 22);
+      } else if (elapsed < 1950) {
+        jaw.current = reduced ? 0.035 : 0.035 + Math.sin(now / 105) * 0.018;
+      } else {
+        jaw.current += (0.66 - jaw.current) * Math.min(1, dt / 280);
+      }
+      if (elapsed > 2920) {
+        cycle.current = -1;
+        setMode('hunting');
       }
     }
 
-    // Pollen. An open head that gets swung about sheds a little of it, which
-    // is the one thing a flower does that a leaning shape cannot fake.
-    const dust = dustRef.current;
-    const step = Math.min(2.4, dt / 16.7);
-    const drift = tilt - wasTilt.current;
-    const swing = (Math.abs(drift) / Math.max(1, dt)) * 1000;
-    wasTilt.current = tilt;
-    shed.current -= dt;
-    if (dust && !reduced) {
-      if (open > 0.5 && swing > 22 && shed.current <= 0) {
-        const spare = grains.current.find((g) => g.life <= 0);
-        if (spare) {
-          const rad = (tilt * Math.PI) / 180;
-          spare.x = ROOT_X + STEM * Math.sin(rad) + (Math.random() - 0.5) * 9;
-          spare.y = ROOT_Y - STEM * Math.cos(rad) + (Math.random() - 0.5) * 9;
-          // Flung the way the head was going when it let go.
-          spare.vx = Math.sign(drift) * 0.55 + (Math.random() - 0.5) * 0.7;
-          spare.vy = -0.35 - Math.random() * 0.3;
-          spare.life = 1200 + Math.random() * 400;
-          shed.current = 70;
+    const angle = 25 * jaw.current;
+    upperRef.current?.setAttribute('transform', `rotate(${(-angle).toFixed(2)} ${ROOT_X} ${HEAD_Y})`);
+    lowerRef.current?.setAttribute('transform', `rotate(${angle.toFixed(2)} ${ROOT_X} ${HEAD_Y})`);
+
+    const fly = flyRef.current;
+    if (fly) {
+      const elapsed = cycle.current;
+      if (elapsed >= 0 && elapsed < 150) {
+        const pull = clamp(elapsed / 150, 0, 1);
+        const x = ROOT_X + Math.cos(now / 90) * 20 * (1 - pull);
+        const y = HEAD_Y - 5 + Math.sin(now / 70) * 12 * (1 - pull);
+        fly.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(1 - pull).toFixed(2)})`);
+        fly.setAttribute('opacity', '1');
+      } else if (elapsed >= 150) {
+        fly.setAttribute('opacity', '0');
+      } else if (awake) {
+        const x = ROOT_X + Math.cos(now / 135) * 29;
+        const y = HEAD_Y - 5 + Math.sin(now / 92) * 17;
+        fly.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(now / 8) % 18 - 9})`);
+        fly.setAttribute('opacity', '1');
+      } else {
+        fly.setAttribute('opacity', '0');
+      }
+    }
+
+    const digest = cycle.current >= 150 && cycle.current < 1950;
+    if (bellyRef.current) {
+      const pulse = digest && !reduced ? 1 + Math.sin(now / 130) * 0.13 : 1;
+      bellyRef.current.setAttribute('transform', `translate(${ROOT_X} 92) scale(${pulse.toFixed(3)}) translate(${-ROOT_X} -92)`);
+      bellyRef.current.setAttribute('opacity', digest ? '0.72' : '0.18');
+    }
+
+    const burps = burpRef.current;
+    if (burps) {
+      const burst = cycle.current - 1780;
+      for (let i = 0; i < BURPS; i += 1) {
+        const bubble = burps.children[i] as SVGCircleElement | undefined;
+        if (!bubble) continue;
+        const age = burst - i * 75;
+        if (age < 0 || age > 720 || reduced) {
+          bubble.setAttribute('opacity', '0');
+          continue;
         }
-      }
-      for (let i = 0; i < POLLEN; i += 1) {
-        const g = grains.current[i];
-        const node = dust.children[i] as SVGElement | undefined;
-        if (!node) continue;
-        if (g.life <= 0) { node.setAttribute('opacity', '0'); continue; }
-        g.life -= dt;
-        g.vy += 0.022 * step;
-        g.vx *= 0.985;
-        g.x += g.vx * step;
-        g.y += g.vy * step;
-        node.setAttribute('cx', g.x.toFixed(1));
-        node.setAttribute('cy', g.y.toFixed(1));
-        node.setAttribute('opacity', clamp(g.life / 500, 0, 0.85).toFixed(2));
+        bubble.setAttribute('cx', (ROOT_X + Math.sin(i * 2.1) * 7 + age * 0.008).toFixed(1));
+        bubble.setAttribute('cy', (HEAD_Y - age * 0.052).toFixed(1));
+        bubble.setAttribute('r', (1.8 + i * 0.35).toFixed(1));
+        bubble.setAttribute('opacity', (Math.sin((age / 720) * Math.PI) * 0.82).toFixed(2));
       }
     }
   }, onScreen);
 
   return (
-    <ObjectShell id="flower" label="a plant">
+    <ObjectShell
+      id="flower"
+      label={t('world.flower.label')}
+      hint={mode === 'hunting' ? t('world.flower.hint') : t('world.flower.digesting')}
+    >
       <div
-        className="flower"
+        className={`flytrap flytrap--${mode}`}
         ref={hostRef}
+        data-nodrag
+        role="button"
+        tabIndex={0}
+        aria-label={t('world.flower.aria')}
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          event.stopPropagation();
+          event.preventDefault();
+          feed();
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault();
+          feed();
+        }}
       >
         <svg viewBox={`${VIEW.x} 0 ${VIEW.w} ${VIEW.h}`} aria-hidden="true">
-          {/* the pot */}
-          <path d="M32 128h46l-5 30H37z" fill="#8a5a3c" />
-          <rect x="28" y="120" width="54" height="10" rx="3" fill="#a06a48" />
-          <path d="M32 128h46l-1 6H33z" fill="rgba(0,0,0,.22)" />
-          <ellipse cx="55" cy="124" rx="25" ry="5" fill="#3a2a1e" />
+          <defs>
+            <linearGradient id="trap-lobe" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#88be46" />
+              <stop offset="0.62" stopColor="#4d8b37" />
+              <stop offset="1" stopColor="#2d642f" />
+            </linearGradient>
+            <radialGradient id="trap-mouth">
+              <stop offset="0" stopColor="#d84d66" />
+              <stop offset="1" stopColor="#7f2747" />
+            </radialGradient>
+          </defs>
+
+          <path d="M40 137h52l-6 27H46z" fill="#643e31" />
+          <rect x="36" y="130" width="60" height="10" rx="3" fill="#8d5940" />
+          <path d="M40 138h52l-2 6H42z" fill="rgba(0,0,0,.25)" />
+          <ellipse cx="66" cy="134" rx="28" ry="6" fill="#28231c" />
+
           <g ref={stemRef}>
-            <path d="M55 124C55 96 52 74 55 52" stroke="#4e7a44" strokeWidth="4.5" fill="none" strokeLinecap="round" />
-            {leaves > 0 ? <path d="M55 96c-16-6-22-2-24 6 10 6 20 2 24-6z" fill="#5b8c4e" /> : null}
-            {leaves > 1 ? <path d="M55 78c15-7 21-3 23 5-10 6-19 3-23-5z" fill="#527f47" /> : null}
+            <path d="M66 134C64 111 66 83 66 53" stroke="#4f873e" strokeWidth="5.2" fill="none" strokeLinecap="round" />
+            <path d="M64 105c-18-10-28-5-30 7 13 8 25 3 30-7z" fill="#5c963f" />
+            <path d="M67 87c17-10 27-5 29 6-12 8-23 4-29-6z" fill="#4f8738" />
+            <ellipse ref={bellyRef} cx="66" cy="92" rx="7.5" ry="14" fill="#b6ee5a" opacity=".18" />
+
             <g ref={headRef}>
-              <g ref={petalRef}>
-                {PETALS.map((p) => (
-                  <ellipse
-                    key={p.deg}
-                    cx={p.cx}
-                    cy={p.cy}
-                    rx="9"
-                    ry="6"
-                    fill={p.warm ? '#f0c34a' : '#e8b23a'}
-                    transform={`rotate(${p.deg} ${p.cx} ${p.cy})`}
-                  />
-                ))}
+              <g ref={upperRef}>
+                <path d="M66 49C52 47 39 39 40 27C41 13 56 8 67 18C73 24 74 37 66 49Z" fill="url(#trap-lobe)" stroke="#274e2a" strokeWidth="1.7" />
+                <path d="M66 47C54 45 45 38 46 28C47 20 56 17 64 24C68 29 70 39 66 47Z" fill="url(#trap-mouth)" opacity=".92" />
+                <path className="flytrap__teeth" d="M45 42l-5 6m11-3l-3 8m10-6l-1 8m7-7l2 8" />
+                <circle cx="54" cy="30" r="1.2" fill="#ffd7e2" opacity=".65" />
+                <circle cx="60" cy="37" r="1" fill="#ffd7e2" opacity=".5" />
               </g>
-              <circle cx="55" cy="44" r="10" fill="#6a4a22" />
-              <circle cx="55" cy="44" r="6" fill="#4d3417" />
+              <g ref={lowerRef}>
+                <path d="M66 49C52 51 39 59 40 71C41 85 56 90 67 80C73 74 74 61 66 49Z" fill="url(#trap-lobe)" stroke="#274e2a" strokeWidth="1.7" />
+                <path d="M66 51C54 53 45 60 46 70C47 78 56 81 64 74C68 69 70 59 66 51Z" fill="url(#trap-mouth)" opacity=".92" />
+                <path className="flytrap__teeth" d="M45 56l-5-6m11 3l-3-8m10 6l-1-8m7 7l2-8" />
+                <circle cx="54" cy="68" r="1.2" fill="#ffd7e2" opacity=".65" />
+                <circle cx="60" cy="61" r="1" fill="#ffd7e2" opacity=".5" />
+              </g>
             </g>
           </g>
-          {/* Pollen rides in the pot's frame, not the stem's: once it is off
-              the head it has nothing more to do with which way the plant leans. */}
-          <g ref={dustRef}>
-            {Array.from({ length: POLLEN }, (_unused, i) => (
-              <circle key={i} r="1.8" cx="0" cy="0" fill="#f7dc86" opacity="0" />
-            ))}
+
+          <g ref={flyRef} className="flytrap__fly" opacity="0">
+            <ellipse cx="0" cy="0" rx="2.4" ry="3.2" fill="#111" />
+            <ellipse cx="-3" cy="-1" rx="3.2" ry="1.7" />
+            <ellipse cx="3" cy="-1" rx="3.2" ry="1.7" />
+            <path d="M-1 2l-3 3m5-3l3 3" />
+          </g>
+          <g ref={burpRef} className="flytrap__burps">
+            {Array.from({ length: BURPS }, (_unused, index) => <circle key={index} cx="0" cy="0" r="2" opacity="0" />)}
           </g>
         </svg>
+        <span className="flytrap__counter" aria-live="polite">{t('world.flower.caught', { count: caught })}</span>
       </div>
     </ObjectShell>
   );

@@ -2492,11 +2492,28 @@ body.has-tool iframe { pointer-events: none; }
 .garden__seeds button:hover { background: rgba(232, 196, 110, .14); color: var(--c-signal-soft); }
 .garden__seed { width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 -1px 1px rgba(0, 0, 0, .4); }
 
-/* ------------------------------------------------------------------ the flower */
-/* The frame is cut wide enough for a full lean, so the svg no longer has to
-   paint outside its own box — which is what left petals stuck to the slate. */
-.flower { width: 154px; height: 160px; }
-.flower svg { width: 100%; height: 100%; display: block; }
+/* --------------------------------------------------------- the Venus flytrap */
+.flytrap {
+  position: relative; width: 148px; height: 168px;
+  cursor: crosshair; outline: none; touch-action: manipulation;
+}
+.flytrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.flytrap:focus-visible { outline: 1px solid var(--c-signal); outline-offset: 3px; border-radius: 8px; }
+.flytrap__teeth {
+  fill: none; stroke: rgba(233, 248, 195, .94); stroke-width: 1.35;
+  stroke-linecap: round;
+}
+.flytrap__fly { transition: opacity .12s linear; }
+.flytrap__fly ellipse:not(:first-child) { fill: rgba(190, 245, 255, .62); stroke: #efffff; stroke-width: .55; }
+.flytrap__fly path { fill: none; stroke: #1b1715; stroke-width: .9; stroke-linecap: round; }
+.flytrap__burps circle { fill: rgba(187, 255, 105, .16); stroke: rgba(199, 255, 122, .85); stroke-width: .8; }
+.flytrap__counter {
+  position: absolute; right: 3px; bottom: 5px;
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: .12em;
+  color: rgba(215, 230, 183, .64); text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .8);
+}
+.flytrap--digesting .flytrap__counter { color: #c5ef76; }
 
 /* -------------------------------------------------------- the objects panel */
 .panel--objects { max-width: 640px; }
@@ -3100,6 +3117,36 @@ body.board-uv .obj--book-open { filter: saturate(.12) brightness(1.28) hue-rotat
 .uvmarks__warn {
   fill: rgba(255, 214, 64, .78); font-size: 11px; letter-spacing: .3em; text-anchor: middle;
 }
+
+/* The night crew's private annotations. Every joke shares the engineering
+   marks' SVG, so ink and photograph stay registered at every zoom. */
+.uvgraffiti {
+  --uv-ink: #7cf9ff;
+  fill: none; stroke: var(--uv-ink); stroke-width: 2.7;
+  stroke-linecap: round; stroke-linejoin: round;
+  color: var(--uv-ink); opacity: .92;
+  filter: drop-shadow(0 0 2px var(--uv-ink)) drop-shadow(0 0 7px rgba(126, 110, 255, .42));
+}
+.uvgraffiti text {
+  fill: var(--uv-ink); stroke: rgba(10, 6, 28, .9); stroke-width: 2.8;
+  paint-order: stroke fill; font-family: var(--font-mono); font-size: 10px;
+  font-weight: 700; letter-spacing: .11em; text-anchor: middle;
+}
+.uvgraffiti__fat { stroke-width: 4.3; }
+.uvgraffiti__fill { fill: rgba(124, 249, 255, .15); }
+.uvgraffiti__hot { stroke: #ff79da; fill: rgba(255, 121, 218, .16); }
+.uvgraffiti__spark { stroke: #ffe86b; fill: rgba(255, 232, 107, .18); }
+.uvgraffiti__beam { fill: rgba(166, 255, 110, .1); stroke: rgba(166, 255, 110, .82); }
+.uvgraffiti__pixel { fill: rgba(9, 6, 24, .88); stroke: #7cf9ff; stroke-width: 2; }
+.uvgraffiti__stamp, .uvgraffiti__ring-copy { fill: rgba(18, 8, 42, .48); }
+.uvgraffiti--wizard, .uvgraffiti--crown, .uvgraffiti--party, .uvgraffiti--wizard-school { --uv-ink: #ffe86b; }
+.uvgraffiti--alien, .uvgraffiti--cat, .uvgraffiti--ufo { --uv-ink: #a6ff6e; }
+.uvgraffiti--pirate, .uvgraffiti--vampire, .uvgraffiti--halo-horns { --uv-ink: #ff9de0; }
+.uvgraffiti--card { stroke-width: 2.2; }
+.uvgraffiti--card text { font-size: 12px; letter-spacing: .08em; }
+.uvgraffiti--card:nth-of-type(3n + 1) { --uv-ink: #ff9de0; }
+.uvgraffiti--card:nth-of-type(3n + 2) { --uv-ink: #ffe86b; }
+.uvgraffiti--card:nth-of-type(3n) { --uv-ink: #a6ff6e; }
 
 /* What the world is, and the way out of it. Both are pinned to the window: a
    world you cannot leave is a trap, and the switch you came in by may be a
