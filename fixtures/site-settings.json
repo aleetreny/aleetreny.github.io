@@ -165,8 +165,8 @@
           "rot": 0.9,
           "w": 620,
           "kicker": {
-            "es": "Portfolio",
-            "en": "Portfolio"
+            "es": "CV",
+            "en": "CV"
           },
           "name": {
             "es": "Alejandro\nTreny Ortega",
@@ -187,12 +187,12 @@
             }
           ],
           "intro": {
-            "es": "Hola! Soy Alejandro, un chico de Málaga con pasión por los datos y su capacidad de responder preguntas.",
-            "en": "Hi! I'm Alejandro, a guy from Málaga with a passion for data and its ability to answer questions."
+            "es": "¡Hola! Soy Alejandro, de Málaga, y me encantan los datos.",
+            "en": "Hi! I'm Alejandro, from Málaga, and I love data."
           },
           "hint": {
-            "es": "Este tablón es un recorrido por mi vida, tanto profesional como personal. Haz click en cualquier entrada para ver detalles. Puedes moverte libremente por el tablero tanto con un ratón como con trackpad.",
-            "en": "This board is a walk through my life, professional and personal alike. Click on any entry to see the details. You can move around the board freely with either a mouse or a trackpad."
+            "es": "Este panel es un viaje por mi vida, tanto profesional como personal. Tiene un enfoque diferente a los posts ultra pulidos de LinkedIn; aquí la transparencia es lo primero. Haz clic en cualquier entrada para ver los detalles. Los objetos son interactivos :)",
+            "en": "This dashboard is a journey through my life, both professional and personal. It takes a different approach to the ultra-polished LinkedIn posts; here, transparency comes first. Click on any entry to see the details. The objects are interactive :)"
           }
         },
         {
@@ -2994,21 +2994,21 @@
     "key": "site.i18n",
     "value": {
       "enabled": true,
-      "primary": "es",
+      "primary": "en",
       "languages": [
-        {
-          "code": "es",
-          "label": "Español"
-        },
         {
           "code": "en",
           "label": "English"
+        },
+        {
+          "code": "es",
+          "label": "Español"
         }
       ],
       "auto": true,
       "provider": "mymemory",
       "remember": true,
-      "followBrowser": true
+      "followBrowser": false
     },
     "is_public": true
   }

@@ -177,11 +177,11 @@ export const CARDS = [
     y: 137,
     rot: 0.9,
     w: 620,
-    kicker: {"es": "Portfolio", "en": "Portfolio"},
+    kicker: {"es": "CV", "en": "CV"},
     name: {"es": "Alejandro\nTreny Ortega", "en": "Alejandro\nTreny Ortega"},
     tags: [{"es": "estadística", "en": "statistics"}, {"es": "datos", "en": "data"}, {"es": "economía", "en": "economics"}],
-    intro: {"es": "Hola! Soy Alejandro, un chico de Málaga con pasión por los datos y su capacidad de responder preguntas.", "en": "Hi! I'm Alejandro, a guy from Málaga with a passion for data and its ability to answer questions."},
-    hint: {"es": "Este tablón es un recorrido por mi vida, tanto profesional como personal. Haz click en cualquier entrada para ver detalles. Puedes moverte libremente por el tablero tanto con un ratón como con trackpad.", "en": "This board is a walk through my life, professional and personal alike. Click on any entry to see the details. You can move around the board freely with either a mouse or a trackpad."},
+    intro: {"es": "¡Hola! Soy Alejandro, de Málaga, y me encantan los datos.", "en": "Hi! I'm Alejandro, from Málaga, and I love data."},
+    hint: {"es": "Este panel es un viaje por mi vida, tanto profesional como personal. Tiene un enfoque diferente a los posts ultra pulidos de LinkedIn; aquí la transparencia es lo primero. Haz clic en cualquier entrada para ver los detalles. Los objetos son interactivos :)", "en": "This dashboard is a journey through my life, both professional and personal. It takes a different approach to the ultra-polished LinkedIn posts; here, transparency comes first. Click on any entry to see the details. The objects are interactive :)"},
   },
   {
     id: "now",
@@ -801,15 +801,15 @@ export { PASSPORT } from './passport-data.mjs';
 // writes in `primary`, and the translate action in the owner bar fills the rest.
 export const I18N = {
   enabled: true,
-  primary: 'es',
+  primary: 'en',
   languages: [
-    { code: 'es', label: 'Español' },
     { code: 'en', label: 'English' },
+    { code: 'es', label: 'Español' },
   ],
   auto: true, // translate a field when the owner leaves it
   provider: 'mymemory', // mymemory (keyless) | function (your own key) | off
   remember: true, // keep the visitor's choice
-  followBrowser: true, // open in the visitor's own language when we have it
+  followBrowser: false, // default directly to primary (English) on fresh/incognito visits
 };
 
 // The guided tour — the slate slams onto the wall and the visitor walks the
