@@ -153,32 +153,6 @@ function CardBody({ card, entries, groupLabel, active, numbered, onOpen }: {
     );
   }
 
-  if (card.type === 'now') {
-    return (
-      <div className={`m-sheet card__surface card__surface--${tone(card)}`}>
-        <div className="m-now__label"><span className="m-now__dot" />{card.label ?? t('card.currently')}</div>
-        <button className="m-now__block" type="button" disabled={!card.current} onClick={() => card.current && onOpen(card.current)}>
-          {/* The chevron is placed by the grid's own flow, so it has to come
-              before the line that spans both columns. */}
-          <span className="m-now__title">{card.currentTitle}</span>
-          {card.current ? <span className="m-now__go" aria-hidden="true">›</span> : null}
-          {card.currentSub ? <span className="m-now__sub">{card.currentSub}</span> : null}
-        </button>
-        {card.nextTitle ? (
-          <>
-            <div className="m-now__rule" />
-            <div className="m-now__next-label">{card.nextLabel ?? t('card.next')}</div>
-            <button className="m-now__block" type="button" disabled={!card.next} onClick={() => card.next && onOpen(card.next)}>
-              <span className="m-now__title m-now__title--small">{card.nextTitle}</span>
-              {card.next ? <span className="m-now__go" aria-hidden="true">›</span> : null}
-              {card.nextSub ? <span className="m-now__sub">{card.nextSub}</span> : null}
-            </button>
-          </>
-        ) : null}
-      </div>
-    );
-  }
-
   if (card.type === 'spotify') {
     const embed = spotifyTrackEmbedUrl(card.spotifyUrl);
     if (!embed || !active) return null;

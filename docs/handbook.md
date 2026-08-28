@@ -260,16 +260,20 @@ narrow switches over too, and back again.
 
 **One card per screen, and nothing else.** Every stop in `board.tour` becomes a
 screen: the stop's heading, the card it frames, and underneath it any other
-*card* that stop carries — the `now` card under the cover, the music player
-under the podcast. A stop that frames two cards becomes two screens under one
-heading. A stop that frames nothing a reader can read — a drawn mark, a
-photograph — does not become a screen at all.
+*card* that stop carries — the music player under the podcast. A stop that
+frames two cards becomes two screens under one heading. A stop that frames
+nothing the walk draws does not become a screen at all.
 
-The board's furniture stays on the board. The instant photographs and the
-pinned notes are what the eye rests on *between* one drawer and the next on a
-slate; stacked in a single column they are only something to scroll past on the
-way to the work, so the walk does not draw them. They are still there on the
-full slate, one tap away from the last screen.
+Three kinds of card the walk never draws: a **scrap**, which is a drawn mark; a
+**stamp**, which is a decoration on the passport; and the **`now` card**, which
+is real content but repeats the top of the work drawer two screens later, and
+which the cover reads better without.
+
+The board's furniture stays on the board for the same reason. The instant
+photographs and the pinned notes are what the eye rests on *between* one drawer
+and the next on a slate; stacked in a single column they are only something to
+scroll past on the way to the work. They are all still there on the full slate,
+one tap away from the last screen.
 
 **Nothing to keep in sync.** The route is read through the same `buildStops` the
 desktop camera uses, so renaming a stop, reordering the walk or adding a card

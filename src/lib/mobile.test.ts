@@ -56,11 +56,25 @@ describe('the walk a phone takes', () => {
 
   it('carries the stop’s other cards under the one it is about', () => {
     const chapters = buildChapters(
-      board({ cards: [card('hero', { type: 'hero' }), card('now', { type: 'now' })] }),
-      customTour([{ id: 'a', label: 'Who I am', items: ['hero'], extras: ['now'] }]),
+      board({ cards: [card('pod', { type: 'spotlight' }), card('track', { type: 'spotify' })] }),
+      customTour([{ id: 'a', label: 'On the air', items: ['pod'], extras: ['track'] }]),
     );
     expect(chapters).toHaveLength(1);
-    expect(chapters[0].extras.map((extra) => extra.id)).toEqual(['now']);
+    expect(chapters[0].extras.map((extra) => extra.id)).toEqual(['track']);
+  });
+
+  // The cover is the name and nothing else; "currently" repeats the top of the
+  // work drawer two screens later, and stays on the slate.
+  it('leaves the currently card on the slate', () => {
+    const chapters = buildChapters(
+      board({ cards: [card('hero', { type: 'hero' }), card('now', { type: 'now' })] }),
+      customTour([
+        { id: 'a', label: 'Who I am', items: ['hero'], extras: ['now'] },
+        { id: 'b', label: 'Now', items: ['now'] },
+      ]),
+    );
+    expect(chapters.map((chapter) => chapter.card.id)).toEqual(['hero']);
+    expect(chapters[0].extras).toEqual([]);
   });
 
   it('never repeats a card that two stops both name', () => {
@@ -138,8 +152,9 @@ describe('the walk a phone takes', () => {
     // Every readable card on the slate reaches a screen, and none twice.
     const seen = chapters.map((chapter) => chapter.card.id);
     expect(new Set(seen).size).toBe(seen.length);
-    // And nothing that is not a card reaches one.
-    expect(chapters.every((chapter) => chapter.card.type !== 'scrap')).toBe(true);
+    // And nothing the walk does not draw reaches one.
+    const drawn = chapters.flatMap((chapter) => [chapter.card, ...chapter.extras]);
+    expect(drawn.every((piece) => !['scrap', 'stamp', 'now'].includes(piece.type))).toBe(true);
   });
 });
 

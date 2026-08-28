@@ -193,13 +193,14 @@ different program: the same board, walked.
 
 - **The route is the tour.** `src/lib/mobile.ts` reads `board.tour` through the
   same `buildStops` the desktop camera uses and turns each stop into one screen:
-  its heading, the card it frames, and any other card it carries — the `now`
-  card under the cover, the player under the podcast. Pure, and covered by
-  `src/lib/mobile.test.ts`.
-- **A screen is a card.** The instant photographs and the pinned notes are what
-  the eye rests on between one drawer and the next on a slate; in a single
-  column they are only something to scroll past on the way to the work. The
-  walk does not draw them, and a generated route never stops on one. They stay
+  its heading, the card it frames, and any other card it carries — the player
+  under the podcast. Pure, and covered by `src/lib/mobile.test.ts`.
+- **A screen is a card, and one short list says which cards.** Scraps and
+  stamps are drawn marks; the `now` card repeats the top of the work drawer two
+  screens later and the cover reads better as the name alone. The instant
+  photographs and the pinned notes are what the eye rests on between one drawer
+  and the next on a slate, not something to scroll past in a column. None of it
+  is drawn, a generated route never stops on any of it, and all of it is still
   on the full slate, one tap from the last screen.
 - **Nothing to maintain twice.** Rename a stop, reorder the walk or add a card
   from the tour panel and the phone follows, in both languages. The sheets are

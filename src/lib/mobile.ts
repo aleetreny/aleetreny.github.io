@@ -24,10 +24,13 @@
 import { buildStops, type TourConfig, type TourItem, type TourStop } from './tour';
 import type { BoardCard, BoardConfig, LayoutMap } from './board';
 
-/** Card types that carry nothing a reader could use on a phone: a scrap is a
- *  drawn mark and a stamp is a decoration on the passport. They stay on the
- *  desktop slate, where they are furniture rather than content. */
-const SILENT_CARDS = new Set<BoardCard['type']>(['scrap', 'stamp']);
+/** Card types the walk does not draw.
+ *
+ *  A scrap is a drawn mark and a stamp is a decoration on the passport —
+ *  furniture rather than content. The `now` card is content, but it repeats
+ *  the top of the work drawer two screens later, and the cover reads better
+ *  as the name and nothing else. All three stay on the desktop slate. */
+const SILENT_CARDS = new Set<BoardCard['type']>(['scrap', 'stamp', 'now']);
 
 /** One screen of the mobile app. */
 export type MobileChapter = {
@@ -37,8 +40,8 @@ export type MobileChapter = {
   label: string;
   /** The card the screen is built around. */
   card: BoardCard;
-  /** Other cards the stop carries, rendered under the one it is about: the
-   *  `now` card under the cover, the music player under the podcast. */
+  /** Other cards the stop carries, rendered under the one it is about — the
+   *  music player under the podcast. */
   extras: BoardCard[];
 };
 
