@@ -278,10 +278,19 @@ export function MobileBoard({ onOpenBoard }: MobileBoardProps) {
 
   const layer = (name: string) => (window.history.state as { layer?: string } | null)?.layer === name;
 
+  // Contact is a card with outbound links, not a dossier. The filter also
+  // keeps a previously seeded contact entry out of article next/previous
+  // navigation until the content store is refreshed from this source.
+  const articleEntries = useMemo(
+    () => entries.filter((entry) => entry.slug !== 'contact'),
+    [entries],
+  );
+
   const openArticle = useCallback((slug: string) => {
+    if (!articleEntries.some((entry) => entry.slug === slug)) return;
     if (!openSlugRef.current) window.history.pushState({ layer: 'article' }, '');
     setOpenSlug(slug);
-  }, []);
+  }, [articleEntries]);
   const closeArticle = useCallback(() => {
     if (layer('article')) window.history.back(); else setOpenSlug(null);
   }, []);
@@ -301,16 +310,16 @@ export function MobileBoard({ onOpenBoard }: MobileBoardProps) {
   }, []);
 
   const orderedSlugs = useMemo(
-    () => dossierOrder(entries, board.groups.map((group) => group.id)),
-    [entries, board.groups],
+    () => dossierOrder(articleEntries, board.groups.map((group) => group.id)),
+    [articleEntries, board.groups],
   );
-  const openEntry = openSlug ? entries.find((entry) => entry.slug === openSlug) ?? null : null;
+  const openEntry = openSlug ? articleEntries.find((entry) => entry.slug === openSlug) ?? null : null;
   const articleAt = openSlug ? orderedSlugs.indexOf(openSlug) : -1;
   const stepArticle = (delta: number) => {
     if (orderedSlugs.length === 0) return;
     setOpenSlug(orderedSlugs[(articleAt + delta + orderedSlugs.length) % orderedSlugs.length]);
   };
-  const titleOf = (slug: string | undefined) => entries.find((entry) => entry.slug === slug)?.title ?? '';
+  const titleOf = (slug: string | undefined) => articleEntries.find((entry) => entry.slug === slug)?.title ?? '';
 
   // ---- chrome --------------------------------------------------------------
   const heading = splitLabel(chapters[index]?.label ?? '');
@@ -397,7 +406,6 @@ export function MobileBoard({ onOpenBoard }: MobileBoardProps) {
                   chapter={chapter}
                   entries={entries}
                   groupLabel={groupLabel}
-                  active={i === index}
                   onOpen={openArticle}
                   footer={i === count - 1 ? (
                     <div className="m-outro">
@@ -482,7 +490,7 @@ export function MobileBoard({ onOpenBoard }: MobileBoardProps) {
             <MobileArticle
               key={openEntry.id}
               entry={openEntry}
-              articles={entries}
+              articles={articleEntries}
               activeLanguage={activeLang}
               position={`${articleAt + 1} / ${orderedSlugs.length}`}
               fromLabel={heading.text}

@@ -375,11 +375,6 @@
 .m-levels__marks i { width: 9px; height: 9px; border: 1px solid color-mix(in oklch, currentColor 40%, transparent); }
 .m-levels__marks i.is-on { background: var(--c-accent); border-color: var(--c-accent); }
 
-/* ------------------------------------------------------------------ music */
-.m-spotify { display: flex; flex-direction: column; gap: 8px; }
-.m-spotify .k { opacity: .55; padding-left: 2px; }
-.m-spotify iframe { width: 100%; height: 152px; border: 0; display: block; }
-
 /* ------------------------------------------------------------------ the way out */
 .m-outro { margin-top: 8px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
 .m-outro__btn {

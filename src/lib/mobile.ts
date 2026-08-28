@@ -29,8 +29,17 @@ import type { BoardCard, BoardConfig, LayoutMap } from './board';
  *  A scrap is a drawn mark and a stamp is a decoration on the passport —
  *  furniture rather than content. The `now` card is content, but it repeats
  *  the top of the work drawer two screens later, and the cover reads better
- *  as the name and nothing else. All three stay on the desktop slate. */
-const SILENT_CARDS = new Set<BoardCard['type']>(['scrap', 'stamp', 'now']);
+ *  as the name and nothing else. Spotify is a desktop-only player. All four
+ *  stay on the desktop slate. */
+const SILENT_CARDS = new Set<BoardCard['type']>(['scrap', 'stamp', 'now', 'spotify']);
+
+/** Cards that already contain all of their visitor-facing information. They
+ * should never turn into an empty dossier just because an older saved board
+ * still carries an `open` value for them. */
+export function mobileArticleSlug(card: BoardCard): string | undefined {
+  if (card.id === 'langs' || card.type === 'contact') return undefined;
+  return card.open;
+}
 
 /** One screen of the mobile app. */
 export type MobileChapter = {
@@ -40,8 +49,7 @@ export type MobileChapter = {
   label: string;
   /** The card the screen is built around. */
   card: BoardCard;
-  /** Other cards the stop carries, rendered under the one it is about — the
-   *  music player under the podcast. */
+  /** Other cards the stop carries, rendered under the one it is about. */
   extras: BoardCard[];
 };
 

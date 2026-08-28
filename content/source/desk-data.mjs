@@ -736,21 +736,6 @@ export const ITEMS = {
       { id: "04c78f75-4ef6-4fa1-ba77-bed76c0b5e22", type: "text", props: {"text":{"es":"Se lo recomiendo a todo el mundo!","en":"I recommend it to everyone!"},"textLinks":{"es":[]}} },
     ],
   },
-  "contact": {
-    id: "6135d86d-3506-5c74-95e6-7f6f26e1c2d5",
-    kicker: {"es":"Accesible","en":"Reachable"},
-    when: {"es":"siempre","en":"always"},
-    where: {"es":"Madrid → Londres","en":"Madrid → London"},
-    title: {"es":"Algo extraño","en":"Something strange"},
-    lede: {"es":"La respuesta más rápida si tu mensaje contiene una pregunta que nadie me ha hecho antes.","en":"The fastest answer if your message contains a question nobody has asked me before."},
-    group: "contact", order: 0,
-    blocks: [
-      { id: "3b5da077-e2e3-53eb-bed9-26d178eb46c3", type: "metrics", props: {"items":[["ES / FR / EN","languages"],["Madrid","now"],["London","Oct 2026"]]} },
-      { id: "6076062c-1dc8-5b08-a758-d66471bb970d", type: "text", props: {"text":{"es":"El correo electrónico es lo mejor. GitHub si se trata de código. LinkedIn si debe ser formal.","en":"Email is best. GitHub if it is about code. LinkedIn if it has to be formal."}} },
-      { id: "d2a98206-9ec8-511b-b0d6-99e76a484e4a", type: "tags", props: {"items":[{"es":"contacto","en":"contact"}]} },
-      { id: "4fe84141-c41d-5c3f-88e9-e3af0af66676", type: "links", props: {"items":[["alejandrotreny100@gmail.com","mailto:alejandrotreny100@gmail.com"],["github.com/aleetreny","https://github.com/aleetreny"],["linkedin.com/in/aleetreny","https://linkedin.com/in/aleetreny"]]} },
-    ],
-  },
   "erasmus-programme": {
     id: "534ccf7e-7bb4-4d7d-b206-2d70d423e588",
     kicker: {"es":"Experiencia Internacional","en":"International Experience"},

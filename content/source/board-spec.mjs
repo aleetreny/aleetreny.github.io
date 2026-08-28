@@ -104,7 +104,6 @@ export const GROUPS = {
   "repos": ["atlas", "mapping-science", "localizate", "scholar-pulse", "vexillology", "hollywood", "cabicity", "small-repos", "c2-practice-log"],
   "travel": [],
   "random": ["garden", "telescope", "racket", "genome", "apocalypse"],
-  "contact": ["contact"],
   "experiencias-internacionales": ["erasmus-programme", "traineeship-programme", "youth-exchange", "intercambio-de-idiomas"],
 };
 
@@ -119,7 +118,6 @@ export const GROUP_LABELS = {
   "repos": "Projects",
   "travel": "Travel",
   "random": "Hobbies",
-  "contact": "Contact",
   "experiencias-internacionales": "Mobility",
 };
 
@@ -135,7 +133,6 @@ export const GROUP_LABELS_ES = {
   "repos": "Proyectos",
   "travel": "Viajes",
   "random": "Hobbies",
-  "contact": "Contacto",
   "experiencias-internacionales": "Movilidad",
 };
 
@@ -149,7 +146,6 @@ export const GROUP_ENTRY_TYPE = {
   "repos": "project",
   "travel": "note",
   "random": "note",
-  "contact": "note",
   "experiencias-internacionales": "experience",
 };
 export const ENTRY_TYPE_OVERRIDE = { frulogy: 'project' };
@@ -338,7 +334,6 @@ export const CARDS = [
   {
     id: "langs",
     type: "sticker",
-    open: "languages",
     tone: "paperCream",
     x: 192,
     y: 1108,
@@ -395,7 +390,6 @@ export const CARDS = [
     id: "contact",
     type: "contact",
     jump: "contact",
-    open: "contact",
     tone: "dark",
     x: 3453,
     y: 1951,

@@ -13,19 +13,14 @@
 
 import type { ReactNode } from 'react';
 import { entriesForGroup, STICKER_MARKS, type BoardCard, type TagChip } from '../../lib/board';
-import { spotifyTrackEmbedUrl } from '../../lib/spotify-embed';
 import type { PortfolioEntry } from '../../types/content';
-import type { MobileChapter } from '../../lib/mobile';
-import { splitLabel } from '../../lib/mobile';
+import { mobileArticleSlug, splitLabel, type MobileChapter } from '../../lib/mobile';
 import { useUiText } from '../desk/ui-text-context';
 
 type ChapterProps = {
   chapter: MobileChapter;
   entries: PortfolioEntry[];
   groupLabel: (id: string | undefined) => string;
-  /** True only for the screen on show. A third-party player is mounted on it
-   *  alone: two Spotify frames to look at one is two too many. */
-  active: boolean;
   onOpen: (slug: string) => void;
   /** Rendered under the last screen: the ways out of the walk. */
   footer?: ReactNode;
@@ -122,17 +117,17 @@ function OpenAction({ slug, label, onOpen }: { slug: string; label: string; onOp
   );
 }
 
-function CardBody({ card, entries, groupLabel, active, numbered, onOpen }: {
+function CardBody({ card, entries, groupLabel, numbered, onOpen }: {
   card: BoardCard;
   entries: PortfolioEntry[];
   groupLabel: (id: string | undefined) => string;
-  active: boolean;
   /** The screen above this card already prints its number. */
   numbered: boolean;
   onOpen: (slug: string) => void;
 }) {
   const t = useUiText();
   const kicker = withoutNumber(card.kicker, numbered);
+  const articleSlug = mobileArticleSlug(card);
 
   if (card.type === 'hero') {
     return (
@@ -149,22 +144,6 @@ function CardBody({ card, entries, groupLabel, active, numbered, onOpen }: {
         ) : null}
         {card.intro ? <p className="m-hero__intro">{card.intro}</p> : null}
         {card.hint ? <p className="m-hero__hint">{card.hint}</p> : null}
-      </div>
-    );
-  }
-
-  if (card.type === 'spotify') {
-    const embed = spotifyTrackEmbedUrl(card.spotifyUrl);
-    if (!embed || !active) return null;
-    return (
-      <div className="m-spotify">
-        <span className="k">{t('card.spotifyKicker')}</span>
-        <iframe
-          src={embed}
-          title={card.title || t('card.spotifyTitle')}
-          loading="lazy"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        />
       </div>
     );
   }
@@ -190,7 +169,7 @@ function CardBody({ card, entries, groupLabel, active, numbered, onOpen }: {
             ))}
           </div>
         ) : null}
-        {card.open ? <OpenAction slug={card.open} label={t('mobile.readFile')} onOpen={onOpen} /> : null}
+        {articleSlug ? <OpenAction slug={articleSlug} label={t('mobile.readFile')} onOpen={onOpen} /> : null}
       </div>
     );
   }
@@ -214,7 +193,7 @@ function CardBody({ card, entries, groupLabel, active, numbered, onOpen }: {
           ))}
         </ul>
         {card.note ? <p className="m-sheet__note">{card.note}</p> : null}
-        {card.open ? <OpenAction slug={card.open} label={t('mobile.readFile')} onOpen={onOpen} /> : null}
+        {articleSlug ? <OpenAction slug={articleSlug} label={t('mobile.readFile')} onOpen={onOpen} /> : null}
       </div>
     );
   }
@@ -271,7 +250,7 @@ function CardBody({ card, entries, groupLabel, active, numbered, onOpen }: {
   );
 }
 
-export function MobileChapterView({ chapter, entries, groupLabel, active, onOpen, footer }: ChapterProps) {
+export function MobileChapterView({ chapter, entries, groupLabel, onOpen, footer }: ChapterProps) {
   const heading = splitLabel(chapter.label);
   // The cover is its own heading: printing "Who I am" above a card that says
   // the name in 46px says it twice.
@@ -285,10 +264,10 @@ export function MobileChapterView({ chapter, entries, groupLabel, active, onOpen
         </header>
       ) : null}
 
-      <CardBody card={chapter.card} entries={entries} groupLabel={groupLabel} active={active} numbered={Boolean(heading.number)} onOpen={onOpen} />
+      <CardBody card={chapter.card} entries={entries} groupLabel={groupLabel} numbered={Boolean(heading.number)} onOpen={onOpen} />
 
       {chapter.extras.map((extra) => (
-        <CardBody key={extra.id} card={extra} entries={entries} groupLabel={groupLabel} active={active} numbered={Boolean(heading.number)} onOpen={onOpen} />
+        <CardBody key={extra.id} card={extra} entries={entries} groupLabel={groupLabel} numbered={Boolean(heading.number)} onOpen={onOpen} />
       ))}
 
       {footer}

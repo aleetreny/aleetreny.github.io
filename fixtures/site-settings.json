@@ -141,13 +141,6 @@
           }
         },
         {
-          "id": "contact",
-          "label": {
-            "en": "Contact",
-            "es": "Contacto"
-          }
-        },
-        {
           "id": "experiencias-internacionales",
           "label": {
             "en": "Mobility",
@@ -475,7 +468,6 @@
         {
           "id": "langs",
           "type": "sticker",
-          "open": "languages",
           "tone": "paperCream",
           "x": 192,
           "y": 1108,
@@ -594,7 +586,6 @@
           "id": "contact",
           "type": "contact",
           "jump": "contact",
-          "open": "contact",
           "tone": "dark",
           "x": 3453,
           "y": 1951,

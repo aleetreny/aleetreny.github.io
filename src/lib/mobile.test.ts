@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildChapters, splitLabel, withLayout } from './mobile';
+import { buildChapters, mobileArticleSlug, splitLabel, withLayout } from './mobile';
 import { parseBoard, type BoardCard, type BoardConfig, type Marginal, type Polaroid } from './board';
 import { parseTour, type TourConfig } from './tour';
 
@@ -54,13 +54,19 @@ describe('the walk a phone takes', () => {
     expect(chapters.map((chapter) => chapter.id)).toEqual(['a', 'a-2']);
   });
 
-  it('carries the stop’s other cards under the one it is about', () => {
+  it('leaves Spotify players on the desktop slate', () => {
     const chapters = buildChapters(
       board({ cards: [card('pod', { type: 'spotlight' }), card('track', { type: 'spotify' })] }),
       customTour([{ id: 'a', label: 'On the air', items: ['pod'], extras: ['track'] }]),
     );
     expect(chapters).toHaveLength(1);
-    expect(chapters[0].extras.map((extra) => extra.id)).toEqual(['track']);
+    expect(chapters[0].extras).toEqual([]);
+  });
+
+  it('does not open dossiers for cards that are complete on their own', () => {
+    expect(mobileArticleSlug(card('langs', { type: 'sticker', open: 'languages' }))).toBeUndefined();
+    expect(mobileArticleSlug(card('contact', { type: 'contact', open: 'contact' }))).toBeUndefined();
+    expect(mobileArticleSlug(card('pod', { type: 'spotlight', open: 'podcast' }))).toBe('podcast');
   });
 
   // The cover is the name and nothing else; "currently" repeats the top of the
@@ -154,7 +160,7 @@ describe('the walk a phone takes', () => {
     expect(new Set(seen).size).toBe(seen.length);
     // And nothing the walk does not draw reaches one.
     const drawn = chapters.flatMap((chapter) => [chapter.card, ...chapter.extras]);
-    expect(drawn.every((piece) => !['scrap', 'stamp', 'now'].includes(piece.type))).toBe(true);
+    expect(drawn.every((piece) => !['scrap', 'stamp', 'now', 'spotify'].includes(piece.type))).toBe(true);
   });
 });
 
