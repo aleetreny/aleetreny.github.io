@@ -3611,3 +3611,55 @@ body.board-uv [data-card].is-uv-propped {
   .hab { animation: none; }
   .hab-room__box { transition: none; }
 }
+
+/* ── inside a room ────────────────────────────────────────────────────────
+   The warm half. Integer scale, smoothing off, and the same grid the engine
+   walks people across. */
+
+.hab-room-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.hab-room-view__canvas {
+  image-rendering: pixelated;
+  border: 1px solid rgba(124, 249, 255, .22);
+  cursor: crosshair;
+  max-width: 100%;
+  max-height: 100%;
+}
+.hab-room-view__tip {
+  position: absolute;
+  left: 50%;
+  bottom: .2rem;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: .35rem .8rem;
+  background: rgba(4, 3, 10, .92);
+  border: 1px solid rgba(255, 214, 64, .4);
+  font-size: .72rem;
+  color: rgba(207, 232, 238, .8);
+  white-space: nowrap;
+}
+.hab-room-view__tip b { color: #fff3d6; font-weight: 400; }
+
+.hab__back {
+  position: absolute;
+  top: .55rem;
+  left: .8rem;
+  z-index: 2;
+  background: none;
+  border: 1px solid rgba(124, 249, 255, .35);
+  color: #7cf9ff;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .2em;
+  padding: .3rem .7rem;
+  cursor: pointer;
+}
+.hab__back:hover { background: rgba(124, 249, 255, .1); border-color: #7cf9ff; }
+.hab__back:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+
+.hab__stage { position: relative; padding-top: 2.4rem; }

@@ -11,9 +11,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HabitatSection } from './HabitatSection';
+import { RoomCanvas } from './RoomCanvas';
 import { ROOM_BY_ID, type RoomId } from '../../../lib/habitat/rooms';
 import { RESIDENT_BY_ID } from '../../../lib/habitat/residents';
-import { genesisSnapshot } from '../../../lib/habitat/snapshot';
+import { genesisSnapshot, type PersonState } from '../../../lib/habitat/snapshot';
 
 const WATCH = ['', 'I', 'II', 'III', 'IV'] as const;
 
@@ -26,10 +27,13 @@ function clock(minute: number): string {
 export function HabitatView({ onClose }: { onClose: () => void }) {
   const snapshot = useMemo(() => genesisSnapshot(), []);
   const [selected, setSelected] = useState<RoomId | null>(null);
+  const [hovered, setHovered] = useState<PersonState | null>(null);
 
   const close = useCallback(() => {
-    if (selected) setSelected(null);
-    else onClose();
+    if (selected) {
+      setSelected(null);
+      setHovered(null);
+    } else onClose();
   }, [onClose, selected]);
 
   useEffect(() => {
@@ -61,11 +65,26 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
 
       <div className="hab__body">
         <div className="hab__stage">
-          <HabitatSection
-            snapshot={snapshot}
-            selected={selected}
-            onSelect={(id) => setSelected((cur) => (cur === id ? null : id))}
-          />
+          {selected ? (
+            <>
+              <button type="button" className="hab__back" onClick={close}>
+                ← the whole habitat
+              </button>
+              <RoomCanvas
+                room={selected}
+                snapshot={snapshot}
+                hovered={hovered}
+                onHover={setHovered}
+                onPick={(p) => setHovered(p)}
+              />
+            </>
+          ) : (
+            <HabitatSection
+              snapshot={snapshot}
+              selected={selected}
+              onSelect={(id) => setSelected(id)}
+            />
+          )}
         </div>
 
         <aside className="hab__rail">
