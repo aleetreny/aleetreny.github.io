@@ -11,6 +11,7 @@
 // so that editing a bond cannot quietly destroy the fact.
 
 import { mulberry32 } from '../world/rng';
+import { AUTHORED, BASELINE, SAME_CLUSTER_BONUS, type AxisSet, type Directed } from './axes';
 import { RESIDENTS, type Cluster, type ResidentId } from './residents';
 
 export const AXES = [
@@ -352,4 +353,93 @@ export function randomBaseline(
     meanModularity: mod / trials,
     atLeastAsExtreme: extreme,
   };
+}
+
+// ── the whole weave, as numbers ──────────────────────────────────────────────
+
+export type Edge = {
+  from: ResidentId;
+  to: ResidentId;
+  /** Zero to a hundred on each of the six. Directed: this is what `from` holds
+   *  towards `to`, which is not what `to` holds back. */
+  axes: Record<Axis, number>;
+  /** Whether anything was authored here, or it is only a hundred days of
+   *  sharing sixteen rooms. */
+  bonded: boolean;
+  latent: boolean;
+};
+
+function fill(set: AxisSet, sameCluster: boolean): Record<Axis, number> {
+  const out = {} as Record<Axis, number>;
+  for (const axis of AXES) {
+    const authored = set[axis];
+    if (authored !== undefined) out[axis] = authored;
+    else out[axis] = BASELINE[axis] + (sameCluster ? SAME_CLUSTER_BONUS : 0);
+  }
+  return out;
+}
+
+const LATENT_PAIRS = new Set(LATENT.map((b) => pairKey(b.from, b.to)));
+const BONDED_PAIRS = new Set([...BONDS, ...LATENT].map((b) => pairKey(b.from, b.to)));
+
+/** The two moments the weave has so far. `embarkation` is what they carried
+ *  aboard and nothing else: twenty-five people who mostly had never met, and the
+ *  handful who had. `now` is day one hundred, with a hundred days of sharing
+ *  sixteen rooms on top. Every later day is a third moment, a fourth, and so on,
+ *  and the scrubber walks them. */
+export type When = 'embarkation' | 'now';
+
+/** Bonds that did not exist before the crash. They are the proof the weave grows,
+ *  and at embarkation they are nothing at all. */
+const FORMED_ABOARD = new Set(['AP', 'JK']);
+
+/** Every directed edge between every pair: six hundred of them. Authored where
+ *  somebody wrote one, and otherwise what a hundred days in the same sixteen
+ *  rooms is worth on its own — because after a hundred days nobody here is a
+ *  stranger, whatever else they are. */
+export function edges(when: When = 'now'): Edge[] {
+  const ids = RESIDENTS.map((r) => r.id);
+  const out: Edge[] = [];
+  for (const from of ids) {
+    for (const to of ids) {
+      if (from === to) continue;
+      const sameCluster = clusterOf(from) === clusterOf(to);
+      const key = pairKey(from, to);
+      const forward = AUTHORED[`${from}${to}` as Directed];
+      const backward = AUTHORED[`${to}${from}` as Directed];
+      const set = forward?.fwd ?? backward?.bwd ?? {};
+      const authored = forward !== undefined || backward !== undefined;
+      const formedAboard = FORMED_ABOARD.has(key);
+      let axes: Record<Axis, number>;
+      if (when === 'now') {
+        axes = fill(set, sameCluster);
+      } else if (authored && !formedAboard) {
+        // Whatever they carried aboard, without the hundred days on top.
+        axes = fill(set, false);
+      } else {
+        // Strangers, and the two bonds that were made in here.
+        axes = { trust: 0, affection: 0, admiration: 0, debt: 0, resentment: 0, desire: 0 };
+      }
+      out.push({
+        from,
+        to,
+        axes,
+        bonded: BONDED_PAIRS.has(key) && !(when === 'embarkation' && formedAboard),
+        latent: LATENT_PAIRS.has(key),
+      });
+    }
+  }
+  return out;
+}
+
+/** How strongly `from` is drawn towards `to`, for laying the graph out. Debt and
+ *  resentment pull people into each other's orbit as surely as affection does. */
+export function pull(e: Edge): number {
+  const { trust, affection, admiration, debt, resentment, desire } = e.axes;
+  return (trust + affection + admiration + debt + resentment + desire) / 6;
+}
+
+/** The gap between what two people hold for each other. Half of all drama. */
+export function asymmetry(a: Edge, b: Edge): number {
+  return AXES.reduce((n, axis) => n + Math.abs(a.axes[axis] - b.axes[axis]), 0) / AXES.length;
 }

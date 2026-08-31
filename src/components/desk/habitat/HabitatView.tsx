@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HabitatSection } from './HabitatSection';
 import { RoomCanvas } from './RoomCanvas';
 import { Dossier } from './Dossier';
+import { Weave } from './Weave';
 import { ROOM_BY_ID, type RoomId } from '../../../lib/habitat/rooms';
 import { RESIDENT_BY_ID, type ResidentId } from '../../../lib/habitat/residents';
 import { genesisSnapshot, type PersonState } from '../../../lib/habitat/snapshot';
@@ -30,14 +31,16 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState<RoomId | null>(null);
   const [hovered, setHovered] = useState<PersonState | null>(null);
   const [opened, setOpened] = useState<ResidentId | null>(null);
+  const [weave, setWeave] = useState(false);
 
   const close = useCallback(() => {
     if (opened) setOpened(null);
+    else if (weave) setWeave(false);
     else if (selected) {
       setSelected(null);
       setHovered(null);
     } else onClose();
-  }, [onClose, opened, selected]);
+  }, [onClose, opened, selected, weave]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -61,14 +64,24 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
         <span className="hab__stat"><b>WATCH</b> {WATCH[snapshot.watch]}</span>
         <span className="hab__stat"><b>REACTOR</b> {snapshot.power.toFixed(2)}</span>
         <span className="hab__stat"><b>ALIVE</b> {snapshot.people.length}</span>
+        <button
+          type="button"
+          className={weave ? 'hab__toggle is-on' : 'hab__toggle'}
+          onClick={() => { setWeave((w) => !w); setSelected(null); }}
+          aria-pressed={weave}
+        >
+          the weave
+        </button>
         <button type="button" className="hab__close" onClick={onClose}>
           close · esc
         </button>
       </header>
 
-      <div className="hab__body">
+      <div className={weave ? "hab__body hab__body--wide" : "hab__body"}>
         <div className="hab__stage">
-          {selected ? (
+          {weave ? (
+            <Weave onOpen={setOpened} />
+          ) : selected ? (
             <>
               <button type="button" className="hab__back" onClick={close}>
                 ← the whole habitat
@@ -90,6 +103,7 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
+        {weave ? null : (
         <aside className="hab__rail">
           <h2 className="hab__railhead">THE RECORD · DAY {snapshot.day}</h2>
           <ol className="hab__record">
@@ -102,6 +116,7 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
             ))}
           </ol>
         </aside>
+        )}
       </div>
 
       {room && state ? (

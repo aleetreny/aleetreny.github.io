@@ -3,8 +3,8 @@ import { RESIDENTS } from './residents';
 import { ROOMS } from './rooms';
 import { JOURNAL } from './journal';
 import {
-  AXES, BONDS, LATENT, bondBetween, clusterOf, modularity, pairKey,
-  priorEdges, randomBaseline, withinClusterEdges,
+  AXES, BONDS, LATENT, asymmetry, bondBetween, clusterOf, edges, modularity,
+  pairKey, priorEdges, randomBaseline, withinClusterEdges,
 } from './weave';
 
 describe('the axes', () => {
@@ -132,5 +132,59 @@ describe('authored prose is prose', () => {
       expect(text, where).not.toMatch(/\n/);
       expect(text, where).not.toMatch(/ {2,}/);
     }
+  });
+});
+
+describe('the weave as numbers', () => {
+  const all = edges();
+  const at = (from: string, to: string) => all.find((e) => e.from === from && e.to === to)!;
+
+  it('has an edge each way between every pair, and none from anybody to themselves', () => {
+    expect(all).toHaveLength(25 * 24);
+    expect(all.some((e) => e.from === e.to)).toBe(false);
+  });
+
+  it('keeps every axis inside nought and a hundred', () => {
+    for (const e of all) {
+      for (const axis of AXES) {
+        expect(e.axes[axis], `${e.from}${e.to} ${axis}`).toBeGreaterThanOrEqual(0);
+        expect(e.axes[axis], `${e.from}${e.to} ${axis}`).toBeLessThanOrEqual(100);
+      }
+    }
+  });
+
+  it('leaves nobody a stranger after a hundred days in sixteen rooms', () => {
+    for (const e of all) expect(e.axes.trust, `${e.from}${e.to}`).toBeGreaterThan(0);
+  });
+
+  it('marks exactly the twenty-nine authored pairs as bonded', () => {
+    const bonded = new Set(all.filter((e) => e.bonded).map((e) => pairKey(e.from, e.to)));
+    expect(bonded.size).toBe(29);
+  });
+
+  it('runs one way: Mara blames Iris and Iris does not blame her back', () => {
+    expect(at('M', 'I').axes.resentment).toBeGreaterThan(70);
+    expect(at('I', 'M').axes.resentment).toBeLessThan(20);
+    expect(asymmetry(at('M', 'I'), at('I', 'M'))).toBeGreaterThan(15);
+  });
+
+  it('lets somebody be admired by a person who is not trusted back', () => {
+    // Gita was hard on Quim because he was good. He resents her for it and does
+    // not know the reason was admiration.
+    expect(at('G', 'Q').axes.admiration).toBeGreaterThan(70);
+    expect(at('Q', 'G').axes.resentment).toBeGreaterThan(50);
+  });
+
+  it('puts the heaviest debt on the man who could not reach her father', () => {
+    const heaviest = [...all].sort((a, b) => b.axes.debt - a.axes.debt)[0]!;
+    expect(`${heaviest.from}${heaviest.to}`).toBe('SA');
+  });
+
+  it('counts the asymmetric pairs, which is where the drama is', () => {
+    const lopsided = all.filter((e) => {
+      const back = at(e.to, e.from);
+      return asymmetry(e, back) > 12;
+    });
+    expect(lopsided.length).toBeGreaterThan(10);
   });
 });
