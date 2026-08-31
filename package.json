@@ -29,6 +29,10 @@
     "storage:export": "node scripts/storage/export-assets.mjs",
     "storage:import": "node scripts/storage/import-assets.mjs",
     "storage:verify-live": "node scripts/storage/verify-live.mjs",
+    "habitat:dev": "pnpm --dir workers/habitat-runtime dev",
+    "habitat:check": "pnpm --dir workers/habitat-runtime check",
+    "habitat:deploy:dry": "pnpm --dir workers/habitat-runtime deploy:dry",
+    "habitat:deploy": "pnpm --dir workers/habitat-runtime deploy",
     "neon:plan": "neon config plan",
     "neon:deploy": "neon deploy",
     "portability:verify": "node scripts/verify-portability.mjs"
