@@ -63,8 +63,8 @@ at the Dock, the two ways into the Breach, and one cabin whose hatch has been ja
 since week three.
 
 Every room carries **at least as many doors as it has connections**, and every
-connection is reciprocated by the room on the other side. Both were checked
-mechanically.
+connection is reciprocated by the room on the other side. Both are checked by
+`src/lib/habitat/rooms.test.ts`.
 
 **Standing.** People and most objects sit on the row directly above a `=` row.
 Things fixed to a wall — the pinning wall in the Common, the lamp bank in
@@ -615,11 +615,12 @@ No objects.
   in this room" are all operations on the same array.
 - **Objects cannot drift.** Positions are scanned out of the grid. Moving an object
   means editing one character.
-- **The map is falsifiable.** A room either has a door or it does not, a legend
-  entry is either placed or it is not, and both were checked mechanically when this
-  document was generated. Every grid here is rectangular, every character is in a
-  legend, every legend entry appears in its grid, every room has at least one door
-  and every connection is reciprocated.
+- **The map is falsifiable.** A room either has a door or it does not, and a legend
+  entry is either placed or it is not. All of it is checked by
+  `src/lib/habitat/rooms.test.ts`, against the data in `src/lib/habitat/rooms.ts`:
+  every grid rectangular, every boundary closed, every character in a legend, every
+  legend entry placed, every room with at least as many doors as connections, every
+  connection reciprocated, and the whole habitat reachable on foot from the Bridge.
 - **Sixty-five significant objects** across sixteen rooms, inside the sixty-to-eighty
   band the design called for. Set dressing sits on top of this as drawn detail with
   written lore and no state, and never enters a grid.
