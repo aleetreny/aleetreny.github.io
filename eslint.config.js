@@ -4,7 +4,16 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'legacy', 'node_modules'] },
+  {
+    ignores: [
+      'dist',
+      '**/dist/**',
+      'coverage',
+      'legacy',
+      'node_modules',
+      '**/worker-configuration.d.ts',
+    ],
+  },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -26,6 +35,12 @@ export default tseslint.config(
     files: ['functions/**/*.ts', 'scripts/**/*.mjs', 'vite.config.ts', 'neon.ts'],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    files: ['workers/**/*.ts'],
+    languageOptions: {
+      globals: globals.worker,
     },
   },
 );

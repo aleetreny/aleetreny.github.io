@@ -269,9 +269,19 @@ function doingFor(intent: Intent, ok: boolean): string {
   }
 }
 
+function assertCognitionActor(state: WorldState, cognition?: Readonly<Intent>): void {
+  if (cognition
+    && !Object.prototype.hasOwnProperty.call(state.bodies, cognition.actor)) {
+    throw new TypeError(`Unknown cognition actor: ${String(cognition.actor)}`);
+  }
+}
+
 /** One watch. Everybody acts once, in an order that changes with the day so
  *  nobody is permanently first through the door. */
-export function advanceWatch(state: WorldState): WorldState {
+export function advanceWatch(
+  state: WorldState, cognition?: Readonly<Intent>,
+): WorldState {
+  assertCognitionActor(state, cognition);
   const roll = streamFor(state, 7);
   const order = RESIDENTS.map((r) => r.id)
     .sort((a, b) => (
@@ -286,13 +296,16 @@ export function advanceWatch(state: WorldState): WorldState {
     // to reach where they are going and then do something there. Charging a
     // whole watch per doorway collapsed the place into a commute: everybody
     // spent every watch in transit and nobody ever arrived at their post.
-    let intent = choose(state, id, roll);
+    const injected = cognition?.actor === id ? cognition : undefined;
+    let intent: Intent = injected ? { ...injected } : choose(state, id, roll);
     let outcome = attempt(state, intent);
     for (let hops = 0; hops < 3 && outcome.ok && intent.verb === 'go'; hops += 1) {
       intent = choose(state, id, roll);
       outcome = attempt(state, intent);
     }
     const b = state.bodies[id];
+    // A thought happened even when the world refused what it proposed.
+    if (injected) b.thoughtOn = state.day;
     b.doing = doingFor(intent, outcome.ok);
     // A world that says no to somebody is a world they have to think about.
     b.pressure = bounded(b.pressure + (outcome.ok ? -1 : 6));
@@ -324,12 +337,9 @@ export function advanceWatch(state: WorldState): WorldState {
   return state;
 }
 
-/** One day: four watches, then the books. */
-export function advanceDay(state: WorldState): WorldState {
-  state.record = [];
-  state.watch = 1;
-  for (let i = 0; i < 4; i += 1) advanceWatch(state);
-
+/** Close a completed fourth watch: power, light and charge are daily books, not
+ *  another action. Both the batch runner and the scheduler use this exact path. */
+function closeDay(state: WorldState): void {
   // The reactor makes less than it did yesterday, and it will make less again.
   state.reactor.output = Math.max(0, state.reactor.output - DECLINE);
   const budget = Math.round(state.reactor.output * 1000);
@@ -369,6 +379,31 @@ export function advanceDay(state: WorldState): WorldState {
 
   state.day += 1;
   state.watch = 1;
+}
+
+/** Advance exactly one scheduled watch, closing the books after watch IV.
+ *
+ * Unlike `advanceWatch`, this is a clock primitive: the previous day's record is
+ * cleared when watch I begins and completing watch IV rolls the world forward. */
+export function advanceScheduledWatch(
+  state: WorldState, cognition?: Readonly<Intent>,
+): WorldState {
+  assertCognitionActor(state, cognition);
+  if (!Number.isInteger(state.watch) || state.watch < 1 || state.watch > NIGHT) {
+    throw new RangeError(`Cannot schedule invalid watch ${state.watch}`);
+  }
+  if (state.watch === 1) state.record = [];
+  advanceWatch(state, cognition);
+  if (state.watch === NIGHT + 1) closeDay(state);
+  return state;
+}
+
+/** One day: four watches, then the books. */
+export function advanceDay(state: WorldState): WorldState {
+  state.record = [];
+  state.watch = 1;
+  for (let i = 0; i < 4; i += 1) advanceWatch(state);
+  closeDay(state);
   return state;
 }
 

@@ -22,6 +22,15 @@ describe('parseRuntimeConfig', () => {
     );
   });
 
+  it('validates the public habitat runtime independently of remote content mode', () => {
+    expect(() => parseRuntimeConfig({ VITE_HABITAT_RUNTIME_URL: 'not-a-url' })).toThrow(
+      /VITE_HABITAT_RUNTIME_URL/,
+    );
+    expect(parseRuntimeConfig({
+      VITE_HABITAT_RUNTIME_URL: 'https://habitat.example',
+    }).habitatRuntimeUrl).toBe('https://habitat.example');
+  });
+
   it('refuses a remote-data flag that is neither true nor false', () => {
     expect(() => parseRuntimeConfig({ VITE_ENABLE_REMOTE_DATA: 'yes' })).toThrow(
       /VITE_ENABLE_REMOTE_DATA/,

@@ -11,7 +11,8 @@
 // is a society nobody can debug, and this one is supposed to run for years.
 
 import { mulberry32 } from '../../world/rng';
-import { ROOMS, type RoomId } from '../rooms';
+import { isWalkable } from '../grid';
+import { ROOMS, ROOM_BY_ID, type RoomId } from '../rooms';
 import { RESIDENTS, type ResidentId } from '../residents';
 import { AXES, edges, type Axis } from '../weave';
 import type { Point } from '../grid';
@@ -111,6 +112,56 @@ export const SLEEPS: Record<ResidentId, RoomId> = Object.fromEntries(
   ]),
 ) as Record<ResidentId, RoomId>;
 
+function pointKey(point: Point): string {
+  return `${point.x}:${point.y}`;
+}
+
+/** Every tile where a body can safely be drawn. Places with something underfoot
+ *  come first, then the rest of the walkable floor as overflow. Reading order is
+ *  deliberate: together with the resident offset it makes placement replayable. */
+function standingSpots(room: RoomId): Point[] {
+  const { grid, legend } = ROOM_BY_ID[room];
+  const supported: Point[] = [];
+  const overflow: Point[] = [];
+  for (let y = 0; y < grid.length; y += 1) {
+    for (let x = 0; x < (grid[y]?.length ?? 0); x += 1) {
+      if (!isWalkable(grid, legend, x, y)) continue;
+      const point = { x, y };
+      if (!isWalkable(grid, legend, x, y + 1)) supported.push(point);
+      else overflow.push(point);
+    }
+  }
+  return [...supported, ...overflow];
+}
+
+/** Put one body in a room without ever putting it inside a wall, an object or
+ *  another body. Movement changes rooms atomically: failure to find a tile is an
+ *  invariant violation and leaves the body where it was. */
+export function placeInRoom(state: WorldState, id: ResidentId, room: RoomId): void {
+  const occupied = new Set(
+    RESIDENTS
+      .map((resident) => state.bodies[resident.id])
+      .filter((body) => body.id !== id && body.room === room)
+      .map((body) => pointKey(body.at)),
+  );
+  const spots = standingSpots(room);
+  const ordinal = RESIDENTS.findIndex((resident) => resident.id === id);
+  const start = spots.length === 0
+    ? 0
+    : (ordinal * 7 + state.day * 3 + state.watch) % spots.length;
+  let at: Point | undefined;
+  for (let offset = 0; offset < spots.length; offset += 1) {
+    const candidate = spots[(start + offset) % spots.length]!;
+    if (!occupied.has(pointKey(candidate))) {
+      at = candidate;
+      break;
+    }
+  }
+  if (!at) throw new RangeError(`No unoccupied walkable tile remains in ${room}`);
+  state.bodies[id].room = room;
+  state.bodies[id].at = at;
+}
+
 /** Day one hundred, as the engine holds it. Built from the authored content, so
  *  the world the engine advances is the world the documents describe. */
 export function genesisState(seed = 1): WorldState {
@@ -120,7 +171,9 @@ export function genesisState(seed = 1): WorldState {
     return [r.id, {
       id: r.id,
       room,
-      at: { x: 2, y: 2 },
+      // Replaced below once the complete population exists, so placement can
+      // account for everybody already standing in the same room.
+      at: { x: -1, y: -1 },
       condition: {
         rested: 60 + Math.floor(rand() * 30),
         fed: 62 + Math.floor(rand() * 30),
@@ -144,7 +197,7 @@ export function genesisState(seed = 1): WorldState {
     axes.set(axisKey(e.from, e.to), { ...e.axes });
   }
 
-  return {
+  const state: WorldState = {
     seed,
     day: 100,
     watch: 1,
@@ -154,6 +207,10 @@ export function genesisState(seed = 1): WorldState {
     axes,
     record: [],
   };
+  for (const resident of RESIDENTS) {
+    placeInRoom(state, resident.id, POSTED[resident.id]);
+  }
+  return state;
 }
 
 /** Clamp anything that is meant to be a nought-to-a-hundred quantity. */
@@ -204,7 +261,10 @@ export function snapshotFrom(state: WorldState): HabitatSnapshot {
       lit: state.rooms[r.id].lit,
     })),
     people,
-    record: state.record.map((e) => ({
+    // Closing watch IV advances the world to the next day while retaining the
+    // completed record long enough for the persistence adapter to archive it.
+    // Never label those previous-day entries as the new day's live record.
+    record: state.record.filter((e) => e.day === state.day).map((e) => ({
       minute: e.minute, room: e.room, who: e.who, text: e.text,
     })),
   };

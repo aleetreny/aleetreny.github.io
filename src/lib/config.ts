@@ -2,7 +2,7 @@
 //
 // This module runs before anything else in the app — the repository, the
 // board, the world all reach for it on their first line — so it is written by
-// hand rather than with a schema library. Six environment variables and two
+// hand rather than with a schema library. Seven environment variables and two
 // rules do not need two hundred kilobytes of validator sitting in front of the
 // first paint, and the rules are worth reading in full:
 //
@@ -18,6 +18,7 @@ export type RuntimeConfig = {
   storageFunctionUrl: string;
   storagePublicBaseUrl: string;
   translateFunctionUrl: string;
+  habitatRuntimeUrl: string;
 };
 
 /** An optional endpoint: absent, empty, or a URL the browser can actually
@@ -60,6 +61,9 @@ export function parseRuntimeConfig(input: Record<string, unknown>): RuntimeConfi
     // server-side. Without it the owner's translate action uses the keyless
     // provider straight from the browser.
     translateFunctionUrl: optionalUrl(input, 'VITE_TRANSLATE_FUNCTION_URL'),
+    // Public, read-only Cloudflare Worker origin. It contains no provider key;
+    // an empty value simply leaves the authored Genesis snapshot on screen.
+    habitatRuntimeUrl: optionalUrl(input, 'VITE_HABITAT_RUNTIME_URL'),
   };
 }
 

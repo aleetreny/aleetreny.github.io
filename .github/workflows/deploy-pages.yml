@@ -27,6 +27,7 @@ jobs:
       VITE_NEON_DATA_API_URL: ${{ vars.VITE_NEON_DATA_API_URL || 'https://ep-restless-art-ayzvh2yg.apirest.c-5.us-east-2.aws.neon.tech/neondb/rest/v1' }}
       VITE_STORAGE_FUNCTION_URL: ${{ vars.VITE_STORAGE_FUNCTION_URL || 'https://br-blue-dawn-ay0e37ed-storage.compute.c-5.us-east-2.aws.neon.tech' }}
       VITE_STORAGE_PUBLIC_BASE_URL: ${{ vars.VITE_STORAGE_PUBLIC_BASE_URL || 'https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets' }}
+      VITE_HABITAT_RUNTIME_URL: ${{ vars.VITE_HABITAT_RUNTIME_URL || 'https://aleetreny-habitat-runtime.alejandrotreny100.workers.dev' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6

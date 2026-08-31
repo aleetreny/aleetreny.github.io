@@ -13,7 +13,7 @@
 import { ROOM_BY_ID, type RoomId } from '../rooms';
 import { RESIDENT_BY_ID, type ResidentId } from '../residents';
 import {
-  bounded, nudge, type Body, type Condition, type Happening, type WorldState,
+  bounded, nudge, placeInRoom, type Body, type Condition, type Happening, type WorldState,
 } from './state';
 
 export type VerbFamily =
@@ -27,6 +27,10 @@ export type Intent = {
   /** Who it is aimed at. */
   target?: ResidentId;
 };
+
+export type IntentDecodeResult =
+  | { ok: true; intent: Intent }
+  | { ok: false; error: string };
 
 export type Outcome = {
   ok: boolean;
@@ -54,6 +58,49 @@ const CATALOGUE = [
   'observe', 'note', 'teach',
 ] as const;
 export type VerbName = (typeof CATALOGUE)[number];
+
+const INTENT_FIELDS = new Set(['verb', 'room', 'target']);
+
+function hasOwn(value: object, key: PropertyKey): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+/** Decode a model proposal without ever letting the model choose who is acting.
+ *
+ * This validates only the protocol boundary: known identifiers and no hidden
+ * fields. Whether the proposal is possible in the current world remains solely
+ * `attempt`'s decision. */
+export function decodeIntentFor(actor: unknown, raw: unknown): IntentDecodeResult {
+  if (typeof actor !== 'string' || !hasOwn(RESIDENT_BY_ID, actor)) {
+    return { ok: false, error: 'unknown actor' };
+  }
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
+    return { ok: false, error: 'intent must be an object' };
+  }
+  const candidate = raw as Record<string, unknown>;
+  const unexpected = Object.keys(candidate).find((key) => !INTENT_FIELDS.has(key));
+  if (unexpected) return { ok: false, error: `unexpected field: ${unexpected}` };
+  if (!hasOwn(candidate, 'verb') || typeof candidate.verb !== 'string'
+    || !(CATALOGUE as readonly string[]).includes(candidate.verb)) {
+    return { ok: false, error: 'unknown verb' };
+  }
+  if (hasOwn(candidate, 'room')
+    && (typeof candidate.room !== 'string' || !hasOwn(ROOM_BY_ID, candidate.room))) {
+    return { ok: false, error: 'unknown room' };
+  }
+  if (hasOwn(candidate, 'target')
+    && (typeof candidate.target !== 'string' || !hasOwn(RESIDENT_BY_ID, candidate.target))) {
+    return { ok: false, error: 'unknown target' };
+  }
+
+  const intent: Intent = {
+    actor: actor as ResidentId,
+    verb: candidate.verb as VerbName,
+  };
+  if (hasOwn(candidate, 'room')) intent.room = candidate.room as RoomId;
+  if (hasOwn(candidate, 'target')) intent.target = candidate.target as ResidentId;
+  return { ok: true, intent };
+}
 
 function body(state: WorldState, id: ResidentId): Body {
   return state.bodies[id];
@@ -122,7 +169,7 @@ export const VERBS: Record<VerbName, Verb> = {
     },
     run: (state, intent) => {
       const b = body(state, intent.actor);
-      b.room = intent.room!;
+      placeInRoom(state, intent.actor, intent.room!);
       condition(b, 'rested', -2);
       return null;
     },
@@ -414,7 +461,7 @@ export const VERBS: Record<VerbName, Verb> = {
     },
     run: (state, intent) => {
       const a = body(state, intent.actor);
-      a.room = body(state, intent.target!).room;
+      placeInRoom(state, intent.actor, body(state, intent.target!).room);
       condition(a, 'rested', -3);
       nudge(state, intent.actor, intent.target!, 'affection', 1);
       return null;
@@ -466,5 +513,5 @@ export function attempt(state: WorldState, intent: Intent): Outcome {
   if (cost > 0 && b.cells < cost) return { ok: false, refused: 'not enough charge' };
   b.cells -= cost;
   const happening = verb.run(state, intent);
-  return { ok: true, happening: happening ?? undefined };
+  return happening ? { ok: true, happening } : { ok: true };
 }

@@ -111,7 +111,12 @@ const DOING: Record<ResidentId, string> = {
 
 /** The first walkable tile of a room, walking its floor rows, offset so several
  *  people in one room do not stand on each other. */
-function standingSpot(room: RoomId, index: number, rand: () => number): Point {
+function standingSpot(
+  room: RoomId,
+  index: number,
+  rand: () => number,
+  occupied: ReadonlySet<string>,
+): Point {
   const { grid, legend } = ROOM_BY_ID[room];
   const spots: Point[] = [];
   for (let y = 0; y < grid.length; y += 1) {
@@ -124,19 +129,29 @@ function standingSpot(room: RoomId, index: number, rand: () => number): Point {
   }
   if (spots.length === 0) return { x: 1, y: 1 };
   const jitter = Math.floor(rand() * spots.length);
-  return spots[(index * 5 + jitter) % spots.length]!;
+  const start = (index * 5 + jitter) % spots.length;
+  for (let offset = 0; offset < spots.length; offset += 1) {
+    const candidate = spots[(start + offset) % spots.length]!;
+    if (!occupied.has(`${candidate.x}:${candidate.y}`)) return candidate;
+  }
+  throw new RangeError(`No unoccupied standing tile remains in ${room}`);
 }
 
 /** Day one hundred, built from the authored content. Deterministic. */
 export function genesisSnapshot(seed = 1): HabitatSnapshot {
   const rand = mulberry32(seed);
   const perRoom = new Map<RoomId, number>();
+  const occupied = new Map<RoomId, Set<string>>();
 
   const people: PersonState[] = RESIDENTS.map((r) => {
     const room = HOME_ROOM[r.id];
     const index = perRoom.get(room) ?? 0;
     perRoom.set(room, index + 1);
-    return { id: r.id, room, at: standingSpot(room, index, rand), doing: DOING[r.id] };
+    const roomOccupied = occupied.get(room) ?? new Set<string>();
+    occupied.set(room, roomOccupied);
+    const at = standingSpot(room, index, rand, roomOccupied);
+    roomOccupied.add(`${at.x}:${at.y}`);
+    return { id: r.id, room, at, doing: DOING[r.id] };
   });
 
   const occupants = new Map<RoomId, ResidentId[]>();

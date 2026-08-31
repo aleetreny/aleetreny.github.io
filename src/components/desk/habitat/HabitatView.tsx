@@ -9,7 +9,7 @@
 // came from an engine on a schedule somewhere or from the authored Genesis state,
 // which is the point: the simulation can move without the frontend noticing.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { HabitatSection } from './HabitatSection';
 import { RoomCanvas } from './RoomCanvas';
 import { Dossier } from './Dossier';
@@ -17,6 +17,8 @@ import { Weave } from './Weave';
 import { ROOM_BY_ID, type RoomId } from '../../../lib/habitat/rooms';
 import { RESIDENT_BY_ID, type ResidentId } from '../../../lib/habitat/residents';
 import { genesisSnapshot, type PersonState } from '../../../lib/habitat/snapshot';
+import { fetchHabitatSnapshot } from '../../../lib/habitat/live';
+import { runtimeConfig } from '../../../lib/config';
 
 const WATCH = ['', 'I', 'II', 'III', 'IV'] as const;
 
@@ -27,11 +29,24 @@ function clock(minute: number): string {
 }
 
 export function HabitatView({ onClose }: { onClose: () => void }) {
-  const snapshot = useMemo(() => genesisSnapshot(), []);
+  const [snapshot, setSnapshot] = useState(() => genesisSnapshot());
   const [selected, setSelected] = useState<RoomId | null>(null);
   const [hovered, setHovered] = useState<PersonState | null>(null);
   const [opened, setOpened] = useState<ResidentId | null>(null);
   const [weave, setWeave] = useState(false);
+
+  useEffect(() => {
+    if (!runtimeConfig.habitatRuntimeUrl) return undefined;
+    const controller = new AbortController();
+    void fetchHabitatSnapshot(runtimeConfig.habitatRuntimeUrl, {
+      signal: controller.signal,
+    }).then((live) => {
+      if (!live || controller.signal.aborted) return;
+      setSnapshot(live);
+      setHovered(null);
+    });
+    return () => controller.abort();
+  }, []);
 
   const close = useCallback(() => {
     if (opened) setOpened(null);

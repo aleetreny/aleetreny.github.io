@@ -52,6 +52,13 @@ describe('where people are standing', () => {
     }
   });
 
+  it('never draws two people on the same tile', () => {
+    const occupied = snap.people.map((person) => (
+      `${person.room}:${person.at.x}:${person.at.y}`
+    ));
+    expect(new Set(occupied).size).toBe(occupied.length);
+  });
+
   it('agrees with each room about who is in it', () => {
     for (const room of snap.rooms) {
       const here = snap.people.filter((p) => p.room === room.id).map((p) => p.id);

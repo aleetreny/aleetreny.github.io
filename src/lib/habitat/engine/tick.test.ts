@@ -1,12 +1,29 @@
 import { describe, expect, it } from 'vitest';
+import { isWalkable } from '../grid';
 import { RESIDENTS } from '../residents';
 import { ROOM_BY_ID, type RoomId } from '../rooms';
 import { AXES } from '../weave';
 import { CONDITIONS, genesisState, held, snapshotFrom } from './state';
-import { advanceDay, advanceWatch, choose, run } from './tick';
-import { attempt } from './verbs';
+import { advanceDay, advanceScheduledWatch, advanceWatch, choose, run } from './tick';
+import { attempt, decodeIntentFor } from './verbs';
+
+function expectBodiesPlaced(state: ReturnType<typeof genesisState>): void {
+  const occupied = new Set<string>();
+  for (const resident of RESIDENTS) {
+    const body = state.bodies[resident.id];
+    const { grid, legend } = ROOM_BY_ID[body.room];
+    expect(isWalkable(grid, legend, body.at.x, body.at.y), resident.id).toBe(true);
+    const key = `${body.room}:${body.at.x}:${body.at.y}`;
+    expect(occupied.has(key), key).toBe(false);
+    occupied.add(key);
+  }
+}
 
 describe('a watch', () => {
+  it('starts everybody on a distinct walkable tile', () => {
+    expectBodiesPlaced(genesisState());
+  });
+
   it('gives everybody exactly one go at it', () => {
     const s = genesisState();
     advanceWatch(s);
@@ -29,6 +46,16 @@ describe('a watch', () => {
   it('never puts anybody in the Breach, which has no air', () => {
     const { state } = run(genesisState(), 12);
     for (const r of RESIDENTS) expect(state.bodies[r.id].room).not.toBe('breach');
+  });
+
+  it('keeps positions walkable and distinct when somebody changes rooms', () => {
+    const s = genesisState();
+    expect(s.bodies.A.room).toBe('greatwall');
+    expect(attempt(s, { verb: 'go', actor: 'A', room: 'common' }).ok).toBe(true);
+    expect(s.bodies.A.room).toBe('common');
+    expectBodiesPlaced(s);
+    run(s, 12);
+    expectBodiesPlaced(s);
   });
 });
 
@@ -58,6 +85,34 @@ describe('a day', () => {
     advanceDay(s);
     const byWatch = s.record.map((e) => e.watch);
     expect([...byWatch].sort((a, b) => a - b)).toEqual(byWatch);
+  });
+
+  it('can be advanced by the scheduler one watch at a time without changing it', () => {
+    const scheduled = genesisState(9);
+    const batched = genesisState(9);
+    const day = scheduled.day;
+    const output = scheduled.reactor.output;
+
+    for (let watch = 1; watch <= 3; watch += 1) advanceScheduledWatch(scheduled);
+    expect(scheduled.day).toBe(day);
+    expect(scheduled.watch).toBe(4);
+    expect(scheduled.reactor.output).toBe(output);
+
+    advanceScheduledWatch(scheduled);
+    advanceDay(batched);
+    expect(scheduled.day).toBe(day + 1);
+    expect(scheduled.watch).toBe(1);
+    expect(scheduled).toEqual(batched);
+  });
+
+  it('leaves the lower-level watch primitive unchanged after watch IV', () => {
+    const s = genesisState();
+    const day = s.day;
+    const output = s.reactor.output;
+    for (let watch = 1; watch <= 4; watch += 1) advanceWatch(s);
+    expect(s.day).toBe(day);
+    expect(s.watch).toBe(5);
+    expect(s.reactor.output).toBe(output);
   });
 });
 
@@ -133,6 +188,25 @@ describe('a month', () => {
 });
 
 describe('the seam where cognition goes', () => {
+  it('decodes a proposal while keeping the actor outside the model payload', () => {
+    expect(decodeIntentFor('A', { verb: 'speak', target: 'B' })).toEqual({
+      ok: true,
+      intent: { verb: 'speak', actor: 'A', target: 'B' },
+    });
+  });
+
+  it('rejects malformed identifiers and any attempt by the payload to choose an actor', () => {
+    const rejected = [
+      decodeIntentFor('Z', { verb: 'rest' }),
+      decodeIntentFor('A', []),
+      decodeIntentFor('A', { verb: 'invent' }),
+      decodeIntentFor('A', { verb: 'go', room: 'moon' }),
+      decodeIntentFor('A', { verb: 'speak', target: 'Z' }),
+      decodeIntentFor('A', { verb: 'rest', actor: 'B' }),
+    ];
+    for (const result of rejected) expect(result.ok).toBe(false);
+  });
+
   it('returns an intent that names a verb and, when social, somebody', () => {
     const s = genesisState();
     const roll = () => 0.5;
@@ -141,6 +215,44 @@ describe('the seam where cognition goes', () => {
       expect(intent.actor === r.id || intent.target === r.id).toBe(true);
       expect(typeof intent.verb).toBe('string');
     }
+  });
+
+  it('spends at most one thought in a watch and uses its intent', () => {
+    const s = genesisState();
+    for (const resident of RESIDENTS) s.bodies[resident.id].thoughtOn = 0;
+    const decoded = decodeIntentFor('A', { verb: 'sleep' });
+    if (!decoded.ok) throw new Error(decoded.error);
+
+    advanceWatch(s, decoded.intent);
+
+    expect(s.bodies.A.doing).toBe('asleep');
+    expect(s.bodies.A.thoughtOn).toBe(s.day);
+    expect(RESIDENTS.filter((resident) => (
+      s.bodies[resident.id].thoughtOn === s.day
+    )).map((resident) => resident.id)).toEqual(['A']);
+  });
+
+  it('still spends the thought when the world refuses the proposed intent', () => {
+    const s = genesisState();
+    s.bodies.A.thoughtOn = 0;
+    const decoded = decodeIntentFor('A', { verb: 'speak', target: 'V' });
+    if (!decoded.ok) throw new Error(decoded.error);
+
+    advanceWatch(s, decoded.intent);
+
+    expect(s.bodies.A.doing).toBe('at a loose end');
+    expect(s.bodies.A.thoughtOn).toBe(s.day);
+    expect(s.bodies.A.room).toBe('greatwall');
+  });
+
+  it('replays the same external intent deterministically', () => {
+    const first = genesisState(23);
+    const again = genesisState(23);
+    const decoded = decodeIntentFor('Q', { verb: 'rest' });
+    if (!decoded.ok) throw new Error(decoded.error);
+    advanceWatch(first, decoded.intent);
+    advanceWatch(again, decoded.intent);
+    expect(first).toEqual(again);
   });
 
   it('refuses an intent the world does not allow, rather than obeying it', () => {
