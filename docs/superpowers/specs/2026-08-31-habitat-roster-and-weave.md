@@ -128,14 +128,14 @@ where the two sides feel differently, that is stated.
 
 ### Within Cluster II — the yard
 
-6. **Halim → Quim.** Halim blocked Quim's promotion twice and believes he was right.
-   **Quim → Halim.** Quim knows, and has arranged his whole professional
-   self-image around it.
+6. **Halim → Quim.** Halim blocked Quim's promotion twice and believes he was
+   right. Quim knows it, and has arranged his whole professional self-image
+   around it.
 7. **Halim ↔ Gita.** Twenty years of working well together with no warmth
    whatsoever. Each would trust the other with their life and neither would sit with
    them.
-8. **Gita → Quim.** She was hard on him because he was good. **Quim → Gita.** He
-   resents her and does not know the reason was admiration.
+8. **Gita → Quim.** Gita was hard on him because he was good. Quim resents her
+   for it and does not know the reason was admiration.
 9. **Dima ↔ Halim.** Dima reported a structural fault; Halim buried it; the fault was
    real; nobody was hurt, which is luck and both of them know it. **Neither has
    mentioned it in a hundred days.** It is the loudest silence in the habitat.
@@ -145,16 +145,16 @@ where the two sides feel differently, that is stated.
 ### Within Cluster III — the household
 
 11. **Mara ↔ Tomás.** Thirty years. The closest bond that came aboard.
-12. **Tomás → Vero.** Uncle. He took his sister's side in a rupture Vero refuses to
-    have sides about. **Vero → Tomás.** She loves him and will not discuss it.
-13. **Mara → Vero.** Has known her since she was nine and mothers her.
-    **Vero → Mara.** Finds it suffocating and cannot say so without cruelty.
+12. **Tomás → Vero.** Her uncle. He took his sister's side in a rupture Vero
+    refuses to have sides about. She loves him and will not discuss it.
+13. **Mara → Vero.** Mara has known her since she was nine and mothers her.
+    Vero finds it suffocating and cannot say so without cruelty.
 14. **Ferran ↔ Mara.** He carried words between people for years and everyone knew
     it. She likes him and does not trust him, in that order.
 15. **Ferran ↔ Iris.** He brought her into that circle, which is the origin of
     everything that went wrong there. Faded now into something almost fond.
-16. **Mara → Iris.** Blame, twenty-two years old and undimmed. **Iris → Mara.** She
-    knows exactly what she is blamed for and has decided to absorb it.
+16. **Mara → Iris.** Blame, twenty-two years old and undimmed. Iris knows exactly
+    what she is blamed for and has decided to absorb it.
 
 ### Within Cluster IV — the street
 
@@ -162,8 +162,8 @@ where the two sides feel differently, that is stated.
     survived the crash better than any of the deep bonds.
 18. **Kes ↔ Juno.** He rode her route. Nodding acquaintance that has turned, in a
     hundred days, into something neither expected.
-19. **Lior → Pilar.** He owed the bakery money and is embarrassed. **Pilar → Lior.**
-    She wrote it off years ago and cannot understand why he is odd with her.
+19. **Lior → Pilar.** Lior owed the bakery money and is embarrassed. Pilar wrote
+    it off years ago and cannot understand why he is odd with her.
 
 ### Within Cluster V — recent and professional
 
@@ -179,7 +179,10 @@ five separate ones, and they are the seams an investigator would pull at.
     and now the axis on which the habitat's entire medical politics turns. They
     come from different parts of the structure, which is why neither can place
     the other.
-22. **Ferran (III) ↔ Halim (II).** Ferran drew for the yard for one season.
+22. **Ferran (III) ↔ Halim (II).** Ferran drew for the yard for one season,
+    twenty-odd years ago, and neither of them thought about it again until they
+    recognised each other across the Common on the fourth day. Halim has since
+    remembered that the drawings were good and that he never said so.
 23. **Pilar (IV) ↔ Ama (I).** Same region originally. They recognised the accent in
     the first week. **This bond formed after the crash** — the first new real bond in
     the habitat, and the proof that the weave grows.
@@ -297,8 +300,9 @@ resident who assembled all twenty-five accounts would see it immediately. Nobody
 assembled them, nobody has a reason to, and the only person with a view of the whole
 is outside the world looking in.
 
-When the weave becomes data rather than prose, this measurement should become a test
-that runs against it, so that editing a bond cannot quietly destroy the clue.
+This measurement is `src/lib/habitat/weave.test.ts`, run against the data in
+`src/lib/habitat/weave.ts` on every `pnpm test`, so editing a bond cannot quietly
+destroy the clue.
 
 ## 7. What the observer can see that they cannot
 

@@ -22,7 +22,7 @@ not a mood note.
 
 Ran a small press for thirty-one years and printed other people's books. Good ones,
 mostly. She was the reason several of them existed and her name is in none of them.
-Grew up on the same street as half of Cluster I, in a house four doors from the
+Grew up in Kilbeg, in a house four doors from the
 water. Her father drowned when she was four; she has one memory of him that she is
 fairly sure she constructed.
 
@@ -30,8 +30,8 @@ A hundred days in she has quietly made the event record beautiful. Nobody asked 
 to and nobody has noticed. She has begun leaving small notes in the margins of it —
 the weather in the Common, who sat with whom — which is not what Records is for.
 
-**Fears** having spent a life on other people's words. **Wants**, and has never once
-said aloud, to write something.
+**Fears** having spent a life on other people's words. **Wants** to write something, and has never once
+said so aloud.
 
 **Boarding.** A cultural passage grant, from a foundation whose name she cannot now
 recall and whose letter she no longer has.
@@ -151,8 +151,8 @@ A hundred days in he has made himself useful to everyone and indispensable to
 nobody, which is a lifelong pattern he can see and cannot break. He is the best
 company in the habitat and the last person anybody tells a secret to.
 
-**Fears** that he has no opinions that did not begin as somebody else's. **Wants**,
-for once, to be the centre rather than the connective tissue.
+**Fears** that he has no opinions that did not begin as somebody else's. **Wants** to be the
+centre rather than the connective tissue, for once.
 
 **Boarding.** An advisory post at the colony that he could not find a listing for
 afterwards. Recruiters exaggerate; he has been on the other side of that.
@@ -287,8 +287,8 @@ Salvage suits him exactly and he is startlingly good at it — he can look at a
 collapsed section and see what is worth carrying out, which is a real skill and the
 first honest use he has found for it.
 
-**Fears** being seen clearly by somebody whose opinion he cannot deflect. **Wants**,
-in a way he would deny, to be the one who is owed for once.
+**Fears** being seen clearly by somebody whose opinion he cannot deflect. **Wants** to be the one who is owed for once,
+in a way he would deny.
 
 **Boarding.** The big debt — the one that was going to end him — was written off a
 month before he booked, by a creditor he never met and cannot name.
@@ -385,7 +385,8 @@ of it by feeding people at the moment they most need it and refusing to discuss 
 The long table in the Common is a hull plate; she is the reason anybody sits at it.
 
 **Fears** her hands. They are sixty-six years old and they are the whole of her
-usefulness.
+usefulness. **Wants** to teach somebody the bread before they go, and has not asked
+anybody, because asking would mean saying the first part out loud.
 
 **Boarding.** She sold the bakery, there was money left over, and she had never been
 anywhere. The sum left over was exactly enough.
