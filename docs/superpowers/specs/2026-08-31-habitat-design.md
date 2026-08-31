@@ -81,11 +81,26 @@ for boarding, but the twenty-five reasons do not add up to anything. The
 question that eats at them is not *who am I* but **why the twenty-five of us** —
 and they do not know whether the answer is "no reason".
 
-> **The answer exists.** It is written sealed into Genesis, is part of world
-> state from day one, and is **physically discoverable**: remains in the breach,
-> damaged records, unlabelled cargo in the hold. No model ever invents it. It
-> may take years to find, and the day it is found will be the largest event in
-> the habitat's history.
+> **There is no answer.** Not sealed in Genesis, not held by the engine, not
+> written down anywhere and not known to the author. The ship is a real mystery
+> rather than a puzzle, and real mysteries do not resolve.
+>
+> This is a deliberate choice with a known cost: nobody ever gets the
+> satisfaction of finding out. What is bought with it is that the theories are
+> the content. Over years the habitat will produce explanations, argue them,
+> attach itself to them, split over them and abandon them, and none of that is
+> rehearsal for a reveal — it is the whole thing.
+>
+> **Evidence still exists and still matters**, because of one asymmetry:
+> **a theory can be falsified by evidence and never confirmed by it.** The
+> breach, the hold and the berths hold real, findable, genuinely strange objects.
+> Each find kills some explanations and licenses others. Nothing ever settles.
+>
+> Engine rules that keep this honest. A theory is recorded as somebody's theory,
+> never as a fact. No model is ever handed a ground truth about the ship, because
+> none exists to hand it. Where the engine must decide something physical — what
+> is behind a door, who is in a berth — it decides at the moment of opening, and
+> **whatever it decides explains nothing.**
 
 The emergency is over — there is air, food and somewhere to sleep — so the
 question stops being how to survive and becomes **how to live**. There is no
@@ -475,10 +490,14 @@ statistically checkable.
   simulate.
 - Every latent bond that surfaces **tightens the anomaly a little further**, so the
   dramatic irony and the investigation are the same thread.
+- And it tightens towards nothing. The better their evidence gets, the less
+  bearable the absence of an explanation becomes.
 
 The weave stops being only an observation instrument. It is **the mystery's
-evidence board**, and the anomaly is consistent with the answer sealed into
-Genesis.
+evidence board** — for a mystery that has no solution. The clustering is a
+measured fact with no cause behind it, and no amount of investigation will
+produce one. What the residents can do is notice it, and then live with having
+noticed.
 
 ## 9. Experience and aesthetic
 
@@ -564,7 +583,7 @@ cell economy; the record; the weave with its three views; the board integration.
 
 **Deferred until the world has age** — settled rituals, lineages of objects and
 skills, marks in the rock, the orbital passage, waking sleepers, the emergent
-chronicler, the resolution of the mystery. The world gains layers as it ages.
+chronicler. The world gains layers as it ages.
 
 **Out of v1** — sound, and agent music.
 
