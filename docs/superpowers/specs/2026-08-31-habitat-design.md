@@ -201,7 +201,7 @@ that surprises.
 | **The Diggings** | Personal dwellings dug by their occupants. A category that multiplies: this is where the map grows. | Your house **is a hole you made**. Its size and finish are a public, permanent record of your labour, your skill, and how much help you could get. |
 | **The Face** | The unfinished tunnel. Where people go to claim space, or to disappear for a while. | The only room that is **incomplete by definition**: it moves. Its position on the map changes over the months. |
 | **The Well** | Water reclamation and air scrubbing. Consumable, finite filters. | The ugliest and most necessary work. Whoever does it **holds a power nobody acknowledges out loud.** |
-| **The Great Wall** | The chamber with the terminal and the mural. The point of contact with whoever is watching. | This is where **the observation is detected**, and this is where the portfolio's board physically is. |
+| **The Great Wall** | The first chamber they cut, and too big, because they did not yet know how hard the rock was. One face came away almost flat. The point of contact with whoever is watching. | Twenty-six metres of clean stone, the largest surface in the habitat, and **in a hundred days nobody has put anything on it.** This is also where the observation is detected, and where the portfolio's board physically is. |
 | **The Hollow** | A cavity they **found rather than dug**: a natural void a gallery broke into. Irregular, orthogonal to nothing, unassigned. | The only space in the habitat that is not a rectangle and that **nobody designed**. Nobody has decided what it is for. What the community eventually does with it will be the clearest statement of who they became. |
 
 ### The existing city
