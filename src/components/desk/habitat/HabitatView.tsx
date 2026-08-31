@@ -12,8 +12,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HabitatSection } from './HabitatSection';
 import { RoomCanvas } from './RoomCanvas';
+import { Dossier } from './Dossier';
 import { ROOM_BY_ID, type RoomId } from '../../../lib/habitat/rooms';
-import { RESIDENT_BY_ID } from '../../../lib/habitat/residents';
+import { RESIDENT_BY_ID, type ResidentId } from '../../../lib/habitat/residents';
 import { genesisSnapshot, type PersonState } from '../../../lib/habitat/snapshot';
 
 const WATCH = ['', 'I', 'II', 'III', 'IV'] as const;
@@ -28,13 +29,15 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
   const snapshot = useMemo(() => genesisSnapshot(), []);
   const [selected, setSelected] = useState<RoomId | null>(null);
   const [hovered, setHovered] = useState<PersonState | null>(null);
+  const [opened, setOpened] = useState<ResidentId | null>(null);
 
   const close = useCallback(() => {
-    if (selected) {
+    if (opened) setOpened(null);
+    else if (selected) {
       setSelected(null);
       setHovered(null);
     } else onClose();
-  }, [onClose, selected]);
+  }, [onClose, opened, selected]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -75,7 +78,7 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
                 snapshot={snapshot}
                 hovered={hovered}
                 onHover={setHovered}
-                onPick={(p) => setHovered(p)}
+                onPick={(p) => setOpened(p.id)}
               />
             </>
           ) : (
@@ -120,8 +123,14 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
                 const doing = snapshot.people.find((p) => p.id === id)?.doing;
                 return (
                   <li key={id} className="hab__person">
-                    <span className="hab__initial">{id}</span>
-                    <span className="hab__personname">{person.name}</span>
+                    <button
+                      type="button"
+                      className="hab__personbtn"
+                      onClick={() => setOpened(id)}
+                    >
+                      <span className="hab__initial">{id}</span>
+                      <span className="hab__personname">{person.name}</span>
+                    </button>
                     <span className="hab__doing">{doing}</span>
                   </li>
                 );
@@ -131,6 +140,15 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
             <p className="hab__empty">Nobody is in here.</p>
           )}
         </section>
+      ) : null}
+
+      {opened ? (
+        <Dossier
+          id={opened}
+          snapshot={snapshot}
+          onClose={() => setOpened(null)}
+          onOpen={setOpened}
+        />
       ) : null}
     </div>
   );

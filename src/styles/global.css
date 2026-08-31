@@ -3663,3 +3663,183 @@ body.board-uv [data-card].is-uv-propped {
 .hab__back:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
 
 .hab__stage { position: relative; padding-top: 2.4rem; }
+
+/* ── a dossier ────────────────────────────────────────────────────────────
+   One of the twenty-five, in the board's own dossier language: a registry
+   header, numbered blocks, the same paper. That is what welds this layer to
+   the portfolio instead of parking it beside one. */
+
+.hab-dossier {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(6, 5, 13, .985) 0%, rgba(3, 2, 8, .99) 100%);
+  padding: 1.4rem clamp(1.2rem, 6vw, 5rem) 4rem;
+  animation: hab-dossier-in .3s cubic-bezier(.2, .8, .3, 1) both;
+}
+@keyframes hab-dossier-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hab-dossier__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 214, 64, .3);
+}
+.hab-portrait {
+  image-rendering: pixelated;
+  border: 1px solid rgba(124, 249, 255, .25);
+  background: #0b0e15;
+  flex: 0 0 auto;
+}
+.hab-dossier__id { flex: 1 1 auto; min-width: 0; }
+.hab-dossier__reg {
+  font-size: .58rem;
+  letter-spacing: .28em;
+  color: rgba(124, 249, 255, .68);
+}
+.hab-dossier__name {
+  margin: .3rem 0 .2rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.6vw, 2.2rem);
+  line-height: 1.05;
+  letter-spacing: .01em;
+  color: #fff3d6;
+}
+.hab-dossier__where {
+  margin: 0;
+  font-size: .78rem;
+  color: rgba(207, 232, 238, .6);
+}
+.hab-dossier__close {
+  flex: 0 0 auto;
+  background: none;
+  border: 1px solid rgba(255, 214, 64, .38);
+  color: var(--c-signal);
+  font: inherit;
+  font-size: .62rem;
+  letter-spacing: .2em;
+  padding: .3rem .8rem;
+  cursor: pointer;
+}
+.hab-dossier__close:hover { background: rgba(255, 214, 64, .1); }
+.hab-dossier__close:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+
+.hab-dossier__blocks {
+  display: grid;
+  gap: 1.6rem;
+  margin-top: 1.4rem;
+  max-width: 74ch;
+}
+.hab-block__head {
+  margin: 0 0 .5rem;
+  font-size: .6rem;
+  font-weight: 400;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: rgba(207, 232, 238, .5);
+  display: flex;
+  align-items: baseline;
+  gap: .8rem;
+}
+.hab-block__head b {
+  font-weight: 400;
+  color: var(--c-signal);
+  letter-spacing: .1em;
+}
+.hab-block__body {
+  margin: 0;
+  font-size: .87rem;
+  line-height: 1.62;
+  color: rgba(232, 238, 240, .88);
+}
+.hab-block__body--quiet {
+  margin-top: .7rem;
+  font-size: .78rem;
+  color: rgba(207, 232, 238, .48);
+}
+
+.hab-facts { margin: 0; display: grid; gap: .45rem; }
+.hab-facts > div { display: grid; grid-template-columns: 9.5rem 1fr; gap: .8rem; }
+.hab-facts dt {
+  font-size: .6rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(207, 232, 238, .42);
+  padding-top: .18rem;
+}
+.hab-facts dd { margin: 0; font-size: .84rem; line-height: 1.5; color: rgba(232, 238, 240, .88); }
+.hab-facts dd.is-none { color: rgba(255, 168, 120, .8); }
+.hab-facts dd.is-key { color: var(--c-signal); }
+
+.hab-journal {
+  margin: 0;
+  padding: .9rem 1.1rem;
+  border-left: 2px solid rgba(255, 214, 64, .5);
+  background: rgba(255, 214, 64, .04);
+  font-size: .89rem;
+  line-height: 1.68;
+  color: #f3e6cd;
+}
+
+.hab-ties { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; }
+.hab-tie { padding-left: .8rem; border-left: 2px solid rgba(124, 249, 255, .3); }
+.hab-tie--latent { border-left-style: dotted; border-left-color: rgba(255, 214, 64, .55); }
+.hab-tie__who {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: .82rem;
+  color: #fff3d6;
+  cursor: pointer;
+}
+.hab-tie__who:hover { color: var(--c-signal); }
+.hab-tie__who:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+.hab-tie__initial {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 214, 64, .4);
+  color: var(--c-signal);
+  font-size: .62rem;
+}
+.hab-tie__line {
+  margin: .28rem 0 0;
+  font-size: .81rem;
+  line-height: 1.5;
+  color: rgba(207, 232, 238, .74);
+}
+.hab-tie--latent .hab-tie__line { color: rgba(207, 232, 238, .5); font-style: italic; }
+.hab-tie__flag {
+  margin: .25rem 0 0;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255, 214, 64, .72);
+}
+
+.hab__personbtn {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.hab__personbtn:hover .hab__personname { color: var(--c-signal); }
+.hab__personbtn:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) { .hab-dossier { animation: none; } }

@@ -69,8 +69,7 @@ export const BONDS: readonly Bond[] = [
     from: 'S', to: 'O', degree: 'real',
     line:
       'Sten knew Osvald\'s father off the harbour. Osvald treats him with a '
-      + 'respect he has never extended to anybody else, and cannot explain it. '
-      + '### Within Cluster II — the yard',
+      + 'respect he has never extended to anybody else, and cannot explain it.',
   },
   {
     from: 'H', to: 'Q', degree: 'real',
@@ -103,8 +102,7 @@ export const BONDS: readonly Bond[] = [
     from: 'Q', to: 'W', degree: 'real',
     line:
       'Two overlapping years, easy, superficial, genuinely warm. The most '
-      + 'functional working relationship in Cluster II by a distance. ### '
-      + 'Within Cluster III — the household',
+      + 'functional working relationship in Cluster II by a distance.',
   },
   {
     from: 'M', to: 'T', degree: 'real',
@@ -139,8 +137,7 @@ export const BONDS: readonly Bond[] = [
     from: 'M', to: 'I', degree: 'real',
     line:
       'Blame, twenty-two years old and undimmed. Iris knows exactly what she '
-      + 'is blamed for and has decided to absorb it. ### Within Cluster IV — '
-      + 'the street',
+      + 'is blamed for and has decided to absorb it.',
   },
   {
     from: 'P', to: 'K', degree: 'real',
@@ -158,17 +155,13 @@ export const BONDS: readonly Bond[] = [
     from: 'L', to: 'P', degree: 'real',
     line:
       'Lior owed the bakery money and is embarrassed. Pilar wrote it off '
-      + 'years ago and cannot understand why he is odd with her. ### Within '
-      + 'Cluster V — recent and professional',
+      + 'years ago and cannot understand why he is odd with her.',
   },
   {
     from: 'C', to: 'Y', degree: 'real',
     line:
       'He was briefly her clinician. Neither has raised it. It makes every '
-      + 'conversation between them slightly wrong. ### The bridges Only four '
-      + 'edges cross clusters. They are the reason the graph is a graph and not '
-      + 'five separate ones, and they are the seams an investigator would pull '
-      + 'at.',
+      + 'conversation between them slightly wrong.',
   },
   {
     from: 'C', to: 'N', degree: 'real',

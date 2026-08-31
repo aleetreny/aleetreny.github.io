@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { RESIDENTS } from './residents';
+import { ROOMS } from './rooms';
+import { JOURNAL } from './journal';
 import {
   AXES, BONDS, LATENT, bondBetween, clusterOf, modularity, pairKey,
   priorEdges, randomBaseline, withinClusterEdges,
@@ -92,5 +94,43 @@ describe('the anomaly is a measurement, not a claim', () => {
 
   it('orders a pair the same way whichever end it is given', () => {
     expect(pairKey('Y', 'A')).toBe(pairKey('A', 'Y'));
+  });
+});
+
+describe('authored prose is prose', () => {
+  // All of this was transcribed out of markdown design records, and a heading
+  // once rode along inside a bond's text all the way to the screen. Nothing that
+  // reaches a reader should carry the marks of the document it came from.
+  const everything: Array<[string, string]> = [
+    ...BONDS.map((b, i) => [`bond ${i}`, b.line] as [string, string]),
+    ...LATENT.flatMap((b, i) => [
+      [`latent ${i} line`, b.line], [`latent ${i} route`, b.route],
+    ] as Array<[string, string]>),
+    ...RESIDENTS.flatMap((r) => [
+      [`${r.id} before`, r.before], [`${r.id} fears`, r.fears],
+      [`${r.id} wants`, r.wants], [`${r.id} boarding`, r.boarding],
+      [`${r.id} voice`, r.voice],
+    ] as Array<[string, string]>),
+    ...JOURNAL.map((e) => [`journal ${e.who}`, e.text] as [string, string]),
+    ...ROOMS.flatMap((r) => [
+      [`${r.id} description`, r.description],
+      ...(r.note ? [[`${r.id} note`, r.note] as [string, string]] : []),
+    ] as Array<[string, string]>),
+  ];
+
+  it('carries no heading, emphasis, list marker or table pipe', () => {
+    for (const [where, text] of everything) {
+      expect(text, where).not.toMatch(/#{2,}/);
+      expect(text, where).not.toMatch(/\*\*/);
+      expect(text, where).not.toMatch(/\|/);
+      expect(text, where).not.toMatch(/^\s*[-*]\s/);
+    }
+  });
+
+  it('carries no collapsed newline, so nothing was glued to its neighbour', () => {
+    for (const [where, text] of everything) {
+      expect(text, where).not.toMatch(/\n/);
+      expect(text, where).not.toMatch(/ {2,}/);
+    }
   });
 });
