@@ -32,6 +32,9 @@ import { Garden } from './Garden';
 import { Dilemma } from './Dilemma';
 import { CuriosityMachine } from './CuriosityMachine';
 import { UvSwitch } from './UvSwitch';
+
+// A second world, and none of it is fetched until somebody asks to see it.
+const HabitatView = lazy(() => import('../habitat/HabitatView').then((m) => ({ default: m.HabitatView })));
 import { Photos } from './Photos';
 
 // The heavy ones: a canvas each, and a simulation behind it. They arrive after
@@ -197,6 +200,9 @@ export function WorldLayer({ objects, boardSize, entries, onOpenEntry }: WorldLa
  *  loaded with, and the one line of instruction that only exists while you are
  *  holding something. Rendered outside the camera, so it stays screen-sized. */
 export function WorldOverlay({ boardSize }: { boardSize: { width: number; height: number } }) {
+  /** Whether the window onto the habitat is open. It only exists under the
+   *  blacklight, and throwing the switch back closes it. */
+  const [habitat, setHabitat] = useState(false);
   const t = useUiText();
   const world = useWorld();
   const { tool, paintColor, hold, zeroG, setZeroG, swallowed, restoreWorld, clearSplats } = world;
@@ -250,10 +256,25 @@ export function WorldOverlay({ boardSize }: { boardSize: { width: number; height
           {/* Screen furniture, not board furniture: the switch you came in by
               may be a long way off the edge by now, so the way out is pinned
               to the window rather than to a spot on the slate. */}
-          <div className="uvsay" aria-hidden="true">
-            <span className="uvsay__sign">{t('world.uv.crew')}</span>
-            <span className="uvsay__way">{t('world.uv.esc')}</span>
+          <div className="uvsay">
+            <span className="uvsay__sign" aria-hidden="true">{t('world.uv.crew')}</span>
+            <span className="uvsay__way" aria-hidden="true">{t('world.uv.esc')}</span>
+            {/* The board turns out to be a terminal, and the terminal looks at
+                something. This is the way through to it. */}
+            <button
+              type="button"
+              className="uvsay__map"
+              onClick={() => setHabitat(true)}
+            >
+              {t('world.uv.map')}
+            </button>
           </div>
+        </Suspense>
+      ) : null}
+
+      {world.uv && habitat ? (
+        <Suspense fallback={null}>
+          <HabitatView onClose={() => setHabitat(false)} />
         </Suspense>
       ) : null}
 

@@ -30,3 +30,6 @@ temp/
 .eslintcache
 .vite/
 .vitest/
+
+# Local dev-server config for the Claude Code browser pane
+.claude/

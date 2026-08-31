@@ -3340,3 +3340,274 @@ body.board-uv [data-card].is-uv-propped {
   .monty--won .monty__valance i { animation: none; }
   .monty__leaf { transition: none; }
 }
+
+/* ── THE HABITAT ──────────────────────────────────────────────────────────
+   A window onto a persistent society, opened from under the blacklight.
+
+   The whole thing is one decision: cold instrument on the outside, warm life
+   within. Everything that frames the world — header, cotas, record, room card —
+   keeps the board's ink, bone and signal amber, monospaced and unrounded, so
+   that the habitat reads as something being *observed through* an apparatus
+   rather than as a second website. The only warmth in the frame is the people. */
+
+.hab {
+  position: fixed;
+  inset: 0;
+  /* Above everything the board puts on screen, including the sign-in bar at 900. */
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #0d0b1c 0%, #050409 62%, #030206 100%);
+  color: #cfe8ee;
+  font-family: var(--font-mono);
+  animation: hab-in .42s cubic-bezier(.2, .8, .3, 1) both;
+}
+@keyframes hab-in { from { opacity: 0; } to { opacity: 1; } }
+
+.hab__head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.6rem;
+  padding: .85rem 1.25rem;
+  border-bottom: 1px solid rgba(124, 249, 255, .22);
+  font-size: .68rem;
+  letter-spacing: .22em;
+  flex: 0 0 auto;
+}
+.hab__title { color: #7cf9ff; font-weight: 700; letter-spacing: .42em; }
+.hab__stat { color: rgba(207, 232, 238, .62); }
+.hab__stat b {
+  font-weight: 400;
+  color: rgba(207, 232, 238, .38);
+  margin-right: .5em;
+}
+.hab__close {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba(255, 214, 64, .38);
+  color: var(--c-signal);
+  font: inherit;
+  letter-spacing: .18em;
+  padding: .3rem .7rem;
+  cursor: pointer;
+}
+.hab__close:hover { border-color: var(--c-signal); background: rgba(255, 214, 64, .08); }
+.hab__close:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+
+.hab__body {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  min-height: 0;
+}
+.hab__stage {
+  display: grid;
+  place-items: center;
+  padding: 1.2rem 1.6rem;
+  min-width: 0;
+}
+
+/* ── the cutaway ── */
+
+.hab-section { width: 100%; height: 100%; max-height: 100%; }
+
+.hab-vacuum { fill: #010104; }
+.hab-star { fill: rgba(214, 232, 255, .55); }
+.hab-surface { stroke: rgba(124, 249, 255, .42); stroke-width: .25; }
+.hab-rock { fill: #0a0913; }
+.hab-grit { fill: rgba(148, 163, 184, .1); }
+
+.hab-hull {
+  fill: rgba(41, 53, 78, .62);
+  stroke: rgba(124, 249, 255, .38);
+  stroke-width: .4;
+}
+
+.hab-link { stroke: rgba(124, 249, 255, .2); stroke-width: .3; }
+.hab-link--cut { stroke-dasharray: 1.4 1.1; stroke: rgba(255, 214, 64, .3); }
+
+.hab-room { cursor: pointer; }
+.hab-room__box {
+  fill: rgba(255, 232, 190, .05);
+  stroke: rgba(124, 249, 255, .5);
+  stroke-width: .32;
+  transition: fill .18s ease, stroke .18s ease;
+}
+.hab-room--rock .hab-room__box { stroke: rgba(255, 214, 64, .42); }
+.hab-room--dark .hab-room__box { fill: rgba(2, 1, 6, .8); stroke-dasharray: .9 .7; }
+.hab-room:hover .hab-room__box { fill: rgba(255, 232, 190, .12); stroke: #7cf9ff; }
+.hab-room.is-selected .hab-room__box {
+  fill: rgba(255, 214, 64, .14);
+  stroke: var(--c-signal);
+  stroke-width: .5;
+}
+/* A group in SVG takes the browser's own ring on its bounding box, which at this
+   scale paints a slab the size of the room. The indicator is the box itself. */
+.hab-room:focus { outline: none; }
+.hab-room:focus-visible .hab-room__box {
+  stroke: var(--c-signal);
+  stroke-width: .7;
+  stroke-dasharray: none;
+}
+
+.hab-person { fill: #ffd76a; }
+.hab-room--dark .hab-person { fill: rgba(255, 215, 106, .4); }
+
+.hab-reactor-hot { stop-color: rgba(255, 138, 76, .85); }
+.hab-reactor-cold { stop-color: rgba(255, 138, 76, 0); }
+
+.hab-room__name {
+  font-family: var(--font-mono);
+  font-size: 2.35px;
+  letter-spacing: .38px;
+  fill: rgba(207, 232, 238, .78);
+  pointer-events: none;
+}
+.hab-room__name--middle { text-anchor: middle; }
+.hab-room__name--start { text-anchor: start; }
+.hab-room:hover .hab-room__name, .hab-room.is-selected .hab-room__name {
+  fill: var(--c-signal);
+}
+
+.hab-cota line { stroke: rgba(207, 232, 238, .42); stroke-width: .2; }
+.hab-cota__label {
+  font-family: var(--font-mono);
+  font-size: 2.1px;
+  fill: rgba(207, 232, 238, .6);
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+.hab-legend {
+  font-family: var(--font-mono);
+  font-size: 2.2px;
+  letter-spacing: .5px;
+  fill: rgba(207, 232, 238, .46);
+}
+.hab-legend--end { text-anchor: end; }
+
+/* ── the record ── */
+
+.hab__rail {
+  border-left: 1px solid rgba(124, 249, 255, .18);
+  padding: 1.1rem 1.2rem 2rem;
+  overflow-y: auto;
+  min-height: 0;
+}
+.hab__railhead {
+  margin: 0 0 1rem;
+  font-size: .62rem;
+  font-weight: 400;
+  letter-spacing: .3em;
+  color: rgba(124, 249, 255, .72);
+}
+.hab__record { list-style: none; margin: 0; padding: 0; }
+.hab__entry {
+  padding: .55rem 0;
+  border-top: 1px solid rgba(207, 232, 238, .09);
+  display: grid;
+  grid-template-columns: 3.4rem 1fr;
+  gap: 0 .7rem;
+}
+.hab__when { font-size: .64rem; color: var(--c-signal); letter-spacing: .1em; }
+.hab__where {
+  font-size: .58rem;
+  letter-spacing: .18em;
+  color: rgba(207, 232, 238, .4);
+  text-transform: uppercase;
+}
+.hab__what {
+  grid-column: 2;
+  margin: .25rem 0 0;
+  font-size: .74rem;
+  line-height: 1.45;
+  color: rgba(207, 232, 238, .84);
+}
+
+/* ── the room card ── */
+
+.hab__card {
+  flex: 0 0 auto;
+  border-top: 1px solid rgba(255, 214, 64, .3);
+  background: rgba(4, 3, 10, .96);
+  padding: .75rem 1.25rem .9rem;
+  max-height: 32vh;
+  overflow-y: auto;
+}
+.hab__cardhead { display: flex; align-items: baseline; gap: 1rem; }
+.hab__cardname {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: .04em;
+  color: #fff3d6;
+}
+.hab__cardmeta {
+  font-size: .58rem;
+  letter-spacing: .22em;
+  color: rgba(255, 214, 64, .6);
+}
+.hab__cardtext {
+  margin: .5rem 0 0;
+  max-width: 68ch;
+  font-size: .82rem;
+  line-height: 1.55;
+  color: rgba(207, 232, 238, .82);
+}
+.hab__cardnote {
+  margin: .55rem 0 0;
+  max-width: 68ch;
+  padding-left: .8rem;
+  border-left: 2px solid rgba(255, 214, 64, .45);
+  font-size: .8rem;
+  line-height: 1.5;
+  color: #ffe6a8;
+}
+.hab__who {
+  list-style: none;
+  margin: .85rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: .3rem;
+}
+.hab__person { display: flex; align-items: baseline; gap: .7rem; font-size: .74rem; }
+.hab__initial {
+  flex: 0 0 auto;
+  width: 1.35rem;
+  height: 1.35rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 214, 64, .45);
+  color: var(--c-signal);
+  font-size: .66rem;
+}
+.hab__personname { color: rgba(255, 243, 214, .92); min-width: 9.5rem; }
+.hab__doing { color: rgba(207, 232, 238, .55); }
+.hab__empty { margin: .8rem 0 0; font-size: .78rem; color: rgba(207, 232, 238, .45); }
+
+/* ── the way in ── */
+
+.uvsay__map {
+  background: none;
+  border: 1px solid rgba(255, 214, 64, .5);
+  color: var(--c-signal);
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .3em;
+  padding: .32rem .85rem;
+  margin-top: .45rem;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.uvsay__map:hover { background: rgba(255, 214, 64, .12); border-color: var(--c-signal); }
+.uvsay__map:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+
+@media (max-width: 900px) {
+  .hab__body { grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; }
+  .hab__rail { border-left: none; border-top: 1px solid rgba(124, 249, 255, .18); max-height: 34vh; }
+  .hab__head { gap: .9rem; font-size: .6rem; flex-wrap: wrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hab { animation: none; }
+  .hab-room__box { transition: none; }
+}

@@ -895,6 +895,7 @@ const CATALOGUE: Record<string, Entry> = {
   'world.uv.off': { es: 'vuelve a echarlo', en: 'throw it back' },
   'world.uv.crew': { es: 'el turno de noche', en: 'the night shift' },
   'world.uv.esc': { es: 'esc para volver', en: 'esc to come back' },
+  'world.uv.map': { es: 'el hábitat', en: 'the habitat' },
   'world.uv.bay': { es: 'PUESTO {n}', en: 'BAY {n}' },
   'world.uv.works': { es: 'EN OBRAS', en: 'UNDER REPAIR' },
   'world.uv.maint': { es: 'CUADRILLA · 14 OFICIOS', en: 'MAINT. CREW · 14 TRADES' },
