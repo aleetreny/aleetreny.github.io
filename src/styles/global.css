@@ -4033,3 +4033,60 @@ body.board-uv [data-card].is-uv-propped {
   aspect-ratio: 1;
   margin: 0 auto;
 }
+
+/* ── the map ──────────────────────────────────────────────────────────────
+   The main plane: the wreck in the rock, cut open. Pixel art on a canvas,
+   generated rather than loaded, so it is crisp at any size and costs the
+   visitor nothing to arrive. */
+
+.hab-map {
+  position: relative;
+  /* The stage centres its child, which would size this to its content — and its
+     content is a canvas sized from this. Stretching breaks the circle. */
+  place-self: stretch;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.hab-map__canvas {
+  image-rendering: pixelated;
+  display: block;
+  cursor: grab;
+  border: 1px solid rgba(124, 249, 255, .14);
+}
+.hab-map__canvas:active { cursor: grabbing; }
+.hab-map__bar {
+  position: absolute;
+  left: 50%;
+  bottom: .35rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: stretch;
+  gap: .4rem;
+}
+.hab-map__reset {
+  background: rgba(4, 3, 10, .85);
+  border: 1px solid rgba(255, 214, 64, .45);
+  color: var(--c-signal);
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: .3rem .7rem;
+  cursor: pointer;
+}
+.hab-map__reset:hover { background: rgba(255, 214, 64, .12); }
+.hab-map__hint {
+  margin: 0;
+  padding: .3rem .8rem;
+  background: rgba(4, 3, 10, .85);
+  border: 1px solid rgba(124, 249, 255, .2);
+  font-size: .64rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(207, 232, 238, .7);
+  pointer-events: none;
+  white-space: nowrap;
+}

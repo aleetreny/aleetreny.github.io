@@ -10,7 +10,7 @@
 // which is the point: the simulation can move without the frontend noticing.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { HabitatSection } from './HabitatSection';
+import { HabitatMap } from './HabitatMap';
 import { RoomCanvas } from './RoomCanvas';
 import { Dossier } from './Dossier';
 import { Weave } from './Weave';
@@ -95,7 +95,7 @@ export function HabitatView({ onClose }: { onClose: () => void }) {
               />
             </>
           ) : (
-            <HabitatSection
+            <HabitatMap
               snapshot={snapshot}
               selected={selected}
               onSelect={(id) => setSelected(id)}

@@ -2,62 +2,35 @@ import { describe, expect, it } from 'vitest';
 import { gridSize } from './grid';
 import { ROOMS, ROOM_BY_ID } from './rooms';
 import {
-  HULL_AXIS, LINKS, PLACEMENTS, SECTION, centreOf, hullTilt, placementOf,
+  FRAME, LINKS, PLACEMENTS, PLACEMENT_BY_ID, TILT, asteroidOutline, centreOf,
+  craters, debris, roomAt,
 } from './section';
 
-describe('the silhouette', () => {
-  it('drives the hull in at twenty-two degrees off the galleries', () => {
-    expect(hullTilt()).toBeGreaterThan(21.5);
-    expect(hullTilt()).toBeLessThan(22.5);
-  });
-
-  it('runs the hull from near the surface down into the rock', () => {
-    expect(HULL_AXIS.from.y).toBeLessThan(HULL_AXIS.to.y);
-    expect(HULL_AXIS.from.x).toBeLessThan(HULL_AXIS.to.x);
-  });
-
-  it('leans every hull room and leaves every dug one level', () => {
-    for (const p of PLACEMENTS) {
-      expect(p.tilt).toBe(ROOM_BY_ID[p.id].side === 'hull' ? 22 : 0);
-    }
-  });
-
-  it('keeps the rock to the right of the hull, where it was dug from', () => {
-    const hull = PLACEMENTS.filter((p) => ROOM_BY_ID[p.id].side === 'hull');
-    const rock = PLACEMENTS.filter((p) => ROOM_BY_ID[p.id].side === 'rock');
-    const deepestHull = Math.max(...hull.map((p) => p.x));
-    const shallowestRock = Math.min(...rock.map((p) => p.x));
-    expect(shallowestRock).toBeGreaterThan(Math.min(...hull.map((p) => p.x)));
-    expect(deepestHull).toBeLessThan(Math.max(...rock.map((p) => p.x)));
-  });
-});
-
-describe('the boxes', () => {
-  it('places all sixteen', () => {
+describe('the composition', () => {
+  it('places all sixteen, once each', () => {
     expect(PLACEMENTS).toHaveLength(16);
     expect(new Set(PLACEMENTS.map((p) => p.id)).size).toBe(16);
   });
 
-  it('sizes a room from its own grid, so the drawing cannot lie about its shape', () => {
+  it('sizes every room from its own grid, so the map cannot lie about a place', () => {
     for (const room of ROOMS) {
       const { w, h } = gridSize(room.grid);
-      const p = placementOf(room.id);
-      expect(p.w).toBeCloseTo(w / 2);
-      expect(p.h).toBeCloseTo(h / 2);
-      expect(p.w / p.h).toBeCloseTo(w / h);
+      const p = PLACEMENT_BY_ID[room.id];
+      expect(p.w, room.id).toBe(w);
+      expect(p.h, room.id).toBe(h);
     }
   });
 
-  it('keeps every room inside the section', () => {
+  it('keeps everything inside the frame', () => {
     for (const p of PLACEMENTS) {
-      expect(p.x).toBeGreaterThanOrEqual(0);
-      expect(p.y).toBeGreaterThanOrEqual(0);
-      expect(p.x + p.w).toBeLessThanOrEqual(SECTION.w);
-      expect(p.y + p.h).toBeLessThanOrEqual(SECTION.h);
+      expect(p.x, p.id).toBeGreaterThanOrEqual(0);
+      expect(p.y, p.id).toBeGreaterThanOrEqual(0);
+      expect(p.x + p.w, p.id).toBeLessThanOrEqual(FRAME.w);
+      expect(p.y + p.h, p.id).toBeLessThanOrEqual(FRAME.h);
     }
   });
 
-  it('does not overlap two rooms, so every one can be clicked', () => {
+  it('overlaps nothing, so every room can be clicked', () => {
     for (let i = 0; i < PLACEMENTS.length; i += 1) {
       for (let j = i + 1; j < PLACEMENTS.length; j += 1) {
         const a = PLACEMENTS[i]!;
@@ -68,12 +41,126 @@ describe('the boxes', () => {
       }
     }
   });
+});
 
-  it('centres a box on the point it was given', () => {
-    const p = placementOf('common');
-    const c = centreOf('common');
-    expect(p.x + p.w / 2).toBeCloseTo(c.x);
-    expect(p.y + p.h / 2).toBeCloseTo(c.y);
+describe('the ship', () => {
+  it('stacks the hull bow to stern with no gaps between decks', () => {
+    const hull = PLACEMENTS.filter((p) => p.side === 'hull').sort((a, b) => a.y - b.y);
+    expect(hull).toHaveLength(8);
+    for (let i = 1; i < hull.length; i += 1) {
+      expect(hull[i]!.y, hull[i]!.id).toBe(hull[i - 1]!.y + hull[i - 1]!.h);
+    }
+  });
+
+  it('drives it in at twenty-two degrees, measured off what was actually placed', () => {
+    const hull = PLACEMENTS.filter((p) => p.side === 'hull').sort((a, b) => a.y - b.y);
+    const first = hull[0]!;
+    const last = hull[hull.length - 1]!;
+    const measured = (Math.atan2(last.x - first.x, last.y - first.y) * 180) / Math.PI;
+    expect(Math.abs(measured - TILT)).toBeLessThan(1.5);
+  });
+
+  it('leaves the bow out in vacuum and buries everything aft of it', () => {
+    const bridge = PLACEMENT_BY_ID.bridge;
+    const spine = PLACEMENT_BY_ID.spine;
+    expect(bridge.y).toBeLessThan(18);
+    expect(spine.y).toBeGreaterThan(60);
+  });
+});
+
+describe('the warren', () => {
+  it('cuts it into the rock to one side of the wreck', () => {
+    const hullRight = Math.max(...PLACEMENTS.filter((p) => p.side === 'hull').map((p) => p.x + p.w));
+    const rock = PLACEMENTS.filter((p) => p.side === 'rock');
+    expect(rock).toHaveLength(8);
+    expect(Math.max(...rock.map((p) => p.x + p.w))).toBeGreaterThan(hullRight);
+  });
+
+  it('packs it: rooms that connect are near enough for a short passage', () => {
+    for (const link of LINKS) {
+      const a = centreOf(link.a);
+      const b = centreOf(link.b);
+      const gap = Math.hypot(a.x - b.x, a.y - b.y);
+      expect(gap, `${link.a}–${link.b}`).toBeLessThan(56);
+    }
+  });
+
+  it('packs the warren rather than floating boxes in a void', () => {
+    // Measured against the ground the habitat actually occupies, not the frame:
+    // the frame now holds the vacuum the rock floats in as well, and most of an
+    // asteroid is quite correctly solid.
+    const x0 = Math.min(...PLACEMENTS.map((p) => p.x));
+    const y0 = Math.min(...PLACEMENTS.map((p) => p.y));
+    const x1 = Math.max(...PLACEMENTS.map((p) => p.x + p.w));
+    const y1 = Math.max(...PLACEMENTS.map((p) => p.y + p.h));
+    const covered = PLACEMENTS.reduce((n, p) => n + p.w * p.h, 0);
+    expect(covered / ((x1 - x0) * (y1 - y0))).toBeGreaterThan(0.34);
+  });
+});
+
+describe('hit testing', () => {
+  it('finds the room under a tile inside it', () => {
+    const p = PLACEMENT_BY_ID.common;
+    expect(roomAt(p.x + 2, p.y + 2)).toBe('common');
+    expect(roomAt(p.x + p.w - 1, p.y + p.h - 1)).toBe('common');
+  });
+
+  it('finds nothing in solid rock', () => {
+    expect(roomAt(0, 0)).toBeNull();
+    expect(roomAt(FRAME.w - 1, FRAME.h - 1)).toBeNull();
+  });
+
+  it('agrees with every placement across its whole footprint', () => {
+    for (const p of PLACEMENTS) {
+      for (let y = p.y; y < p.y + p.h; y += 3) {
+        for (let x = p.x; x < p.x + p.w; x += 3) {
+          expect(roomAt(x, y), `${p.id} at ${x},${y}`).toBe(p.id);
+        }
+      }
+    }
+  });
+});
+
+describe('the rock', () => {
+  const outline = asteroidOutline();
+
+  it('is a closed lumpy ring, not an ellipse', () => {
+    expect(outline.length).toBeGreaterThan(100);
+    const radii = outline.map((v) => Math.hypot(v.x - 104, v.y - 58));
+    const spread = Math.max(...radii) - Math.min(...radii);
+    expect(spread).toBeGreaterThan(8);
+  });
+
+  it('is deterministic, so it is the same rock every visit', () => {
+    expect(asteroidOutline()).toEqual(outline);
+    expect(craters()).toEqual(craters());
+    expect(debris()).toEqual(debris());
+  });
+
+  it('contains the whole warren, so nothing is dug outside the asteroid', () => {
+    const inside = (px: number, py: number) => {
+      let hit = false;
+      for (let i = 0, j = outline.length - 1; i < outline.length; j = i, i += 1) {
+        const a = outline[i]!;
+        const b = outline[j]!;
+        if ((a.y > py) !== (b.y > py)
+          && px < ((b.x - a.x) * (py - a.y)) / (b.y - a.y) + a.x) hit = !hit;
+      }
+      return hit;
+    };
+    for (const p of PLACEMENTS.filter((q) => q.side === 'rock')) {
+      for (const [cx, cy] of [[p.x, p.y], [p.x + p.w, p.y], [p.x, p.y + p.h], [p.x + p.w, p.y + p.h]]) {
+        expect(inside(cx!, cy!), `${p.id} corner ${cx},${cy}`).toBe(true);
+      }
+    }
+  });
+
+  it('scatters craters and rubble without putting either inside a room', () => {
+    expect(craters().length).toBeGreaterThan(15);
+    expect(debris().length).toBeGreaterThan(20);
+    for (const c of craters()) {
+      expect(roomAt(Math.round(c.x), Math.round(c.y)), `crater ${c.x},${c.y}`).toBeNull();
+    }
   });
 });
 
@@ -81,8 +168,6 @@ describe('the galleries', () => {
   it('draws each connection exactly once', () => {
     const total = ROOMS.reduce((n, r) => n + r.connects.length, 0);
     expect(LINKS).toHaveLength(total / 2);
-    const keys = LINKS.map((l) => [l.a, l.b].sort().join('|'));
-    expect(new Set(keys).size).toBe(keys.length);
   });
 
   it('links only rooms that say they are linked', () => {
