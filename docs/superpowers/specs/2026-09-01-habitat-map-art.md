@@ -70,7 +70,7 @@ ever wanted on the global map, the composition has failed.
 | **Doors** | Not door leaves — **a gap where light spills through**. Sealed is a rust bar across the gap. | A break in the hairline. Sealed is a rust tick, climb a stepped mark. |
 | **Hubs** | Never annotated: simply the brightest, most peopled and most worn. Emergent. | Label chip in the heavier weight. Annotation is legitimate here. |
 | **Dead ends** | One light source or none, and no worn path leading out. | The hairline closes with no break. Chip in the lighter weight. |
-| **Private** | Dim, narrow, unworn floor, a personal accent at each door — nine Diggings, nine different warms. | Fill one step darker. Doors shown; who is behind them, open question. |
+| **Private** | Dim, narrow, unworn floor, a personal accent at each door — nine Diggings, nine different warms. | Fill one step darker. **Occupancy only:** a door reads occupied or not. Identity appears on hover or selection, never at rest. |
 | **Public** | Broad pools of warm light, floor worn to a polish, people in it. | Fill one step lighter, every crossing drawn. |
 
 ## Chaos that stays legible
@@ -105,7 +105,7 @@ kind, because that is what decides routes; twenty-five people as dots, presence
 never identity; the frontier edge wherever the Face has got to; unmapped rock as
 absence; what is currently being looked at, in amber, and nothing else in amber.
 
-**Does not show:** objects or furniture; resident names, stats or numbers;
+**Does not show:** objects or furniture; resident names, stats or numbers at rest — identity is a hover, not a layer;
 anything behind a sealed door — the Breach's interior is a void and the jammed
 cabin a blank; legend, key or north arrow, since it never rotates; any control.
 
@@ -162,11 +162,46 @@ the archive*, expressed as art direction rather than as a list of events.
 **Decision: A, with confidence levels taken from C.** One line style, it makes the
 Hollow correct, and it gives the map somewhere to grow that is not just area.
 
-## Open, for the owner
+## Rulings
 
-- **People inside their own diggings.** Does the minimap show who is home, or only
-  that a door is occupied?
-- **The night watch.** Should `THE NIGHT SHIFT` visibly change the map's lighting —
-  fewer lamps, colder, longer shadows — or stay purely a lever on the board?
-- **Worn paths as canon.** Confirm the slow tier may write into the picture at all.
-  Once wear is drawn the map stops being authored and starts being recorded.
+Closed by the owner, 2026-09-01.
+
+**1 · Occupancy, not identity.** The minimap shows that a digging is occupied,
+never by whom. Identity surfaces on hover or selection and disappears again. The
+observatory watches the society; it does not watch a person in their own room.
+
+**2 · The night watch is physical.** `THE NIGHT SHIFT` visibly changes the
+habitat's lighting, because it *is* the world's night watch and not a cosmetic
+mode on the board. Consequences, which are binding on every room design:
+
+- **Every room is designed under two lights**, not one. A room that only works lit
+  is not finished. The night state is authored, not a filter.
+- Lamp amber drops and cools on the night watch; the map contracts to embers.
+- **Hydroponics does not dim.** Plants keep a cycle that is not the ship's, so on
+  the night watch it is the only bright thing on the map — which is also when the
+  cost of the people who go only to sit is most visible.
+- The Spine's reactor orange and the Berths' cyan do not dim either. They are
+  machines, not lighting.
+- The Bridge gets *brighter* relative to everything else, because starlight is
+  constant and everything competing with it went out.
+
+**3 · Slow traces are canon.** The slow tier may write into the picture. The world
+accumulates its own history from real simulation state — never decorative
+randomness. Six traces, each driven by a quantity the engine already holds:
+
+| Trace | Driven by | Reads as |
+| --- | --- | --- |
+| **Polish** | footfall per tile | the floor lightens along a path |
+| **Wear-to-bare** | sustained heavy footfall on rock | dressed floor worn back to raw stone |
+| **Rust bloom** | plate cut events, and time since | a warm stain weeping downhill from a cut edge |
+| **Stain** | spills, water, the work done there | a dark irregular patch, darkest at its centre |
+| **Accumulation** | objects set down and not moved | small clutter gathering at low-traffic edges |
+| **Repair** | fix events | a patch in the wrong material, visibly newer |
+
+Two rules keep this honest. **No trace is ever generated from noise** — if the
+engine cannot say why a mark is there, it is not drawn. And **traces only ever
+accumulate**; nothing is tidied away unless a resident actually tidied it.
+
+The seventh trace is not history but geometry: **slide.** In hull rooms everything
+loose has pooled against the aft bulkhead, because the floor has been at
+twenty-two degrees for a hundred days.
