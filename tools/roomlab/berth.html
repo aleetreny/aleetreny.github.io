@@ -1,0 +1,232 @@
+<style>
+ body{margin:0;background:#0b0d11;font:12px/1.5 monospace;color:#cfe}
+ canvas{image-rendering:pixelated;display:block}
+ #log{padding:8px;white-space:pre}
+ .row{display:flex;gap:12px;align-items:flex-start;padding:8px}
+</style>
+<div class="row"><canvas id="z"></canvas><canvas id="one"></canvas></div>
+<pre id="log"></pre>
+<script>
+// ── A TWO-BERTH CABIN ─────────────────────────────────────────────────────
+// Traced 1:1 off the reference render: every position below was measured off
+// that image and divided by its 5.34x display scale, so the room comes out at
+// the scale the sprites were drawn for. 204 x 205 px — about six tiles across.
+//
+// The corrugation was measured off the reference by folding a column profile:
+// 8 px period, light 161/145/146 then dark 98/103/102 — which is the walls
+// sheet at 1:1. The deck is flat #919191 with a grid line every 8 px, also
+// measured; no sheet in the pack carries that, so it is drawn.
+
+const T=32, S=4;                     // sheet tile, display zoom
+const W=204, H=205;
+const SHAFT_X0=96, SHAFT_X1=140;     // the ladder well, cut into the top wall
+const ROOM_Y0=32;                    // where the main room's top wall begins
+const STEP_Y=170;                    // the room narrows here
+const STEP_X0=32, STEP_X1=172;
+const BAND=6;                        // 1 px outline + 4 px wall + 1 px outline
+const FACE=82;                       // floor begins here, under the top wall
+const SHAFT_FLOOR=70;                // and here inside the well
+const INK='#1a1a1a', WALL='#626262';
+
+const room=document.createElement('canvas');room.width=W;room.height=H;
+const g=room.getContext('2d');g.imageSmoothingEnabled=false;
+const SH={},BB={};
+
+// ── the ink rectangle of a sprite, so nothing is ever placed by its tile ──
+function ink(sheet,c,r,w,h){
+  const k=sheet+c+','+r+','+w+','+h; if(BB[k]!==undefined)return BB[k];
+  const cv=document.createElement('canvas');cv.width=T*w;cv.height=T*h;
+  const cx=cv.getContext('2d');cx.imageSmoothingEnabled=false;
+  cx.drawImage(SH[sheet],c*T,r*T,T*w,T*h,0,0,T*w,T*h);
+  const d=cx.getImageData(0,0,T*w,T*h).data;
+  let x0=1e9,y0=1e9,x1=-1,y1=-1;
+  for(let y=0;y<T*h;y++)for(let x=0;x<T*w;x++)
+    if(d[(y*T*w+x)*4+3]>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+  return BB[k]=(x1<0?null:{x0,y0,w:x1-x0+1,h:y1-y0+1});
+}
+
+const FLOOR=[],WALLPROPS=[],CLASH=[];
+// put a sprite so that its INK lands exactly at (ix,iy). Tracing works in ink
+// coordinates: the tile a sprite happens to sit in is the sheet's business.
+function put(name,sheet,c,r,w,h,ix,iy,layer){
+  const b=ink(sheet,c,r,w,h);
+  if(!b){CLASH.push('EMPTY  '+name);return;}
+  const rect={x:ix,y:iy,w:b.w,h:b.h,name};
+  const list=layer==='wall'?WALLPROPS:layer==='on'?[]:FLOOR;
+  for(const o of list){
+    const ox=Math.max(0,Math.min(rect.x+rect.w,o.x+o.w)-Math.max(rect.x,o.x));
+    const oy=Math.max(0,Math.min(rect.y+rect.h,o.y+o.h)-Math.max(rect.y,o.y));
+    if(ox>2&&oy>2) CLASH.push('OVERLAP  '+name+' x '+o.name+'  ('+ox+'x'+oy+')');
+  }
+  if(!inside(rect)) CLASH.push('OFF-FRAME  '+name+'  ['+rect.x+','+rect.y+' '+rect.w+'x'+rect.h+']');
+  list.push(rect);
+  g.drawImage(SH[sheet],c*T,r*T,T*w,T*h,ix-b.x0,iy-b.y0,T*w,T*h);
+  return rect;
+}
+// raw sub-rectangle of a sheet, for pipe runs cut out of a longer sprite
+function cut(sheet,sx,sy,sw,sh,dx,dy){ g.drawImage(SH[sheet],sx,sy,sw,sh,dx,dy,sw,sh); }
+
+// ── plumbing ─────────────────────────────────────────────────────────────
+// The sheet has one horizontal length (32x10, a collar then a valve wheel),
+// one vertical length, and a closed loop whose four corners are the only
+// elbows in the pack. Everything below is addressed by the pipe's CENTRELINE,
+// which is how the reference's runs were measured, so the joints actually meet.
+const CH=299+4.5, CV=11+4.5;                       // centreline within each length
+function runH(cx,cy,w,off){ cut('furn',(off||0),299,w,10, cx,cy-4.5|0); }
+function runV(cx,cy,h,off){ cut('furn',11,320+(off||0),10,h, cx-4.5|0,cy); }
+// elbows, named for the two directions they open onto
+function elbowUpLeft (cx,cy){ cut('furn',42,394,11,11, cx-5|0, cy-6|0); }
+function elbowRightDown(cx,cy){ cut('furn',13,363,10,12, cx-3|0, cy-5|0); }
+
+// is a rectangle within the room's walkable outline?
+function inside(r){
+  const pad=BAND-1;
+  const corners=[[r.x,r.y],[r.x+r.w-1,r.y],[r.x,r.y+r.h-1],[r.x+r.w-1,r.y+r.h-1]];
+  return corners.every(([x,y])=>{
+    if(y<ROOM_Y0) return x>=SHAFT_X0+pad&&x<=SHAFT_X1-pad;      // in the well
+    if(y<STEP_Y)  return x>=pad&&x<=W-pad;                       // the wide part
+    return x>=STEP_X0+pad&&x<=STEP_X1-pad&&y<=H-pad;             // below the step
+  });
+}
+
+// ── the room's outline, inset by d ───────────────────────────────────────
+function outline(d){
+  return [[SHAFT_X0+d,0],[SHAFT_X1-d,0],[SHAFT_X1-d,ROOM_Y0+d],[W-d,ROOM_Y0+d],
+          [W-d,STEP_Y-d],[STEP_X1-d,STEP_Y-d],[STEP_X1-d,H-d],[STEP_X0+d,H-d],
+          [STEP_X0+d,STEP_Y-d],[d,STEP_Y-d],[d,ROOM_Y0+d],[SHAFT_X0+d,ROOM_Y0+d]];
+}
+function path(pts){g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();}
+
+function build(){
+  g.clearRect(0,0,W,H);
+
+  // ── shell ──────────────────────────────────────────────────────────────
+  path(outline(0));   g.fillStyle=INK;  g.fill();
+  path(outline(1));   g.fillStyle=WALL; g.fill();
+  path(outline(BAND-1)); g.fillStyle=INK; g.fill();
+
+  g.save(); path(outline(BAND)); g.clip();
+
+  floor(0,0,W,H);
+
+  // top wall in elevation: corrugated plate, whole panels. It stops at FACE in
+  // the room and higher, at SHAFT_FLOOR, inside the ladder well.
+  const panel=[10,8,1,10,8,10,1,8];                // plain plate only — the sheet's
+                                                   // rusted variants are not in the reference
+  g.save();
+  g.beginPath();
+  g.rect(0,0,W,FACE);                              // everything above the floor line
+  g.clip();
+  for(let x=0;x<W;x+=T){
+    const c=panel[(x/T)%panel.length];
+    for(let y=FACE-2*T;y>-2*T;y-=2*T) g.drawImage(SH.walls,c*T,10*T,T,2*T,x,y,T,2*T);
+  }
+  g.restore();
+  // the well's floor is higher than the room's, which is what makes it read
+  // as a shaft you climb out of rather than a niche
+  floor(SHAFT_X0,SHAFT_FLOOR,SHAFT_X1-SHAFT_X0,FACE-SHAFT_FLOOR);
+
+  // algae creeping down from the top of the plate, two patches, as measured
+  moss(6,38,34,11,0); moss(168,38,30,10,3);
+
+  // the shadow the plate casts on the deck
+  g.fillStyle='rgba(0,0,0,.45)';
+  g.fillRect(0,FACE-1,SHAFT_X0,2); g.fillRect(SHAFT_X1,FACE-1,W-SHAFT_X1,2);
+  g.fillRect(SHAFT_X0,SHAFT_FLOOR-1,SHAFT_X1-SHAFT_X0,2);
+
+  // ── on the wall ────────────────────────────────────────────────────────
+  // Left run: three lengths butted, so the sheet's own collar-then-valve rhythm
+  // falls where the reference's does — the second valve lands behind the notice
+  // board, which is why only one is visible there.
+  runH( 6,54,32); runH(38,54,32); runH(70,54,12);
+  runV(85,37,13,13);                               // the drop it comes off
+  elbowUpLeft(85,54);                              // and the bend into the run
+  put('firstaid','furn',8,9,1,1,   14,63,'wall');
+  put('notice',  'furn',2,11,1,1,  38,40,'wall');
+
+  // Right run: down off the plate top, left along the wall, then down again in
+  // two rusted lengths to the deck.
+  runV(182,37,12,13);                              // the drop from the plate top
+  elbowUpLeft(182,54);                             // bend, turning it left
+  runH(148,54,32);
+  elbowRightDown(150,54);                          // bend, turning it down
+  runV(150,55,32);                                 // two rusted lengths to the deck
+  cut('furn',11,324,10,8, 145,75);                 // its second valve, as measured
+  put('yellownotice','furn',13,15,1,1, 160,60,'wall');
+  // and one length low down along the deck, cut so its wheel lands where the
+  // reference's does rather than a full length running out under the trestle
+  runH(180,86,18,14);
+
+  // ── the ladder well ────────────────────────────────────────────────────
+  put('ladder','furn',4,12,1,2, 109,4);
+
+  // ── two berths, head to the plate, a footlocker shared between them ────
+  put('bunkA','furn',14,10,1,2,   8,82);
+  put('locker','furn',8,13,1,1,  38,93);
+  put('bunkB','furn',14,10,1,2,  70,82);
+
+  // ── the stores corner: a trestle, bedding folded on it, kit on top ─────
+  put('trestle','furn',11,9,2,2, 141,93);
+  put('foldedC','furn',16,6,1,1, 140,86,'on');      // three blankets, stacked
+  put('foldedB','furn',16,6,1,1, 140,83,'on');
+  put('foldedA','furn',16,6,1,1, 140,80,'on');
+  put('kit','furn',2,8,1,1,      169,90,'on');      // jacket and hard hat
+  put('desk','furn',7,6,1,2,     167,129);
+
+  // ── the mess end: one table, two chairs, and what got left on the deck ─
+  put('chairL','furn',6,4,1,2,   41,157);
+  put('table', 'furn',7,4,1,2,   67,160);
+  put('chairR','furn',5,4,1,2,  107,157);
+  put('sheet', 'furn',0,5,1,1,   72,163,'on');     // somebody's list, left out
+  put('book',  'furn',1,4,1,1,  135,172);
+  put('paper', 'furn',2,4,1,1,  151,178);
+
+  g.restore();
+  draw();
+}
+
+// the deck. #919191 with a grid line every 8 px, both read straight off the
+// reference — the shop sheet's floor is a full stop lighter and its grout far
+// heavier than what the reference actually shows.
+function floor(x0,y0,w,h){
+  g.save();g.beginPath();g.rect(x0,y0,w,h);g.clip();
+  g.fillStyle='#919191';g.fillRect(x0,y0,w,h);
+  g.fillStyle='#8a8a8a';
+  for(let x=Math.ceil(x0/8)*8;x<x0+w;x+=8) g.fillRect(x,y0,1,h);
+  for(let y=Math.ceil(y0/8)*8;y<y0+h;y+=8) g.fillRect(x0,y,w,1);
+  g.restore();
+}
+
+// an algal stain, drawn rather than stamped: the sheets carry rust, not moss
+function moss(x,y,w,h,seed){
+  g.save();g.globalCompositeOperation='multiply';
+  for(let i=0;i<w;i++){
+    const t=i+seed;
+    const n=(Math.sin(t*1.9)*.35+Math.sin(t*.53)*.4+Math.sin(t*.17)*.25+1)/2;
+    const d=Math.max(3,Math.round(h*(.45+.55*n)));
+    g.fillStyle='rgba(172,170,126,'+(.56+.2*n).toFixed(2)+')';
+    g.fillRect(x+i,y,1,d);
+    g.fillStyle='rgba(168,166,120,.3)';                       // where it has run
+    g.fillRect(x+i,y+d,1,Math.round(h*.35*n));
+  }
+  g.restore();
+}
+
+function draw(){
+  const z=document.getElementById('z');z.width=W*S;z.height=H*S;
+  const c=z.getContext('2d');c.imageSmoothingEnabled=false;
+  c.fillStyle='#0b0d11';c.fillRect(0,0,z.width,z.height);
+  c.drawImage(room,0,0,W*S,H*S);
+  const o=document.getElementById('one');o.width=W;o.height=H;
+  const oc=o.getContext('2d');oc.imageSmoothingEnabled=false;
+  oc.fillStyle='#0b0d11';oc.fillRect(0,0,W,H);oc.drawImage(room,0,0);
+  document.getElementById('log').textContent =
+    (CLASH.length?CLASH.join('\n'):'CLEAN — '+FLOOR.length+' on the deck, '+WALLPROPS.length+' on the plate')
+    +'\nroom '+W+'x'+H+' px';
+  window.__ready=1;
+}
+
+const NEED={furn:'sheets/furn.png',walls:'sheets/walls.png',shoproom:'sheets/shoproom.png'};
+let left=Object.keys(NEED).length;
+for(const k in NEED){const im=new Image();im.onload=()=>{SH[k]=im;if(!--left)build();};im.src=NEED[k];}
+</script>
