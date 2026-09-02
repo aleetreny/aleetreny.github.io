@@ -13,7 +13,9 @@ canvases loaded from `file://`.
 | `infirmary.html` | **The Infirmary** — the first canonical room built this way. |
 | `contact-sheet.html` | Every prop a room uses, drawn large and labelled. Run it before placing: the index grid is not enough to tell a waste bin from a hazard sign, and I got that wrong twice. |
 | `cabin.html` | A two-berth cabin. Its `place()` records every sprite's true ink rectangle, refuses nothing, but reports overlaps and anything crossing the frame. |
-| `berth.html` | **A two-berth cabin traced 1:1 off a reference render.** 204 x 205 px. Places sprites by their ink position, not their tile, and runs pipe by centreline. |
+| `berth.html` | **The mould, alone and unvaried.** A two-berth cabin traced 1:1 off a reference render, 204 x 205 px. Places sprites by their ink position, not their tile, and runs pipe by centreline. |
+| `cabin-kit.js` | That trace, as a module, so the hull's five cabins are the *same code* rather than five drawings that resemble each other. Takes one small `variation`: the lamp, whether the cabin is to starboard, one hook for the object only that cabin has, and the mould props it gives up for it. |
+| `cabins.html` | **The five cabins of the Long Walk.** One mould, five times, side by side at 1:1 and at 3x, each with its household and its one object. |
 | `measure/` | Reading a reference before drawing it: what scale it was exported at, which sheet it is built from, and a pixel ruler for when that fails. Python, not a browser page — see `measure/README.md`. |
 | `reference/` | The renders being traced from, each with its measured scale. See `reference/README.md`. |
 | `plan.html` | **The habitat at map magnification** — every room at its real size, the passages routed doorway to doorway, the named connective spaces labelled, and the eleven homes picked out in amber with the initials of whoever sleeps in them. Drawn from `habitat-plan.json`, which `measure/plan-data.mjs` generates out of `rooms.ts`, `section.ts` and the engine's `SLEEPS`, so the plan cannot drift from the habitat. |
@@ -32,6 +34,30 @@ instead, and they butt into one continuous length of steel.
 **Objects belong on the 32px grid.** These sheets are authored on it. Nudge only
 to seat something against a wall, or to hang it at a height — never to fake
 randomness.
+
+## Building a set from one trace
+
+Five cabins that are almost the same room is a different problem from one room,
+and the way it stays honest is that **there is only one drawing**. `cabin-kit.js`
+holds the trace; `berth.html` renders it with no variation at all and its output
+is byte-identical to the version from before the extraction, which is the check
+that the mould did not drift. The five differ only through:
+
+- **the lamp**, 0 to 1. Darkness is the ground state, so the brightest cabin is
+  the mould untouched and the others are dimmed away from it — never lifted above
+  the reference. The falloff is centred over the table, where the lamp hangs, and
+  it is clipped to the inside of the shell so all five keep the same hull.
+- **`mirror`**, for the two cabins across the walk, whose floors tilt the other
+  way. The whole trace is flipped and then the two notices are repainted
+  unflipped, because a mirrored notice is a mirrored piece of writing.
+- **one `extras` hook**, drawing the single object that cabin has and nothing
+  else, and a `plate` hook for anything done to the wall itself — that one runs
+  before the pipes go on, so a patch of lifted plate sits *under* them.
+
+Two things this caught that the eye would not have: the dimming was clipped to the
+unmirrored outline and painted a flat block into the corner the ladder well leaves
+empty on the starboard side; and the one object was being drawn after the dimming,
+so every cabin's own thing floated out of its light.
 
 ## Tracing a reference
 

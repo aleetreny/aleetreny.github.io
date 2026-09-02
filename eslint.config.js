@@ -28,4 +28,12 @@ export default tseslint.config(
       globals: globals.node,
     },
   },
+  {
+    // The room lab's modules run in a browser, opened over a local server. They
+    // are not part of the site build and never reach `dist`.
+    files: ['tools/**/*.js'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
 );

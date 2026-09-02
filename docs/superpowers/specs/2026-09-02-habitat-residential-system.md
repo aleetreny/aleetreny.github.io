@@ -153,6 +153,37 @@ pass makes true in a different way, since Osvald is now in the ship entirely.
 - Corridors are exempt from the twelve-tile cap on their long axis and held to
   three tiles of walkable width on their short one.
 
+## Built: the five cabins
+
+`tools/roomlab/cabins.html`. The mould was first pulled out of `berth.html` into
+`cabin-kit.js`, and `berth.html` now renders it with no variation at all — its
+output is **byte-identical to the version from before the extraction**, which is
+the check that the mould did not drift while it was being made reusable.
+
+The five differ through exactly three things and nothing else:
+
+| | What varies | Why it is the only axis |
+| --- | --- | --- |
+| **The lamp** | 1.0, 0.55, 0.3, 0.6, 0.45 | The Cabins' authored direction is that the modularity is in the geometry and the variation is in the light. Darkness is the ground state, so the brightest cabin is the mould untouched and the rest are dimmed away from it — never lifted above the reference. The falloff is centred over the table, and clipped to the inside of the shell so all five keep the same hull. |
+| **Starboard** | Cabins Four and Five | Across the walk the floor tilts the other way, so the whole trace is flipped and the two notices are then repainted unflipped — a mirrored notice is a mirrored piece of writing. |
+| **One object** | one per cabin | The glyph that cabin's room legend already declares, and at most one mould prop given up to make room for it. |
+
+| Cabin | The one object | Made of |
+| --- | --- | --- |
+| One | a sleeping passenger's case, stowed and never opened | `furn(17,13)`, plus a second document on the table |
+| Two | a shim stack, one plate every nine days | drawn — no sheet carries a stack of shims, and a cut edge is a date: the top plate is bright because it was cut this week |
+| Three | a photograph taped over a lifted plate | the plate patch is drawn on the wall *before* the pipes, so the run crosses it; the photograph is `furn(13,0)` with its calendar cut away, which is the only photograph in the pack that is not a pin-up |
+| Four | a rope-and-plate shelf over a bunk | drawn — plate, two ropes, and seven bolts of which four are not the same as the other three |
+| Five | a locker that is not the ship's | `furn(12,5)`, wedged into the corner where the room narrows, with the drag marks that got it there |
+
+All five report clean: no overlapping props and nothing crossing the frame.
+
+Two things the render caught that reading the code would not have: the dimming
+was clipped to the **unmirrored** outline, so on a starboard cabin it painted a
+flat block into the corner the ladder well leaves empty; and the one object was
+being drawn **after** the dimming, so every cabin's own thing floated out of its
+own light.
+
 ## Next: the Workshops
 
 Unchanged from the last phase, and now more clearly right. It is the only room
@@ -161,7 +192,8 @@ standing on bare ground, `workshop-plate-walls-on-dirt.png` — and the six
 diggings need exactly that grammar. Building the Workshops first means the
 diggings are built second with the wall question already answered.
 
-Order from here: **Workshops → a first cabin → the other four → Infirmary →
-Hold → a first digging → the other five → Well.** The cabins and diggings go in
-one-and-then-the-rest because the first of each is where the clone-and-vary rule
-gets proved; the remaining four and five are repetition.
+Order from here: **the five cabins (done) → Workshops → Infirmary → Hold → a
+first digging → the other five → Well.** The cabins came first at the owner's
+call, while the mould was fresh; the diggings still go in one-and-then-the-rest,
+because the first of them is where the clone-and-vary rule gets proved for the
+makeshift references.
