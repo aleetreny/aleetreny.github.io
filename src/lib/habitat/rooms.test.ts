@@ -6,10 +6,20 @@ const DOORS = new Set(['+', 'X']);
 const BOUNDARY = new Set(['#', '|', '+', 'X']);
 
 describe('the habitat is the shape the spec says it is', () => {
-  it('has sixteen rooms, eight in the hull and eight in the rock', () => {
-    expect(ROOMS).toHaveLength(16);
-    expect(ROOMS.filter((r) => r.side === 'hull')).toHaveLength(8);
-    expect(ROOMS.filter((r) => r.side === 'rock')).toHaveLength(8);
+  it('has twenty-seven rooms, thirteen in the hull and fourteen in the rock', () => {
+    // Sixteen became twenty-seven when the residential system was made real: the
+    // Cabins turned into the Long Walk and five cabins you can enter, and the
+    // Diggings into the Row and six.
+    expect(ROOMS).toHaveLength(27);
+    expect(ROOMS.filter((r) => r.side === 'hull')).toHaveLength(13);
+    expect(ROOMS.filter((r) => r.side === 'rock')).toHaveLength(14);
+  });
+
+  it('houses all twenty-five in eleven homes, ten in the hull and fifteen in rock', () => {
+    const homes = ROOMS.filter((r) => /^(cabin|dig)\d$/.test(r.id));
+    expect(homes).toHaveLength(11);
+    expect(homes.filter((r) => r.side === 'hull')).toHaveLength(5);
+    expect(homes.filter((r) => r.side === 'rock')).toHaveLength(6);
   });
 
   it('tilts the hull and leaves the rock level', () => {
@@ -19,13 +29,15 @@ describe('the habitat is the shape the spec says it is', () => {
   });
 
   it('gives every room a unique id', () => {
-    expect(new Set(ROOMS.map((r) => r.id)).size).toBe(16);
+    expect(new Set(ROOMS.map((r) => r.id)).size).toBe(27);
   });
 
-  it('carries between sixty and eighty significant objects in total', () => {
+  it('carries between sixty and a hundred and twenty significant objects', () => {
+    // The band was sixty to eighty across sixteen rooms. Eleven homes were added,
+    // each with a bed, its stowage and the one thing that is only in that one.
     const total = ROOMS.reduce((n, r) => n + Object.keys(r.legend).length, 0);
     expect(total).toBeGreaterThanOrEqual(60);
-    expect(total).toBeLessThanOrEqual(80);
+    expect(total).toBeLessThanOrEqual(120);
   });
 
   it('describes every room for whoever is looking at it', () => {
@@ -95,7 +107,7 @@ describe('the habitat is one place', () => {
         }
       }
     }
-    expect(seen.size).toBe(16);
+    expect(seen.size).toBe(27);
   });
 });
 

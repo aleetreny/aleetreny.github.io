@@ -19,10 +19,13 @@ describe('every object knows what it looks like', () => {
     }
   });
 
-  it('covers all sixty-five', () => {
+  it('covers every object in every room, and there are ninety of them', () => {
+    // Sixty-five across sixteen rooms became ninety across twenty-seven, when the
+    // eleven homes became rooms of their own. The count is asserted so that adding
+    // an object without giving it a shape fails here rather than silently.
     const total = ROOMS.reduce((n, r) => n + Object.keys(r.legend).length, 0);
     expect(shapedCount()).toBe(total);
-    expect(total).toBe(65);
+    expect(total).toBe(90);
   });
 
   it('leaves the Hollow with nothing to draw', () => {
@@ -48,9 +51,16 @@ describe('every object knows what it looks like', () => {
     expect(shapeOf('berths', 'q')).toBe('berth');
   });
 
-  it('puts a light in every dwelling somebody has dug', () => {
-    const homes = Object.values(SHAPES.diggings).filter((s) => s === 'home');
-    expect(homes).toHaveLength(9);
+  it('gives every one of the eleven homes a bed of its own', () => {
+    // A dwelling used to be one glyph inside a single Diggings room. Each of the
+    // six diggings and five cabins is now a room you can walk into, so the thing
+    // to check is that every one of them actually holds a bed.
+    const homes = ['cabin1', 'cabin2', 'cabin3', 'cabin4', 'cabin5',
+      'dig1', 'dig2', 'dig3', 'dig4', 'dig5', 'dig6'] as const;
+    expect(homes).toHaveLength(11);
+    for (const id of homes) {
+      expect(Object.values(SHAPES[id]), id).toContain('bunk');
+    }
   });
 });
 

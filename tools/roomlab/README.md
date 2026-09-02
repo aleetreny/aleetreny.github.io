@@ -16,7 +16,7 @@ canvases loaded from `file://`.
 | `berth.html` | **A two-berth cabin traced 1:1 off a reference render.** 204 x 205 px. Places sprites by their ink position, not their tile, and runs pipe by centreline. |
 | `measure/` | Reading a reference before drawing it: what scale it was exported at, which sheet it is built from, and a pixel ruler for when that fails. Python, not a browser page — see `measure/README.md`. |
 | `reference/` | The renders being traced from, each with its measured scale. See `reference/README.md`. |
-| `plan.html` | **The habitat at map magnification** — every room at its real size, the passages routed doorway to doorway, the named connective spaces labelled. Drawn from `habitat-plan.json`, which `measure/plan-data.mjs` generates out of `rooms.ts` and `section.ts`, so the plan cannot drift from the rooms. |
+| `plan.html` | **The habitat at map magnification** — every room at its real size, the passages routed doorway to doorway, the named connective spaces labelled, and the eleven homes picked out in amber with the initials of whoever sleeps in them. Drawn from `habitat-plan.json`, which `measure/plan-data.mjs` generates out of `rooms.ts`, `section.ts` and the engine's `SLEEPS`, so the plan cannot drift from the habitat. |
 
 ## The two rules that took several passes to learn
 

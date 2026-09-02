@@ -338,7 +338,12 @@ export function advanceDay(state: WorldState): WorldState {
   // last ones on the list go dark, and nobody has agreed what the order is.
   const priority: RoomId[] = [
     'well', 'hydroponics', 'common', 'spine', 'infirmary', 'berths', 'workshops',
-    'greatwall', 'diggings', 'cabins', 'hold', 'dock', 'bridge', 'face', 'hollow',
+    'greatwall', 'row', 'longwalk',
+    // Each home is lit by whoever lives in it, so they come after the shared
+    // rooms and before the ends of the ship nobody has to be in.
+    'dig1', 'dig2', 'dig3', 'dig4', 'dig5', 'dig6',
+    'cabin1', 'cabin2', 'cabin3', 'cabin4', 'cabin5',
+    'hold', 'dock', 'bridge', 'face', 'hollow',
   ];
   let left = budget;
   const wentDark: RoomId[] = [];

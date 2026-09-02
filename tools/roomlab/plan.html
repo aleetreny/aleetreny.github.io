@@ -31,6 +31,7 @@ const INK   = '#e9edff';
 const HULL  = '#7d8bc4';         // the ship: inherited, cold
 const ROCK  = '#c2a06a';         // the warren: cut by hand, warm
 const DEAD  = '#5b6289';
+const HOME  = '#d9a441';         // somebody sleeps here
 
 const el = (n, a = {}) => {
   const e = document.createElementNS('http://www.w3.org/2000/svg', n);
@@ -57,10 +58,13 @@ function draw(P) {
   }));
 
   for (const p of P.placements) {
-    const stroke = p.side === 'hull' ? HULL : ROCK;
+    const home = p.sleeps && p.sleeps.length > 0;
+    const stroke = home ? HOME : (p.side === 'hull' ? HULL : ROCK);
     layers.room.appendChild(el('rect', {
       x: at(p.x), y: at(p.y), width: p.w * S, height: p.h * S,
-      fill: p.side === 'hull' ? '#1b1e36' : '#221d2e', stroke, 'stroke-width': 1.6, rx: 1,
+      fill: home ? (p.side === 'hull' ? '#232338' : '#2a2233')
+        : (p.side === 'hull' ? '#1b1e36' : '#221d2e'),
+      stroke, 'stroke-width': home ? 2 : 1.6, rx: 1,
     }));
 
     // the room's own grid, so the plan can be checked against the interior
@@ -79,7 +83,8 @@ function draw(P) {
     const label = p.name.replace(/^The /, '');
     const tw = label.length * 5.4 + 10;
     const lx = at(p.x + p.w / 2) - tw / 2;
-    const ly = at(p.y + p.h / 2) - (p.h * S > 60 ? 8 : 14);
+    const narrow = p.w < 7;
+    const ly = narrow ? at(p.y) - 16 : at(p.y + p.h / 2) - (p.h * S > 60 ? 8 : 14);
     const chip = el('g', { class: 'chip' });
     chip.appendChild(el('rect', {
       x: lx, y: ly, width: tw, height: 14, rx: 2,
@@ -99,6 +104,17 @@ function draw(P) {
     });
     sz.textContent = `${p.w}x${p.h}`;
     chip.appendChild(sz);
+
+    // the household, as initials — the plan's answer to who lives where
+    if (home) {
+      const who = el('text', {
+        x: at(p.x + p.w / 2), y: ly + 36, 'text-anchor': 'middle', fill: HOME,
+        'font-family': 'ui-monospace,monospace', 'font-size': 10,
+        'letter-spacing': 2, class: 'who',
+      });
+      who.textContent = p.sleeps.map((r) => r.id).join('');
+      chip.appendChild(who);
+    }
     layers.label.appendChild(chip);
     taken.push({ x: lx + tw / 2, y: ly + 7, w: tw });
   }
@@ -110,17 +126,18 @@ function draw(P) {
   // the topology already forces.
   const NAMED = {
     'bridge|dock': 'The Climb',
-    'cabins|dock': 'The Long Walk', 'cabins|hold': 'The Long Walk',
-    'hold|infirmary': 'The Long Walk', 'berths|infirmary': 'The Long Walk',
-    'berths|spine': 'The Long Walk',
-    'dock|greatwall': 'The Throat', 'cabins|greatwall': 'The Throat',
+    'dock|greatwall': 'The Throat', 'greatwall|longwalk': 'The Throat',
     'infirmary|workshops': 'The Cut', 'spine|workshops': 'The Cut',
     'spine|well': 'coolant',
-    'common|hydroponics': 'The Lamp Run', 'common|diggings': 'The Row',
+    'common|hydroponics': 'The Lamp Run',
     'hydroponics|well': 'The Pipe Run', 'well|workshops': 'The Drop',
-    'diggings|face': 'The Long Gallery', 'face|hollow': 'The Break',
-    'breach|cabins': 'sealed', 'breach|hold': 'sealed',
+    'face|row': 'The Long Gallery', 'face|hollow': 'The Break',
+    'breach|longwalk': 'sealed', 'breach|hold': 'sealed',
   };
+  // The Long Walk and the Row are rooms now, not labels on a line: the five
+  // cabins and the six diggings open straight onto them, so those doorways are
+  // drawn and left unnamed.
+  const DOORWAY = new Set(['longwalk', 'row']);
   const shown = new Set();
   for (const l of P.links) {
     const A = room(P, l.a), B = room(P, l.b);
@@ -128,12 +145,13 @@ function draw(P) {
     const key = [l.a, l.b].sort().join('|');
     const name = NAMED[key];
     const sealed = name === 'sealed';
+    const doorway = !name && (DOORWAY.has(l.a) || DOORWAY.has(l.b));
     layers.link.appendChild(el('polyline', {
       points: pts.map(([x, y]) => `${at(x)},${at(y)}`).join(' '),
       fill: 'none', stroke: sealed ? '#6b4a4a' : DEAD,
-      'stroke-width': sealed ? 1.4 : 2.6, 'stroke-linejoin': 'round',
+      'stroke-width': sealed ? 1.4 : (doorway ? 1.6 : 2.6), 'stroke-linejoin': 'round',
       'stroke-linecap': 'round', 'stroke-dasharray': sealed ? '2 3' : null,
-      opacity: sealed ? .8 : .5,
+      opacity: sealed ? .8 : (doorway ? .3 : .5),
     }));
     // one label per named space, at the middle of the first route that carries it
     if (name && !shown.has(name)) {
@@ -174,7 +192,9 @@ function draw(P) {
     + `<span class="k">${tiles}</span> tiles of floor &middot; `
     + `footprint <span class="k">${x1 - x0}×${y1 - y0}</span> in a `
     + `<span class="k">${P.frame.w}×${P.frame.h}</span> frame &middot; `
-    + `largest room <span class="k">${Math.max(...P.placements.map(p => Math.max(p.w, p.h)))}</span> tiles`;
+    + `largest room <span class="k">${Math.max(...P.placements.map(p => Math.max(p.w, p.h)))}</span> tiles &middot; `
+    + `<span class="k">${P.placements.filter(p => p.sleeps && p.sleeps.length).length}</span> homes housing `
+    + `<span class="k">${P.placements.reduce((n, p) => n + (p.sleeps ? p.sleeps.length : 0), 0)}</span>`;
 
   const bind = (id, g, on = 'inline') => {
     const box = document.getElementById(id);

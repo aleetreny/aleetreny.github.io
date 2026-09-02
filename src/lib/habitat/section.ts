@@ -23,7 +23,7 @@ import { ROOMS, ROOM_BY_ID, type RoomId } from './rooms';
  *  render it is traced from — five to nine tiles — so the whole habitat fits in a
  *  frame a quarter the area of the one the ladder-stacked version needed, and the
  *  rock still runs off three sides. */
-export const FRAME = { w: 78, h: 80 } as const;
+export const FRAME = { w: 92, h: 98 } as const;
 
 /** Degrees off vertical. The whole hull is strung along this. */
 export const TILT = 22;
@@ -42,15 +42,38 @@ const BOW = { x: 7, y: 2 } as const;
 export const WALK = 2;
 
 /** The hull, bow to stern along the Long Walk. Each room hangs off the axis at
- *  the tilt, so the eight of them read as one vessel driven into rock. The Breach
- *  is not on the walk — it is the tear in the flank, and it hangs off it. */
-const HULL_WALK: readonly RoomId[] = [
-  'bridge', 'dock', 'cabins', 'hold', 'infirmary', 'berths', 'spine',
+ *  the tilt, so the seven of them read as one vessel driven into rock.
+ *
+ *  The Long Walk is one of them, and it is the longest: five cabins open off it,
+ *  and they are placed against it rather than along the chain. The Breach is on
+ *  neither — it is the tear in the flank, reached through a hatch that is sealed. */
+export const HULL_WALK: readonly RoomId[] = [
+  'bridge', 'dock', 'longwalk', 'hold', 'infirmary', 'berths', 'spine',
 ];
 
-/** The tear, west of the walk between the Cabins and the Hold. Two sealed mouths,
- *  no light, and nothing on the other side of it. */
-const BREACH_AT = { x: 6, y: 28 } as const;
+/** The five cabins, against the Long Walk: three to port, two to starboard, and
+ *  the free strip opposite the first is where the Throat leaves for the rock.
+ *  `at` is the row of the walk each one opens onto, which is also the offset of
+ *  its top corner — so a cabin's door and the walk's door are the same doorway by
+ *  construction rather than by counting. */
+const CABIN_BLOCK: readonly { id: RoomId; side: 'w' | 'e'; at: number }[] = [
+  { id: 'cabin1', side: 'w', at: 0 },
+  { id: 'cabin2', side: 'w', at: 8 },
+  { id: 'cabin3', side: 'w', at: 16 },
+  { id: 'cabin4', side: 'e', at: 8 },
+  { id: 'cabin5', side: 'e', at: 16 },
+];
+
+/** The tear, west of the walk and below the last cabin. */
+const BREACH_AT = { x: 6, y: 44 } as const;
+
+/** The six diggings, against the Row: three cut on the far side, three on the
+ *  near, and their front doors face each other across it. Offsets are local to
+ *  the Row's own top-left corner. */
+const DIG_BLOCK: readonly { id: RoomId; x: number; y: number }[] = [
+  { id: 'dig1', x: 0, y: -7 }, { id: 'dig2', x: 10, y: -7 }, { id: 'dig3', x: 18, y: -7 },
+  { id: 'dig4', x: 0, y: 5 }, { id: 'dig5', x: 8, y: 5 }, { id: 'dig6', x: 16, y: 5 },
+];
 
 /** The warren, cut by hand. Placed so that rooms which connect are a short
  *  passage apart and the Common is crossed by everybody.
@@ -59,21 +82,21 @@ const BREACH_AT = { x: 6, y: 28 } as const;
  *  irregularity rule from the plan, and at this size it is carried by where the
  *  mouths land rather than by rotating the boxes. */
 const ROCK_AT: Record<string, { x: number; y: number }> = {
-  // High on the flank, off the Dock and the Cabins, at the top of the Throat.
-  greatwall: { x: 26, y: 20 },
+  // High on the flank, opposite the first cabin, at the top of the Throat.
+  greatwall: { x: 30, y: 20 },
   // The hub. Everything in the warren is one room from it.
-  common: { x: 40, y: 20 },
-  // A destination and not a route: it hangs off the Common by one corridor.
-  hydroponics: { x: 44, y: 12 },
+  common: { x: 46, y: 24 },
+  // A destination and not a route: it hangs off the Row by one corridor.
+  hydroponics: { x: 48, y: 12 },
   // Behind the Common, so going home means crossing the room everybody is in.
-  diggings: { x: 40, y: 31 },
+  row: { x: 44, y: 47 },
   // At the junction of power, hull scrap and customers.
-  workshops: { x: 28, y: 30 },
+  workshops: { x: 34, y: 48 },
   // The lowest room, because water goes downhill, and on the way to nothing.
-  well: { x: 40, y: 41 },
+  well: { x: 36, y: 60 },
   // The frontier, and the two that run into rock nobody has surveyed.
-  face: { x: 56, y: 32 },
-  hollow: { x: 60, y: 44 },
+  face: { x: 72, y: 36 },
+  hollow: { x: 72, y: 50 },
 };
 
 export type Placement = {
@@ -89,18 +112,36 @@ export type Placement = {
 
 function buildPlacements(): Placement[] {
   const out: Placement[] = [];
+  const size = (id: RoomId) => gridSize(ROOM_BY_ID[id].grid);
+  const put = (id: RoomId, x: number, y: number, side: 'hull' | 'rock') => {
+    const { w, h } = size(id);
+    out.push({ id, x, y, w, h, side });
+  };
+
   let y = BOW.y;
+  let walk = { x: 0, y: 0 };
   for (const id of HULL_WALK) {
-    const { w, h } = gridSize(ROOM_BY_ID[id].grid);
-    out.push({ id, x: BOW.x + Math.round(TAN_TILT * (y - BOW.y)), y, w, h, side: 'hull' });
+    const { h } = size(id);
+    const x = BOW.x + Math.round(TAN_TILT * (y - BOW.y));
+    if (id === 'longwalk') walk = { x, y };
+    put(id, x, y, 'hull');
     y += h + WALK;
   }
-  const breach = gridSize(ROOM_BY_ID.breach.grid);
-  out.push({ id: 'breach', ...BREACH_AT, w: breach.w, h: breach.h, side: 'hull' });
-  for (const [id, at] of Object.entries(ROCK_AT)) {
-    const { w, h } = gridSize(ROOM_BY_ID[id as RoomId].grid);
-    out.push({ id: id as RoomId, x: at.x, y: at.y, w, h, side: 'rock' });
+  // The cabins are placed against the walk, not along the chain, so a cabin's
+  // door and the walk's door for it are the same doorway.
+  for (const c of CABIN_BLOCK) {
+    const { w } = size(c.id);
+    const wall = size('longwalk').w;
+    put(c.id, c.side === 'w' ? walk.x - w : walk.x + wall, walk.y + c.at, 'hull');
   }
+  put('breach', BREACH_AT.x, BREACH_AT.y, 'hull');
+
+  for (const [id, at] of Object.entries(ROCK_AT)) {
+    put(id as RoomId, at.x, at.y, 'rock');
+  }
+  // And the diggings against the Row, the same way.
+  const rowAt = ROCK_AT.row!;
+  for (const d of DIG_BLOCK) put(d.id, rowAt.x + d.x, rowAt.y + d.y, 'rock');
   return out;
 }
 
@@ -147,7 +188,7 @@ export type Vec = { x: number; y: number };
 /** The rock's nominal centre and radii, in tiles. Exported because the map draws
  *  its light against the same body the outline is generated from: two copies of
  *  these numbers is two rocks that drift apart. */
-export const ROCK_BODY = { x: 44, y: 45, rx: 56, ry: 47 } as const;
+export const ROCK_BODY = { x: 46, y: 50, rx: 58, ry: 56 } as const;
 
 /** The asteroid's outline, as a closed ring of points in tile space.
  *

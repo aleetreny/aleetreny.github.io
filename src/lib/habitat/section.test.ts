@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { gridSize } from './grid';
-import { ROOMS, ROOM_BY_ID } from './rooms';
+import { ROOMS, ROOM_BY_ID, type RoomId } from './rooms';
 import {
-  FRAME, LINKS, PLACEMENTS, PLACEMENT_BY_ID, TILT, WALK, asteroidOutline, centreOf,
-  craters, debris, roomAt, type Placement,
+  FRAME, HULL_WALK, LINKS, PLACEMENTS, PLACEMENT_BY_ID, TILT, WALK, asteroidOutline,
+  centreOf, craters, debris, roomAt, type Placement,
 } from './section';
 
 /** Tiles of rock between two rooms' nearest faces. Zero when they touch. */
@@ -14,9 +14,9 @@ function edgeGap(a: Placement, b: Placement): number {
 }
 
 describe('the composition', () => {
-  it('places all sixteen, once each', () => {
-    expect(PLACEMENTS).toHaveLength(16);
-    expect(new Set(PLACEMENTS.map((p) => p.id)).size).toBe(16);
+  it('places all twenty-seven, once each', () => {
+    expect(PLACEMENTS).toHaveLength(27);
+    expect(new Set(PLACEMENTS.map((p) => p.id)).size).toBe(27);
   });
 
   it('sizes every room from its own grid, so the map cannot lie about a place', () => {
@@ -51,16 +51,63 @@ describe('the composition', () => {
 });
 
 describe('the ship', () => {
-  it('strings the hull bow to stern with the Long Walk between every room', () => {
+  it('strings the hull bow to stern with corridor between every room', () => {
     // Not a stack. The rooms are the size of the renders they are traced from, and
-    // the corridor between them is space you walk down rather than a shared wall.
-    const walk = PLACEMENTS
-      .filter((p) => p.side === 'hull' && p.id !== 'breach')
-      .sort((a, b) => a.y - b.y);
-    expect(walk).toHaveLength(7);
-    expect(PLACEMENTS.filter((p) => p.side === 'hull')).toHaveLength(8);
-    for (let i = 1; i < walk.length; i += 1) {
-      expect(walk[i]!.y, walk[i]!.id).toBe(walk[i - 1]!.y + walk[i - 1]!.h + WALK);
+    // the space between them is corridor you walk down rather than a shared wall.
+    const chain = HULL_WALK.map((id) => PLACEMENT_BY_ID[id]);
+    expect(chain).toHaveLength(7);
+    for (let i = 1; i < chain.length; i += 1) {
+      expect(chain[i]!.y, chain[i]!.id).toBe(chain[i - 1]!.y + chain[i - 1]!.h + WALK);
+    }
+  });
+
+  it('opens all five cabins onto the Long Walk and nothing else', () => {
+    const walk = PLACEMENT_BY_ID.longwalk;
+    const cabins = PLACEMENTS.filter((p) => p.id.startsWith('cabin'));
+    expect(cabins).toHaveLength(5);
+    for (const c of cabins) {
+      // Touching the walk, and within its length: a door, not a corridor.
+      expect(edgeGap(c, walk), c.id).toBe(0);
+      expect(c.y, c.id).toBeGreaterThanOrEqual(walk.y);
+      expect(c.y + c.h, c.id).toBeLessThanOrEqual(walk.y + walk.h);
+      expect(ROOM_BY_ID[c.id].connects, c.id).toEqual(['longwalk']);
+    }
+    expect(cabins.filter((c) => c.x < walk.x)).toHaveLength(3);   // three to port
+    expect(cabins.filter((c) => c.x > walk.x)).toHaveLength(2);   // two to starboard
+  });
+
+  it('opens all six diggings onto the Row, three facing three', () => {
+    const row = PLACEMENT_BY_ID.row;
+    const digs = PLACEMENTS.filter((p) => /^dig\d$/.test(p.id));
+    expect(digs).toHaveLength(6);
+    for (const d of digs) {
+      expect(edgeGap(d, row), d.id).toBe(0);
+      expect(ROOM_BY_ID[d.id].connects, d.id).toEqual(['row']);
+    }
+    expect(digs.filter((d) => d.y < row.y)).toHaveLength(3);
+    expect(digs.filter((d) => d.y > row.y)).toHaveLength(3);
+  });
+
+  it('makes a home\'s door and its corridor\'s door the same doorway', () => {
+    // The thing that makes eleven homes real rather than eleven boxes near a
+    // corridor: every one of them opens onto its corridor through a door that is
+    // orthogonally adjacent to a door of the corridor. If a block is nudged and a
+    // doorway stops meeting, this is where it is caught.
+    const doorsOfPlacement = (p: Placement) => {
+      const grid = ROOM_BY_ID[p.id].grid;
+      const out: { x: number; y: number }[] = [];
+      grid.forEach((line, y) => [...line].forEach((ch, x) => {
+        if (ch === '+' || ch === 'X') out.push({ x: p.x + x, y: p.y + y });
+      }));
+      return out;
+    };
+    for (const home of PLACEMENTS.filter((p) => /^(cabin|dig)\d$/.test(p.id))) {
+      const corridor = PLACEMENT_BY_ID[ROOM_BY_ID[home.id].connects[0]!];
+      const theirs = doorsOfPlacement(corridor);
+      const met = doorsOfPlacement(home).some((d) => theirs.some(
+        (c) => Math.abs(c.x - d.x) + Math.abs(c.y - d.y) === 1,
+      ));
+      expect(met, `${home.id} does not meet ${corridor.id}`).toBe(true);
     }
   });
 
@@ -68,10 +115,8 @@ describe('the ship', () => {
     // Two sealed mouths and nothing on the other side: it is the tear in the
     // flank, not a room you pass through on the way aft.
     const breach = PLACEMENT_BY_ID.breach;
-    const onWalk = PLACEMENTS.some((p) => p.side === 'hull' && p.id !== 'breach'
-      && p.y + p.h + WALK === breach.y);
-    expect(onWalk).toBe(false);
-    expect(edgeGap(breach, PLACEMENT_BY_ID.cabins)).toBeLessThanOrEqual(2);
+    expect(HULL_WALK).not.toContain('breach');
+    expect(edgeGap(breach, PLACEMENT_BY_ID.longwalk)).toBeLessThanOrEqual(1);
   });
 
   it('drives it in at twenty-two degrees, measured off what was actually placed', () => {
@@ -94,7 +139,7 @@ describe('the warren', () => {
   it('cuts it into the rock to one side of the wreck', () => {
     const hullRight = Math.max(...PLACEMENTS.filter((p) => p.side === 'hull').map((p) => p.x + p.w));
     const rock = PLACEMENTS.filter((p) => p.side === 'rock');
-    expect(rock).toHaveLength(8);
+    expect(rock).toHaveLength(14);
     expect(Math.max(...rock.map((p) => p.x + p.w))).toBeGreaterThan(hullRight);
   });
 
@@ -121,11 +166,19 @@ describe('the warren', () => {
   });
 
   it('keeps no room bigger than the renders they are traced from', () => {
-    // The whole point of the re-cut: a room is five to nine tiles, and the three
-    // that are larger are larger because their emptiness is their content.
-    const big = PLACEMENTS.filter((p) => Math.max(p.w, p.h) > 9).map((p) => p.id).sort();
+    // The whole point of the re-cut: a room is five to nine tiles, and the four
+    // that are larger are larger because their emptiness is their content. The
+    // two corridors are exempt in their long axis and held to three tiles of
+    // walkable width in their short one, which is what makes them corridors.
+    const CORRIDORS: RoomId[] = ['longwalk', 'row'];
+    const rooms = PLACEMENTS.filter((p) => !CORRIDORS.includes(p.id));
+    const big = rooms.filter((p) => Math.max(p.w, p.h) > 9).map((p) => p.id).sort();
     expect(big).toEqual(['common', 'greatwall', 'hollow', 'spine']);
-    for (const p of PLACEMENTS) expect(Math.max(p.w, p.h), p.id).toBeLessThanOrEqual(12);
+    for (const p of rooms) expect(Math.max(p.w, p.h), p.id).toBeLessThanOrEqual(12);
+    for (const id of CORRIDORS) {
+      expect(Math.min(PLACEMENT_BY_ID[id].w, PLACEMENT_BY_ID[id].h) - 2, id)
+        .toBeLessThanOrEqual(3);
+    }
   });
 });
 

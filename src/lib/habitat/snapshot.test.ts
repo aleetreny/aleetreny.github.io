@@ -28,8 +28,8 @@ describe('the genesis snapshot', () => {
   });
 
   it('covers every room, so the cutaway has no holes in it', () => {
-    expect(snap.rooms).toHaveLength(16);
-    expect(new Set(snap.rooms.map((r) => r.id)).size).toBe(16);
+    expect(snap.rooms).toHaveLength(27);
+    expect(new Set(snap.rooms.map((r) => r.id)).size).toBe(27);
   });
 
   it('leaves the Breach dark, because there is no power in vacuum', () => {

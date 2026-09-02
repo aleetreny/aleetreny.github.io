@@ -95,21 +95,29 @@ export function held(state: WorldState, from: ResidentId, to: ResidentId): Recor
  *  these send a person somewhere they are no good, which is the point. */
 export const POSTED: Record<ResidentId, RoomId> = {
   A: 'greatwall', B: 'hold', C: 'berths', D: 'dock', E: 'common',
-  F: 'face', G: 'cabins', H: 'common', I: 'greatwall', J: 'spine',
+  F: 'face', G: 'longwalk', H: 'common', I: 'greatwall', J: 'spine',
   K: 'greatwall', L: 'hold', M: 'common', N: 'infirmary', O: 'well',
   P: 'common', Q: 'workshops', R: 'hold', S: 'common', T: 'common',
   U: 'infirmary', V: 'hydroponics', W: 'spine', X: 'face', Y: 'face',
 };
 
-/** Where somebody sleeps. Nine have dug their own; the rest are still in the
- *  cabins, in somebody else's room, among somebody else's things. */
-export const SLEEPS: Record<ResidentId, RoomId> = Object.fromEntries(
-  RESIDENTS.map((r) => [
-    r.id,
-    (['X', 'M', 'Q', 'G', 'P', 'O', 'U', 'V', 'Y'] as ResidentId[]).includes(r.id)
-      ? 'diggings' : 'cabins',
-  ]),
-) as Record<ResidentId, RoomId>;
+/** Which of the eleven residential units somebody sleeps in. Ten in the five
+ *  cabins the ship came with, fifteen in the six diggings cut by hand — and who
+ *  shares with whom is read off the weave rather than assigned, so a household is
+ *  a bond you can point at. */
+export const SLEEPS: Record<ResidentId, RoomId> = {
+  D: 'cabin1', E: 'cabin1',
+  H: 'cabin2', F: 'cabin2',
+  G: 'cabin3', C: 'cabin3',
+  B: 'cabin4', R: 'cabin4',
+  O: 'cabin5', I: 'cabin5',
+  M: 'dig1', T: 'dig1', V: 'dig1',
+  Q: 'dig2', W: 'dig2', L: 'dig2',
+  P: 'dig3', K: 'dig3', J: 'dig3',
+  X: 'dig4', S: 'dig4',
+  U: 'dig5', A: 'dig5',
+  Y: 'dig6', N: 'dig6',
+};
 
 /** Day one hundred, as the engine holds it. Built from the authored content, so
  *  the world the engine advances is the world the documents describe. */

@@ -60,7 +60,7 @@ const HOME_ROOM: Record<ResidentId, RoomId> = {
   D: 'dock',
   E: 'common',
   F: 'face',
-  G: 'cabins',
+  G: 'longwalk',
   H: 'common',
   I: 'greatwall',
   J: 'spine',

@@ -187,7 +187,7 @@ describe('the way out', () => {
     run(s, 5);
     const snap = snapshotFrom(s);
     expect(snap.people).toHaveLength(25);
-    expect(snap.rooms).toHaveLength(16);
+    expect(snap.rooms).toHaveLength(27);
     expect(snap.day).toBe(105);
     for (const room of snap.rooms) {
       const here = snap.people.filter((p) => p.room === room.id).map((p) => p.id);

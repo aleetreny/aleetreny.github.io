@@ -17,6 +17,12 @@ is green, and `tools/roomlab/plan.html` draws the result from the same data.
 Nothing else is reopened. The sixteen rooms, their twenty-one connections, the
 material grammar and the map's art direction all stand.
 
+> **Superseded on the room count.** The residential system was closed after this
+> spec: the Cabins became the Long Walk plus five cabins you can enter, and the
+> Diggings the Row plus six, so the habitat has twenty-seven rooms rather than
+> sixteen. See `2026-09-02-habitat-residential-system.md`. The sizing rule, the
+> frame and every other room here are unchanged.
+
 ---
 
 ## The rule

@@ -16,8 +16,10 @@ import { placedObjects, type Placed, type Point, type RoomLegend } from './grid'
 export type Side = 'hull' | 'rock';
 
 export type RoomId =
-  | 'bridge' | 'dock' | 'cabins' | 'breach' | 'hold' | 'infirmary' | 'berths' | 'spine'
-  | 'greatwall' | 'common' | 'hydroponics' | 'diggings' | 'workshops' | 'well' | 'face' | 'hollow';
+  | 'bridge' | 'dock' | 'breach' | 'hold' | 'infirmary' | 'berths' | 'spine'
+  | 'longwalk' | 'cabin1' | 'cabin2' | 'cabin3' | 'cabin4' | 'cabin5'
+  | 'greatwall' | 'common' | 'hydroponics' | 'workshops' | 'well' | 'face' | 'hollow'
+  | 'row' | 'dig1' | 'dig2' | 'dig3' | 'dig4' | 'dig5' | 'dig6';
 
 export type Room = {
   id: RoomId;
@@ -70,7 +72,7 @@ export const ROOMS: readonly Room[] = [
     name: 'The Dock',
     side: 'hull',
     tilt: 22,
-    connects: ['bridge', 'cabins', 'greatwall'],
+    connects: ['bridge', 'longwalk', 'greatwall'],
     description:
       'Where the hull\'s flank broke the surface. The outer hatch opens onto '
       + 'regolith and sky. Three suits for twenty-five people, on racks, logged '
@@ -94,34 +96,199 @@ export const ROOMS: readonly Room[] = [
     },
   },
   {
-    id: 'cabins',
-    name: 'The Cabins',
+    id: 'longwalk',
+    name: 'The Long Walk',
     side: 'hull',
     tilt: 22,
-    connects: ['dock', 'breach', 'hold', 'greatwall'],
+    connects: ['dock', 'breach', 'hold', 'greatwall', 'cabin1', 'cabin2', 'cabin3', 'cabin4', 'cabin5'],
     description:
-      'Original passenger quarters, and the floors run downhill. Everything '
-      + 'that has to stand level stands on a wedge. Each cabin belongs to '
-      + 'somebody who is still asleep, and living here means living among their '
-      + 'things under an etiquette nobody wrote.',
+      'The ship\'s corridor, straight, metal and downhill the whole way, with five '
+      + 'cabin doors off it. Everybody passes every door every day, which is the '
+      + 'whole of the etiquette in this half of the habitat. The floor is the most '
+      + 'worn in the place and it is worn off-centre, because on a twenty-two '
+      + 'degree deck you drift as you walk down it.',
     note:
-      'The sealed cabin on the lower deck has never been opened. Its hatch is '
-      + 'jammed, not locked, and opening it has been on the list since week '
-      + 'three.',
+      'One hatch does not open. It is jammed and not locked, and opening it has '
+      + 'been on the list since week three.',
     grid: [
-      '###+####',
-      '#..^...#',
-      '+m...e.+',
-      '#m.....#',
-      '#..d...#',
-      'X.....d+',
-      '#......#',
-      '####+###',
+      '##+##',
+      '#===#',
+      '+===+',
+      '#===#',
+      '#===#',
+      '#=p=#',
+      '#===#',
+      '#===#',
+      '#===#',
+      '#===#',
+      '+===+',
+      '#===#',
+      '#===#',
+      '#===#',
+      '#===#',
+      '#===#',
+      '#===#',
+      '#===#',
+      '+===+',
+      '#===#',
+      '#===#',
+      '#=l=#',
+      '#===#',
+      '#===#',
+      '#===#',
+      'X===#',
+      '##+##',
     ],
     legend: {
+      l: { name: 'a strip lamp; half the run is dead', solid: false },
+      p: { name: 'a bite out of the wall where the plate was lifted', solid: false },
+    },
+  },
+  {
+    id: 'cabin1',
+    name: 'Cabin One',
+    side: 'hull',
+    tilt: 22,
+    connects: ['longwalk'],
+    description:
+      'The first cabin off the Dock, and the one everybody passes twice a day. '
+      + 'Two bunks, a floor that runs downhill, and a wedge under everything that '
+      + 'has to stand level. Dima Vashenko and Edda Halvorsen sleep here, which '
+      + 'means the outing list and the allocation ledger live in the same four '
+      + 'metres.',
+    note:
+      'Its lamp is the brightest of the five. Neither of them has said who chose '
+      + 'that.',
+    grid: [
+      '########',
+      '#.^....#',
+      '#m.m..e+',
+      '#m.m...#',
+      '#..d...#',
+      '#......#',
+      '#......#',
+      '########',
+    ],
+    legend: {
+      e: { name: 'a sleeping passenger\'s belongings, untouched', solid: false },
       m: { name: 'a bunk', solid: true },
       d: { name: 'wedges and shims holding something level', solid: false },
-      e: { name: 'a sleeping passenger\'s belongings, untouched', solid: false },
+    },
+  },
+  {
+    id: 'cabin2',
+    name: 'Cabin Two',
+    side: 'hull',
+    tilt: 22,
+    connects: ['longwalk'],
+    description:
+      'Identical to the first, because they all are, and slowly not. Halim Zoubir '
+      + 'and Ferran Sole are in it, two men who worked one season together twenty '
+      + 'years ago and have never once mentioned it.',
+    note:
+      'The shim stack by the bunk has a shim added roughly every nine days. It is '
+      + 'the closest thing in the habitat to a calendar nobody meant to keep.',
+    grid: [
+      '########',
+      '#.^....#',
+      '#m.m..s+',
+      '#m.m...#',
+      '#..d...#',
+      '#......#',
+      '#......#',
+      '########',
+    ],
+    legend: {
+      s: { name: 'a shim stack, grown over a hundred days as the floor settled', solid: false },
+      m: { name: 'a bunk', solid: true },
+      d: { name: 'wedges and shims holding something level', solid: false },
+    },
+  },
+  {
+    id: 'cabin3',
+    name: 'Cabin Three',
+    side: 'hull',
+    tilt: 22,
+    connects: ['longwalk'],
+    description:
+      'The furthest cabin down the walk, and the darkest. Gita Raman and Cato '
+      + 'Lindqvist, who between them are responsible for whether the hull holds and '
+      + 'whether anybody is standing under it when it does not.',
+    note:
+      'The photograph is taped over a patch where plate was lifted, which is the '
+      + 'only reason anybody knows the patch is there.',
+    grid: [
+      '########',
+      '#.^....#',
+      '#m.m..p+',
+      '#m.m...#',
+      '#..d...#',
+      '#......#',
+      '#......#',
+      '########',
+    ],
+    legend: {
+      p: { name: 'a photograph taped where the light is best', solid: false },
+      m: { name: 'a bunk', solid: true },
+      d: { name: 'wedges and shims holding something level', solid: false },
+    },
+  },
+  {
+    id: 'cabin4',
+    name: 'Cabin Four',
+    side: 'hull',
+    tilt: 22,
+    connects: ['longwalk'],
+    description:
+      'Across the walk, so its floor tilts the other way. Bex Ferreira and Reva '
+      + 'Sandoval sleep here, and both of them catalogue things for a living, and '
+      + 'the cabin shows it.',
+    note:
+      'The shelf is bolted, not welded, and you can count the bolts. Four of them '
+      + 'are not the same as the other three.',
+    grid: [
+      '########',
+      '#....^.#',
+      '+r..m.m#',
+      '#...m.m#',
+      '#...d..#',
+      '#......#',
+      '#......#',
+      '########',
+    ],
+    legend: {
+      r: { name: 'a rope-and-plate shelf bolted over the bunk', solid: false },
+      m: { name: 'a bunk', solid: true },
+      d: { name: 'wedges and shims holding something level', solid: false },
+    },
+  },
+  {
+    id: 'cabin5',
+    name: 'Cabin Five',
+    side: 'hull',
+    tilt: 22,
+    connects: ['longwalk'],
+    description:
+      'The last of the five, opposite the second. Osvald Berg and Iris Calloway. '
+      + 'He is up before anybody and back after everybody, and she draws the map of '
+      + 'a place she has still not walked all of.',
+    note:
+      'Osvald has not dug himself a home and will not say why. His half-sister '
+      + 'has one, forty metres of rock and the whole ship away.',
+    grid: [
+      '########',
+      '#....^.#',
+      '+k..m.m#',
+      '#...m.m#',
+      '#...d..#',
+      '#......#',
+      '#......#',
+      '########',
+    ],
+    legend: {
+      k: { name: 'a locker that is not the ship\'s, and does not fit', solid: false },
+      m: { name: 'a bunk', solid: true },
+      d: { name: 'wedges and shims holding something level', solid: false },
     },
   },
   {
@@ -129,7 +296,7 @@ export const ROOMS: readonly Room[] = [
     name: 'The Breach',
     side: 'hull',
     tilt: 22,
-    connects: ['cabins', 'hold'],
+    connects: ['longwalk', 'hold'],
     description:
       'Where the hull tore. No pressure, no light, no sound, and the only place '
       + 'in the habitat where nobody can see or hear you. It is the source of '
@@ -139,8 +306,8 @@ export const ROOMS: readonly Room[] = [
       + 'called.',
     grid: [
       '########',
-      '#**n***#',
-      '#*c****X',
+      '#**n**.X',
+      '#*c****#',
       '#..**p*#',
       '#=*****#',
       '#**s***#',
@@ -159,7 +326,7 @@ export const ROOMS: readonly Room[] = [
     name: 'The Hold',
     side: 'hull',
     tilt: 22,
-    connects: ['cabins', 'breach', 'infirmary'],
+    connects: ['longwalk', 'breach', 'infirmary'],
     description:
       'Cargo. The manifest went in the impact, so nothing here is labelled with '
       + 'anything that means anything. Reva Sandoval has opened nine crates in a '
@@ -281,7 +448,7 @@ export const ROOMS: readonly Room[] = [
     name: 'The Great Wall',
     side: 'rock',
     tilt: 0,
-    connects: ['dock', 'cabins', 'common'],
+    connects: ['dock', 'longwalk', 'common'],
     description:
       'The first chamber they cut, and they cut it too big because they did not '
       + 'yet know how hard the rock was going to be. One face came away almost '
@@ -311,7 +478,7 @@ export const ROOMS: readonly Room[] = [
     name: 'The Common',
     side: 'rock',
     tilt: 0,
-    connects: ['greatwall', 'hydroponics', 'diggings', 'workshops'],
+    connects: ['greatwall', 'hydroponics', 'row', 'workshops'],
     description:
       'The room the habitat happens in. Everybody passes through it and almost '
       + 'everybody eats here. The long table is a hull plate: the first thing '
@@ -344,7 +511,7 @@ export const ROOMS: readonly Room[] = [
     name: 'Hydroponics',
     side: 'rock',
     tilt: 0,
-    connects: ['common', 'well', 'diggings'],
+    connects: ['common', 'well', 'row'],
     description:
       'The only living green and the only full-spectrum light. It is a farm and '
       + 'it is also where people come to sit, and the light they sit under costs '
@@ -371,38 +538,200 @@ export const ROOMS: readonly Room[] = [
     },
   },
   {
-    id: 'diggings',
-    name: 'The Diggings',
+    id: 'row',
+    name: 'The Row',
     side: 'rock',
     tilt: 0,
-    connects: ['common', 'hydroponics', 'face'],
+    connects: ['common', 'hydroponics', 'face', 'dig1', 'dig2', 'dig3', 'dig4', 'dig5', 'dig6'],
     description:
-      'Where people dug their own homes. Nine so far, and the difference '
-      + 'between them is the most public document in the habitat: how much rock '
-      + 'you could move, how well you finished it, and how many people were '
-      + 'willing to help you.',
+      'Six front doors facing each other across three metres of cut rock. '
+      + 'Everyone sees who goes into whose, and going home means having crossed the '
+      + 'Common first. It is the only corridor in the warren that anybody has '
+      + 'decorated.',
     note:
-      'Sixteen people are still in the Cabins. Digging is optional and '
-      + 'everybody knows what choosing not to looks like.',
+      'Three more diggings were begun and are not lived in. Nobody talks about '
+      + 'whose they were going to be.',
     grid: [
-      '####+####',
-      '#5.1.2.3#',
-      '+=======+',
-      '#6.4.8.7#',
-      '#..9....#',
-      '#.......+',
-      '#########',
+      '####+########+#######+###',
+      '+=n=====================#',
+      '#=======================+',
+      '+=====================s=#',
+      '###+#######+#######+#####',
     ],
     legend: {
-      '1': { name: 'Xan\'s - small, square, finished to the millimetre', solid: false },
-      '2': { name: 'Mara\'s - the largest, and six people helped', solid: false },
-      '3': { name: 'Quim\'s - unfinished, because he keeps working on other people\'s', solid: false },
-      '4': { name: 'Gita\'s - narrow, deep, and nobody has been inside', solid: false },
-      '5': { name: 'Pilar\'s - nearest the Common, which was not an accident', solid: false },
-      '6': { name: 'Osvald\'s', solid: false },
-      '7': { name: 'Ulla\'s - forty metres from Osvald\'s', solid: false },
-      '8': { name: 'Vero\'s', solid: false },
-      '9': { name: 'Yara\'s - the smallest, and she dug it alone', solid: false },
+      n: { name: 'names scratched into the rock beside each door', solid: false },
+      s: { name: 'the drift of things left outside doors', solid: false },
+    },
+  },
+  {
+    id: 'dig1',
+    name: 'Mara\'s',
+    side: 'rock',
+    tilt: 0,
+    connects: ['row'],
+    description:
+      'The largest of the six, and six people helped dig it. Two chambers with a '
+      + 'gap cut between them rather than a door. Mara Osei, Tomas Iriarte, and '
+      + 'Vero Castel, who did not choose to be here.',
+    note:
+      'Vero lost her own digging to the rock and moved in with the woman who has '
+      + 'mothered her since she was nine. She has not said what that costs her.',
+    grid: [
+      '#########',
+      '#b..|...#',
+      '#b..|...#',
+      '#...+..q#',
+      '#..k|...#',
+      '#..k|...#',
+      '####+####',
+    ],
+    legend: {
+      q: { name: 'a chair somebody brought and left', solid: false },
+      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      k: { name: 'crates doing the work of furniture', solid: true },
+    },
+  },
+  {
+    id: 'dig2',
+    name: 'Quim\'s',
+    side: 'rock',
+    tilt: 0,
+    connects: ['row'],
+    description:
+      'Unfinished, because Quim Bassols keeps stopping to work on other people\'s. '
+      + 'The far chamber has no floor yet and is used for storage. Wen Jiaming and '
+      + 'Lior Ben-Ari live in the finished half with him.',
+    note:
+      'It has been three weeks from finished for eleven weeks.',
+    grid: [
+      '#######',
+      '#b.|..#',
+      '#b.|..#',
+      '#..+..#',
+      '#.k|..#',
+      '#.k|.q#',
+      '###+###',
+    ],
+    legend: {
+      q: { name: 'a tool left mid-job, for the ninth time', solid: false },
+      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      k: { name: 'crates doing the work of furniture', solid: true },
+    },
+  },
+  {
+    id: 'dig3',
+    name: 'Pilar\'s',
+    side: 'rock',
+    tilt: 0,
+    connects: ['row'],
+    description:
+      'Nearest the Common, which was not an accident: Pilar Ocana cooks, and she '
+      + 'wanted the short walk. Kes Amankwah and Juno Petrakis are in the second '
+      + 'chamber, in an arrangement neither of them has named.',
+    note:
+      'You can hear the Common from inside it. Everybody knows this and comes '
+      + 'anyway.',
+    grid: [
+      '#######',
+      '#b.|..#',
+      '#b.|..#',
+      '#..+..#',
+      '#.k|..#',
+      '#.k|.q#',
+      '###+###',
+    ],
+    legend: {
+      q: { name: 'a pan that has never been back to the kitchen', solid: false },
+      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      k: { name: 'crates doing the work of furniture', solid: true },
+    },
+  },
+  {
+    id: 'dig4',
+    name: 'Xan\'s',
+    side: 'rock',
+    tilt: 0,
+    connects: ['row'],
+    description:
+      'Small, square, and finished to the millimetre, which took Xan Moreira '
+      + 'eleven weeks. Sten Malm sleeps in it too, at seventy-eight, in the only '
+      + 'room in the habitat where every corner is right.',
+    note:
+      'Sten taught Xan to swim forty-eight years ago. Xan is sixty and still '
+      + 'defers to him, and Sten has never found a way to say that he would rather '
+      + 'he did not.',
+    grid: [
+      '###+###',
+      '#b....#',
+      '#b...k#',
+      '#....k#',
+      '#.....#',
+      '#..q..#',
+      '#.....#',
+      '#######',
+    ],
+    legend: {
+      q: { name: 'a drawing pinned square to a wall that is not', solid: false },
+      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      k: { name: 'crates doing the work of furniture', solid: true },
+    },
+  },
+  {
+    id: 'dig5',
+    name: 'Ulla\'s',
+    side: 'rock',
+    tilt: 0,
+    connects: ['row'],
+    description:
+      'Cut as far along the Row from the ship as the rock allowed. Ulla Nyholm '
+      + 'dug it in five weeks and nobody asked her why she was in a hurry. Ama '
+      + 'Oyelaran moved in on the ninetieth day.',
+    note:
+      'Ama and Ulla were at school together. It is the only bond in their cluster '
+      + 'with nothing wrong with it, and Ulla has needed it since the Dock list '
+      + 'went up.',
+    grid: [
+      '###+###',
+      '#b....#',
+      '#b...k#',
+      '#....k#',
+      '#.....#',
+      '#..q..#',
+      '#.....#',
+      '#######',
+    ],
+    legend: {
+      q: { name: 'two cups, and only one of them used', solid: false },
+      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      k: { name: 'crates doing the work of furniture', solid: true },
+    },
+  },
+  {
+    id: 'dig6',
+    name: 'Yara\'s',
+    side: 'rock',
+    tilt: 0,
+    connects: ['row'],
+    description:
+      'The smallest, and she dug it alone. Yara Haddad and Noor Rahimi, and the '
+      + 'room is barely large enough for the two of them to be in it at once.',
+    note:
+      'The marks on the back wall are the same hand as the ones on the side '
+      + 'gallery at the Face. Nobody has put the two together.',
+    grid: [
+      '###+###',
+      '#b....#',
+      '#b...k#',
+      '#....k#',
+      '#.....#',
+      '#..q..#',
+      '#.....#',
+      '#######',
+    ],
+    legend: {
+      q: { name: 'marks in the rock, three weeks old, unsigned', solid: false },
+      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      k: { name: 'crates doing the work of furniture', solid: true },
     },
   },
   {
@@ -471,7 +800,7 @@ export const ROOMS: readonly Room[] = [
     name: 'The Face',
     side: 'rock',
     tilt: 0,
-    connects: ['diggings', 'hollow'],
+    connects: ['row', 'hollow'],
     description:
       'The unfinished tunnel. The only room in the habitat that is incomplete '
       + 'by definition, and the only one whose position on the map changes. '
