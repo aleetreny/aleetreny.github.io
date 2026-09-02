@@ -26,6 +26,10 @@ backups/*
 tmp/
 temp/
 
+# Room-lab measurement scratch
+tools/roomlab/measure/native/
+tools/roomlab/measure/__pycache__/
+
 # Tool caches
 .eslintcache
 .vite/

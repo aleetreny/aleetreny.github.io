@@ -226,7 +226,8 @@ function draw(){
   window.__ready=1;
 }
 
-const NEED={furn:'sheets/furn.png',walls:'sheets/walls.png',shoproom:'sheets/shoproom.png'};
+const P='../../public/assets/props/';
+const NEED={furn:P+'shelter_furniture.png',walls:P+'shelter_walls.png',shoproom:P+'workshop_roomtiles.png'};
 let left=Object.keys(NEED).length;
 for(const k in NEED){const im=new Image();im.onload=()=>{SH[k]=im;if(!--left)build();};im.src=NEED[k];}
 </script>

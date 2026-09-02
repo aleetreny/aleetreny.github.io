@@ -35,7 +35,16 @@ that will save the next session a day:
 - **`find-objects.html` before picking anything.** A 2×3 grab off a sheet may
   be one object or two halves of two.
 
-## The tension nobody has resolved
+## The tension nobody has resolved — **answered, see below**
+
+> Resolved by `2026-09-02-habitat-references-and-scale.md`, which measured it
+> instead of estimating it. Short version: the scales already agree — one sprite
+> tile is one metre and so is one grid tile — the canon *depths* are right, and
+> only the widths are long, because **a canon room is two to five reference rooms
+> laid end to end**. It gets drawn as a run of bays, not as one hall. What
+> actually made the first room look wrong was density: the canon grids carry one
+> object per 9.3 m² and the reference carries one per 1.2 m². The section below
+> is kept as written, because the observation that started it was right.
 
 The canon grids in `rooms.ts` are four to five times larger than the room that
 actually looks right:
@@ -112,7 +121,10 @@ only the tiles actually used. The owner has parked this; it is not resolved.
 
 ## Open, not decided
 
-1. Room size versus the canon grids (above). Blocking.
+1. ~~Room size versus the canon grids (above). Blocking.~~ **Answered** in
+   `2026-09-02-habitat-references-and-scale.md`, which also carries the reference
+   catalogue, the reference-to-room mapping, the build order, and four decisions
+   waiting on the owner.
 2. `main` has diverged from `night-shift-habitat` — 4 ahead, 17 behind — so the
    `--ff-only` merge in `CLAUDE.md` is impossible. Nothing has been deployed
    from this branch. The owner has not said how to reconcile it.

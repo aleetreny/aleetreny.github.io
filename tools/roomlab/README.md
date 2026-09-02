@@ -14,6 +14,8 @@ canvases loaded from `file://`.
 | `contact-sheet.html` | Every prop a room uses, drawn large and labelled. Run it before placing: the index grid is not enough to tell a waste bin from a hazard sign, and I got that wrong twice. |
 | `cabin.html` | A two-berth cabin. Its `place()` records every sprite's true ink rectangle, refuses nothing, but reports overlaps and anything crossing the frame. |
 | `berth.html` | **A two-berth cabin traced 1:1 off a reference render.** 204 x 205 px. Places sprites by their ink position, not their tile, and runs pipe by centreline. |
+| `measure/` | Reading a reference before drawing it: what scale it was exported at, which sheet it is built from, and a pixel ruler for when that fails. Python, not a browser page — see `measure/README.md`. |
+| `reference/` | The renders being traced from, each with its measured scale. See `reference/README.md`. |
 
 ## The two rules that took several passes to learn
 
@@ -31,6 +33,13 @@ to seat something against a wall, or to hang it at a height — never to fake
 randomness.
 
 ## Tracing a reference
+
+**Measure the reference's export scale first.** These renders are almost never at
+1:1 — `berth.html`'s is 5.34x, the bunker room is 3x, the two-bay garage is 4x —
+and reading it wrong sizes the whole room wrong. `measure/native.py` gives the
+factor; `measure/provenance.py` proves which sheet the render is built from by
+finding the sheet's own sprites inside it. Both are one command, and they replace
+a day of eyeballing.
 
 `berth.html` was measured before a pixel was drawn, and the numbers are worth
 keeping:
@@ -60,6 +69,13 @@ sheets, the workshop sheet or the exterior sheet is closer.
 Rooms are laid out in functional zones with a clear aisle, not as one prop per
 tile. `cabin.html` is sleeping / stowage / stores / working, and the middle
 column stays empty because that is where you walk.
+
+**And a room is at most about seven tiles across.** Every room 0_mem0ry draws is
+between 4.8 and 7.8 tiles wide; whenever he needs more space than that he puts in
+a wall. A canon room from `rooms.ts` is two to five of those laid end to end, so
+it gets drawn as a run of bays rather than as one hall. The measurements and the
+consequences are in
+`docs/superpowers/specs/2026-09-02-habitat-references-and-scale.md`.
 
 ## The sheets
 
