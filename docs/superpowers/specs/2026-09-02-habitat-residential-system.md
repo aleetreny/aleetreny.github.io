@@ -58,7 +58,7 @@ What varies is **one object each**, and nothing else:
 | Cabin One | Dima Vashenko, Edda Halvorsen | a sleeping passenger's belongings, untouched |
 | Cabin Two | Ferran Solé, Halim Zoubir | a shim stack, grown over a hundred days as the floor settled |
 | Cabin Three | Cato Lindqvist, Gita Raman | a photograph taped where the light is best |
-| Cabin Four | Bex Ferreira, Reva Sandoval | a rope-and-plate shelf bolted over the bunk |
+| Cabin Four | Bex Ferreira, Reva Sandoval | a rope-and-plate shelf slung over the bunk |
 | Cabin Five | Iris Calloway, Osvald Berg | a locker that is not the ship's, and does not fit |
 
 The starboard pair are mirrored, so their floors tilt the other way — the same
@@ -171,18 +171,32 @@ The five differ through exactly three things and nothing else:
 | Cabin | The one object | Made of |
 | --- | --- | --- |
 | One | a sleeping passenger's case, stowed and never opened | `furn(17,13)`, plus a second document on the table |
-| Two | a shim stack, one plate every nine days | drawn — no sheet carries a stack of shims, and a cut edge is a date: the top plate is bright because it was cut this week |
-| Three | a photograph taped over a lifted plate | the plate patch is drawn on the wall *before* the pipes, so the run crosses it; the photograph is `furn(13,0)` with its calendar cut away, which is the only photograph in the pack that is not a pin-up |
-| Four | a rope-and-plate shelf over a bunk | drawn — plate, two ropes, and seven bolts of which four are not the same as the other three |
-| Five | a locker that is not the ship's | `furn(12,5)`, wedged into the corner where the room narrows, with the drag marks that got it there |
+| Two | a shim stack, one plate every nine days | drawn — no sheet carries a stack of shims. Seen from here a stack is the top plate's face and the edges of the ones under it, so that is what is drawn, in the pack's own idiom: flat tones, hard steps, a dark line under every leaf. A cut edge is a date, and the top plate is bright because it was cut this week |
+| Three | a photograph taped across a square of missing plate | the patch is drawn on the wall *before* the pipes, so the run crosses it; its cut edge is deliberately **broken and uneven**, because an unbroken bright line all the way round reads as a picture frame, which is the one thing it must not be. The photograph is `furn(13,0)` with its calendar cut away — the only photograph in the pack that is not a pin-up — held by two strips of tape corner to corner |
+| Four | a plate shelf slung over a bunk on two ropes | drawn — two steel eyes bolted to the plate, laid cord down from them, the shelf, and then **the same rope again over the shelf**, which is the thing that makes it read as slung rather than screwed to the wall |
+| Five | a locker that is not the ship's | `furn(12,5)`, standing where the desk stood and a hand's width out into the walkway, with the two scraped lines that got it there |
 
 All five report clean: no overlapping props and nothing crossing the frame.
 
-Two things the render caught that reading the code would not have: the dimming
+Three things the render caught that reading the code would not have. The dimming
 was clipped to the **unmirrored** outline, so on a starboard cabin it painted a
-flat block into the corner the ladder well leaves empty; and the one object was
-being drawn **after** the dimming, so every cabin's own thing floated out of its
-own light.
+flat block into the corner the ladder well leaves empty. The one object was being
+drawn **after** the dimming, so every cabin's own thing floated out of its own
+light. And `lamp` defaulted to **0**, not 1 — so `berth.html`, which calls the
+mould with no variation at all, was rendering at the *darkest* falloff the kit
+can produce. It now defaults to 1, and berth.html's output is byte-identical to
+the render from before the mould was extracted, which is the check that the trace
+did not drift.
+
+A fourth pass, on the pictures rather than the code, replaced three of the five
+objects outright. The shim stack was a smooth eleven-step gradient that read as a
+smear of dirt; the shelf was a grey bar with seven evenly spaced bolts on it,
+which read as a control panel, and its ropes were completely hidden behind the
+things resting on them; the photograph sat inside a clean bright rectangle that
+read as a framed picture rather than a hole. In all three cases the caption was
+describing something the picture did not show. Where the two disagreed the
+picture was fixed, except in Cabin Four, where the seven mismatched bolts had no
+legible place on a shelf that hangs from rope — there the sentence went.
 
 ## Next: the Workshops
 

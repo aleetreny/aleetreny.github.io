@@ -54,34 +54,37 @@ const CABINS = [
        + 'days. The closest thing in the habitat to a calendar nobody meant to keep.',
     lamp: 0.55,
     extras({ g }) {
-      // Drawn, not stamped: no sheet in the pack carries a stack of shims. Eleven
-      // plates by the bunk, one every nine days for a hundred days, and a cut edge
-      // is a date — the top two are bright because they were cut this week.
-      // What you see of a stack from up here is the top plate's face and the
-      // edges of the ones under it, so that is what is drawn: eleven edges, and
-      // a cut edge is a date — bright is this week, warm brown is the first month.
-      const x = 99, w = 16, top = 128, n = 11;            // hard against the bunk
-      g.fillStyle = 'rgba(0,0,0,.4)';
-      g.fillRect(x - 1, top + n + 5, w + 3, 2);           // the shadow it sits in
-      for (let i = 0; i < n; i++) {                       // the edges, oldest at the bottom
-        const age = 1 - i / (n - 1);
-        const v = 0.46 + 0.5 * age;
-        const jx = (i * 7) % 3 - 1;                       // a hand-cut stack is not square
-        g.fillStyle = `rgb(${Math.round(176 * v + 30)},${Math.round(166 * v + 26)},`
-          + `${Math.round(146 * v + 20)})`;
-        g.fillRect(x + jx, top + 5 + i, w - ((i * 5) % 3), 1);
+      // Drawn, not stamped: no sheet in the pack carries a stack of shims. What
+      // you see of a stack from here is the top plate's face and the edges of
+      // the ones under it — so that is what is drawn, in the pack's own idiom:
+      // flat tones, hard steps, a dark line under every leaf. A cut edge is a
+      // date, and the top plate is bright because it was cut this week.
+      const x = 99, w = 17, base = 145, n = 6;          // hard against the bunk
+      g.fillStyle = 'rgba(0,0,0,.42)';                  // the shadow it sits in
+      g.fillRect(x - 2, base, w + 5, 3);
+      const jit = [0, 1, -1, 0, 2, -1];                 // hand-cut, so not square
+      for (let i = 0; i < n; i++) {                     // oldest at the bottom
+        const y = base - 2 - i * 2, jx = jit[i], ww = w - (i % 3);
+        g.fillStyle = '#211f1b';                        // the ink under each leaf
+        g.fillRect(x + jx - 1, y, ww + 2, 2);
+        const v = 0.42 + 0.07 * i;                      // and the older, the browner
+        g.fillStyle = `rgb(${Math.round(190 * v + 40)},${Math.round(180 * v + 36)},`
+          + `${Math.round(158 * v + 30)})`;
+        g.fillRect(x + jx, y, ww, 1);                   // its cut edge, seen end-on
+        g.fillStyle = '#3b352d';                        // the gap to the one beneath
+        g.fillRect(x + jx, y + 1, ww, 1);
       }
-      g.fillStyle = '#1d1b18';                            // the top plate, seen flat
-      g.fillRect(x - 1, top - 1, w + 2, 7);
-      g.fillStyle = '#c2bdad'; g.fillRect(x, top, w, 5);
-      g.fillStyle = '#ded8c6'; g.fillRect(x, top, w, 1);  // and its cut edge, this week's
+      const ty = base - 2 - n * 2;                      // the top plate, seen flat
+      g.fillStyle = '#1d1b18'; g.fillRect(x - 1, ty - 6, w + 2, 7);
+      g.fillStyle = '#b3aea0'; g.fillRect(x, ty - 5, w, 5);
+      g.fillStyle = '#ddd7c4'; g.fillRect(x, ty - 5, w, 1);   // this week's cut edge
     },
   },
   {
     id: 'cabin3', name: 'Cabin Three', who: 'Cato Lindqvist · Gita Raman',
-    one: 'A photograph taped over the place a plate was lifted. It is the only '
-       + 'reason anybody knows the patch is there. The furthest cabin down the walk, '
-       + 'and the darkest.',
+    one: 'A photograph taped across the square of wall where a plate came off. The '
+       + 'ship\'s ribs are behind it. Nobody has put the plate back, and nobody has '
+       + 'asked. The furthest cabin down the walk, and the darkest.',
     lamp: 0.3,
     omit: ['yellownotice'],
     // On the plate, before the pipes and the fittings go on, so it reads as part
@@ -89,7 +92,7 @@ const CABINS = [
     plate({ g }) {
       // One panel of plate, lifted. The pipes are drawn after this, so the run
       // crosses it the way it would if the plate had been cut out around them.
-      const x0 = 154, y0 = 48, w = 34, h = 30;
+      const x0 = 155, y0 = 50, w = 30, h = 26;
       g.fillStyle = '#474139'; g.fillRect(x0, y0, w, h);  // the cavity behind
       g.fillStyle = '#615a4e';                            // two of the ship's ribs
       g.fillRect(x0 + 8, y0 + 1, 5, h - 2); g.fillRect(x0 + 21, y0 + 1, 5, h - 2);
@@ -97,9 +100,17 @@ const CABINS = [
       g.fillRect(x0 + 8, y0 + 1, 1, h - 2); g.fillRect(x0 + 21, y0 + 1, 1, h - 2);
       g.fillRect(x0 + 1, y0 + 13, w - 2, 2);              // and the stringer across them
       g.fillStyle = '#4d473e'; g.fillRect(x0 + 1, y0 + 12, w - 2, 1);
-      g.fillStyle = '#c4c4c4';                            // cut edges stay bright
-      g.fillRect(x0, y0, w, 1); g.fillRect(x0, y0 + h - 1, w, 1);
-      g.fillRect(x0, y0, 1, h); g.fillRect(x0 + w - 1, y0, 1, h);
+      // The cut edge stays bright where the shear went through and breaks where
+      // the plate tore. An unbroken line all the way round would read as a
+      // picture frame, which is the one thing this must not be.
+      g.fillStyle = '#c4c4c4';
+      g.fillRect(x0, y0, 12, 1); g.fillRect(x0 + 15, y0, w - 15, 2);
+      g.fillRect(x0, y0 + h - 2, 8, 2); g.fillRect(x0 + 11, y0 + h - 1, w - 17, 1);
+      g.fillRect(x0, y0, 1, 10); g.fillRect(x0, y0 + 14, 1, h - 14);
+      g.fillRect(x0 + w - 1, y0 + 2, 1, h - 8);
+      g.fillStyle = '#7d7a73';                            // and where it has dulled
+      g.fillRect(x0 + 12, y0, 3, 1); g.fillRect(x0 + w - 1, y0 + h - 6, 1, 5);
+      g.fillRect(x0, y0 + 10, 1, 4);
       g.fillStyle = '#9c8459';                        // the bolt stubs left behind
       for (let y = y0 + 5; y < y0 + h - 4; y += 8) {
         g.fillRect(x0 + 2, y, 2, 2); g.fillRect(x0 + w - 4, y, 2, 2);
@@ -109,45 +120,52 @@ const CABINS = [
       // The photograph is the picture off furn(13,0) with its calendar cut away —
       // the pack has no photograph on its own, and the pipe runs are already used
       // this way, so the sprite is cut rather than something invented.
-      const x = 158, y = 55;
-      g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(x + 1, y + 2, 20, 15);
+      const x = 159, y = 54;
+      g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(x + 1, y + 2, 20, 15);
       cut('furn', 422, 1, 20, 15, x, y);                  // the only photograph in the
                                                           // pack that is not a pin-up
-      g.fillStyle = 'rgba(216,206,176,.62)';              // two short strips of tape
-      g.fillRect(x - 2, y - 1, 6, 3); g.fillRect(x + 17, y + 13, 6, 3);
+      // two strips of tape, corner to corner across the cut edge, which is what
+      // is actually holding it up
+      g.fillStyle = 'rgba(222,213,186,.78)';
+      g.fillRect(x - 4, y - 2, 9, 3); g.fillRect(x + 15, y + 14, 9, 3);
+      g.fillStyle = 'rgba(255,250,230,.5)';
+      g.fillRect(x - 4, y - 2, 9, 1); g.fillRect(x + 15, y + 14, 9, 1);
     },
   },
   {
     id: 'cabin4', name: 'Cabin Four', who: 'Bex Ferreira · Reva Sandoval',
-    one: 'A shelf of hull plate slung over the head of a bunk on two ropes. Seven '
-       + 'bolts hold it and four of them are not the same as the other three.',
+    one: 'A shelf of hull plate slung over the head of a bunk on two ropes. Both '
+       + 'of them catalogue things for a living, and neither will keep a list on the deck.',
     lamp: 0.6, mirror: true,
-    omit: ['book', 'paper'],                      // both went up onto the shelf
+    omit: ['book'],                               // it went up onto the shelf
     extras({ g, sprite, mx }) {
-      // sized off the bunk it hangs over: the mould's bunk is 28 wide and the
-      // wall is right behind it, so the shelf is 30 and clears the footlocker
-      const L = mx(7, 30), R = L + 30, top = 108;
-      // two ropes, up to the plate, with the turn of rope where they take the load
-      for (const rx of [L + 1, R - 3]) {
-        g.fillStyle = '#2b2823'; g.fillRect(rx, 84, 3, top - 84);
-        g.fillStyle = '#8a7a5c'; g.fillRect(rx + 1, 84, 1, top - 84);
-        g.fillStyle = '#6d6049'; g.fillRect(rx, top - 5, 3, 4);
-        g.fillStyle = '#2b2823'; g.fillRect(rx, top - 3, 3, 1);
+      // Sized off the bunk it hangs over: the mould's bunk is 28 wide with the
+      // plate right behind its head, so the shelf is 30 and clears the footlocker.
+      const L = mx(7, 30), R = L + 30, top = 106, hang = 84;
+      const ropes = [L + 3, R - 7];
+      const rope = (rx, y0, y1) => {              // laid cord, not a post: 3 px
+        g.fillStyle = '#26231e'; g.fillRect(rx, y0, 3, y1 - y0);
+        g.fillStyle = '#7a6d52'; g.fillRect(rx + 1, y0, 1, y1 - y0);
+        g.fillStyle = '#4a4335';                  // and the lay of it, every third
+        for (let y = y0 + 1; y < y1; y += 3) g.fillRect(rx, y, 3, 1);
+        g.fillStyle = '#8f8064';
+        for (let y = y0 + 2; y < y1; y += 3) g.fillRect(rx + 1, y, 1, 1);
+      };
+      for (const rx of ropes) {                   // up to the eyes on the plate
+        rope(rx, hang, top);
+        g.fillStyle = '#1a1a1a'; g.fillRect(rx - 2, hang - 4, 7, 5);
+        g.fillStyle = '#9a9a9a'; g.fillRect(rx - 1, hang - 3, 5, 3);  // the eye it hangs
+        g.fillStyle = '#c4c4c4'; g.fillRect(rx - 1, hang - 3, 5, 1);  // off, bolted on
       }
-      sprite('furn', 0, 5, 1, 1, L + 1, 92);              // two catalogued things,
-      sprite('furn', 1, 4, 1, 1, L + 15, 88);             // resting on it, with a gap
-      g.fillStyle = '#1a1a1a'; g.fillRect(L - 1, top - 1, R - L + 2, 9);
-      g.fillStyle = '#8d8d8d'; g.fillRect(L, top, R - L, 7);
-      g.fillStyle = '#c4c4c4'; g.fillRect(L, top, R - L, 1);   // the fresh cut edge
-      // Seven bolts, and four of them are not the same as the other three —
-      // scattered rather than in a run, because they were whatever was to hand.
-      const odd = [0, 0, 1, 0, 1, 1, 0];
-      for (let i = 0; i < 7; i++) {
-        g.fillStyle = odd[i] ? '#b4b4b4' : '#4f4f4f';
-        g.fillRect(L + 3 + i * 4, top + 3 - odd[i], 2, 2 + odd[i]);
-      }
-      g.fillStyle = 'rgba(0,0,0,.28)';                    // what it casts on the bunk
-      g.fillRect(L, top + 8, R - L, 3);
+      sprite('furn', 1, 4, 1, 1, L + 8, 88);      // one list, off the deck at last
+      g.fillStyle = '#1a1a1a'; g.fillRect(L - 1, top - 1, R - L + 2, 10);
+      g.fillStyle = '#8d8d8d'; g.fillRect(L, top, R - L, 8);
+      g.fillStyle = '#c4c4c4'; g.fillRect(L, top, R - L, 1);   // its fresh cut edge
+      g.fillStyle = '#767676';                    // and where it has been walked past
+      g.fillRect(L, top + 7, R - L, 1);
+      for (const rx of ropes) rope(rx, top - 1, top + 10);   // the rope over the plate:
+      g.fillStyle = 'rgba(0,0,0,.28)';            // this is what makes it slung
+      g.fillRect(L, top + 10, R - L, 3);          // rather than bolted to the wall
     },
   },
   {
@@ -155,15 +173,18 @@ const CABINS = [
     one: 'A locker that is not the ship\'s. It is too tall for the alcove the desk '
        + 'stood in, so it stands into the walkway, and everybody edges round it.',
     lamp: 0.45, mirror: true,
-    omit: ['desk', 'book', 'paper'],              // the locker took all three places
+    omit: ['desk', 'book', 'paper'],              // it stands on all three of them
     extras({ g, sprite, mx }) {
-      const x = mx(140, 28);
-      g.fillStyle = 'rgba(0,0,0,.3)';                     // dragged, not carried
-      g.fillRect(mx(112, 26), 176, 26, 2); g.fillRect(mx(112, 26), 182, 26, 2);
-      g.fillStyle = 'rgba(0,0,0,.4)';
-      g.fillRect(x - 2, 129, 32, 3);
+      // It stands where the desk stood, hard against the alcove and a hand's
+      // width out into the walkway. 28 x 58, which is the whole of that alcove
+      // and then some.
+      const x = mx(140, 28), base = 187;
+      g.fillStyle = 'rgba(0,0,0,.3)';                     // dragged, not carried:
+      g.fillRect(mx(114, 30), base - 8, 30, 2);           // the two bottom edges,
+      g.fillRect(mx(114, 30), base - 2, 30, 2);           // scraped the whole way
+      g.fillStyle = 'rgba(0,0,0,.42)';                    // and what it sits in
+      g.fillRect(x - 2, base - 3, 32, 4);
       sprite('furn', 12, 5, 1, 2, x, 129);
-      sprite('furn', 2, 4, 1, 1, mx(112, 15), 178);
     },
   },
 ];

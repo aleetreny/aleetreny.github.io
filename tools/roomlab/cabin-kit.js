@@ -98,14 +98,17 @@ export function inside(r) {
  *             notices are repainted the right way round afterwards
  *   lamp    — 0..1, how bright this cabin's own lamp is. The Cabins' art
  *             direction is that the modularity is in the geometry and the
- *             variation is in the light, so this is the main axis.
+ *             variation is in the light, so this is the main axis. It defaults
+ *             to 1, which is no dimming at all: the mould called with no
+ *             variation has to come out as the trace, or berth.html stops being
+ *             the thing the five are checked against.
  *   plate   — one function, for anything done to the wall itself; it runs before
  *             the pipes and notices go on, so a patch reads as part of the wall.
  *   extras  — one function, drawing the single object only this cabin has.
  *   omit    — names of mould props this cabin does without.
  */
 export function drawCabin(sheets, variation = {}) {
-  const { mirror = false, lamp = 0, plate = null, extras = null, omit = [] } = variation;
+  const { mirror = false, lamp = 1, plate = null, extras = null, omit = [] } = variation;
   const room = document.createElement('canvas');
   room.width = W; room.height = H;
   const g = room.getContext('2d');
