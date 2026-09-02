@@ -2,9 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { gridSize } from './grid';
 import { ROOMS, ROOM_BY_ID } from './rooms';
 import {
-  FRAME, LINKS, PLACEMENTS, PLACEMENT_BY_ID, TILT, asteroidOutline, centreOf,
-  craters, debris, roomAt,
+  FRAME, LINKS, PLACEMENTS, PLACEMENT_BY_ID, TILT, WALK, asteroidOutline, centreOf,
+  craters, debris, roomAt, type Placement,
 } from './section';
+
+/** Tiles of rock between two rooms' nearest faces. Zero when they touch. */
+function edgeGap(a: Placement, b: Placement): number {
+  const dx = Math.max(0, a.x - (b.x + b.w), b.x - (a.x + a.w));
+  const dy = Math.max(0, a.y - (b.y + b.h), b.y - (a.y + a.h));
+  return dx && dy ? Math.max(dx, dy) : dx + dy;
+}
 
 describe('the composition', () => {
   it('places all sixteen, once each', () => {
@@ -44,12 +51,27 @@ describe('the composition', () => {
 });
 
 describe('the ship', () => {
-  it('stacks the hull bow to stern with no gaps between decks', () => {
-    const hull = PLACEMENTS.filter((p) => p.side === 'hull').sort((a, b) => a.y - b.y);
-    expect(hull).toHaveLength(8);
-    for (let i = 1; i < hull.length; i += 1) {
-      expect(hull[i]!.y, hull[i]!.id).toBe(hull[i - 1]!.y + hull[i - 1]!.h);
+  it('strings the hull bow to stern with the Long Walk between every room', () => {
+    // Not a stack. The rooms are the size of the renders they are traced from, and
+    // the corridor between them is space you walk down rather than a shared wall.
+    const walk = PLACEMENTS
+      .filter((p) => p.side === 'hull' && p.id !== 'breach')
+      .sort((a, b) => a.y - b.y);
+    expect(walk).toHaveLength(7);
+    expect(PLACEMENTS.filter((p) => p.side === 'hull')).toHaveLength(8);
+    for (let i = 1; i < walk.length; i += 1) {
+      expect(walk[i]!.y, walk[i]!.id).toBe(walk[i - 1]!.y + walk[i - 1]!.h + WALK);
     }
+  });
+
+  it('hangs the Breach off the walk rather than on it', () => {
+    // Two sealed mouths and nothing on the other side: it is the tear in the
+    // flank, not a room you pass through on the way aft.
+    const breach = PLACEMENT_BY_ID.breach;
+    const onWalk = PLACEMENTS.some((p) => p.side === 'hull' && p.id !== 'breach'
+      && p.y + p.h + WALK === breach.y);
+    expect(onWalk).toBe(false);
+    expect(edgeGap(breach, PLACEMENT_BY_ID.cabins)).toBeLessThanOrEqual(2);
   });
 
   it('drives it in at twenty-two degrees, measured off what was actually placed', () => {
@@ -85,16 +107,25 @@ describe('the warren', () => {
     }
   });
 
-  it('packs the warren rather than floating boxes in a void', () => {
-    // Measured against the ground the habitat actually occupies, not the frame:
-    // the frame now holds the vacuum the rock floats in as well, and most of an
-    // asteroid is quite correctly solid.
-    const x0 = Math.min(...PLACEMENTS.map((p) => p.x));
-    const y0 = Math.min(...PLACEMENTS.map((p) => p.y));
-    const x1 = Math.max(...PLACEMENTS.map((p) => p.x + p.w));
-    const y1 = Math.max(...PLACEMENTS.map((p) => p.y + p.h));
-    const covered = PLACEMENTS.reduce((n, p) => n + p.w * p.h, 0);
-    expect(covered / ((x1 - x0) * (y1 - y0))).toBeGreaterThan(0.34);
+  it('packs the warren: no room is more than a short passage from another', () => {
+    // The check that used to live here compared room area against the habitat's
+    // bounding box. That ratio fell from a third to a quarter when the rooms were
+    // re-cut to the size of the renders they are traced from — the rooms shrank
+    // and the corridors between them did not — so it stopped measuring what it was
+    // named for. This measures it directly: a warren is chambers within a few
+    // metres of each other, and floating boxes in a void are not.
+    for (const a of PLACEMENTS) {
+      const nearest = Math.min(...PLACEMENTS.filter((b) => b !== a).map((b) => edgeGap(a, b)));
+      expect(nearest, a.id).toBeLessThanOrEqual(6);
+    }
+  });
+
+  it('keeps no room bigger than the renders they are traced from', () => {
+    // The whole point of the re-cut: a room is five to nine tiles, and the three
+    // that are larger are larger because their emptiness is their content.
+    const big = PLACEMENTS.filter((p) => Math.max(p.w, p.h) > 9).map((p) => p.id).sort();
+    expect(big).toEqual(['common', 'greatwall', 'hollow', 'spine']);
+    for (const p of PLACEMENTS) expect(Math.max(p.w, p.h), p.id).toBeLessThanOrEqual(12);
   });
 });
 

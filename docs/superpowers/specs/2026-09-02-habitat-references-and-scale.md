@@ -12,6 +12,14 @@ grammar. `2026-08-31-habitat-rooms.md`, `2026-09-01-habitat-plan.md`,
 
 Nothing is built yet. This is the plan the building follows.
 
+> **Superseded on the size question.** The owner took a different decision from
+> the one recommended below: the canon grids do not survive if they break the
+> visual scale, so a traced room is now **exactly the size of its measured
+> reference** and the map was rebuilt around that. See
+> `2026-09-02-habitat-new-scale.md`. Everything else here — the catalogue, the
+> measurements, the reference-to-room mapping and the build order — still
+> stands, and the sizes in the tables below are the pre-decision ones.
+
 ---
 
 ## How every number below was got

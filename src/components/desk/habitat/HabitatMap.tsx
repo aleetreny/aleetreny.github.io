@@ -11,7 +11,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  FRAME, LINKS, PLACEMENTS, PLACEMENT_BY_ID, asteroidOutline, centreOf, craters,
+  FRAME, LINKS, PLACEMENTS, PLACEMENT_BY_ID, ROCK_BODY, asteroidOutline, centreOf, craters,
   debris, facets, roomAt, RIGGING, type Placement,
 } from '../../../lib/habitat/section';
 import { ROOM_BY_ID, type RoomId } from '../../../lib/habitat/rooms';
@@ -130,9 +130,12 @@ function paintAsteroid(c: Ctx, t: number) {
   // Rim light where the sun reaches, and a hard terminator away from it.
   c.save();
   c.clip();
-  const cx = 104 * t;
-  const cy = 58 * t;
-  const g = c.createLinearGradient(cx + SUN.x * 96 * t, cy + SUN.y * 54 * t, cx - SUN.x * 96 * t, cy - SUN.y * 54 * t);
+  const cx = ROCK_BODY.x * t;
+  const cy = ROCK_BODY.y * t;
+  const g = c.createLinearGradient(
+    cx + SUN.x * ROCK_BODY.rx * t, cy + SUN.y * ROCK_BODY.ry * t,
+    cx - SUN.x * ROCK_BODY.rx * t, cy - SUN.y * ROCK_BODY.ry * t,
+  );
   g.addColorStop(0, ROCK.lit);
   g.addColorStop(0.34, ROCK.face);
   g.addColorStop(0.72, ROCK.dark);
@@ -187,8 +190,8 @@ function paintAsteroid(c: Ctx, t: number) {
   c.strokeStyle = 'rgba(255,226,180,0.5)';
   c.beginPath();
   ring.forEach((p, i) => {
-    const nx = (p.x - 104) / 96;
-    const ny = (p.y - 58) / 54;
+    const nx = (p.x - ROCK_BODY.x) / ROCK_BODY.rx;
+    const ny = (p.y - ROCK_BODY.y) / ROCK_BODY.ry;
     const facing = nx * SUN.x + ny * SUN.y;
     const q = ring[(i + 1) % ring.length]!;
     if (facing > 0.25) {

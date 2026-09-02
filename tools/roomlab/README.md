@@ -16,6 +16,7 @@ canvases loaded from `file://`.
 | `berth.html` | **A two-berth cabin traced 1:1 off a reference render.** 204 x 205 px. Places sprites by their ink position, not their tile, and runs pipe by centreline. |
 | `measure/` | Reading a reference before drawing it: what scale it was exported at, which sheet it is built from, and a pixel ruler for when that fails. Python, not a browser page — see `measure/README.md`. |
 | `reference/` | The renders being traced from, each with its measured scale. See `reference/README.md`. |
+| `plan.html` | **The habitat at map magnification** — every room at its real size, the passages routed doorway to doorway, the named connective spaces labelled. Drawn from `habitat-plan.json`, which `measure/plan-data.mjs` generates out of `rooms.ts` and `section.ts`, so the plan cannot drift from the rooms. |
 
 ## The two rules that took several passes to learn
 
@@ -72,10 +73,11 @@ column stays empty because that is where you walk.
 
 **And a room is at most about seven tiles across.** Every room 0_mem0ry draws is
 between 4.8 and 7.8 tiles wide; whenever he needs more space than that he puts in
-a wall. A canon room from `rooms.ts` is two to five of those laid end to end, so
-it gets drawn as a run of bays rather than as one hall. The measurements and the
-consequences are in
-`docs/superpowers/specs/2026-09-02-habitat-references-and-scale.md`.
+a wall. The canon grids were re-cut to match: a traced room is now exactly the
+size of its reference, and the largest room in the habitat is twelve tiles where
+it used to be thirty-two. The measurements are in
+`docs/superpowers/specs/2026-09-02-habitat-references-and-scale.md` and the
+decision in `2026-09-02-habitat-new-scale.md`.
 
 ## The sheets
 

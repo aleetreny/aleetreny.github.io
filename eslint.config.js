@@ -23,7 +23,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['functions/**/*.ts', 'scripts/**/*.mjs', 'vite.config.ts', 'neon.ts'],
+    files: ['functions/**/*.ts', 'scripts/**/*.mjs', 'tools/**/*.mjs', 'vite.config.ts', 'neon.ts'],
     languageOptions: {
       globals: globals.node,
     },
