@@ -1,106 +1,99 @@
-# The Workshops: the first room cut in rock
+# The Workshops: a trace, not a version
 
 Building, phase seven. Branch: `night-shift-habitat`.
 
-The five cabins are closed. This is the first room on the **rock** side of the
-map, and the reason it was chosen to go first: it is the only room in the
-collection whose references also answer *how a rock-side room is walled and
-floored*. Everything learned here is what the six diggings, the Common, the Well
-and the Great Wall get built from.
-
 `tools/roomlab/workshops.html`. 250 × 228 px, the reference's own native size.
-The room reports **clean** — 12 props on the floor, 7 on the rock, nothing
-overlapping, nothing crossing the frame — and `pnpm check` is green.
+`pnpm check` is green and the room reports **clean** — 8 props on the floor, 12
+on the wall, nothing overlapping that the render does not also overlap.
+
+> **What this room is.** A 1:1 trace of `reference/workshop-two-bay.jpg`. Same
+> block wall, same tiled floor, same objects, same places. Not a version of it,
+> not an adaptation of it, and not the same room rebuilt in another material.
 
 ---
 
-## Two references, because no single one is this room
+## The first attempt, and why it was wrong
 
-| | Gives | Proof |
-| --- | --- | --- |
-| `workshop-two-bay.jpg` ×4 → **250 × 228** | the composition and every prop | 7 objects match `workshop.png` at **ncc 1.000, scale 1.0**. Our sheet, our size, nothing to invent. |
-| `workshop-plate-walls-on-dirt.png` ×4 → 179 × 212 | the wall and floor of a room that is **not a built room** | its props match `workshop.png` too; its *ground* matches no sheet we have, so the floor is drawn — measured off it at three flat tones and no gradient: `156,141,66`, `132,114,19`, `106,89,0`. |
+The first build of this room substituted the materials: rock for the concrete
+block, rock dust for the tiled floor, bolted plate for the wall between the bays.
+The reasoning was that the Workshops is a rock-side room in the habitat and the
+reference is a built one.
 
-Four prop positions are **ncc-exact** and are marked `ANCHOR` in the source: the
-pegboard at (88, 52), the tall shelf, the floor mat at (38, 172) and the timber
-bucket at (128, 162). The rest were measured off the render.
+That broke the rule this whole project runs on — *if there is a reference, it is
+traced* — and the owner rejected it. A room that changes its walls, its floor and
+its dividers is not the reference at a new size; it is a different room that
+happens to have the same furniture. The materials came back.
 
-The outline was measured, not eyeballed: content runs `x 7..242, y 7..210`, and
-the right bay's ceiling is cut **32 px higher** than the left one — that step is
-the composition, so it is kept. The floor line sits at `y = 79`, read off the
-base of the reference's shutter.
+## How the trace was made
 
-## What was substituted, and why each was forced
+Nothing here was estimated. `measure/trace.py` — added in this pass — takes every
+connected component of every candidate sheet, correlates it over its own alpha
+mask against the render, and prints the source rectangle, the destination
+position and the score. **Thirty-seven objects matched at ncc ≥ 0.93**, twelve of
+them at 1.000, and those positions are used verbatim; each one is marked `ANCHOR`
+in the source with its score.
 
-| Reference | Ours | Because |
-| --- | --- | --- |
-| concrete block wall | **rock**, chiselled | the room is cut in an asteroid |
-| tiled floor, 16 px grid | **rock dust**, no grid | same |
-| the block wall between the bays | **bolted plate** standing on the rock | "Bays, divided by whoever got there first" — and the plate-walls reference is exactly this |
-| the roller shutter | **the fabricator's hatch** | see below |
-| its daylight olive dirt | the same three flat tones, pulled toward grey-brown | the law that a saturated pixel is a light, a living thing or cargo |
+`measure/find_at.py` does the reverse for a rectangle you name, and
+`trace.whats_at()` answers "what sprite is at this place", which is how the
+shutter, the tool chest, the grate and the stool were pinned down.
 
-**The fabricator.** The room's lore needs one and no sheet carries one; the last
-spec listed it as a missing object. Rather than invent a machine, the reference's
-**roller shutter stays exactly where the reference puts it** and is read as the
-fabricator's hatch: the pixels are the reference's, what they are is ours. It is
-aged into the habitat afterwards — rust where the rails hold water, grime along
-the bottom, the slot at its foot the finished work comes out of, and one green
-running light, the only pixel in the room that is not lamp amber.
+The structure was read off the render the same way, a pixel column at a time:
 
-## The three things that had to be drawn
+| | Measured |
+| --- | --- |
+| the room | x 7..242, y 7..210 |
+| the step | bay two is cut 32 px higher; its west wall is x 135..140 |
+| the bands | 6 px everywhere — 1 px ink, 4 px of `#6c6c6c`, 1 px ink |
+| the wall | one 32 × 64 block-wall tile pair, `rt(4,7)`+`rt(4,8)`, mortar every 8 px. Bay one's sits at y 45, bay two's at y 13 — which *is* the 32 px step |
+| the floor | `rt(8,8)`, phase (29,29), matched at ncc 0.975, with the two cracked variants where the render has them |
+| the doorway | the south wall is open from x 46 to x 75 |
 
-No sheet carries them, so they are drawn, and each is written down here because a
-drawn thing is a decision:
+The wall's phases are forced rather than chosen: the render's mortar rows fall on
+y ≡ 1 (mod 8) and its vertical joints on x ≡ 1 (mod 16), and the tile's own are
+at rel 4 and rel 4 — which fixes the placement to y 45 / y 13 and x ≡ 13 (mod 32).
 
-1. **The rock face.** Courses of angular faces, each with its own width, skew and
-   height so the course line is not a seam; a bright edge where the tool came
-   through; chisel marks everywhere. Four tone steps, because three read as mud.
-2. **The rock dust.** Large flat patches in three tones, hard-edged, plus grit
-   and chips of stone lit on top — and **the track**, a worn line from the west
-   door to the fabricator, which is the trace the design says to spend first.
-3. **The sorted scrap.** Three stacks of hull offcuts graded by size, which is the
-   one thing in this room anybody has organised. A cut edge is a date, so the
-   bright ones came off the ship this month.
+**10.4 % of the room's pixels still differ from the render**, measured inside the
+room outline. Most of that is the reference being a JPEG; the rest is the four
+items below.
 
-**Both rock functions fill a scanline at a time.** The first version used canvas
-path fills, and a path fill antialiases its diagonals — which puts half-tones
-into a picture that has none. Every facet and every patch is `fillRect` now.
+## What is not in it, and why
 
-## The light
+The rule is that anything in a reference with no sprite is **named, not
+substituted**. Four things qualify:
 
-Two work lamps and nothing else. What matters is not the level but that **the
-ground state is cool and the lamps are warm**: without that, rock, dust and lamp
-are all the same brown and the room reads as one flat wash. Lit and unlit now
-differ in hue as well as in value, which is what gives the third bay its
-character — the scrap ended up there because that is where the light does not
-reach, not because anybody decided it.
+1. **The spill under the lockers.** A pale run-out with a tin lying in it. The
+   best match in either sheet is 0.64 — it is drawn in the render, not stamped.
+   The one part of it that *is* a sprite (ncc 0.957) is placed; the rest is left
+   out.
+2. **The dressing on the bottom bench.** The bench is `ws(11,0)` at ncc 0.66 and
+   the timber on it is anchored, but the red caddy and one container are the
+   nearest sprite rather than the exact one.
+3. **The pipe run's left elbow**, where the horizontal run turns down into the
+   drop. The run itself is exact — its bright row is the sheet's row 423, and it
+   lands on y 52, which fixes the piece at y 51 and the run at x 21..67.
+4. **A second container** by the bottom bench's right end.
 
-## Where the drawn room and the grid disagree
+## What the habitat still owes this room
 
-`rooms.ts` gives the Workshops a 9 × 9 grid with `|` partitions in both halves
-**and** a full-width `=`, which describes four cells; its own note says "Three
-bays". The room is drawn as **three** — two above, one across the bottom — which
-is what the lore says and what the reference's composition supports. The grid
-also puts a partition hard against the east wall, so the east doorway opens onto
-it. Neither is fixed here: the grid is walkability data and the render is the
-picture, and re-cutting the grid moves every room below it on the map. Flagged
-for the corridor phase, where the doorways get resolved anyway.
+The Workshops is `side: 'rock'` in `rooms.ts` and this trace is a built room.
+That is a real inconsistency and it is now the owner's call, not mine:
 
-## Still open
+- **Leave it.** The bays were built by people who had hull plate and a shipyard
+  to cut it in, and a block wall is what they made. Cheapest, and the trace stands.
+- **Re-skin it later**, once every room is traced, so the material pass is one
+  decision made across the whole map rather than room by room.
 
-1. **The room's own props that no sheet has** are now down to zero — the
-   fabricator was the last one, and it was solved by rereading a sprite rather
-   than by drawing a machine.
-2. **The lore edits** from the residential phase are still unmade, by the owner's
-   call that they are not worth time yet. They go in with the next `rooms.ts` edit.
-3. **`main` and `night-shift-habitat` have diverged** (4 against 24 commits), so
-   the `--ff-only` merge in `CLAUDE.md` is impossible and nothing from this
-   branch has deployed.
+The lore that the room carries — three bays, the fabricator, the queue, Lior's
+sorted scrap — is **not drawn in this pass**. The trace came first because the
+trace is the thing that was wrong. Where those go is the next question.
+
+`rooms.ts` also gives the Workshops a 9 × 9 grid with `|` in both halves and a
+full-width `=`, which describes four cells while its own note says three bays.
+Untouched: the grid is walkability data, and re-cutting it moves every room below
+it on the map. Flagged for the corridor phase.
 
 ## Next
 
-The Infirmary, then the Hold — both hull rooms with measured references and
-approved libraries, so both are direct. Then the first digging, which is where
-the rock grammar drawn here gets its second use and the clone-and-vary rule gets
-proved for the makeshift references.
+The Infirmary and the Hold, both hull rooms with measured references and approved
+libraries, traced the same way — and now with `trace.py` doing the measuring,
+which is the tool this pass was really for.

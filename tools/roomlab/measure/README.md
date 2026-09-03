@@ -50,6 +50,18 @@ pixel ruler over a crop so the same prop can be read off the render in source
 coordinates. Divide one by the other. At zoom Z a one-pixel outline is Z screen
 pixels wide, which reads the scale on its own.
 
+**4 · Writing the trace.** `provenance.py` says *which sheet*; these say *what
+goes where*:
+
+    python3 trace.py native/<render>.png <sheet.png>... --thresh 0.93
+    # ->  0.999  workshop.png  src(194,130)  43x30 t(6, 4)  ->  ( 88, 52)
+
+Every object of every sheet, with the source rectangle to cut and the position to
+cut it to. That line is one line of the room's source. `find_at.py` answers the
+same question for a rectangle you name, and `trace.whats_at(render, sheets, box)`
+answers the reverse — *what sprite is at this place* — which is how a prop that
+is half-covered by the things sitting on it gets pinned down.
+
 `sheet_grid.py` draws a whole sheet with a numbered tile grid — `index-sheet.html`
 without a browser, for picking props by coordinate.
 
