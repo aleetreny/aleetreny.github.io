@@ -149,40 +149,59 @@ function build() {
   // the ones the render REUSES, which is most of the small ones here.
   crop('locker', 'furn', 326, 101, 20, 56, 17, 36);          // ANCHOR 1.000
   crop('calendar', 'furn', 422, 97, 20, 29, 47, 19, 'wall'); // ANCHOR 1.000
-  crop('bed', 'furn', 450, 33, 28, 62, 40, 52);              // ANCHOR 1.000
   crop('rack', 'furn', 297, 20, 46, 68, 75, 20);             // ANCHOR 0.979
   crop('crateR', 'furn', 266, 205, 12, 17, 78, 27, 'on');    // ANCHOR 1.000
   crop('flaskA', 'furn', 268, 170, 8, 20, 97, 24, 'on');     // ANCHOR 1.000
   crop('flaskB', 'furn', 268, 170, 8, 20, 108, 23, 'on');    // ANCHOR 1.000
+  // The back one first, so the front one's own outline cuts across it — drawn
+  // the other way round the pair merges into one cylinder with a bent neck.
+  crop('cylinder2', 'furn', 72, 192, 16, 31, 124, 52, 'on'); // 0.717: the render's
+                                                             // back bottle is a size
+                                                             // this pack does not have
   crop('cylinder', 'furn', 72, 192, 16, 31, 115, 69, 'on');  // ANCHOR 1.000; it
                                                              // stands over the rack
   crop('shelfL', 'furn', 392, 1, 16, 87, 12, 119);           // ANCHOR 1.000
   crop('flaskC', 'furn', 268, 170, 8, 20, 18, 141, 'on');    // ANCHOR 1.000
-  crop('chair', 'furn', 136, 282, 16, 31, 48, 158);          // ANCHOR 1.000
+  crop('table', 'furn', 225, 282, 30, 37, 42, 128);          // the owner's call: the
+  crop('chair', 'furn', 136, 282, 16, 31, 48, 158, 'on');    // ANCHOR 1.000,
+                                                             // tucked under the table
 
   // the alcove
   crop('firstaid', 'furn', 297, 233, 16, 13, 118, 128, 'wall'); // ANCHOR 1.000
   crop('crateA', 'furn', 266, 205, 12, 17, 127, 156);        // ANCHOR 1.000
   crop('jugA', 'furn', 297, 201, 14, 21, 97, 158);           // ANCHOR 0.881
   crop('flaskD', 'furn', 268, 170, 8, 20, 117, 162, 'on');   // ANCHOR 1.000
+  crop('jugC', 'furn', 297, 201, 14, 21, 99, 141, 'on');     // 0.509: the render's
+                                                             // upper jug is a size
+                                                             // this pack does not have
   crop('jugB', 'furn', 298, 167, 12, 23, 101, 174, 'on');    // ANCHOR 1.000; in
                                                              // front of the other
   crop('crateB', 'furn', 266, 205, 12, 17, 116, 184);        // ANCHOR 1.000
   crop('crateC', 'furn', 266, 205, 12, 17, 130, 188);        // ANCHOR 1.000
+  crop('crateD', 'furn', 266, 205, 12, 17, 129, 170, 'on');  // the render stacks two
+  crop('flaskE', 'furn', 268, 170, 8, 20, 109, 152, 'on');   // BIG crates here, which
+                                                             // this pack does not have,
+                                                             // so it gets more of the
+                                                             // small one instead
 
-  // MISSING OBJECTS. Four things in the render have no sprite in any of the
-  // nineteen sheets in public/assets/props/ — every component of every one of
-  // them was correlated against the render and none beat 0.56. They are named
-  // here and left out rather than substituted:
+  // ── where this room stops being a pure trace ─────────────────────────────
+  // Four things in the render have no sprite in any of the nineteen sheets in
+  // public/assets/props/ — every component of every one of them was correlated
+  // against the render and none beat 0.72. The first version of this page named
+  // them and left them out, which is the rule. The owner has since ruled on this
+  // room specifically: fill them with the nearest sprite the pack does have, and
+  // take the bed out. So, deliberately and not as a trace:
+  //   · the bed at (40,52) is REMOVED. It was an ncc 1.000 anchor.
   //   · the brown examination chair in the middle of the room, ~34 x 72 at
-  //     (42,118). This is the room's centrepiece and its absence is the hole
-  //     you can see. Best match anywhere: 0.56.
-  //   · the second, larger orange cylinder at (96,76), behind the one that is
-  //     placed. Ours has only the small size.
-  //   · two white jugs and a blue water bottle in the alcove.
-  //   · a steel drum in the alcove, at about (128,150).
-  // The render is Post Apoc Shelter_7 and it is dressed from a pack we do not
-  // have. Getting that pack is the only way to finish this room as a trace.
+  //     (42,118), is a brown TABLE (0.56 as a whole object) with the render's own
+  //     brown chair, which is an exact anchor, tucked under it.
+  //   · the second orange cylinder is the same sprite as the first, at 0.717.
+  //     The render's is a larger size that this pack does not carry.
+  //   · the alcove's upper white jug is the same sprite as its lower one, at
+  //     0.509, for the same reason.
+  // What is still not there: nothing. Every object in the render now has
+  // something in its place. The three at 0.51-0.72 are the nearest sprite and
+  // are marked as such rather than as anchors.
 
   g.restore();
 

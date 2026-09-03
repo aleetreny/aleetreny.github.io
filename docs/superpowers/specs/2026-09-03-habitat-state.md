@@ -22,6 +22,10 @@ which live in `tools/roomlab/reference/`.
 > **If there is a reference, it is traced. Not adapted, not reinterpreted, not
 > rebuilt in another material. Traced.**
 >
+> The one exception so far is the Infirmary, and it is an exception the owner
+> made after seeing the trace, not a licence to skip one. Trace first, name what
+> is missing, and let the owner decide.
+>
 > Same walls, same floor, same objects, same places, same size.
 
 The corollaries, all of which have already been paid for once:
@@ -75,7 +79,7 @@ statement of the rule in the repo.
 | --- | --- | --- | --- |
 | **The Cabins** ×5 | **done** | `two-berth-cabin.jpg` ×5.34 → 204 × 205 | `berth.html` (the mould), `cabin-kit.js`, `cabins.html` |
 | **The Workshops** | **done** | `workshop-two-bay.jpg` ×4 → 250 × 228 | `workshops.html` |
-| **The Infirmary** | **done**, with four gaps | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
+| **The Infirmary** | **done**; traced, then composed on the owner's call | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
 | The Hold | next | `shelter-bunk-and-stores.jpg` ×2 → 166 × 250 | — |
 | The six diggings | after that | `makeshift-*.jpg` | — |
 | The Well | after that | `bathroom-wet-and-filthy.jpg` ×4 → 184 × 170 | — |
@@ -136,10 +140,13 @@ notices repainted unflipped), and one object each. See
    and its east doorway opens onto a partition. Left alone: the grid is
    walkability data and re-cutting it moves every room below it on the map.
    Flagged for the corridor phase.
-7. **The Infirmary's four missing objects.** Its centrepiece — a brown
-   examination chair — and three smaller things are in none of the nineteen
-   sheets we own; nothing beats 0.56. Get the pack, accept the gaps, or allow the
-   nearest sprite. See `2026-09-03-habitat-infirmary.md`.
+7. **The pack the Infirmary's render is dressed from, we do not have.** Four of
+   its objects match nothing above 0.72. The owner's call for that room was to
+   fill them with the nearest sprite the pack does have and to take the bed out,
+   so **the Infirmary is composed off its reference rather than traced from it** —
+   and its pixel-difference number no longer measures it. Getting that pack is
+   still the only way to finish it as a trace. See
+   `2026-09-03-habitat-infirmary.md` for the precedent this sets.
 8. **The corridors.** Nine of the eleven named connective spaces have routes but
    no grids and no floor. This is what makes the habitat walkable, and it is the
    next planning phase after the rooms.
