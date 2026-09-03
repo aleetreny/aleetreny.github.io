@@ -15,14 +15,14 @@ works in.
 | --- | --- | --- | --- | --- |
 | `two-berth-cabin.jpg` | 5.34× | ≈ 204 × 205 | 6.4 × 6.4 | **The Cabins.** Already traced, as `../berth.html`. |
 | `shelter-bunker-room.png` | 3× | 154 × 218 | 4.8 × 6.8 | **The Infirmary.** A bed, stores racks, a first-aid box, and an alcove partitioned off the main room. |
-| `shelter-bunk-and-stores.jpg` | 2× | 166 × 250 | 5.2 × 7.8 | **The Hold.** Racking, jars, tins, a footlocker, a bunk with its ladder. |
+| `shelter-bunk-and-stores.jpg` | **unknown — not ×2** | — | — | **The Hold. NOT TRACEABLE from our sheets.** Nothing in `public/assets/props/` matches it at ×1..×4: its bunk is ~144 px wide where the sheet's is 54, and matching its wall, its mattress and a footlocker against every sheet tops out at 0.67. The 2× here came from a hand ruler in an early pass and does not hold. |
 | `workshop-two-bay.jpg` | 4× | 250 × 228 | 7.8 × 7.1 | **The Workshops.** Pegboard, dressed bench, tool chest, lockers, shutter, floor grate. |
 | `workshop-plate-walls-on-dirt.png` | 4× | 179 × 212 | 5.6 × 6.6 | **The rock half of the map.** A room walled in salvaged corrugated sheet standing on bare dirt — no drawn wall band, no floor tile. |
 | `workshop-three-rooms.jpg` | 2× | ≈ 600 × 430 | 18.7 × 13.4 | **How to compose.** Three rooms sharing walls in one frame. Cross-pack: it uses props that are in none of our sheets, so it is a composition reference, not a traceable one. |
 | `makeshift-two-rooms.png` | 3× | 245 × 181 | 7.7 × 5.7 | **The Diggings.** Two rooms sharing a wall with a gap in it, and a notched outline. |
 | `makeshift-two-rooms-b.jpg` | 4× | 181 × 187 | 5.7 × 5.8 | **The Diggings.** The same move again, differently furnished. |
 | `makeshift-bedsit.jpg` | 4× | 178 × 217 | 5.6 × 6.8 | **The Diggings, the Cabins' second clutter layer.** Everything improvised out of crates and toolboxes. |
-| `bathroom-wet-and-filthy.jpg` | 4× | 184 × 170 | 5.8 × 5.3 | **The Well.** The whole wet vocabulary: puddles, running stains, drains, grating, mop and bucket. |
+| `bathroom-wet-and-filthy.jpg` | 4× (native.py says ×2 — it under-reads this JPEG; reduce by hand with NEAREST) | 184 × 170 | 5.8 × 5.3 | **The Well.** The whole wet vocabulary: puddles, running stains, drains, grating, mop and bucket. |
 | `kitchen-working.png` | 4× | 178 × 212 | 5.6 × 6.6 | **The Common**, Pilar's corner only. Griddle, hood, prep tables, under-shelves. |
 | `office-ruin.png` | 3× | 236 × 269 | 7.4 × 8.4 | **The Breach.** Broken walls with exposed rebar, concrete rubble, a safe left standing. |
 | `office-abandoned.jpg` | 4× | 199 × 199 | 6.2 × 6.2 | **The Bridge.** Desks that read as consoles, a chair, paper over the floor, a cracked window. |

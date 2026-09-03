@@ -2,7 +2,7 @@
 
 **This is the handoff. If you are picking this project up, start here, then read
 only the specs this file sends you to.** Branch: `night-shift-habitat`.
-Last updated: 3 September 2026, after the Infirmary.
+Last updated: 3 September 2026, after the Infirmary and the Hold's dead end.
 
 ---
 
@@ -50,6 +50,12 @@ statement of the rule in the repo.
    at what phase? Writes `measure/native/<name>.png`. Everything downstream works
    on native pixels. *Test every phase offset; the first version of this tool read
    every render as 1:1 and was wrong.*
+   **It under-reads heavily compressed JPEGs.** It called the Well's reference ×2
+   when it is ×4 — the tell is `provenance.py` then reporting its best matches at
+   `x2.0`, i.e. the sprites having to be *doubled* to fit. When that happens,
+   reduce by hand (`Image.resize(..., NEAREST)`, not BOX — BOX averages the JPEG's
+   ringing into the pixels and halves the hit count) and re-run provenance until it
+   matches at scale 1.0.
 2. **`measure/provenance.py <native> <sheet>...`** — which sheet is it built from?
    A score of 1.000 at scale 1.0 means the render and the sheet are the same art
    at the same size, and the trace can be exact.
@@ -80,9 +86,9 @@ statement of the rule in the repo.
 | **The Cabins** ×5 | **done** | `two-berth-cabin.jpg` ×5.34 → 204 × 205 | `berth.html` (the mould), `cabin-kit.js`, `cabins.html` |
 | **The Workshops** | **done** | `workshop-two-bay.jpg` ×4 → 250 × 228 | `workshops.html` |
 | **The Infirmary** | **done**; traced, then composed on the owner's call | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
-| The Hold | next | `shelter-bunk-and-stores.jpg` ×2 → 166 × 250 | — |
+| The Hold | **blocked** — its reference is not traceable from our sheets, see below | `shelter-bunk-and-stores.jpg` | — |
+| The Well | next | `bathroom-wet-and-filthy.jpg` **×4 → 184 × 170** | — |
 | The six diggings | after that | `makeshift-*.jpg` | — |
-| The Well | after that | `bathroom-wet-and-filthy.jpg` ×4 → 184 × 170 | — |
 | The other sixteen | not started | some have none | — |
 
 `tools/roomlab/reference/README.md` carries the measured scale of every reference.
@@ -147,7 +153,16 @@ notices repainted unflipped), and one object each. See
    and its pixel-difference number no longer measures it. Getting that pack is
    still the only way to finish it as a trace. See
    `2026-09-03-habitat-infirmary.md` for the precedent this sets.
-8. **The corridors.** Nine of the eleven named connective spaces have routes but
+8. **The Hold cannot be traced.** `shelter-bunk-and-stores.jpg` matches nothing
+   in `public/assets/props/` at any integer scale — not its bunk, not its
+   footlockers, not even its wall. Its bunk is ~144 px wide where the sheet's is
+   54, which is not a factor of two or three, and template-matching the wall, the
+   mattress and a footlocker against every sheet at ×1..×4 tops out at 0.67. The
+   reference README's "×2" came from a hand ruler in an early pass and does not
+   hold. **This room needs the pack it is dressed from, or a different
+   reference.** It is the same gap as the Infirmary's four objects, total instead
+   of partial — which is now two rooms pointing at one missing pack.
+9. **The corridors.** Nine of the eleven named connective spaces have routes but
    no grids and no floor. This is what makes the habitat walkable, and it is the
    next planning phase after the rooms.
 
