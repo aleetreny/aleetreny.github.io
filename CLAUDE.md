@@ -64,3 +64,11 @@ the owner asks for one.
 - Lists (drawer groups) are fully dynamic and owner-editable at runtime
   (create, rename, delete) via the board's Inventory panel — do not
   hardcode a fixed set of group ids in new code.
+
+## The habitat (branch `night-shift-habitat`)
+
+**Read `docs/superpowers/specs/2026-09-03-habitat-state.md` first.** It is the
+handoff: what is being built, the one rule the art runs on (if there is a
+reference, it is traced), the measure-then-draw method and its tools in
+`tools/roomlab/measure/`, which rooms are done, and every open question. Then
+read only the specs it sends you to.
