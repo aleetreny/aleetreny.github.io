@@ -2,7 +2,7 @@
 
 **This is the handoff. If you are picking this project up, start here, then read
 only the specs this file sends you to.** Branch: `night-shift-habitat`.
-Last updated: 3 September 2026, after the Infirmary and the Hold's dead end.
+Last updated: 3 September 2026, after the Well.
 
 ---
 
@@ -33,7 +33,10 @@ The corollaries, all of which have already been paid for once:
 - **Measure before drawing.** Never estimate a position or a size off the eye.
   `tools/roomlab/measure/` exists for exactly this and is described below.
 - **Anything in a reference with no sprite is NAMED, not substituted.** Say which
-  object it is, in a comment in the room's source, and leave it out.
+  object it is, in a comment in the room's source, and leave it out. When the
+  owner rules otherwise — the Infirmary, and the Well's dispenser — the
+  substitution is marked `SUBSTITUTE` at the call site and written up in that
+  room's spec, so nobody later reads it as a trace.
 - **Show the work visually and often.** Render, look, correct, render again. Do
   not ship the first acceptable result.
 - **Never guess a sprite's tile span.** Half of these sheets put two or three
@@ -76,8 +79,14 @@ statement of the rule in the repo.
    `python3 -m http.server` (never `file://` — the pages read pixels back off a
    canvas and `file://` taints it).
 7. **Render it and diff it against the reference**, masked to the room's outline.
-   That number is the target. The Workshops sits at 10.4 %, most of which is the
-   reference being a JPEG.
+   That number is the target. The Workshops sits at 10.4 % and the Well at 15.8 %,
+   most of which is the reference being a JPEG — its ink lines are grey, ours are
+   black, and that difference cannot be closed and should not be.
+8. **Then run every placed prop back through a ±5 px local search.** This is the
+   step that pays for itself: on the Well it moved five props, two of them badly
+   (a tag at mean error 133 → 58, a puddle 27 → 9), and it *confirmed* the toilet
+   my eye was certain was 18 px out. Trust the measure over the eye — but only
+   after the measure has been allowed to look everywhere.
 
 ## Where each room is
 
@@ -87,8 +96,8 @@ statement of the rule in the repo.
 | **The Workshops** | **done** | `workshop-two-bay.jpg` ×4 → 250 × 228 | `workshops.html` |
 | **The Infirmary** | **done**; traced, then composed on the owner's call | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
 | The Hold | **blocked** — its reference is not traceable from our sheets, see below | `shelter-bunk-and-stores.jpg` | — |
-| The Well | next | `bathroom-wet-and-filthy.jpg` **×4 → 184 × 170** | — |
-| The six diggings | after that | `makeshift-*.jpg` | — |
+| **The Well** | **done**; one object substituted, see below | `bathroom-wet-and-filthy.jpg` **×4 → 184 × 170** | `well.html` |
+| The six diggings | next | `makeshift-*.jpg` | — |
 | The other sixteen | not started | some have none | — |
 
 `tools/roomlab/reference/README.md` carries the measured scale of every reference.
@@ -162,7 +171,14 @@ notices repainted unflipped), and one object each. See
    hold. **This room needs the pack it is dressed from, or a different
    reference.** It is the same gap as the Infirmary's four objects, total instead
    of partial — which is now two rooms pointing at one missing pack.
-9. **The corridors.** Nine of the eleven named connective spaces have routes but
+9. **One object in the Well is a substitution.** Its reference's paper-towel
+   dispenser is in no sheet we have — the best fit anywhere scores 54 mean
+   colour error, which is not a match but the nearest grey rectangle. The
+   bathroom pack's own dispenser stands there instead, marked at the call site.
+   With the Hold and the Infirmary that is **three rooms pointing at the same
+   gap: the promo renders were made with more sheets than the packs ship.**
+   Chasing that pack down is now the single highest-value unblock in the art.
+10. **The corridors.** Nine of the eleven named connective spaces have routes but
    no grids and no floor. This is what makes the habitat walkable, and it is the
    next planning phase after the rooms.
 
@@ -184,4 +200,5 @@ otherwise.
 | `2026-09-02-habitat-residential-system.md` | eleven homes, and the five cabins as built |
 | `2026-09-03-habitat-workshops.md` | **the trace rule**, and what it cost to learn it |
 | `2026-09-03-habitat-infirmary.md` | the trace, and the first room the sheets cannot finish |
+| `2026-09-03-habitat-the-well.md` | the shell solved by brute force, the stall that is a sprite, and the three ways to place a prop |
 | `2026-09-02-habitat-room-handoff.md` | superseded by this file |

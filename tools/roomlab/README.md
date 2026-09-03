@@ -17,6 +17,7 @@ canvases loaded from `file://`.
 | `cabin-kit.js` | That trace, as a module, so the hull's five cabins are the *same code* rather than five drawings that resemble each other. Takes one small `variation`: the lamp, whether the cabin is to starboard, one hook for the object only that cabin has, and the mould props it gives up for it. |
 | `cabins.html` | **The five cabins of the Long Walk.** One mould, five times, side by side at 1:1 and at 3x, each with its household and its one object. |
 | `workshops.html` | **The Workshops** — a 1:1 trace of `workshop-two-bay.jpg`. Same block wall, same tiled floor, same objects, same places; thirty-seven of them placed at their own ncc position. Not a version of the reference. |
+| `well.html` | **The Well** — a 1:1 trace of `bathroom-wet-and-filthy.jpg`. The wall and floor tiles were solved by brute force over every opaque tile and every phase rather than by eye; the stall is 0_mem0ry's own partition sprite used three ways, not a wall. Twenty props, each comment naming which of the three placement methods put it there. |
 | `measure/` | Reading a reference before drawing it: what scale it was exported at, which sheet it is built from, and a pixel ruler for when that fails. Python, not a browser page — see `measure/README.md`. |
 | `reference/` | The renders being traced from, each with its measured scale. See `reference/README.md`. |
 | `plan.html` | **The habitat at map magnification** — every room at its real size, the passages routed doorway to doorway, the named connective spaces labelled, and the eleven homes picked out in amber with the initials of whoever sleeps in them. Drawn from `habitat-plan.json`, which `measure/plan-data.mjs` generates out of `rooms.ts`, `section.ts` and the engine's `SLEEPS`, so the plan cannot drift from the habitat. |
@@ -31,6 +32,11 @@ column 17 is 1×3, the lockers are 1×2, the drums are 1×1.
 31 px inside a 32 px tile, so a run of them laid on the grid shows a seam every
 unit. `run()` in `infirmary.html` advances by each unit's measured ink width
 instead, and they butt into one continuous length of steel.
+
+**Split a merged component by its period, not by the tile grid.** The bathroom
+sheet's urinals touch, so the alpha has no gutter to cut on and `objects.py`
+returns all four as one 78-px blob. Their alpha column profile repeats every 16,
+and cut on 16 they match at 0.97; cut any other way they top out at 0.6.
 
 **Objects belong on the 32px grid.** These sheets are authored on it. Nudge only
 to seat something against a wall, or to hang it at a height — never to fake
