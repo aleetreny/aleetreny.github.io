@@ -1,0 +1,462 @@
+<meta charset="utf-8">
+<style>
+ body{margin:0;background:#0b0d11;font:12px/1.6 ui-monospace,monospace;color:#b9c2dd}
+ canvas{image-rendering:pixelated;display:block}
+ .row{display:flex;gap:20px;align-items:flex-start;padding:16px}
+ h1{font-size:13px;font-weight:400;color:#e9edff;margin:0;padding:14px 16px 0;letter-spacing:.5px}
+ .note{padding:2px 16px 0;color:#7b85ab;max-width:1100px}
+ #log{padding:8px 16px;white-space:pre;color:#5f6b8f}
+ #log.bad{color:#e0776a}
+</style>
+<h1>THE WORKSHOPS</h1>
+<div class="note">
+  Traced off <code>reference/workshop-two-bay.jpg</code> (×4 → 250 × 228 native), with the
+  wall and floor grammar of <code>reference/workshop-plate-walls-on-dirt.png</code> (×4 →
+  179 × 212), because this room is cut in rock and the two-bay reference is a built
+  concrete workshop. Sprites are placed by their ink rectangle, never by their tile.
+</div>
+<div class="row"><canvas id="z"></canvas><canvas id="one"></canvas></div>
+<pre id="log"></pre>
+<script type="module">
+// ── THE WORKSHOPS ─────────────────────────────────────────────────────────
+// Three bays, divided by whoever got there first. The room's economy is the
+// fabricator and its queue, and the queue is the most contested object in the
+// habitat.
+//
+// TWO references, because no single one is this room:
+//  · workshop-two-bay.jpg gives the COMPOSITION and every prop. It matches
+//    workshop.png at ncc 1.000 at scale 1.0, so it is our sheet, our size.
+//    Four positions are ncc-exact and are marked ANCHOR below.
+//  · workshop-plate-walls-on-dirt.png gives the WALL AND FLOOR of a room that
+//    is not a built room: corrugated sheet standing on bare ground, no wall
+//    band, no floor tile. Its dirt is three flat tones and no gradient, which
+//    is measured, not chosen: 156/141/66, 132/114/19, 106/89/0.
+//
+// The substitutions, all forced by the habitat rather than by taste:
+//  · concrete block wall  -> ROCK. The room is cut in an asteroid.
+//  · tiled floor          -> rock dust, drawn in the plate-walls reference's
+//                            three flat tones pulled toward the habitat's brown.
+//  · the bay wall         -> bolted plate, as in the plate-walls reference.
+//  · the roller shutter   -> THE FABRICATOR's hatch. The pixels are the
+//                            reference's, in the reference's place; what they
+//                            are is ours. This is the one object the lore needs
+//                            and no sheet carries, and this is cheaper than
+//                            inventing one.
+
+const S = 3;                                  // display zoom
+const T = 32;
+const W = 250, H = 228;                       // the reference, at native size
+
+// the outline, measured off the render: the right bay is cut higher into the
+// rock than the left one, and that step is the composition
+const LEFT = 7, RIGHT = 242, BOT = 210, TOP_R = 7, TOP_L = 39, STEP = 135;
+const BAND = 6;                               // 1 px ink + 4 rock + 1 px ink
+const FACE = 79;                              // the floor line, measured off the
+                                              // shutter's base in the render
+const PART_X0 = 135, PART_X1 = 141, PART_Y = 142;   // the bay wall, measured
+const HP_Y = 146, HP_X0 = 34, HP_X1 = 118;          // and the low one across,
+                                                    // leaving the aisle down the west wall
+
+const INK = '#15110d';
+// Rock: warm brown, chiselled, no two faces at the same angle. Four steps,
+// because three read as mud at this size.
+const SEAM = '#241d14';
+const ROCK = [ '#3a3024', '#4c3f2e', '#5f4f3a', '#75604a' ];
+const ROCK_HI = '#a08a66';
+// Dust: the plate-walls reference's three flat tones and its complete absence
+// of a grid, pulled off its daylight olive toward the habitat's grey-brown —
+// the law is that a saturated pixel is a light, a living thing or cargo.
+const DUST = '#8d7e5e', DUST_LO = '#7a6b4d', DUST_HI = '#9e8f6d', DUST_DK = '#635640';
+
+const P = '../../public/assets/props/';
+const NEED = { ws: P + 'workshop.png', rt: P + 'workshop_roomtiles.png' };
+const SH = {};
+let left = Object.keys(NEED).length;
+for (const k in NEED) {
+  const im = new Image();
+  im.onload = () => { SH[k] = im; if (!--left) build(); };
+  im.src = NEED[k];
+}
+
+// a fixed sequence, so the rock is the same rock on every render
+let seed = 20260903;
+const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+
+function outline(d) {
+  return [[LEFT + d, TOP_L + d], [STEP - d, TOP_L + d], [STEP - d, TOP_R + d],
+    [RIGHT - d, TOP_R + d], [RIGHT - d, BOT - d], [LEFT + d, BOT - d]];
+}
+function path(g, pts) {
+  g.beginPath();
+  pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])));
+  g.closePath();
+}
+
+/** Is a rectangle inside the room? The step means two tests, not one. */
+function inside(r) {
+  const pad = BAND - 1;
+  const pts = [[r.x, r.y], [r.x + r.w - 1, r.y], [r.x, r.y + r.h - 1], [r.x + r.w - 1, r.y + r.h - 1]];
+  return pts.every(([x, y]) => {
+    if (y > BOT - pad || x < LEFT + pad || x > RIGHT - pad) return false;
+    return y >= (x < STEP ? TOP_L + pad : TOP_R + pad);
+  });
+}
+
+/** Rock cut with a chisel: no two faces at the same angle, and a bright edge
+ *  wherever the tool came through. Drawn, because no sheet carries a rock
+ *  wall in elevation. */
+function rockFace(g, x0, y0, w, h) {
+  g.save(); g.beginPath(); g.rect(x0, y0, w, h); g.clip();
+  g.fillStyle = ROCK[1]; g.fillRect(x0, y0, w, h);
+  // Every face is filled a scanline at a time. A canvas path fill antialiases
+  // its diagonals, which puts half-tones into a picture that has none — the
+  // first version of this wall was soft everywhere it was not axis-aligned.
+  const face = (x, y, fw, ch, sk, fill) => {
+    g.fillStyle = fill;
+    for (let k = 0; k < ch; k++) {
+      g.fillRect(x + Math.round(sk * k / ch), y + k, fw, 1);
+    }
+  };
+  const courses = h > 56 ? 3 : 2;
+  let y = y0;
+  for (let ci = 0; ci < courses; ci++) {
+    const ch = ci === courses - 1 ? y0 + h - y : Math.round(h / courses) + Math.floor(rnd() * 9) - 4;
+    let x = x0 - Math.floor(rnd() * 16);
+    while (x < x0 + w) {
+      const fw = 11 + Math.floor(rnd() * 24);
+      const sk = Math.floor(rnd() * 15) - 7;               // no two faces alike,
+      const dy = Math.floor(rnd() * 9) - 4;                // and none the same height,
+      const dh = ch + dy + Math.floor(rnd() * 7) - 3;      // so the course is not a seam
+      const t = Math.floor(rnd() * 4);
+      face(x, y + dy, fw, dh, sk, ROCK[t]);
+      if (t >= 1) {                                        // the lit half of a face
+        const lw = Math.round(fw * (0.32 + rnd() * 0.34));
+        face(x + 2, y + dy + 1, lw, dh - 3, sk, ROCK[Math.min(3, t + 1)]);
+      }
+      g.fillStyle = ROCK_HI;                               // where the tool came through
+      g.fillRect(x + 2, y + dy, fw - 3, 1);
+      face(x, y + dy, 2, dh, sk, SEAM);                    // and the seam beside it
+      g.fillStyle = 'rgba(0,0,0,.5)';
+      g.fillRect(x + sk, y + dy + dh - 2, fw, 2);
+      x += fw;
+    }
+    y += ch;
+  }
+  for (let i = 0; i < w * h / 60; i++) {                   // chisel marks, everywhere
+    const cx = x0 + Math.floor(rnd() * w), cy = y0 + Math.floor(rnd() * h);
+    const n = 2 + Math.floor(rnd() * 3), d = rnd() < 0.5 ? 1 : -1;
+    g.fillStyle = rnd() < 0.5 ? 'rgba(0,0,0,.6)' : 'rgba(206,182,142,.55)';
+    for (let k = 0; k < n; k++) g.fillRect(cx + k, cy + k * d, 1, 1);
+  }
+  g.fillStyle = 'rgba(0,0,0,.6)';                          // where the roof comes down
+  g.fillRect(x0, y0, w, 3);
+  g.restore();
+}
+
+/** Rock dust, in the plate-walls reference's three flat tones and its complete
+ *  absence of a grid. Patches, not noise: the render's ground is drawn in
+ *  large irregular areas of one flat colour each. */
+function rockFloor(g, x0, y0, w, h) {
+  g.save(); g.beginPath(); g.rect(x0, y0, w, h); g.clip();
+  g.fillStyle = DUST; g.fillRect(x0, y0, w, h);
+  // Scanlines again, for the same reason as the wall: the plate-walls
+  // reference's ground is large areas of ONE flat colour with a hard edge, and
+  // an antialiased edge is a colour that reference does not contain.
+  const blob = (cx, cy, rx, ry, fill) => {
+    g.fillStyle = fill;
+    let jit = 0;
+    for (let dy = -ry; dy <= ry; dy++) {
+      const t = dy / ry;
+      let hw = Math.round(rx * Math.sqrt(Math.max(0, 1 - t * t)));
+      jit = Math.max(-3, Math.min(3, jit + Math.round(rnd() * 3) - 1));
+      hw += jit;
+      if (hw > 0) g.fillRect(Math.round(cx - hw), Math.round(cy + dy), hw * 2, 1);
+    }
+  };
+  const patch = (n, fill, rmin, rmax) => {
+    for (let i = 0; i < n; i++) {
+      blob(x0 + rnd() * w, y0 + rnd() * h,
+        Math.round(rmin + rnd() * rmax), Math.round((rmin + rnd() * rmax) * 0.62), fill);
+    }
+  };
+  patch(7, DUST_LO, 18, 34);
+  patch(6, DUST_HI, 12, 24);
+  patch(5, DUST_DK, 6, 12);
+  // The track. Polish is the trace the design says to spend first: the way in
+  // from the walk to the fabricator is the most-walked line in the room, and it
+  // is why the third bay is where the scrap ended up rather than anything
+  // anybody decided.
+  for (let i = 0; i < 52; i++) {
+    const t = i / 51;
+    blob(20 + t * 172, 130 + Math.sin(t * 2.4) * 15,
+      11 + Math.round(rnd() * 6), 6 + Math.round(rnd() * 3), 'rgba(186,172,134,.16)');
+  }
+  for (let i = 0; i < 170; i++) {                          // grit
+    const x = x0 + Math.floor(rnd() * w), y = y0 + Math.floor(rnd() * h);
+    g.fillStyle = rnd() < 0.6 ? 'rgba(36,29,19,.55)' : 'rgba(216,202,162,.45)';
+    g.fillRect(x, y, 1, 1);
+  }
+  for (let i = 0; i < 34; i++) {                           // chips of stone, lit on top
+    const x = x0 + Math.floor(rnd() * w), y = y0 + Math.floor(rnd() * h);
+    const cw = 2 + Math.floor(rnd() * 3);
+    g.fillStyle = '#3e3524'; g.fillRect(x, y, cw, 2);
+    g.fillStyle = '#ad9973'; g.fillRect(x, y, cw, 1);
+  }
+  g.restore();
+}
+
+/** A run of salvaged sheet standing on end: alternating galvanised and rusted
+ *  panels of different heights, which is what the plate-walls reference is. */
+function plateRun(g, x0, y0, x1, y1, vertical) {
+  const len = vertical ? y1 - y0 : x1 - x0;
+  const th = vertical ? x1 - x0 : y1 - y0;
+  const band = (i, n, fill) => (vertical ? g.fillRect(x0, y0 + i, th, n)
+    : g.fillRect(x0 + i, y0, n, th));
+  const edge = (o, fill) => { g.fillStyle = fill;
+    vertical ? g.fillRect(x0 + o, y0, 1, len) : g.fillRect(x0, y0 + o, len, 1); };
+  // Sheets of salvaged plate stood on end and bolted: galvanised and rusted,
+  // no two the same length, every join visible. Seen from above it is a band,
+  // so the corrugation runs across it and the panel joins run through it.
+  let i = 0;
+  while (i < len) {
+    const pl = 16 + Math.floor(rnd() * 22);
+    const n = Math.min(pl, len - i);
+    const rust = rnd() < 0.4;
+    g.fillStyle = rust ? '#5e331a' : '#666666'; band(i, n);
+    for (let k = 2; k < n - 1; k += 3) {                  // the corrugation, edge-on
+      g.fillStyle = rust ? '#4a2712' : '#565656'; band(i + k, 1);
+      g.fillStyle = rust ? '#7c4622' : '#848484'; band(i + k + 1, 1);
+    }
+    g.fillStyle = INK; band(i, 1);                        // and the join to the next
+    if (i) {
+      g.fillStyle = '#c4c4c4';                            // two bolts at every join
+      vertical ? g.fillRect(x0 + 1, y0 + i - 3, 2, 2) : g.fillRect(x0 + i - 3, y0 + 1, 2, 2);
+      vertical ? g.fillRect(x0 + th - 3, y0 + i - 3, 2, 2) : g.fillRect(x0 + i - 3, y0 + th - 3, 2, 2);
+    }
+    i += n;
+  }
+  edge(0, INK); edge(1, '#9a9a9a'); edge(th - 1, INK);    // a cut edge stays bright
+  g.fillStyle = 'rgba(0,0,0,.35)';                        // what it throws on the rock
+  vertical ? g.fillRect(x1, y0, 3, len) : g.fillRect(x0, y1, len, 3);
+}
+
+function build() {
+  const room = document.createElement('canvas');
+  room.width = W; room.height = H;
+  const g = room.getContext('2d');
+  g.imageSmoothingEnabled = false;
+
+  const BB = {}, FLOORPROPS = [], WALLPROPS = [], CLASH = [];
+
+  function inkBox(sheet, c, r, w, h) {
+    const k = sheet + c + ',' + r + ',' + w + ',' + h;
+    if (BB[k] !== undefined) return BB[k];
+    const cv = document.createElement('canvas');
+    cv.width = T * w; cv.height = T * h;
+    const cx = cv.getContext('2d'); cx.imageSmoothingEnabled = false;
+    cx.drawImage(SH[sheet], c * T, r * T, T * w, T * h, 0, 0, T * w, T * h);
+    const d = cx.getImageData(0, 0, T * w, T * h).data;
+    let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    for (let y = 0; y < T * h; y++) {
+      for (let x = 0; x < T * w; x++) {
+        if (d[(y * T * w + x) * 4 + 3] > 8) {
+          if (x < x0) x0 = x; if (x > x1) x1 = x;
+          if (y < y0) y0 = y; if (y > y1) y1 = y;
+        }
+      }
+    }
+    return BB[k] = (x1 < 0 ? null : { x0, y0, w: x1 - x0 + 1, h: y1 - y0 + 1 });
+  }
+
+  function put(name, sheet, c, r, w, h, ix, iy, layer) {
+    const b = inkBox(sheet, c, r, w, h);
+    if (!b) { CLASH.push('EMPTY  ' + name); return null; }
+    const rect = { x: ix, y: iy, w: b.w, h: b.h, name };
+    const list = layer === 'wall' ? WALLPROPS : layer === 'on' ? [] : FLOORPROPS;
+    for (const o of list) {
+      const ox = Math.max(0, Math.min(rect.x + rect.w, o.x + o.w) - Math.max(rect.x, o.x));
+      const oy = Math.max(0, Math.min(rect.y + rect.h, o.y + o.h) - Math.max(rect.y, o.y));
+      if (ox > 2 && oy > 2) CLASH.push('OVERLAP  ' + name + ' x ' + o.name + '  (' + ox + 'x' + oy + ')');
+    }
+    if (!inside(rect)) CLASH.push('OFF-FRAME  ' + name + '  [' + rect.x + ',' + rect.y + ' ' + rect.w + 'x' + rect.h + ']');
+    list.push(rect);
+    g.drawImage(SH[sheet], c * T, r * T, T * w, T * h, ix - b.x0, iy - b.y0, T * w, T * h);
+    return rect;
+  }
+  const cut = (sheet, sx, sy, sw, sh, dx, dy) =>
+    g.drawImage(SH[sheet], sx, sy, sw, sh, dx, dy, sw, sh);
+  // Half this sheet's tiles hold two or three objects, so most props are
+  // addressed as a sub-rectangle read off a connected-component pass rather
+  // than as a tile. `crop` is `put` for those: same clash and frame checks.
+  function crop(name, sheet, sx, sy, sw, sh, dx, dy, layer) {
+    const rect = { x: dx, y: dy, w: sw, h: sh, name };
+    const list = layer === 'wall' ? WALLPROPS : layer === 'on' ? [] : FLOORPROPS;
+    for (const o of list) {
+      const ox = Math.max(0, Math.min(rect.x + rect.w, o.x + o.w) - Math.max(rect.x, o.x));
+      const oy = Math.max(0, Math.min(rect.y + rect.h, o.y + o.h) - Math.max(rect.y, o.y));
+      if (ox > 2 && oy > 2) CLASH.push('OVERLAP  ' + name + ' x ' + o.name + '  (' + ox + 'x' + oy + ')');
+    }
+    if (!inside(rect)) CLASH.push('OFF-FRAME  ' + name + '  [' + dx + ',' + dy + ' ' + sw + 'x' + sh + ']');
+    list.push(rect);
+    cut(sheet, sx, sy, sw, sh, dx, dy);
+    return rect;
+  }
+  // the workshop sheet's own plumbing, addressed by centreline like the cabin's
+  const pipeH = (x, cy, w) => { for (let i = 0; i < w; i += 16) cut('ws', 140, 420, Math.min(16, w - i), 8, x + i, cy - 4); };
+  const pipeV = (cx, y, h) => { for (let i = 0; i < h; i += 16) cut('ws', 132, 416, 7, Math.min(16, h - i), cx - 3, y + i); };
+
+  // ── the chamber ──────────────────────────────────────────────────────────
+  path(g, outline(0)); g.fillStyle = INK; g.fill();
+  path(g, outline(1)); g.fillStyle = ROCK; g.fill();
+  path(g, outline(BAND - 1)); g.fillStyle = INK; g.fill();
+
+  g.save(); path(g, outline(BAND)); g.clip();
+
+  rockFloor(g, 0, 0, W, H);
+  // the north wall in elevation, in two steps because the chamber is
+  rockFace(g, 0, TOP_L, STEP, FACE - TOP_L);
+  rockFace(g, STEP, TOP_R, W - STEP, FACE - TOP_R);
+  g.fillStyle = 'rgba(0,0,0,.42)';                     // what the face throws down
+  g.fillRect(0, FACE, W, 3);
+
+  // ── the bays ─────────────────────────────────────────────────────────────
+  // Bolted plate standing on the rock, exactly as in the plate-walls reference:
+  // panels of different heights, galvanised and rusted, nothing matching.
+  plateRun(g, PART_X0, TOP_R, PART_X1, PART_Y, true);
+  plateRun(g, HP_X0, HP_Y, HP_X1, HP_Y + 6, false);
+
+  // ── bay one: tools, each set marked with an owner's mark ─────────────────
+  pipeH(14, 46, 96); pipeV(22, 46, 30);
+  crop('junction', 'ws', 112, 417, 17, 14, 13, 58, 'wall');
+  put('shelf', 'ws', 14, 3, 1, 3, 13, 74);
+  put('locker', 'ws', 14, 10, 1, 2, 36, 60);
+  crop('jarA', 'ws', 164, 226, 8, 12, 42, 48, 'on');       // left on top of it
+  crop('jarB', 'ws', 180, 226, 8, 12, 54, 49, 'on');
+  crop('nosmoking', 'ws', 433, 393, 13, 20, 68, 52, 'wall');
+  put('pegboard', 'ws', 6, 4, 2, 1, 88, 52, 'wall');       // ANCHOR ncc 0.999
+  put('bench', 'ws', 11, 2, 2, 2, 68, 86);
+  crop('stool', 'ws', 46, 128, 19, 31, 104, 116, 'on');
+
+  // ── bay two: the fabricator, and the queue nobody has a procedure for ────
+  crop('lamp', 'ws', 131, 352, 10, 14, 150, 14, 'wall');
+  put('fabricator', 'rt', 6, 9, 2, 2, 166, 16, 'wall');    // the shutter, reread
+  // The sheet's shutter is factory-new and nothing in this habitat is. Rust
+  // where the rails hold water, grime along the bottom where the dust gets
+  // thrown up, and the slot at its foot that the finished work comes out of.
+  for (let i = 0; i < 22; i++) {                           // rust, at the edges
+    const rx = 167 + (rnd() < 0.5 ? Math.floor(rnd() * 8) : 54 + Math.floor(rnd() * 8));
+    const ry = 18 + Math.floor(rnd() * 54);
+    g.fillStyle = rnd() < 0.5 ? 'rgba(146,78,34,.42)' : 'rgba(104,54,22,.4)';
+    g.fillRect(rx, ry, 1 + Math.floor(rnd() * 2), 1 + Math.floor(rnd() * 3));
+  }
+  for (const [rx, ry] of [[174, 62], [206, 64], [222, 60]]) {   // and where it runs
+    g.fillStyle = 'rgba(140,76,32,.34)';
+    for (let k = 0; k < 8; k++) g.fillRect(rx + ((k * 3) % 2), ry + k, 1, 1);
+  }
+  g.fillStyle = 'rgba(70,58,42,.5)'; g.fillRect(167, 67, 62, 8);
+  g.fillStyle = 'rgba(34,29,22,.55)'; g.fillRect(167, 73, 62, 2);
+  g.fillStyle = '#141210'; g.fillRect(184, 69, 28, 5);      // the slot the work
+  g.fillStyle = '#3a352c'; g.fillRect(185, 70, 26, 2);      // comes out of
+  g.fillStyle = 'rgba(214,196,158,.5)'; g.fillRect(184, 68, 28, 1);
+  crop('rules', 'ws', 465, 261, 14, 21, 146, 44, 'wall');  // where the reference
+                                                           // hangs its notice
+  put('queue', 'ws', 10, 9, 1, 1, 143, 84);                // leaned on the bay wall
+  put('chest', 'ws', 8, 7, 1, 2, 204, 84);
+  crop('grate', 'ws', 227, 417, 59, 31, 146, 120);
+  crop('extinguisher', 'ws', 452, 264, 10, 22, 216, 132);
+
+  // ── bay three: the stock, the offcuts, and Lior's sorted scrap ───────────
+  crop('tools', 'ws', 5, 320, 57, 30, 74, 150, 'wall');    // hung on the bay wall
+  put('scrap', 'ws', 3, 7, 1, 1, 14, 174);
+  put('mat', 'ws', 7, 12, 2, 1, 38, 172);                  // ANCHOR ncc 0.994
+  put('timberA', 'ws', 1, 5, 1, 2, 128, 162);              // ANCHOR ncc 0.999
+  crop('lowbench', 'ws', 354, 407, 60, 40, 152, 164);
+  put('toolbox', 'ws', 9, 6, 1, 1, 160, 170, 'on');
+  put('planks', 'ws', 2, 9, 1, 1, 188, 174, 'on');
+  put('timberB', 'ws', 0, 5, 1, 2, 214, 162);
+
+  // Hull offcuts, sorted by size, which is the one thing in this room anybody
+  // has organised. Drawn: no sheet carries a stack of plate, and a cut edge is
+  // a date — the bright ones came off the ship this month.
+  const stack = (x, y, wd, n) => {
+    g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(x - 2, y + n * 2 + 1, wd + 5, 3);
+    for (let i = 0; i < n; i++) {
+      const yy = y + n * 2 - 2 - i * 2, jx = (i * 5) % 3 - 1, ww = wd - (i % 3);
+      g.fillStyle = '#20201d'; g.fillRect(x + jx - 1, yy, ww + 2, 2);
+      const v = 0.5 + 0.07 * i;
+      g.fillStyle = `rgb(${Math.round(150 * v + 40)},${Math.round(150 * v + 38)},`
+        + `${Math.round(146 * v + 36)})`;
+      g.fillRect(x + jx, yy, ww, 1);
+      g.fillStyle = '#3a3733'; g.fillRect(x + jx, yy + 1, ww, 1);
+    }
+  };
+  stack(92, 172, 26, 7); stack(92, 188, 17, 5); stack(116, 188, 10, 4);
+
+  // Every set marked with an owner's mark, because there is one fabricator and
+  // nine people who want it. Three colours, and none of them is a name.
+  const mark = (x, y, c) => {
+    g.fillStyle = '#141414'; g.fillRect(x - 1, y - 1, 5, 5);
+    g.fillStyle = c; g.fillRect(x, y, 3, 3);
+  };
+  mark(164, 168, '#3f7fd0'); mark(96, 154, '#c8452e');
+  mark(206, 86, '#d8a63a'); mark(40, 62, '#c8452e');
+
+  g.restore();
+
+  // ── the light ────────────────────────────────────────────────────────────
+  // Two work lamps, and nothing anywhere else. Darkness is the ground state, so
+  // the aisle and the scrap bay are lit by spill — which is most of why the
+  // scrap ended up in the third bay rather than anybody deciding it should.
+  // Amber, #ffd18a, because that is the colour of anywhere people live.
+  const gg = room.getContext('2d');
+  const lit = document.createElement('canvas');
+  lit.width = W; lit.height = H;
+  const lg = lit.getContext('2d');
+  // The ground state is COOL and the lamps are warm, so lit and unlit differ in
+  // hue as well as in value. Without that everything in here — rock, dust,
+  // lamp — is the same brown and the room reads as one flat wash.
+  lg.fillStyle = 'rgb(110,114,130)';                       // the ground state
+  lg.fillRect(0, 0, W, H);
+  lg.globalCompositeOperation = 'lighter';
+  for (const [cx, cy, r, a2] of [
+    [112, 92, 112, 1],                                     // over bay one's bench
+    [176, 52, 108, 0.98],                                  // the fabricator's lamp
+    [186, 130, 80, 0.4],                                   // what reaches the floor
+    [140, 184, 74, 0.32],                                  // and the stock, barely
+  ]) {
+    const gr = lg.createRadialGradient(cx, cy, 3, cx, cy, r);
+    gr.addColorStop(0, `rgba(255,209,138,${a2})`);
+    gr.addColorStop(0.42, `rgba(236,190,126,${a2 * 0.62})`);
+    gr.addColorStop(0.75, `rgba(190,150,104,${a2 * 0.2})`);
+    gr.addColorStop(1, 'rgba(0,0,0,0)');
+    lg.fillStyle = gr; lg.fillRect(0, 0, W, H);
+  }
+  if (!location.search.includes('nolight')) {   // ?nolight to judge the rock
+    gg.save(); path(gg, outline(BAND)); gg.clip();
+    gg.globalCompositeOperation = 'multiply';
+    gg.drawImage(lit, 0, 0);
+    gg.restore();
+    // The one thing in the room with its own power: the fabricator is running,
+    // and it is the only pixel in here that is not lamp amber.
+    gg.fillStyle = '#1a1a1a'; gg.fillRect(219, 68, 6, 5);
+    gg.fillStyle = '#7fd8a0'; gg.fillRect(220, 69, 4, 3);
+    gg.fillStyle = 'rgba(127,216,160,.30)'; gg.fillRect(217, 66, 10, 9);
+  }
+
+  const z = document.getElementById('z');
+  z.width = W * S; z.height = H * S;
+  const c = z.getContext('2d'); c.imageSmoothingEnabled = false;
+  c.drawImage(room, 0, 0, W * S, H * S);
+  const o = document.getElementById('one');
+  o.width = W; o.height = H;
+  const oc = o.getContext('2d'); oc.imageSmoothingEnabled = false;
+  oc.drawImage(room, 0, 0);
+
+  const log = document.getElementById('log');
+  log.className = CLASH.length ? 'bad' : '';
+  log.textContent = (CLASH.length ? CLASH.join('\n')
+    : 'CLEAN — ' + FLOORPROPS.length + ' on the floor, ' + WALLPROPS.length + ' on the rock')
+    + '\nroom ' + W + 'x' + H + ' px';
+  window.__ready = 1;
+}
+</script>
