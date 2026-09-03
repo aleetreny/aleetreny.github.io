@@ -56,10 +56,10 @@ What varies is **one object each**, and nothing else:
 | Cabin | Who | The one thing that is only in this cabin |
 | --- | --- | --- |
 | Cabin One | Dima Vashenko, Edda Halvorsen | a sleeping passenger's belongings, untouched |
-| Cabin Two | Ferran Solé, Halim Zoubir | a shim stack, grown over a hundred days as the floor settled |
+| Cabin Two | Ferran Solé, Halim Zoubir | a shim stack in the after corner, grown over a hundred days as the floor settled |
 | Cabin Three | Cato Lindqvist, Gita Raman | a photograph taped where the light is best |
-| Cabin Four | Bex Ferreira, Reva Sandoval | a rope-and-plate shelf slung over the bunk |
-| Cabin Five | Iris Calloway, Osvald Berg | a locker that is not the ship's, and does not fit |
+| Cabin Four | Bex Ferreira, Reva Sandoval | a rope-and-plate shelf standing in the after corner |
+| Cabin Five | Iris Calloway, Osvald Berg | a locker that is not the ship's, shut, wedged into the corner |
 
 The starboard pair are mirrored, so their floors tilt the other way — the same
 grid, flipped, which is what a passenger deck actually does.
@@ -171,10 +171,10 @@ The five differ through exactly three things and nothing else:
 | Cabin | The one object | Made of |
 | --- | --- | --- |
 | One | a sleeping passenger's case, stowed and never opened | `furn(17,13)`, plus a second document on the table |
-| Two | a shim stack, one plate every nine days | drawn — no sheet carries a stack of shims. Seen from here a stack is the top plate's face and the edges of the ones under it, so that is what is drawn, in the pack's own idiom: flat tones, hard steps, a dark line under every leaf. A cut edge is a date, and the top plate is bright because it was cut this week |
+| Two | a shim stack in the after corner, one plate every nine days | drawn — no sheet carries a stack of shims. Seen from here a stack is the top plate's face and the edges of the ones under it, so that is what is drawn, in the pack's own idiom: flat tones, hard steps, a dark line under every leaf. A cut edge is a date, and the top plate is bright because it was cut this week |
 | Three | a photograph taped across a square of missing plate | the patch is drawn on the wall *before* the pipes, so the run crosses it; its cut edge is deliberately **broken and uneven**, because an unbroken bright line all the way round reads as a picture frame, which is the one thing it must not be. The photograph is `furn(13,0)` with its calendar cut away — the only photograph in the pack that is not a pin-up — held by two strips of tape corner to corner |
-| Four | a plate shelf slung over a bunk on two ropes | drawn — two steel eyes bolted to the plate, laid cord down from them, the shelf, and then **the same rope again over the shelf**, which is the thing that makes it read as slung rather than screwed to the wall |
-| Five | a locker that is not the ship's | `furn(12,5)`, standing where the desk stood and a hand's width out into the walkway, with the two scraped lines that got it there |
+| Four | a plate shelf lashed onto two uprights, in the after corner | drawn — the plate, two uprights under its ends, and the same laid cord wrapped over plate and upright together at each end. The two documents are drawn *before* the plate, so its front edge cuts across their feet and they read as resting on it rather than standing behind it |
+| Five | a locker that is not the ship's, shut | `furn(10,3)` — the closed locker, the one with its door shut, its vents and its handle — 20 x 56, wedged as far into the corner as the walls allow, with one shadow under its feet and no other mark anywhere |
 
 All five report clean: no overlapping props and nothing crossing the frame.
 
@@ -197,6 +197,27 @@ read as a framed picture rather than a hole. In all three cases the caption was
 describing something the picture did not show. Where the two disagreed the
 picture was fixed, except in Cabin Four, where the seven mismatched bolts had no
 legible place on a shelf that hangs from rope — there the sentence went.
+
+### The owner's review pass
+
+Shown the five, the owner changed three of them, and every change was the same
+note in a different room: **the object must not cost the room.**
+
+- **Two.** The stack moved out of the middle of the deck into the after corner,
+  and the two papers that were lying there came out. One object in a corner beats
+  two objects and a third thing in the traffic.
+- **Four.** The shelf came off the bunk head entirely — *"no se ve la cama"*. It
+  stands in the after corner now on two uprights. The berths are the room; a
+  shelf that hides one is a worse shelf, however well it hangs.
+- **Five.** The locker is the closed sprite rather than the angled one, wedged
+  harder into the corner, and it now casts **one shadow, under its feet, and
+  nothing else** — the drag marks and the side shadow are gone. Because the
+  narrow locker no longer overruns the alcove, the mould's desk comes back, so
+  the cabin keeps the density of the other four.
+
+The pattern worth keeping for the Workshops: an added object is only allowed to
+occupy floor nobody was using, and to cast light and shadow the way everything
+else in the trace already does.
 
 ## Next: the Workshops
 
