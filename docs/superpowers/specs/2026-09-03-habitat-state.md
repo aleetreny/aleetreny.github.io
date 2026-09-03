@@ -2,7 +2,7 @@
 
 **This is the handoff. If you are picking this project up, start here, then read
 only the specs this file sends you to.** Branch: `night-shift-habitat`.
-Last updated: 3 September 2026, after the Workshops.
+Last updated: 3 September 2026, after the Infirmary.
 
 ---
 
@@ -52,6 +52,9 @@ statement of the rule in the repo.
 3. **`measure/trace.py <native> <sheet>... --thresh 0.93`** — **the trace list.**
    Every sheet object, with the source rectangle to cut and the position to cut it
    to. Each line of its output is one line of the room's source.
+   **`trace.every_position()`** finds every place one sprite appears, not just its
+   best: these references reuse a handful of small props many times over, and a
+   global argmax only ever reports one of each.
 4. **`measure/find_at.py`** and **`trace.whats_at(render, sheets, box)`** — the
    two directions of "and what about *this*": where does this rectangle go, and
    what sprite is at this place. The second is how a prop that is half covered by
@@ -72,8 +75,8 @@ statement of the rule in the repo.
 | --- | --- | --- | --- |
 | **The Cabins** ×5 | **done** | `two-berth-cabin.jpg` ×5.34 → 204 × 205 | `berth.html` (the mould), `cabin-kit.js`, `cabins.html` |
 | **The Workshops** | **done** | `workshop-two-bay.jpg` ×4 → 250 × 228 | `workshops.html` |
-| The Infirmary | next | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` is the OLD composed version, not a trace |
-| The Hold | after that | `shelter-bunk-and-stores.jpg` ×2 → 166 × 250 | — |
+| **The Infirmary** | **done**, with four gaps | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
+| The Hold | next | `shelter-bunk-and-stores.jpg` ×2 → 166 × 250 | — |
 | The six diggings | after that | `makeshift-*.jpg` | — |
 | The Well | after that | `bathroom-wet-and-filthy.jpg` ×4 → 184 × 170 | — |
 | The other sixteen | not started | some have none | — |
@@ -133,7 +136,11 @@ notices repainted unflipped), and one object each. See
    and its east doorway opens onto a partition. Left alone: the grid is
    walkability data and re-cutting it moves every room below it on the map.
    Flagged for the corridor phase.
-7. **The corridors.** Nine of the eleven named connective spaces have routes but
+7. **The Infirmary's four missing objects.** Its centrepiece — a brown
+   examination chair — and three smaller things are in none of the nineteen
+   sheets we own; nothing beats 0.56. Get the pack, accept the gaps, or allow the
+   nearest sprite. See `2026-09-03-habitat-infirmary.md`.
+8. **The corridors.** Nine of the eleven named connective spaces have routes but
    no grids and no floor. This is what makes the habitat walkable, and it is the
    next planning phase after the rooms.
 
@@ -154,4 +161,5 @@ otherwise.
 | `2026-09-02-habitat-new-scale.md` | **the size decision**: a traced room is exactly its reference's size |
 | `2026-09-02-habitat-residential-system.md` | eleven homes, and the five cabins as built |
 | `2026-09-03-habitat-workshops.md` | **the trace rule**, and what it cost to learn it |
+| `2026-09-03-habitat-infirmary.md` | the trace, and the first room the sheets cannot finish |
 | `2026-09-02-habitat-room-handoff.md` | superseded by this file |

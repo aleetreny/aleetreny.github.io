@@ -62,6 +62,11 @@ same question for a rectangle you name, and `trace.whats_at(render, sheets, box)
 answers the reverse — *what sprite is at this place* — which is how a prop that
 is half-covered by the things sitting on it gets pinned down.
 
+`trace.every_position(render, sheet, sx, sy, w, h)` finds **every** place one
+sprite appears, not just its best. These references reuse a handful of small
+props many times over — the Infirmary puts the same crate in four places and the
+same flask in four more — and a global argmax only ever reports one of each.
+
 `sheet_grid.py` draws a whole sheet with a numbered tile grid — `index-sheet.html`
 without a browser, for picking props by coordinate.
 

@@ -73,3 +73,34 @@ def whats_at(render, sheets, box, min_area=60, top=6):
                         int(i[1]) + max(0, x0), int(i[0]) + max(0, y0)))
     out.sort(reverse=True)
     return out[:top]
+
+
+def every_position(render, sheet, sx, sy, w, h, thresh=0.95, sep=6):
+    """Every place this sub-rectangle appears in the render, not just the best.
+    A prop the render reuses — a jar, a crate — needs all of them."""
+    from provenance import luma, ncc_map
+    from PIL import Image
+    import numpy as np
+    img = luma(np.asarray(Image.open(render).convert('RGBA')))
+    a = np.asarray(Image.open(sheet).convert('RGBA'))
+    if h > img.shape[0] or w > img.shape[1]:
+        return []
+    t = luma(a)[sy:sy + h, sx:sx + w]
+    m = (a[sy:sy + h, sx:sx + w, 3] > 200).astype(np.float64)
+    if m.sum() < 30:
+        m = np.ones_like(t)
+    r = ncc_map(img, t, m)
+    if r is None:
+        return []
+    r = np.nan_to_num(r, nan=-1)
+    out = []
+    while True:
+        i = np.unravel_index(np.argmax(r), r.shape)
+        v = float(r[i])
+        if v < thresh:
+            break
+        out.append((int(i[1]), int(i[0]), round(v, 3)))
+        y0, y1 = max(0, i[0] - sep), i[0] + sep
+        x0, x1 = max(0, i[1] - sep), i[1] + sep
+        r[y0:y1, x0:x1] = -1
+    return out

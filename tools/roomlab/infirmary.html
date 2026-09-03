@@ -1,133 +1,205 @@
-<style>body{margin:0;background:#0b0d11;font:12px monospace;color:#cfe}
-canvas{image-rendering:pixelated;display:block}#log{padding:8px;white-space:pre}</style>
-<canvas id="out"></canvas><pre id="log"></pre>
-<script>
-const T=32,S=2,RW=22,RH=7,W=RW*T,H=RH*T,WALL=2;
-const room=document.createElement('canvas');room.width=W;room.height=H;
-const g=room.getContext('2d');g.imageSmoothingEnabled=false;
-const SH={},BB={};
-function hs(x,y,k){let h=(x*374761393+y*668265263+(k||0)*2246822519)|0;h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967296;}
-function ink(sheet,c,r,w,h){
-  const k=sheet+c+','+r+','+w+','+h; if(BB[k]!==undefined)return BB[k];
-  const cv=document.createElement('canvas');cv.width=T*w;cv.height=T*h;
-  const cx=cv.getContext('2d');cx.imageSmoothingEnabled=false;
-  cx.drawImage(SH[sheet],c*T,r*T,T*w,T*h,0,0,T*w,T*h);
-  const d=cx.getImageData(0,0,T*w,T*h).data;
-  let x0=1e9,y0=1e9,x1=-1,y1=-1;
-  for(let y=0;y<T*h;y++)for(let x=0;x<T*w;x++)
-    if(d[(y*T*w+x)*4+3]>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
-  return BB[k]=(x1<0?null:{x0,y0,w:x1-x0+1,h:y1-y0+1});
+<meta charset="utf-8">
+<style>
+ body{margin:0;background:#0b0d11;font:12px/1.6 ui-monospace,monospace;color:#b9c2dd}
+ canvas{image-rendering:pixelated;display:block}
+ .row{display:flex;gap:20px;align-items:flex-start;padding:16px}
+ h1{font-size:13px;font-weight:400;color:#e9edff;margin:0;padding:14px 16px 0;letter-spacing:.5px}
+ .note{padding:2px 16px 0;color:#7b85ab;max-width:1000px}
+ #log{padding:8px 16px;white-space:pre;color:#5f6b8f}
+ #log.bad{color:#e0776a}
+</style>
+<h1>THE INFIRMARY</h1>
+<div class="note">
+  Traced 1:1 off <code>reference/shelter-bunker-room.png</code> (×3 phase (1,2) →
+  154 × 218 native). Same corrugated plate, same deck, same alcove, same objects,
+  same places. Positions marked <b>ANCHOR</b> are that sprite's own best normalised
+  cross-correlation position in the render — <code>measure/trace.py</code> prints them.
+</div>
+<div class="row"><canvas id="z"></canvas><canvas id="one"></canvas></div>
+<pre id="log"></pre>
+<script type="module">
+// ── THE INFIRMARY ─────────────────────────────────────────────────────────
+// The measurements, all read off the native render rather than estimated:
+//   room      x 7..146, y 7..210
+//   bands     6 px: 1 px ink, 4 px of #666666, 1 px ink
+//   wall      shelter_walls rows 10-11, one 32 x 64 grab per column, at y 13.
+//             Columns at x = 13 + 32k; the leftmost is the DARK panel (c 2) and
+//             the other three are the light one (c 3), which is what the render
+//             does and is visible as a darker corner behind the locker.
+//   FACE      the plate meets the deck at y 77
+//   deck      flat #959595 with a #8b8b8b line every 8 px, both measured; no
+//             sheet carries that floor, so it is drawn, as in the cabin
+//   alcove    partitioned off the bottom right: a 6 px band along y 104..109
+//             from x 109, and its own plate face from y 110 to its own deck at 159
+//   door      the south wall is open from x 45 to x 108
+
+const S = 3;
+const T = 32;
+const W = 154, H = 218;
+const LEFT = 7, RIGHT = 146, TOP = 7, BOT = 210;
+const BAND = 6;
+const FACE = 77;
+const ALC_X = 109, ALC_Y0 = 104, ALC_Y1 = 109, ALC_FACE = 159;
+const DOOR_X0 = 45, DOOR_X1 = 108;
+const INK = '#000000', WALLGREY = '#666666';
+const DECK = '#959595', DECK_LINE = '#8b8b8b';
+
+const P = '../../public/assets/props/';
+const NEED = { furn: P + 'shelter_furniture.png', walls: P + 'shelter_walls.png' };
+const SH = {};
+let left = Object.keys(NEED).length;
+for (const k in NEED) {
+  const im = new Image();
+  im.onload = () => { SH[k] = im; if (!--left) build(); };
+  im.src = NEED[k];
 }
-const PLACED=[],CLASH=[];
-function place(name,sheet,c,r,tx,ty,w,h,dy,dx){
-  w=w||1;h=h||1;dy=dy||0;dx=dx||0;
-  const b=ink(sheet,c,r,w,h);
-  if(!b){CLASH.push('EMPTY  '+name);return;}
-  const rect={x:tx*T+b.x0+dx,y:ty*T+b.y0+dy,w:b.w,h:b.h,name};
-  for(const o of PLACED){
-    const ox=Math.max(0,Math.min(rect.x+rect.w,o.x+o.w)-Math.max(rect.x,o.x));
-    const oy=Math.max(0,Math.min(rect.y+rect.h,o.y+o.h)-Math.max(rect.y,o.y));
-    if(ox>2&&oy>2) CLASH.push('OVERLAP  '+name+' x '+o.name+'  ('+ox+'x'+oy+')');
+
+function build() {
+  const room = document.createElement('canvas');
+  room.width = W; room.height = H;
+  const g = room.getContext('2d');
+  g.imageSmoothingEnabled = false;
+
+  const PROPS = [], WALLPROPS = [], CLASH = [];
+  const cut = (sheet, sx, sy, sw, sh, dx, dy) =>
+    g.drawImage(SH[sheet], sx, sy, sw, sh, dx, dy, sw, sh);
+  function inside(r) {
+    const p = BAND - 1;
+    return r.x >= LEFT + p && r.x + r.w - 1 <= RIGHT - p
+      && r.y >= TOP + p && r.y + r.h - 1 <= BOT - p;
   }
-  if(rect.x<2||rect.y<2||rect.x+rect.w>W-2||rect.y+rect.h>H-2) CLASH.push('OFF-FRAME  '+name);
-  PLACED.push(rect);
-  g.drawImage(SH[sheet],c*T,r*T,T*w,T*h,tx*T+dx,ty*T+dy,T*w,T*h);
-}
-
-function build(){
-  g.fillStyle='#15171c';g.fillRect(0,0,W,H);
-  for(let y=WALL;y<RH;y++)for(let x=0;x<RW;x++)
-    g.drawImage(SH.shoproom,(hs(x,y,3)>.88?5:6)*T,8*T,T,T,x*T,y*T,T,T);
-  const wv=[1,2,3,5,1,3,2];
-  for(let x=0;x<RW;x++) g.drawImage(SH.walls,wv[(x*5+3)%wv.length]*T,10*T,T,T*2,x*T,0,T,T*2);
-  g.drawImage(SH.walls,4*T,10*T,T,T*2,13*T,0,T,T*2);     // one rusted panel over the stores
-
-  // ══ THE INFIRMARY ═════════════════════════════════════════════
-  //  22 x 7 m. A continuous run of steel down the back wall, beds in front
-  //  of it, and the slab on its own at the far end.
-
-  // a run of butted units: the sheet's counters are 47 px wide, so they are
-  // laid at a 47 px pitch rather than snapped to the 32 px grid, which is
-  // how the artist drew them to tile.
-  function run(units, x0, ty){
-    let px = x0;                        // where this unit's INK must begin
-    units.forEach((u,i)=>{
-      const w=u[3], h=u[4];
-      const b = ink('kit', u[1], u[2], w, h);
-      const want = px - b.x0;
-      const col = Math.floor(want/T);
-      place(u[0]+i, 'kit', u[1], u[2], col, ty, w, h, 0, want-col*T);
-      px += b.w;                        // advance by real width, so units butt
-    });
+  /** Every prop is a sub-rectangle read off a connected-component pass, because
+   *  half of this sheet's tiles hold two or three objects. */
+  function crop(name, sheet, sx, sy, sw, sh, dx, dy, layer) {
+    const rect = { x: dx, y: dy, w: sw, h: sh, name };
+    const list = layer === 'wall' ? WALLPROPS : layer === 'on' ? [] : PROPS;
+    for (const o of list) {
+      const ox = Math.max(0, Math.min(dx + sw, o.x + o.w) - Math.max(dx, o.x));
+      const oy = Math.max(0, Math.min(dy + sh, o.y + o.h) - Math.max(dy, o.y));
+      if (ox > 3 && oy > 3) CLASH.push('OVERLAP  ' + name + ' x ' + o.name + '  (' + ox + 'x' + oy + ')');
+    }
+    if (!inside(rect)) CLASH.push('OFF-FRAME  ' + name + '  [' + dx + ',' + dy + ' ' + sw + 'x' + sh + ']');
+    list.push(rect);
+    cut(sheet, sx, sy, sw, sh, dx, dy);
+  }
+  /** The deck. Drawn, not stamped: no sheet in the pack carries this floor. */
+  function deck(x0, y0, x1, y1) {
+    g.fillStyle = DECK; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    g.fillStyle = DECK_LINE;
+    for (let x = Math.ceil(x0 / 8) * 8; x < x1; x += 8) g.fillRect(x, y0, 1, y1 - y0);
+    for (let y = Math.ceil(y0 / 8) * 8; y < y1; y += 8) g.fillRect(x0, y, x1 - x0, 1);
+  }
+  /** Corrugated plate, one 32 px column at a time off the walls sheet's row 10.
+   *  The columns were found by brute force rather than by eye: for each 32 px
+   *  column of the render's wall, every column of the sheet was scored against
+   *  every source y, over the parts of that column the props do not cover.
+   *  Panel two came out at 0.00 mean error and panel one's left edge at 0.00.
+   *  The room's top half is the darker panel (c 2) and everything below is the
+   *  plain one (c 8) — which is the darker corner you can see behind the locker. */
+  const PANEL_TOP = [2, 8, 8, 3];
+  const PANEL_BOT = [8, 8, 8, 3];
+  function plate(x0, x1, y0, y1, top, bot) {
+    g.save(); g.beginPath(); g.rect(x0, y0, x1 - x0, y1 - y0); g.clip();
+    for (let i = 0; i < top.length; i++) {
+      const x = 13 + i * T;
+      for (let y = y1 - 64; y > y0 - 64; y -= 64) {
+        cut('walls', top[i] * T, 10 * T, T, T, x, y);
+        cut('walls', bot[i] * T, 11 * T, T, T, x, y + T);
+      }
+    }
+    g.restore();
   }
 
-  // ── THE BACK WALL · a continuous steel run, cols 7 onward ──
-  run([['ctr',0,7,1,2],['ctr',1,7,1,2],['cab',0,9,2,2],['ctr',2,7,1,2],
-       ['ctr',3,7,1,2],['shelf',3,9,2,2]], 7*T, 2);
+  // ── the shell ────────────────────────────────────────────────────────────
+  g.fillStyle = INK; g.fillRect(LEFT, TOP, RIGHT - LEFT + 1, BOT - TOP + 1);
+  g.fillStyle = WALLGREY;
+  g.fillRect(LEFT + 1, TOP + 1, RIGHT - LEFT - 1, BOT - TOP - 1);
+  g.fillStyle = INK;
+  g.fillRect(LEFT + BAND - 1, TOP + BAND - 1,
+    RIGHT - LEFT - 2 * BAND + 3, BOT - TOP - 2 * BAND + 3);
 
-  // ── CLUSTER 1 · TREATMENT, the left end ──────────── cols 1-6
-  place('bedA',    'furn',15,7,   1,2, 2,2, 0, 6);          // the one that still reports
-  place('drip',    'furn',19,12,  3,2, 1,4);
-  place('bedB',    'furn',15,10,  4,2, 2,2);          // the one that does not
-  place('trolley', 'furn',8,3,    1,4, 2,2);          // dressings trolley, pulled out
-  place('oxyA',    'furn',1,6,    4,4, 1,1, 12);
-  place('oxyB',    'furn',1,7,    5,4, 1,1, 12);
-  place('stool',   'furn',4,4,    5,5, 1,2, -8);
-  place('caseA',   'furn',14,13,  1,6, 1,1, -8);
-  place('drumA',   'furn',3,14,   6,5, 1,1, 4);
-  place('console', 'furn',1,13,   6,2, 1,1, 12);      // the readout for bed A
+  g.save();
+  g.beginPath();
+  g.rect(LEFT + BAND, TOP + BAND, RIGHT - LEFT - 2 * BAND + 1, BOT - TOP - 2 * BAND + 1);
+  g.clip();
 
-  // ── CLUSTER 2 · CONSULTING, in front of the run ──── cols 8-11
-  place('chairA',  'furn',3,4,    8,4, 1,2);
-  place('lowTable','furn',7,4,    9,4, 1,2);
-  place('chairB',  'furn',5,4,   10,4, 1,2);
-  place('bench',   'furn',8,13,   8,6, 1,1, -8);      // where you wait your turn
-  place('bench2',  'furn',9,13,   9,6, 1,1, -8);
-  place('papers',  'furn',2,11,  11,6, 1,1, -10);
+  deck(0, 0, W, H);
+  plate(LEFT, RIGHT, 13, FACE, PANEL_TOP, PANEL_BOT);
+  g.restore();
+  // The south wall is open from x 45 to x 108, with a 3 px threshold left in it.
+  g.clearRect(DOOR_X0, BOT - 1, DOOR_X1 - DOOR_X0 + 1, 2);
+  g.fillStyle = WALLGREY; g.fillRect(DOOR_X0, BOT - 5, DOOR_X1 - DOOR_X0 + 1, 3);
+  g.fillStyle = INK;
+  g.fillRect(DOOR_X0, BOT - 2, DOOR_X1 - DOOR_X0 + 1, 1);
+  g.fillRect(DOOR_X0 - 1, BOT - 5, 1, 5); g.fillRect(DOOR_X1 + 1, BOT - 5, 1, 5);
+  g.save();
+  g.beginPath();
+  g.rect(LEFT + BAND, TOP + BAND, RIGHT - LEFT - 2 * BAND + 1, BOT - TOP - 2 * BAND + 1);
+  g.clip();
 
-  // ── CLUSTER 3 · STORES, past the run ──────────────── cols 15-18
-  place('cabinet', 'kit',1,9,    15,2, 2,2);          // the one nobody has audited
-  place('rack',    'kit',9,11,   17,2, 2,2);
-  place('bin',     'kit',13,11,  12,4, 1,3);
-  place('kitB',    'furn',9,8,   13,5, 1,1, 6);
-  place('kitC',    'furn',8,9,   14,5, 1,1, 6);
-  place('crate',   'furn',15,12, 15,5, 1,1, 8);
-  place('box',     'furn',12,12, 16,5, 1,1, 8);
-  place('caseB',   'furn',12,13, 14,6, 1,1, -8);
-  place('drumB',   'furn',5,14,  17,5, 1,1, 10);
+  // the alcove: its own band across, and its own plate face under it
+  g.fillStyle = INK; g.fillRect(ALC_X, ALC_Y0, RIGHT - ALC_X, ALC_Y1 - ALC_Y0 + 1);
+  g.fillStyle = WALLGREY; g.fillRect(ALC_X + 1, ALC_Y0 + 1, RIGHT - ALC_X, 4);
+  plate(ALC_X + 1, RIGHT, ALC_Y1 + 1, ALC_FACE, [8, 8, 8, 8], [8, 8, 8, 8]);
+  g.fillStyle = INK; g.fillRect(ALC_X, ALC_Y1 + 1, 1, ALC_FACE - ALC_Y1);
 
-  // ── CLUSTER 4 · THE SLAB ──────────────────────────── cols 19-20
-  //  bare steel, and the deck around it is left empty on purpose.
-  place('slab',    'kit',10,7,   19,3, 2,2);
-  place('sheet',   'furn',16,9,  19,2, 1,1, 10);      // one folded sheet, waiting
+  // ── the room ─────────────────────────────────────────────────────────────
+  // Every position below is that sprite's own best normalised cross-correlation
+  // position in the render. measure/trace.py finds them; every_position() finds
+  // the ones the render REUSES, which is most of the small ones here.
+  crop('locker', 'furn', 326, 101, 20, 56, 17, 36);          // ANCHOR 1.000
+  crop('calendar', 'furn', 422, 97, 20, 29, 47, 19, 'wall'); // ANCHOR 1.000
+  crop('bed', 'furn', 450, 33, 28, 62, 40, 52);              // ANCHOR 1.000
+  crop('rack', 'furn', 297, 20, 46, 68, 75, 20);             // ANCHOR 0.979
+  crop('crateR', 'furn', 266, 205, 12, 17, 78, 27, 'on');    // ANCHOR 1.000
+  crop('flaskA', 'furn', 268, 170, 8, 20, 97, 24, 'on');     // ANCHOR 1.000
+  crop('flaskB', 'furn', 268, 170, 8, 20, 108, 23, 'on');    // ANCHOR 1.000
+  crop('cylinder', 'furn', 72, 192, 16, 31, 115, 69, 'on');  // ANCHOR 1.000; it
+                                                             // stands over the rack
+  crop('shelfL', 'furn', 392, 1, 16, 87, 12, 119);           // ANCHOR 1.000
+  crop('flaskC', 'furn', 268, 170, 8, 20, 18, 141, 'on');    // ANCHOR 1.000
+  crop('chair', 'furn', 136, 282, 16, 31, 48, 158);          // ANCHOR 1.000
 
-  // ── the wall ───────────────────────────────────────────────
-  place('cross',   'furn',8,8,    2,1, 1,1, -10);
-  place('pipe',    'furn',0,9,    5,1, 1,1, -14);
-  place('records', 'furn',13,15,  9,1, 1,1, -10);
-  place('warning', 'furn',16,14, 14,1, 1,1, -12);
-  place('calendar','furn',13,0,  18,1, 1,1, -12);
+  // the alcove
+  crop('firstaid', 'furn', 297, 233, 16, 13, 118, 128, 'wall'); // ANCHOR 1.000
+  crop('crateA', 'furn', 266, 205, 12, 17, 127, 156);        // ANCHOR 1.000
+  crop('jugA', 'furn', 297, 201, 14, 21, 97, 158);           // ANCHOR 0.881
+  crop('flaskD', 'furn', 268, 170, 8, 20, 117, 162, 'on');   // ANCHOR 1.000
+  crop('jugB', 'furn', 298, 167, 12, 23, 101, 174, 'on');    // ANCHOR 1.000; in
+                                                             // front of the other
+  crop('crateB', 'furn', 266, 205, 12, 17, 116, 184);        // ANCHOR 1.000
+  crop('crateC', 'furn', 266, 205, 12, 17, 130, 188);        // ANCHOR 1.000
 
-  const B=4,fr=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
-  fr(0,0,W,B,'#3c424a');fr(0,H-B,W,B,'#3c424a');fr(0,0,B,H,'#3c424a');fr(W-B,0,B,H,'#3c424a');
-  fr(0,0,W,2,'#22262c');fr(0,H-2,W,2,'#22262c');fr(0,0,2,H,'#22262c');fr(W-2,0,2,H,'#22262c');
-  fr(2,B-2,W-4,2,'#565d66');fr(2,H-B,W-4,2,'#2b3037');
-  fr(B-2,2,2,H-4,'#565d66');fr(W-B,2,2,H-4,'#2b3037');
+  // MISSING OBJECTS. Four things in the render have no sprite in any of the
+  // nineteen sheets in public/assets/props/ — every component of every one of
+  // them was correlated against the render and none beat 0.56. They are named
+  // here and left out rather than substituted:
+  //   · the brown examination chair in the middle of the room, ~34 x 72 at
+  //     (42,118). This is the room's centrepiece and its absence is the hole
+  //     you can see. Best match anywhere: 0.56.
+  //   · the second, larger orange cylinder at (96,76), behind the one that is
+  //     placed. Ours has only the small size.
+  //   · two white jugs and a blue water bottle in the alcove.
+  //   · a steel drum in the alcove, at about (128,150).
+  // The render is Post Apoc Shelter_7 and it is dressed from a pack we do not
+  // have. Getting that pack is the only way to finish this room as a trace.
+
+  g.restore();
+
+  const z = document.getElementById('z');
+  z.width = W * S; z.height = H * S;
+  const c = z.getContext('2d'); c.imageSmoothingEnabled = false;
+  c.drawImage(room, 0, 0, W * S, H * S);
+  const o = document.getElementById('one');
+  o.width = W; o.height = H;
+  const oc = o.getContext('2d'); oc.imageSmoothingEnabled = false;
+  oc.drawImage(room, 0, 0);
+
+  const log = document.getElementById('log');
+  log.className = CLASH.length ? 'bad' : '';
+  log.textContent = (CLASH.length ? CLASH.join('\n')
+    : 'CLEAN — ' + PROPS.length + ' on the deck, ' + WALLPROPS.length + ' on the plate')
+    + '\nroom ' + W + 'x' + H + ' px';
+  window.__ready = 1;
 }
-function load(n,u){return new Promise(r=>{const i=new Image();i.onload=()=>{SH[n]=i;r();};i.src=u;});}
-Promise.all([load('furn','../../public/assets/props/shelter_furniture.png'),load('walls','../../public/assets/props/shelter_walls.png'),
-             load('shoproom','../../public/assets/props/workshop_roomtiles.png'),load('kit','../../public/assets/props/kitchen.png')]).then(()=>{
-  build();
-  const c=document.getElementById('out');c.width=W*S;c.height=H*S;
-  const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(room,0,0,W*S,H*S);
-  [['dA',0,0,256,224],['dB',288,0,256,224],['dC',448,0,256,224]].forEach(q=>{
-    const d=document.createElement('canvas');d.id=q[0];d.width=q[3]*3;d.height=q[4]*3;
-    document.body.appendChild(d);
-    const dx=d.getContext('2d');dx.imageSmoothingEnabled=false;
-    dx.drawImage(room,q[1],q[2],q[3],q[4],0,0,q[3]*3,q[4]*3);
-  });
-  document.getElementById('log').textContent =
-    CLASH.length?CLASH.join('\n'):'CLEAN — '+PLACED.length+' props, no overlaps, none off-frame';
-  window.__ready=1;
-});
 </script>

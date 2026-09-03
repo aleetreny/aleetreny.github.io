@@ -10,7 +10,7 @@ canvases loaded from `file://`.
 | --- | --- |
 | `index-sheet.html?f=<png>&s=<zoom>` | Draws a sheet with a numbered tile grid, so props are picked by coordinate rather than guessed. |
 | `find-objects.html` | Labels connected components in a sheet's alpha channel and prints each real object's tile span. **Run this before picking anything.** |
-| `infirmary.html` | **The Infirmary** — the first canonical room built this way. |
+| `infirmary.html` | **The Infirmary** — a 1:1 trace of `shelter-bunker-room.png`. Seventeen props at their own ncc position, thirteen at 1.000, and four objects named in the source that no sheet we own contains. |
 | `contact-sheet.html` | Every prop a room uses, drawn large and labelled. Run it before placing: the index grid is not enough to tell a waste bin from a hazard sign, and I got that wrong twice. |
 | `cabin.html` | A two-berth cabin. Its `place()` records every sprite's true ink rectangle, refuses nothing, but reports overlaps and anything crossing the frame. |
 | `berth.html` | **The mould, alone and unvaried.** A two-berth cabin traced 1:1 off a reference render, 204 x 205 px. Places sprites by their ink position, not their tile, and runs pipe by centreline. |
