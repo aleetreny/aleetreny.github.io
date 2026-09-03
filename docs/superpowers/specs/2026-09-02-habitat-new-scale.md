@@ -142,10 +142,10 @@ drawing three hundred capsules, and it is consistent with the map-art spec's
 
 ## What we can start now
 
-Approved libraries: **post-apocalyptic / shelter, bathroom, kitchen**. Read as
-including `workshop.png` and `workshop_roomtiles.png`, which are the PostApoc
-Workshop pack and already in the repo — say so if that is wrong, because it
-decides whether the Workshops can be built next. Exteriors and surface are
+Approved libraries: **post-apocalyptic / shelter, bathroom, kitchen**.
+**Confirmed by the owner on 3 September: that includes the PostApoc Workshop
+pack**, `workshop.png` and `workshop_roomtiles.png`, both already in the repo —
+so the Workshops are unblocked. Exteriors and surface are
 deferred, and so are `makeshift`, `Post Apoc Office`, `canned food` and
 `Garden Planters`.
 
