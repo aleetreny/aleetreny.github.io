@@ -576,23 +576,24 @@ export const ROOMS: readonly Room[] = [
     note:
       'Vero lost her own digging to the rock and moved in with the woman who has '
       + 'mothered her since she was nine. She has not said what that costs her.',
-    // The spur runs the full depth and the two chambers meet at the front, by
-    // the door. It used to have the gap in the middle and the spur running down
-    // to the wall the door is in, which put the first step inside on unwalkable
-    // rock and sealed the whole room — the same in Quim's and Pilar's. Drawing
-    // them found it; rooms.test.ts now guards it.
+    // Three people sleep here, so there are three places to sleep. The partition
+    // runs two courses down from the back wall and stops, which leaves the whole
+    // front of the room as one shared space you come into — the arrangement the
+    // makeshift references use, and the fix for a neck that used to sit right on
+    // top of the door. The bite out of the south-west corner is this room's own
+    // shape; no two diggings have the same one.
     grid: [
       '#########',
-      '#b..|...#',
-      '#b..|...#',
-      '#...|..q#',
-      '#.k.|...#',
-      '#.k.....#',
+      '#b.b|b..#',
+      '#b.b|b..#',
+      '#...|...#',
+      '#k.....k#',
+      '##.....q#',
       '####+####',
     ],
     legend: {
       q: { name: 'a chair somebody brought and left', solid: false },
-      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      b: { name: 'one of three places to sleep — a bed, a mattress and a couch', solid: true },
       k: { name: 'crates doing the work of furniture', solid: true },
     },
   },
@@ -610,16 +611,16 @@ export const ROOMS: readonly Room[] = [
       'It has been three weeks from finished for eleven weeks.',
     grid: [
       '#######',
-      '#b.|..#',
-      '#b.|..#',
-      '#..|..#',
-      '#k.|..#',
-      '#k...q#',
+      '#b.|b.#',
+      '#b.|b.#',
+      '#..|.q#',
+      '#k...b#',
+      '##...b#',
       '###+###',
     ],
     legend: {
       q: { name: 'a tool left mid-job, for the ninth time', solid: false },
-      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      b: { name: 'one of three places to sleep, and none of them finished', solid: true },
       k: { name: 'crates doing the work of furniture', solid: true },
     },
   },
@@ -638,16 +639,16 @@ export const ROOMS: readonly Room[] = [
       + 'anyway.',
     grid: [
       '#######',
-      '#b.|..#',
-      '#b.|..#',
-      '#..|..#',
-      '#k.|..#',
-      '#k...q#',
+      '#.b|b.#',
+      '#.b|b.#',
+      '#q.|..#',
+      '#b...k#',
+      '#b...##',
       '###+###',
     ],
     legend: {
       q: { name: 'a pan that has never been back to the kitchen', solid: false },
-      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      b: { name: 'one of three places to sleep, and the nearest to the Common', solid: true },
       k: { name: 'crates doing the work of furniture', solid: true },
     },
   },
@@ -667,17 +668,17 @@ export const ROOMS: readonly Room[] = [
       + 'he did not.',
     grid: [
       '###+###',
-      '#b....#',
-      '#b...k#',
-      '#....k#',
+      '#b..b.#',
+      '#b..b.#',
       '#.....#',
+      '#k...k#',
       '#q....#',
       '#.....#',
       '#######',
     ],
     legend: {
       q: { name: 'a drawing pinned square to a wall that is not', solid: false },
-      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      b: { name: 'one of two places to sleep, both squared to the wall', solid: true },
       k: { name: 'crates doing the work of furniture', solid: true },
     },
   },
@@ -697,17 +698,17 @@ export const ROOMS: readonly Room[] = [
       + 'went up.',
     grid: [
       '###+###',
-      '#b....#',
-      '#b...k#',
-      '#....k#',
+      '#b..b.#',
+      '#b..b.#',
       '#.....#',
+      '#k...k#',
       '#q....#',
-      '#.....#',
+      '#....##',
       '#######',
     ],
     legend: {
       q: { name: 'two cups, and only one of them used', solid: false },
-      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      b: { name: 'one of two places to sleep', solid: true },
       k: { name: 'crates doing the work of furniture', solid: true },
     },
   },
@@ -725,17 +726,17 @@ export const ROOMS: readonly Room[] = [
       + 'gallery at the Face. Nobody has put the two together.',
     grid: [
       '###+###',
-      '#b....#',
-      '#b...k#',
-      '#....k#',
+      '#b..b##',
+      '#b..b.#',
       '#.....#',
+      '#k...k#',
       '#q....#',
-      '#.....#',
+      '##....#',
       '#######',
     ],
     legend: {
       q: { name: 'marks in the rock, three weeks old, unsigned', solid: false },
-      b: { name: 'a bed, on the floor, made of what there was', solid: true },
+      b: { name: 'one of two places to sleep, and they touch', solid: true },
       k: { name: 'crates doing the work of furniture', solid: true },
     },
   },

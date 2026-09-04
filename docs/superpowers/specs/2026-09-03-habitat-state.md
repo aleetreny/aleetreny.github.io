@@ -2,7 +2,8 @@
 
 **This is the handoff. If you are picking this project up, start here, then read
 only the specs this file sends you to.** Branch: `night-shift-habitat`.
-Last updated: 4 September 2026, after the Diggings.
+Last updated: 4 September 2026, after the Diggings — and after the makeshift
+pack arrived and reversed their verdict.
 
 ---
 
@@ -59,11 +60,13 @@ statement of the rule in the repo.
 Read this before you measure anything. Each of these cost real time once.
 
 1. **A score of 1.000 is not proof of the same art.** `ncc_map` is mean-removed
-   and contrast-normalised: it scores *shape*. The Diggings' references match
-   three different roomtiles sheets at 1.000 on a band whose colour exists in
-   none of them. **Tell:** a low-detail object (a band, a pipe, a plain panel)
+   and contrast-normalised: it scores *shape*. The Diggings' references matched
+   three different roomtiles sheets at 1.000 on a band whose colour existed in
+   none of them — they came from a pack we did not have, the same band kit
+   recoloured. **Tell:** a low-detail object (a band, a pipe, a plain panel)
    scoring perfectly against several sheets at once. **Fix:** sample one pixel
-   in both images before believing it.
+   in both images before believing it. *(That pack has since arrived, and the
+   references now match on colour too. The check is what proved it was missing.)*
 2. **`native.py` under-reads heavily compressed JPEGs.** It called the Well's
    reference ×2 when it is ×4. **Tell:** `provenance.py` then reports its best
    matches at `x2.0` — the sprites having to be *doubled* to fit. **Fix:** reduce
@@ -105,10 +108,14 @@ Read this before you measure anything. Each of these cost real time once.
 13. **A room can be connected, closed and correct and still be impossible to walk
     into.** Graph connectivity is not interior reachability. There is a test for
     it now; keep it.
-14. **The promo renders were made with more sheets than the packs ship.** Four
-    room groups are blocked or substituted on it. When a reference will not
-    trace, prove it — every sheet, several scales, colour as well as score — then
-    name what is missing rather than quietly substituting.
+14. **The promo renders were made with more sheets than the packs ship** — and
+    **saying exactly which sheet is missing is what gets it.** The Diggings were
+    built once in a substituted material on a correct finding that their pack was
+    absent; because the finding named the pack, the owner supplied it, and the
+    six were rebuilt as traces. So when a reference will not trace: prove it —
+    every sheet, several scales, colour as well as score — name the pack, and
+    treat the substitution as temporary. The Hold and the Infirmary are still
+    waiting on theirs.
 
 ## The method, in order
 
@@ -165,7 +172,7 @@ Read this before you measure anything. Each of these cost real time once.
 | **The Infirmary** | **done**; traced, then composed on the owner's call | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
 | The Hold | **blocked** — its reference is not traceable from our sheets, see below | `shelter-bunk-and-stores.jpg` | — |
 | **The Well** | **done**; one object substituted, see below | `bathroom-wet-and-filthy.jpg` **×4 → 184 × 170** | `well.html` |
-| **The six diggings** | **done**; material substituted, their references trace *nothing*, see below | `makeshift-*` for geometry, `workshop-plate-walls-on-dirt.png` for material | `diggings.html`, `digging-kit.js` |
+| **The six diggings** | **done, traced** — their pack arrived and the substitution is gone | `makeshift-two-rooms.png`, `-two-rooms-b.jpg`, `-bedsit.jpg` | `diggings.html`, `digging-kit.js` |
 | The other sixteen | not started | some have none | — |
 
 `tools/roomlab/reference/README.md` carries the measured scale of every reference.
@@ -244,18 +251,15 @@ notices repainted unflipped), and one object each. See
    colour error, which is not a match but the nearest grey rectangle. The
    bathroom pack's own dispenser stands there instead, marked at the call site.
    With the Hold and the Infirmary that is three rooms pointing at the same gap.
-9b. **The Diggings' references trace nothing at all** — not their furniture (best
-   score anywhere 0.766, at ×0.5, which is noise) and not even their wall band,
-   whose colour `#c0b8b2` exists in no sheet we own. They are the *fourth* room
-   group to hit it, and the largest: six rooms. Their material is substituted
-   from `workshop-plate-walls-on-dirt.png`, which does trace, and their geometry
-   is still measured from the makeshift renders. See
-   `2026-09-03-habitat-diggings.md`.
-   Four room groups now point at the same gap: **the promo renders were made
-   with more sheets than the packs ship.** Chasing those packs down is the single
-   highest-value unblock in the art — it would finish the Hold, complete the
-   Infirmary, close the Well's one substitution and let the Diggings be traced
-   for real.
+9b. **CLOSED — the Diggings' pack arrived.** They were the fourth and largest
+   group to hit the missing-sheet gap, and were drawn once in a substituted
+   material. `makeshift.png` and `makeshift_roomtiles.png` are now in
+   `public/assets/props/`, their three references match at 1.000, and the six are
+   traced. See `2026-09-03-habitat-diggings.md`.
+   **Three groups still point at the gap:** the Hold (total), the Infirmary (four
+   objects), the Well (one). Naming the missing pack precisely is what closed the
+   Diggings, so name theirs the same way — the promo renders were made with more
+   sheets than the packs ship, and asking for the right one works.
 10. **`dig4`, `dig5` and `dig6` have identical grids**, and `dig2` and `dig3`
     share one. The canon says *the difference between them is the most public
     document in the habitat* — one is "finished to the millimetre", one is "the
