@@ -5,13 +5,23 @@ Six rooms, each a **1:1 trace** of one of 0_mem0ry's own makeshift rooms.
 
 | | Reference | Size | Objects | Pixels differing inside the outline |
 | --- | --- | --- | --- | --- |
-| **Mara's** | `makeshift-two-rooms.png` | 245 × 181 | 39 | **7.8 %** |
-| **Quim's**, **Pilar's** | `makeshift-two-rooms-b.jpg` | 181 × 187 | 24 | **5.5 %** |
-| **Xan's**, **Ulla's**, **Yara's** | `makeshift-bedsit.jpg` | 179 × 217 | 18 | **8.9 %** |
+| **Mara's** | `makeshift-two-rooms.png` | 245 × 181 | 36 | **56 of 35 696 — 0.16 %** |
+| **Quim's**, **Pilar's** | `makeshift-two-rooms-b.jpg` | 181 × 187 | 23 | **2 of 28 908 — 0.007 %** |
+| **Xan's**, **Ulla's**, **Yara's** | `makeshift-bedsit.jpg` | 179 × 217 | 18 | 580 of 23 920 — 2.4 % |
 
-That is the closest any room in the habitat has come — the Workshops sits at
-10.4 % and the Well at 15.8 %. The sizes are the canon ones and they are already
-each reference's own native size, so a trace drops in without moving anything.
+Those numbers are measured off the **browser's** canvas, not off a Python mirror
+of it, so they are the numbers the page actually draws. The two-room pair is a
+trace in the literal sense: two pixels in Quim's, and in Mara's fifty-six, which
+are twelve inside a wardrobe's printed label, four in the middle of a bed, and
+forty single speckles of floor grit. Nothing in either is a wrong sprite, a wrong
+place or a wrong depth.
+
+The bedsit is the one still worth work. It was never asked for — it was traced
+alongside the two the owner sent — and at 580 px it is an order of magnitude
+behind them.
+
+The sizes are the canon ones and they are already each reference's own native
+size, so a trace drops in without moving anything.
 
 ---
 
@@ -41,6 +51,43 @@ A final pass force-places the large flat pieces — rugs, mattresses, wardrobes 
 which are too low-contrast for the residual search to rank highly on its own.
 That found the blue rug in all three rooms, worth 866, 955 and 187 pixels.
 
+That got the rooms to 7.8 % / 5.5 % / 8.9 %, and the owner's answer was that the
+interior walls were not right and some objects were off. **Both halves of that
+were the same fault**, and closing it is what took the pair to 56 and 2 pixels.
+
+### The wall was missing, so furniture was drawing it
+
+The shell knew how to draw a band round the outline and nothing else. Both
+two-room references have a wall *inside* the outline — a partition hanging off
+the north wall in `-two-rooms-b`, the block under the notch in `-two-rooms` — and
+because the shell never drew them, the residual solver did what it is built to
+do and covered those pixels with the best-scoring sprites it could find. Hence
+cardboard boxes and a sofa in a corridor. Draw the walls first and the same
+solver puts the furniture where the artist put it.
+
+Measure them the way the Well's stall posts were measured — count ink columns and
+rows inside the outline, do not eyeball them:
+
+```
+-two-rooms-b   x=71 and x=76 are ink for y 9…105        the partition
+-two-rooms     x=74 and x=137 are ink for y 9…105/110   the notch block
+```
+
+### The other three degrees of freedom
+
+Once the walls were right, four more passes were needed, and they matter more
+than finding another sprite:
+
+| Pass | What it decides | What it was worth |
+| --- | --- | --- |
+| **reorder** | the index in the draw order | the cardboard box that four passes had failed to place scores 5.7 and makes the room **worse** by 331 px painted last, and better by 356 painted first |
+| **prune** | whether the object should be there at all | eleven of forty-seven dropped, and the diff *fell* — the greedy pass commits on the evidence it has at the time |
+| **nudge** | ±1 px | the rug was one row high; 125 px |
+| **fine** | small sprites, error ≤ 26, gain ≥ 10 | the third jar on the shelf, the cans, the red crate |
+
+Run them as a loop — place, reorder, prune, nudge — until it stops moving. The
+loop is what closed the last two orders of magnitude, not more searching.
+
 ## The shell
 
 Solved by brute force over every opaque tile and every phase, scored on the
@@ -52,7 +99,21 @@ lowest 55 % of per-pixel errors so the furniture could not drag the fit:
 | wall | `makeshift_roomtiles` column 4, rows 7–8: one 32 × 64 block of white brick whose bottom four rows are the skirting. Block top y 10, 10 and 29; x phase 10, 10 and 25. |
 | floor | the same sheet's column 5, rows 7–8, grey concrete |
 | shape | a rectangle **minus rectangular cuts**, so the two-room flat keeps the notch in its top wall (x 80–131, y 4–35) and the corner missing from its bottom right (x 144–239, y 144–175). Drawn as one even-odd path filled at four insets, which gives the ink/fill/ink cross-section for free. |
-| door | one 32 px tile of band cut away at x 74–105, its inner ink line running on across the gap as a threshold — **the same tile in all three renders**, which is how we knew they are one template scene dressed three ways |
+| stub | an interior wall: `#c0b8b2` where the wall stands in plan, then **one 64 px brick block hanging below it** as its south face, with ink down both sides and closing the bottom. The face's tile origin is y 42 in both rooms; its x phase is the room's own in `-two-rooms` and 19 in `-two-rooms-b`. Measured, not guessed: the notch block matches the sheet's wall tile at **error 0.0**. |
+| door | one 32 px tile of band cut away at x 74–105, its inner ink line running on across the gap as a threshold **and a 1 px jamb inked down each side** — **the same tile in all three renders**, which is how we knew they are one template scene dressed three ways |
+
+### The even-odd trap in `outline()`
+
+`outline(r, k)` insets the rectangle by k and grows each cut by k. A cut that
+opens onto an edge — the notch in `-two-rooms`, the missing bottom-right corner —
+then sticks out past the inset rectangle, and out there it is crossed by **one**
+subpath instead of two: odd, so even-odd calls it inside, so it gets painted.
+The result is brick in the mouth of the notch and a strip of floor outside the
+room. Every grown cut is now clamped back to the inset rectangle.
+
+It cost 82 pixels in Mara's and it was invisible in the Python mirror of the
+shell, which builds the same shape by eroding a mask. **Diff the browser's
+canvas.** `tools/roomlab/` pages are the thing that ships.
 
 ## What varies between two diggings sharing a reference
 
@@ -61,8 +122,14 @@ own warm, so Quim's and Pilar's are the same room at different brightnesses, and
 so are Xan's, Ulla's and Yara's. That is the deliberate consequence of tracing
 to the letter: three references, six rooms.
 
-## Two things this leaves open
+## What is left open
 
+0. **The bedsit, at 580 px.** The owner sent five references and asked for the
+   first two; this is the sixth room, traced unasked alongside them. The same
+   loop that took the pair to 56 and 2 pixels has been run on it and it stops at
+   580, which means something structural is still wrong with it — most likely the
+   same thing that was wrong with the other two before the walls went in. Measure
+   its ink before adding any more furniture.
 1. **The drawing no longer derives from `rooms.ts`.** It used to, and that is
    what caught three homes nobody could enter. Now each room is an exact copy of
    a render, so the furniture in the picture and the `b`/`k`/`q` glyphs in the

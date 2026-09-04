@@ -94,3 +94,33 @@ next to the zoomed one.
   significant object per 9.3 m². The difference is set dressing, which by the room
   grammar never enters the grid — and drawing only the grid is why the first
   composed room read as a shelf of props.
+
+## Tracing a whole room: `roomtrace.py`
+
+The tools above answer *where does this sprite go*. `roomtrace.py` answers *what
+is this room made of*, which is a different problem — a pile of sprites drawn
+over a shell, most of them partly hidden — and it solves four things at once
+against one measure: **does the picture get closer**.
+
+    python3 roomtrace.py                    # score every trace in diggings.html
+
+| Pass | Decides |
+| --- | --- |
+| `places` + `greedy` | which sprite, where, **and at what depth** |
+| `reorder` | the depth again, once its neighbours exist |
+| `prune` | whether the object belongs at all |
+| `nudge` | one pixel each way |
+
+Run them in a loop until nothing moves. On the two-room diggings that loop was
+worth far more than finding more sprites: 7.8 % → 0.16 %.
+
+Two things it will not do for you:
+
+- **It is a mirror of `digging-kit.js`, not the thing that ships.** Verify the
+  final number off the browser's canvas. The two build the same shape by
+  different means, and the one time they disagreed it was a real bug in the page
+  worth 82 pixels.
+- **It cannot draw a wall it has not been told about.** If a room has an interior
+  wall and the shell does not know, the solver will cover those pixels with
+  furniture and every number will look fine. Measure the ink columns and rows
+  *inside* the outline before you run it.

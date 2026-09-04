@@ -2,7 +2,8 @@
 
 **This is the handoff. If you are picking this project up, start here, then read
 only the specs this file sends you to.** Branch: `night-shift-habitat`.
-Last updated: 4 September 2026, after the Diggings were traced 1:1 and the
+Last updated: 4 September 2026, after the two-room diggings were traced to the
+pixel — 56 and 2 pixels differing — and the
 whole asset library was vendored into the repo.
 
 ---
@@ -108,7 +109,26 @@ Read this before you measure anything. Each of these cost real time once.
 13. **A room can be connected, closed and correct and still be impossible to walk
     into.** Graph connectivity is not interior reachability. There is a test for
     it now; keep it.
-14. **The promo renders were made with more sheets than the packs ship** — and
+14. **Draw the room's *interior* walls before you look for its furniture.** Both
+    two-room references have a wall stub inside the outline, and the first trace
+    had no concept of one: the shell drew only the band round the edge, so the
+    solver spent cardboard boxes and sofas explaining wall pixels and the rooms
+    came back wrong in exactly the two ways the owner named — "the interior walls
+    are not right and some objects are off". They are the same complaint. **Tell:**
+    furniture that scores well, sits in an odd place, and hugs a straight line.
+    **Fix:** count the ink columns and rows *inside* the outline first (`x=71` and
+    `x=76`, `y=9…105` was the whole of the b partition), draw them, and only then
+    solve the residual. With the walls right the same solver went from 7.8 % to
+    0.16 %.
+15. **A cut that touches the outline grows past it, and even-odd then paints it
+    solid.** `outline(r, k)` insets the rectangle by k and *grows* each cut by k;
+    a notch opening onto the top wall then sticks out above the inset rectangle,
+    where it is crossed by one subpath instead of two — odd, so inside, so filled.
+    **Tell:** wall drawn in the mouth of a notch, or a strip of floor outside the
+    room's bottom-right corner. **Fix:** clamp every grown cut back to the inset
+    rectangle. It is invisible until you diff the *browser's* canvas rather than
+    the Python mirror of it; do that before you believe any trace number.
+16. **The promo renders were made with more sheets than the packs ship** — and
     **saying exactly which sheet is missing is what gets it.** The Diggings were
     built once in a substituted material on a correct finding that their pack was
     absent; because the finding named the pack, the owner supplied it, and the
@@ -162,6 +182,18 @@ Read this before you measure anything. Each of these cost real time once.
    fooled; the difference cannot. That took the Diggings from nineteen objects
    and 35 % to forty and 7.8 %. Large flat pieces — rugs, mattresses — still
    need a forced pass; they are too low-contrast to rank.
+7c. **Then solve the other three degrees of freedom the same way — by the
+   difference.** Position is not the whole placement. **Depth:** a cardboard box
+   behind a cool box scores 5.7 and makes the room *worse* if it is painted last,
+   so every candidate is composited at every index in the draw order and keeps the
+   one that removes the most pixels (that single change found the boxes that had
+   defeated four passes). **Existence:** offer to delete every object already
+   placed, and drop the ones the picture is no worse without — the greedy pass
+   commits on the evidence it had at the time, and eleven of forty-seven turned
+   out to be wrong or hidden. **A pixel:** a sprite scored on its best 55 % can
+   sit one pixel out and still win; ±1 on everything found the rug. Run
+   place → reorder → prune → nudge in a loop until it stops moving. 7.8 % → 0.16 %
+   came almost entirely from this, not from finding more sprites.
 8. **Then run every placed prop back through a ±5 px local search.** This is the
    step that pays for itself: on the Well it moved five props, two of them badly
    (a tag at mean error 133 → 58, a puddle 27 → 9), and it *confirmed* the toilet
@@ -182,7 +214,7 @@ Read this before you measure anything. Each of these cost real time once.
 | **The Infirmary** | **done**; traced, then composed on the owner's call | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
 | The Hold | **blocked** — its reference is not traceable from our sheets, see below | `shelter-bunk-and-stores.jpg` | — |
 | **The Well** | **done**; one object substituted, see below | `bathroom-wet-and-filthy.jpg` **×4 → 184 × 170** | `well.html` |
-| **The six diggings** | **done — 1:1 traces**, 7.8 % / 5.5 % / 8.9 %, the closest in the habitat | `makeshift-two-rooms.png`, `-two-rooms-b.jpg`, `-bedsit.jpg` | `diggings.html`, `digging-kit.js` |
+| **The six diggings** | **done — 1:1 traces**, **56 px / 2 px / 580 px** differing (0.16 % / 0.007 % / 2.4 %). The two-room pair is finished to the owner's eye; the bedsit was never asked for and is the one still worth work | `makeshift-two-rooms.png`, `-two-rooms-b.jpg`, `-bedsit.jpg` | `diggings.html`, `digging-kit.js` |
 | The other sixteen | not started | some have none | — |
 
 `tools/roomlab/reference/README.md` carries the measured scale of every reference.
