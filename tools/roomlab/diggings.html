@@ -1,0 +1,178 @@
+<meta charset="utf-8">
+<style>
+ body{margin:0;background:#0b0d11;font:12px/1.6 ui-monospace,monospace;color:#b9c2dd}
+ canvas{image-rendering:pixelated;display:block}
+ h1{font-size:13px;font-weight:400;color:#e9edff;margin:0;padding:14px 16px 0;letter-spacing:.5px}
+ .note{padding:2px 16px 10px;color:#7b85ab;max-width:1080px}
+ .wrap{display:flex;flex-wrap:wrap;gap:22px;padding:8px 16px 24px;align-items:flex-end}
+ figure{margin:0}
+ figcaption{color:#8d97bb;padding-top:6px;font-size:11px}
+ figcaption b{color:#e9edff;font-weight:400}
+ #log{padding:8px 16px 24px;white-space:pre;color:#5f6b8f}
+ #log.bad{color:#e0776a}
+</style>
+<h1>THE DIGGINGS — six holes, one mould</h1>
+<div class="note">
+  Each is drawn at its canon size and from its own grid in <code>rooms.ts</code>,
+  read out of <code>habitat-plan.json</code> so the drawing cannot drift from the
+  walkability data. <b>Their own references cannot be traced</b> — see
+  <code>digging-kit.js</code> and <code>2026-09-03-habitat-diggings.md</code> — so
+  the material is traced off <code>workshop-plate-walls-on-dirt.png</code> instead,
+  which is the rock half's reference and does trace.
+</div>
+<div class="wrap" id="wrap"></div>
+<pre id="log"></pre>
+<script type="module">
+import { T, digFloor, doors, isDug, plate, lamp } from './digging-kit.js';
+
+// The canon size of each digging: its reference's own native pixels, as the
+// size rule requires. dig1 is the largest of the six and its grid is 9 x 7;
+// two and three share a grid and a reference; four, five and six share theirs.
+const SIZE = {
+  dig1: [245, 181],       // makeshift-two-rooms.png     x3 -> 245 x 181
+  dig2: [181, 187],       // makeshift-two-rooms-b.jpg   x4 -> 181 x 187
+  dig3: [181, 187],
+  dig4: [179, 217],       // makeshift-bedsit.jpg        x4 -> 179 x 217
+  dig5: [179, 217],
+  dig6: [179, 217],
+};
+
+// The one object each digging has, from its own legend in rooms.ts, and the
+// warm its lamp is. The map's art direction gives every private door its own
+// warm; this is that, applied inside the room.
+// A little of what a digging accumulates, from the same two sheets. Each entry
+// is [sheet, sx, sy, w, h, column, row] in the room's own grid, so the check
+// below can refuse anything that lands in the rock or on something else.
+const CLUTTER = {
+  dig1: [['furn', 297, 360, 13, 23, 2, 1], ['furn', 72, 192, 16, 31, 1, 5], ['ws', 163, 161, 11, 15, 6, 5]],
+  dig2: [['furn', 361, 359, 14, 24, 2, 1], ['ws', 16, 226, 16, 29, 4, 1], ['furn', 40, 224, 16, 31, 1, 3]],
+  dig3: [['furn', 297, 360, 13, 23, 2, 1], ['furn', 327, 391, 18, 24, 4, 2], ['furn', 72, 192, 16, 31, 5, 1]],
+  dig4: [['furn', 361, 359, 14, 24, 2, 2], ['furn', 40, 224, 16, 31, 1, 6], ['ws', 163, 161, 11, 15, 5, 6]],
+  dig5: [['furn', 297, 360, 13, 23, 2, 2], ['furn', 295, 384, 18, 31, 1, 3], ['furn', 72, 192, 16, 31, 5, 6]],
+  // Yara's is the smallest and she dug it alone. It gets the least.
+  dig6: [['furn', 361, 359, 14, 24, 2, 2], ['furn', 40, 224, 16, 31, 1, 6]],
+};
+
+const VARY = {
+  dig1: { warm: 'rgba(255,196,120,.09)', lit: 1.00, bed: 50,  q: ['furn', 168, 279, 16, 36] },
+  dig2: { warm: 'rgba(255,178,104,.11)', lit: 0.62, bed: 146, q: ['ws',   355, 208, 26, 16] },
+  dig3: { warm: 'rgba(255,206,140,.10)', lit: 0.86, bed: 242, q: ['kit',    2, 160, 13, 16] },
+  dig4: { warm: 'rgba(248,190,128,.09)', lit: 0.74, bed: 338, q: ['furn', 422,   1, 20, 29] },
+  dig5: { warm: 'rgba(255,184,112,.10)', lit: 0.55, bed: 50,  q: ['kit',  147,   4, 11, 11],
+          q2: ['kit', 195, 4, 11, 11] },
+  // Yara's is the only one whose object is not in any sheet: "marks in the
+  // rock, three weeks old, unsigned". Named, not substituted.
+  dig6: { warm: 'rgba(255,170,96,.12)',  lit: 0.42, bed: 146, q: null },
+};
+
+// "a bed, on the floor, made of what there was" — so a bare mattress, not one
+// of the sheet's framed bunks. shelter_furniture carries four, differently
+// stained, and each digging gets its own.
+const MATTRESS = { w: 24, h: 43 };
+const CRATE_A = [356, 387, 26, 28];           // an open crate
+const CRATE_B = [387, 387, 26, 28];           // and one with something still in it
+
+const P = '../../public/assets/props/';
+const NEED = { terr: 'shelter_terrain.png', furn: 'shelter_furniture.png',
+               ws: 'workshop.png', kit: 'kitchen.png' };
+const SH = {};
+const LOG = [];
+
+const plan = await fetch('./habitat-plan.json').then((r) => r.json());
+await Promise.all(Object.entries(NEED).map(([k, f]) => new Promise((ok, no) => {
+  const im = new Image(); im.onload = () => { SH[k] = im; ok(); }; im.onerror = no; im.src = P + f;
+})));
+
+const wrap = document.getElementById('wrap');
+for (const id of Object.keys(SIZE)) {
+  const room = plan.placements.find((p) => p.id === id);
+  if (!room) { LOG.push('MISSING  ' + id + ' is not in habitat-plan.json'); continue; }
+  const [W, H] = SIZE[id];
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  draw(cv.getContext('2d'), room, W, H, VARY[id]);
+
+  const fig = document.createElement('figure');
+  const big = document.createElement('canvas');
+  big.width = W * 2; big.height = H * 2;
+  const bc = big.getContext('2d'); bc.imageSmoothingEnabled = false;
+  bc.drawImage(cv, 0, 0, W * 2, H * 2);
+  fig.appendChild(big);
+  const cap = document.createElement('figcaption');
+  cap.innerHTML = '<b>' + room.name + '</b> · ' + W + '×' + H + ' · '
+    + room.grid[0].length + '×' + room.grid.length + ' tiles<br>'
+    + room.sleeps.map((s) => s.name).join(', ');
+  fig.appendChild(cap);
+  wrap.appendChild(fig);
+}
+
+function draw(g, room, W, H, vary) {
+  g.imageSmoothingEnabled = false;
+  const grid = room.grid, cols = grid[0].length, rows = grid.length;
+  // the interior — the grid minus its rock ring — sits centred in the canvas,
+  // so the margin left over is the rock the digging is cut into
+  const ox = Math.floor((W - (cols - 2) * T) / 2) - T;
+  const oy = Math.floor((H - (rows - 2) * T) / 2) - T;
+
+  digFloor(g, SH, grid, ox, oy);
+
+  // the mouth: the salvaged plate the digger fitted, standing beside the gap
+  for (const d of doors(grid)) {
+    // the plate stands just inside the mouth, whichever wall the mouth is in,
+    // with its base on the line the room's own grid puts the wall on
+    const y = d.side === 's' ? oy + (rows - 1) * T - 45 : oy + T;
+    plate(g, SH, ox + d.c * T - 28, y, false);
+    plate(g, SH, ox + (d.c + 1) * T, y, true);
+  }
+
+  // what is in it, from the room's own grid
+  const put = (sheet, sx, sy, sw, sh, cx, cy, ch) => {
+    const x = ox + cx * T + Math.round((T - sw) / 2);
+    const y = oy + cy * T + Math.round((ch * T - sh) / 2);
+    g.drawImage(SH[sheet], sx, sy, sw, sh, x, y, sw, sh);
+  };
+  const seen = new Set();
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const ch = grid[r][c];
+      if (ch !== 'b' && ch !== 'k' && ch !== 'q') continue;
+      const key = ch + ',' + c + ',' + r;
+      if (seen.has(key)) continue;
+      const tall = grid[r + 1] && grid[r + 1][c] === ch;
+      if (tall) seen.add(ch + ',' + c + ',' + (r + 1));
+      if (ch === 'b') {
+        put('furn', vary.bed === 338 ? 421 : 420, vary.bed, MATTRESS.w, MATTRESS.h, c, r, tall ? 2 : 1);
+      } else if (ch === 'k') {
+        put('furn', CRATE_A[0], CRATE_A[1], CRATE_A[2], CRATE_A[3], c, r, 1);
+        if (tall) put('furn', CRATE_B[0], CRATE_B[1], CRATE_B[2], CRATE_B[3], c, r + 1, 1);
+      } else if (ch === 'q' && vary.q) {
+        put(vary.q[0], vary.q[1], vary.q[2], vary.q[3], vary.q[4], c, r, 1);
+        if (vary.q2) {
+          const x = ox + c * T + 18, y = oy + r * T + 14;
+          g.drawImage(SH[vary.q2[0]], vary.q2[1], vary.q2[2], vary.q2[3], vary.q2[4],
+            x, y, vary.q2[3], vary.q2[4]);
+        }
+      } else if (ch === 'q') {
+        LOG.push('NAMED, NOT DRAWN  ' + room.id + '  ' + (room.legend?.q?.name || 'q'));
+      }
+      // anything drawn must land on dug floor, not in the rock
+      if (!isDug(grid, c, r)) LOG.push('IN THE ROCK  ' + room.id + ' ' + ch + ' at ' + c + ',' + r);
+    }
+  }
+
+  for (const [sheet, sx, sy, sw, sh, c, r] of (CLUTTER[room.id] || [])) {
+    if (!isDug(grid, c, r) || 'bkq'.includes(grid[r][c])) {
+      LOG.push('CLUTTER IN THE WAY  ' + room.id + ' at ' + c + ',' + r + ' (' + grid[r][c] + ')');
+      continue;
+    }
+    put(sheet, sx, sy, sw, sh, c, r, 1);
+  }
+
+  lamp(g, W, H, [W / 2, oy + (rows / 2) * T], vary.lit, vary.warm);
+}
+
+const log = document.getElementById('log');
+log.className = LOG.length ? 'bad' : '';
+log.textContent = LOG.length ? LOG.join('\n') : 'CLEAN — six diggings drawn from their own grids';
+window.__ready = 1;
+</script>

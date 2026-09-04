@@ -2,7 +2,7 @@
 
 **This is the handoff. If you are picking this project up, start here, then read
 only the specs this file sends you to.** Branch: `night-shift-habitat`.
-Last updated: 3 September 2026, after the Well.
+Last updated: 4 September 2026, after the Diggings.
 
 ---
 
@@ -41,6 +41,13 @@ The corollaries, all of which have already been paid for once:
   not ship the first acceptable result.
 - **Never guess a sprite's tile span.** Half of these sheets put two or three
   objects in one 32 px tile. Use the connected-component tools.
+- **A high score is not proof. Check a colour.** `ncc_map` is mean-removed and
+  contrast-normalised, so it scores *shape*, not art. The Diggings' references
+  report their wall bands at **1.000** against three different sheets, and the
+  pack they actually come from is one we do not have — same 1 px ink / 4 px fill
+  / 1 px ink cross-section, recoloured. Before believing a match on anything
+  low-detail (a band, a pipe, a plain panel), sample one pixel of it in both
+  images.
 
 The Workshops was built once as a "version" of its reference, with rock instead of
 the block wall and dust instead of the tiled floor, and was rejected. The spec for
@@ -87,6 +94,11 @@ statement of the rule in the repo.
    (a tag at mean error 133 → 58, a puddle 27 → 9), and it *confirmed* the toilet
    my eye was certain was 18 px out. Trust the measure over the eye — but only
    after the measure has been allowed to look everywhere.
+9. **Draw the room from its grid, not beside it.** `diggings.html` reads the six
+   grids out of `habitat-plan.json`, which `measure/plan-data.mjs` generates from
+   `rooms.ts`. A room drawn from its own walkability data cannot drift from it —
+   and it makes that data's mistakes visible, which is how three sealed homes
+   were found.
 
 ## Where each room is
 
@@ -97,7 +109,7 @@ statement of the rule in the repo.
 | **The Infirmary** | **done**; traced, then composed on the owner's call | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
 | The Hold | **blocked** — its reference is not traceable from our sheets, see below | `shelter-bunk-and-stores.jpg` | — |
 | **The Well** | **done**; one object substituted, see below | `bathroom-wet-and-filthy.jpg` **×4 → 184 × 170** | `well.html` |
-| The six diggings | next | `makeshift-*.jpg` | — |
+| **The six diggings** | **done**; material substituted, their references trace *nothing*, see below | `makeshift-*` for geometry, `workshop-plate-walls-on-dirt.png` for material | `diggings.html`, `digging-kit.js` |
 | The other sixteen | not started | some have none | — |
 
 `tools/roomlab/reference/README.md` carries the measured scale of every reference.
@@ -175,12 +187,46 @@ notices repainted unflipped), and one object each. See
    dispenser is in no sheet we have — the best fit anywhere scores 54 mean
    colour error, which is not a match but the nearest grey rectangle. The
    bathroom pack's own dispenser stands there instead, marked at the call site.
-   With the Hold and the Infirmary that is **three rooms pointing at the same
-   gap: the promo renders were made with more sheets than the packs ship.**
-   Chasing that pack down is now the single highest-value unblock in the art.
-10. **The corridors.** Nine of the eleven named connective spaces have routes but
+   With the Hold and the Infirmary that is three rooms pointing at the same gap.
+9b. **The Diggings' references trace nothing at all** — not their furniture (best
+   score anywhere 0.766, at ×0.5, which is noise) and not even their wall band,
+   whose colour `#c0b8b2` exists in no sheet we own. They are the *fourth* room
+   group to hit it, and the largest: six rooms. Their material is substituted
+   from `workshop-plate-walls-on-dirt.png`, which does trace, and their geometry
+   is still measured from the makeshift renders. See
+   `2026-09-03-habitat-diggings.md`.
+   Four room groups now point at the same gap: **the promo renders were made
+   with more sheets than the packs ship.** Chasing those packs down is the single
+   highest-value unblock in the art — it would finish the Hold, complete the
+   Infirmary, close the Well's one substitution and let the Diggings be traced
+   for real.
+10. **`dig4`, `dig5` and `dig6` have identical grids**, and `dig2` and `dig3`
+    share one. The canon says *the difference between them is the most public
+    document in the habitat* — one is "finished to the millimetre", one is "the
+    smallest" — and identical grids cannot say that. Re-cutting them moves rooms
+    on the map, so it belongs with item 6 and the corridor phase.
+11. **The corridors.** Nine of the eleven named connective spaces have routes but
    no grids and no floor. This is what makes the habitat walkable, and it is the
    next planning phase after the rooms.
+
+## What drawing the rooms has caught in the data
+
+Rooms are drawn from `rooms.ts` via `habitat-plan.json`, so a room that is wrong
+in the data is wrong on the screen. Three finds so far, all now guarded by
+**`rooms.test.ts` → "can be walked into: every open tile is reachable from a
+door"**, which runs against all twenty-seven rooms:
+
+- **Mara's, Quim's and Pilar's could not be entered.** Each had its front door in
+  the wall directly below the spur of rock between its two chambers, so the whole
+  interior — 31, 21 and 21 tiles — was sealed. Every existing test passed: the
+  room graph was connected, the boundary was closed, the doors met the Row's.
+  Nothing looked inside.
+- **The Bridge sealed one tile** between its two dead consoles and the pilot's
+  chair; **the Cold Berths sealed two** behind the bunks. One glyph moved each.
+- The test deliberately allows two things: **vacuum is crossable** (the Breach is
+  islands of floor in a tear, and reaching them is what a suit is for) and **a
+  sealed `X` mouth still seeds the search** (it means "needs a key", not "no way
+  in"). Floor sealed behind *furniture* is always a mistake.
 
 ## The specs, and what each one closed
 
@@ -201,4 +247,5 @@ otherwise.
 | `2026-09-03-habitat-workshops.md` | **the trace rule**, and what it cost to learn it |
 | `2026-09-03-habitat-infirmary.md` | the trace, and the first room the sheets cannot finish |
 | `2026-09-03-habitat-the-well.md` | the shell solved by brute force, the stall that is a sprite, and the three ways to place a prop |
+| `2026-09-03-habitat-diggings.md` | the reference that scores 1.000 and is the wrong pack, and the three homes nobody could enter |
 | `2026-09-02-habitat-room-handoff.md` | superseded by this file |

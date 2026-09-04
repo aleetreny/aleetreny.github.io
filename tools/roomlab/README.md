@@ -18,6 +18,8 @@ canvases loaded from `file://`.
 | `cabins.html` | **The five cabins of the Long Walk.** One mould, five times, side by side at 1:1 and at 3x, each with its household and its one object. |
 | `workshops.html` | **The Workshops** — a 1:1 trace of `workshop-two-bay.jpg`. Same block wall, same tiled floor, same objects, same places; thirty-seven of them placed at their own ncc position. Not a version of the reference. |
 | `well.html` | **The Well** — a 1:1 trace of `bathroom-wet-and-filthy.jpg`. The wall and floor tiles were solved by brute force over every opaque tile and every phase rather than by eye; the stall is 0_mem0ry's own partition sprite used three ways, not a wall. Twenty props, each comment naming which of the three placement methods put it there. |
+| `digging-kit.js` | **The digging mould.** A hole cut in rock, from `shelter_terrain`'s two dirt families: the lighter one is the floor somebody dug out, the darker one is the rock they did not. Its nine-slice's edge runs through the middle of its rim tiles, so the slice is laid on a half-tile offset and the hole's edge lands where the room's grid puts the wall. |
+| `diggings.html` | **The six diggings.** One mould, six rooms, each at its canon size and drawn from its own grid in `rooms.ts` — read out of `habitat-plan.json`, so the drawing cannot drift from the walkability data. It was drawing them this way that found three homes nobody could enter. |
 | `measure/` | Reading a reference before drawing it: what scale it was exported at, which sheet it is built from, and a pixel ruler for when that fails. Python, not a browser page — see `measure/README.md`. |
 | `reference/` | The renders being traced from, each with its measured scale. See `reference/README.md`. |
 | `plan.html` | **The habitat at map magnification** — every room at its real size, the passages routed doorway to doorway, the named connective spaces labelled, and the eleven homes picked out in amber with the initials of whoever sleeps in them. Drawn from `habitat-plan.json`, which `measure/plan-data.mjs` generates out of `rooms.ts`, `section.ts` and the engine's `SLEEPS`, so the plan cannot drift from the habitat. |
@@ -32,6 +34,13 @@ column 17 is 1×3, the lockers are 1×2, the drums are 1×1.
 31 px inside a 32 px tile, so a run of them laid on the grid shows a seam every
 unit. `run()` in `infirmary.html` advances by each unit's measured ink width
 instead, and they butt into one continuous length of steel.
+
+**A score of 1.000 is not proof — check a colour.** `ncc_map` is mean-removed and
+contrast-normalised, so it scores shape, not art. The Diggings' references report
+their wall bands at 1.000 against three different sheets, and the pack they come
+from is one we do not have: same 1 px ink / 4 px fill / 1 px ink cross-section,
+recoloured. Before trusting a match on anything low-detail — a band, a pipe, a
+plain panel — sample one pixel of it in both images.
 
 **Split a merged component by its period, not by the tile grid.** The bathroom
 sheet's urinals touch, so the alpha has no gutter to cut on and `objects.py`

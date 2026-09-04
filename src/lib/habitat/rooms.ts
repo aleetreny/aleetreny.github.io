@@ -52,7 +52,7 @@ export const ROOMS: readonly Room[] = [
     grid: [
       '########',
       '#wwwwww#',
-      '#..t.u.#',
+      '#..t..u#',
       '#...p..#',
       '#s.....#',
       '#..b...#',
@@ -400,7 +400,7 @@ export const ROOMS: readonly Room[] = [
       '+.......+',
       '#bbb.bbq#',
       '#nnn.bbb#',
-      '#..t....#',
+      '#t......#',
       '####+####',
     ],
     legend: {
@@ -576,13 +576,18 @@ export const ROOMS: readonly Room[] = [
     note:
       'Vero lost her own digging to the rock and moved in with the woman who has '
       + 'mothered her since she was nine. She has not said what that costs her.',
+    // The spur runs the full depth and the two chambers meet at the front, by
+    // the door. It used to have the gap in the middle and the spur running down
+    // to the wall the door is in, which put the first step inside on unwalkable
+    // rock and sealed the whole room — the same in Quim's and Pilar's. Drawing
+    // them found it; rooms.test.ts now guards it.
     grid: [
       '#########',
       '#b..|...#',
       '#b..|...#',
-      '#...+..q#',
-      '#..k|...#',
-      '#..k|...#',
+      '#...|..q#',
+      '#.k.|...#',
+      '#.k.....#',
       '####+####',
     ],
     legend: {
@@ -607,9 +612,9 @@ export const ROOMS: readonly Room[] = [
       '#######',
       '#b.|..#',
       '#b.|..#',
-      '#..+..#',
-      '#.k|..#',
-      '#.k|.q#',
+      '#..|..#',
+      '#k.|..#',
+      '#k...q#',
       '###+###',
     ],
     legend: {
@@ -635,9 +640,9 @@ export const ROOMS: readonly Room[] = [
       '#######',
       '#b.|..#',
       '#b.|..#',
-      '#..+..#',
-      '#.k|..#',
-      '#.k|.q#',
+      '#..|..#',
+      '#k.|..#',
+      '#k...q#',
       '###+###',
     ],
     legend: {
@@ -666,7 +671,7 @@ export const ROOMS: readonly Room[] = [
       '#b...k#',
       '#....k#',
       '#.....#',
-      '#..q..#',
+      '#q....#',
       '#.....#',
       '#######',
     ],
@@ -696,7 +701,7 @@ export const ROOMS: readonly Room[] = [
       '#b...k#',
       '#....k#',
       '#.....#',
-      '#..q..#',
+      '#q....#',
       '#.....#',
       '#######',
     ],
@@ -724,7 +729,7 @@ export const ROOMS: readonly Room[] = [
       '#b...k#',
       '#....k#',
       '#.....#',
-      '#..q..#',
+      '#q....#',
       '#.....#',
       '#######',
     ],

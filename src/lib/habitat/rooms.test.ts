@@ -92,6 +92,50 @@ describe.each(ROOMS.map((r) => [r.id, r] as const))('%s', (_id, room) => {
   it('never connects to itself', () => {
     expect(room.connects).not.toContain(room.id);
   });
+
+  it('can be walked into: every open tile is reachable from a door', () => {
+    // Drawing the Diggings found three homes nobody could enter. Mara's, Quim's
+    // and Pilar's each had their front door in the wall directly below the spur
+    // of rock between their two chambers, so the first step inside was into
+    // something unwalkable and the whole interior was sealed. The room graph
+    // said they were connected and the boundary was closed, so every test
+    // passed. This is the one that would have caught it.
+    const { w, h } = gridSize(room.grid);
+    // Vacuum is crossable here on purpose. The Breach is a tear with islands of
+    // floor in it, and reaching them is what a suit is for — the grid cannot say
+    // "walkable if suited", so it says not walkable and the room means otherwise.
+    // Everything else that blocks is furniture, and floor sealed off behind
+    // furniture is always a mistake.
+    const walkable = (x: number, y: number) => {
+      if (x < 0 || y < 0 || x >= w || y >= h) return false;
+      const ch = room.grid[y]![x]!;
+      if (ch === '*') return true;
+      if (isTerrain(ch)) return TERRAIN[ch].walkable;
+      return !room.legend[ch]?.solid;
+    };
+    const seen = new Set<string>();
+    const work: [number, number][] = [];
+    // A sealed mouth is still a way in — it needs a key, a suit or a tool — so
+    // seed from every door, walkable or not.
+    room.grid.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (DOORS.has(ch)) { seen.add(`${x},${y}`); work.push([x, y]); }
+    }));
+    while (work.length) {
+      const [x, y] = work.pop()!;
+      for (const [nx, ny] of [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]] as const) {
+        if (!walkable(nx, ny) || seen.has(`${nx},${ny}`)) continue;
+        seen.add(`${nx},${ny}`);
+        work.push([nx, ny]);
+      }
+    }
+    const stranded: string[] = [];
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        if (walkable(x, y) && !seen.has(`${x},${y}`)) stranded.push(`${x},${y}`);
+      }
+    }
+    expect(stranded, `${room.id} strands ${stranded.length} tiles`).toEqual([]);
+  });
 });
 
 describe('the habitat is one place', () => {
