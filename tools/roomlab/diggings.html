@@ -9,250 +9,165 @@
  figcaption{color:#8d97bb;padding-top:6px;font-size:11px}
  figcaption b{color:#e9edff;font-weight:400}
  #log{padding:8px 16px 24px;white-space:pre;color:#5f6b8f}
- #log.bad{color:#e0776a}
 </style>
-<h1>THE DIGGINGS — six rooms, one mould</h1>
+<h1>THE DIGGINGS — six rooms, three traces</h1>
 <div class="note">
-  Traced off <code>reference/makeshift-*</code> now that the pack is here:
-  <code>makeshift.png</code> and <code>makeshift_roomtiles.png</code>. The same
-  three renders that matched nothing before now match at <b>1.000</b> — the band,
-  the brick, the concrete and dozens of objects. Each room is drawn at its canon
-  size and from its own grid in <code>rooms.ts</code>, read out of
-  <code>habitat-plan.json</code>, so the drawing cannot drift from the walkability
-  data. <b>Every resident has a place to sleep, and you can count them.</b>
+  1:1 traces of three of 0_mem0ry's own makeshift rooms, from
+  <code>makeshift.png</code> and <code>makeshift_roomtiles.png</code>. Every
+  object is the sprite the artist used at the position it is in the render:
+  <b>7.8 %</b>, <b>5.5 %</b> and <b>8.9 %</b> of pixels differ inside the
+  outline, which is the closest any room in the habitat has come. Each digging
+  is its reference's own size, so the trace drops in without moving anything.
+  The only thing that varies between two diggings sharing a reference is the
+  lamp — the map gives every private door its own warm.
 </div>
 <div class="wrap" id="wrap"></div>
 <pre id="log"></pre>
 <script type="module">
-import { T, BAND, frame, shell, doors, isOpen, lamp } from './digging-kit.js';
+import { REF, shell, mouth, lamp } from './digging-kit.js';
 
-// The canon size of each digging: its reference's own native pixels.
-const SIZE = {
-  dig1: [245, 181],       // makeshift-two-rooms.png     x3 -> 245 x 181
-  dig2: [181, 187],       // makeshift-two-rooms-b.jpg   x4 -> 181 x 187
-  dig3: [181, 187],
-  dig4: [179, 217],       // makeshift-bedsit.jpg        x4 -> 179 x 217
-  dig5: [179, 217],
-  dig6: [179, 217],
+// Traced object lists: [sheetX, sheetY, w, h, destX, destY] in makeshift.png.
+// Produced by the residual solver described in digging-kit.js, then deduped.
+const TRACE = {
+  twoRooms: [
+    [ 36,196, 24, 25, 16, 19],
+    [321,262, 30, 26,153, 19],
+    [  6,161, 20, 31,194, 20],
+    [  4,196, 24, 25, 45, 28],
+    [  1, 22, 30, 42,164, 51],
+    [224,175, 16, 16,119, 52],
+    [ 68,198, 25, 22, 26, 57],
+    [130,164, 28, 59,110, 57],
+    [ 17, 81,  6, 14,144, 61],
+    [  3,129, 26, 31,203, 61],
+    [ 67,224, 26, 16, 74, 62],
+    [263,200, 20, 20,141, 67],
+    [  1,224, 62, 32,  9, 68],
+    [ 67,224, 26, 16, 12, 70],
+    [ 96,228, 16, 25, 95, 70],
+    [196, 72, 10, 24, 84, 76],
+    [ 33, 89, 14,  6,149, 85],
+    [263,200, 20, 20,207, 91],
+    [263,200, 20, 20,213, 91],
+    [224, 40, 32, 24, 76, 93],
+    [263,200, 20, 20,198, 93],
+    [230,144, 19, 14, 11, 97],
+    [289, 38, 30, 25,169, 97],
+    [321, 39, 30, 24,169, 98],
+    [194,290, 60, 59, 21,107],
+    [258,322, 44, 30,162,109],
+    [257, 20, 15, 10,214,109],
+    [358, 16, 21, 15,212,112],
+    [290, 80, 44, 48, 12,123],
+    [ 83, 83, 10, 13, 15,127],
+    [ 67, 84, 10, 12, 36,128],
+    [ 67, 84, 10, 12, 24,129],
+    [338, 91, 44, 37, 12,134],
+    [101,115,  7, 12, 23,143],
+    [ 18,113, 12, 15,125,144],
+    [101,115,  7, 12, 29,145],
+    [288,227, 16, 26,123,145],
+    [402,113, 13, 14, 57,154],
+    [ 18, 97, 12, 15,112,156],
+  ],
+  twoRoomsB: [
+    [289,261, 30, 48, 16, 16],
+    [ 32,165, 32, 27, 95, 16],
+    [290, 80, 44, 48,123, 36],
+    [163,129, 26, 25, 81, 48],
+    [195,129, 26, 31, 81, 48],
+    [132, 76,  8, 19,109, 51],
+    [262,134, 19, 24, 47, 55],
+    [389,229, 22, 24, 76, 62],
+    [389,229, 22, 24, 97, 63],
+    [192,226, 36, 62,  9, 66],
+    [389,165, 22, 24, 47, 68],
+    [117,115,  7, 12, 44, 88],
+    [149,108,  7, 20,120, 93],
+    [117,115,  7, 12, 49, 94],
+    [194,290, 60, 59, 95, 94],
+    [ 34, 97, 12, 15, 57, 95],
+    [199, 29, 18, 35,113, 99],
+    [164, 21, 26, 43,140,100],
+    [117,115,  7, 12,150,133],
+    [224,175, 16, 16,148,138],
+    [  2, 97, 12, 15, 23,144],
+    [ 66, 97, 12, 21, 32,147],
+    [ 99,139, 26, 21,119,147],
+    [263,200, 20, 20, 13,148],
+  ],
+  bedsit: [
+    [257,258, 31, 52,116, 31],
+    [162,164, 28, 59, 26, 48],
+    [353, 38, 30, 25, 70, 78],
+    [263,200, 20, 20,134, 86],
+    [322, 13, 11, 18, 57, 87],
+    [358, 16, 21, 15,101, 94],
+    [194,290, 60, 59, 57,110],
+    [257, 20, 15, 10, 85,113],
+    [101,115,  7, 12, 60,117],
+    [290, 17, 10, 14, 49,120],
+    [389,133, 22, 24, 47,122],
+    [ 83, 83, 10, 13,109,123],
+    [ 33, 34, 30, 30, 71,126],
+    [352,195, 16, 26,104,130],
+    [262,162, 20, 26, 24,164],
+    [224, 40, 32, 24,119,166],
+    [ 99, 84, 10, 12, 45,170],
+    [ 67, 84, 10, 12, 45,178],
+  ],
 };
 
-// makeshift.png, by component box. Every one of these was cut out and looked at
-// before it was used; the sheet puts two and three objects in a tile.
-const S = {
-  bedA: ['mk', 128, 227, 36, 61],  bedB: ['mk', 192, 226, 36, 62],
-  matt: ['mk', 0, 258, 32, 61],    sofaA: ['mk', 1, 22, 30, 42],
-  sofaB: ['mk', 97, 22, 30, 42],   armA: ['mk', 33, 34, 30, 30],
-  armB: ['mk', 129, 34, 30, 30],   wardrobe: ['mk', 98, 164, 28, 59],
-  wardrobeOpen: ['mk', 162, 164, 28, 59], cupboard: ['mk', 198, 164, 20, 59],
-  desk: ['mk', 338, 91, 44, 37],   shelfBooks: ['mk', 290, 80, 44, 48],
-  table: ['mk', 258, 322, 44, 30], lowTable: ['mk', 224, 40, 32, 24],
-  tvPic: ['mk', 353, 38, 30, 25],  tvA: ['mk', 289, 38, 30, 25],
-  rug: ['mk', 194, 290, 60, 59],   boxBig: ['mk', 98, 290, 44, 44],
-  boxTall: ['mk', 160, 293, 32, 42], coolbox: ['mk', 3, 129, 26, 31],
-  micro: ['mk', 131, 129, 26, 25], posterPin: ['mk', 6, 161, 20, 31],
-  posterCar: ['mk', 32, 165, 32, 27], winYellow: ['mk', 257, 258, 31, 52],
-  winPink: ['mk', 289, 261, 30, 48], winPlain: ['mk', 321, 262, 30, 26],
-  shirtW: ['mk', 4, 196, 24, 25],  shirtR: ['mk', 36, 196, 24, 25],
-  laptop: ['mk', 262, 134, 19, 24], console: ['mk', 230, 144, 19, 14],
-  shelfTower: ['mk', 226, 65, 12, 62], shelfLow: ['mk', 258, 75, 12, 52],
-  plant: ['mk', 66, 97, 12, 21],   flower: ['mk', 195, 103, 11, 25],
-  cupA: ['mk', 83, 83, 10, 13],    cupB: ['mk', 115, 83, 10, 13],
-  bottleA: ['mk', 132, 76, 8, 19], bottleB: ['mk', 148, 76, 8, 19],
-  magA: ['mk', 2, 97, 12, 15],     magB: ['mk', 18, 113, 12, 15],
-  book: ['mk', 37, 113, 21, 15],   pillowA: ['mk', 67, 224, 26, 16],
-  crateRedT: ['mk', 325, 133, 22, 24], crateRedB: ['mk', 389, 133, 22, 24],
-  crateGreyT: ['mk', 325, 165, 22, 24], crateGreyB: ['mk', 389, 165, 22, 24],
-  crateBlueT: ['mk', 325, 197, 22, 24], crateBlueB: ['mk', 389, 197, 22, 24],
-  crateGrnT: ['mk', 325, 229, 22, 24], crateGrnB: ['mk', 389, 229, 22, 24],
-  // the one object of two diggings comes from a neighbouring pack, the way
-  // 0_mem0ry's own three-room render mixes sheets
-  toolbox: ['ws', 355, 208, 26, 16], pan: ['kit', 2, 160, 13, 16],
-};
-
-// A rug is walked on and a cup is put down on something, so neither counts as a
-// collision. Everything else standing on the floor does.
-const LOOSE = new Set(['rug', 'laptop', 'cupA', 'cupB', 'bottleA', 'bottleB',
-  'magA', 'magB', 'book', 'plant', 'flower', 'pillowA', 'console', 'pan']);
-
-// b, k and q come out of the grid. Everything else is here, and it is here
-// because the references are this dense: fifteen to twenty objects a room.
-// `wall` hangs on the brick above the skirting, `floor` stands on the concrete.
-// Both are [sprite, column, row] with an optional [dx, dy] nudge.
+// Which reference each digging is, and how bright it is. The sizes are the
+// canon ones and they are already each reference's own native size.
 const ROOM = {
-  dig1: {
-    warm: 'rgba(255,196,120,.07)', lit: 1.00,
-    beds: ['bedB', 'matt', 'bedA'], crate: 'Red', q: 'armA',
-    wall: [['posterPin', 1, 0, 4, 2], ['shirtW', 2, 0, -2, 6], ['winPlain', 6, 0, 0, 6],
-           ['tvPic', 7, 1, 0, 26], ['shelfBooks', 5, 0, 6, 12]],
-    floor: [['rug', 4, 4, -14, -8], ['table', 5, 5, -6, -2], ['lowTable', 2, 4, 0, -2],
-            ['coolbox', 6, 4, 2, -6], ['boxTall', 3, 4, 0, -4], ['plant', 7, 3, 8, 6],
-            ['bottleA', 5, 4, 6, -8], ['magB', 6, 5, 4, 10], ['cupA', 2, 5, 20, 2],
-            ['tvA', 6, 3, -2, 4]],
-  },
-  dig2: {
-    warm: 'rgba(255,178,104,.09)', lit: 0.62,
-    beds: ['bedA', 'matt', 'bedB'], crate: 'Blue', q: 'toolbox',
-    wall: [['posterCar', 4, 0, 0, 4], ['winYellow', 2, 0, -2, 2], ['shelfBooks', 1, 1, 2, 8]],
-    floor: [['rug', 2, 4, 4, -4], ['desk', 3, 4, -6, -6], ['boxBig', 4, 5, -6, -4],
-            ['coolbox', 2, 5, 2, 2], ['micro', 1, 3, 2, 4], ['laptop', 3, 4, 6, -20],
-            ['bottleB', 4, 3, 4, 8], ['magA', 3, 5, 8, 10], ['plant', 4, 3, 12, -8]],
-  },
-  dig3: {
-    warm: 'rgba(255,206,140,.08)', lit: 0.86,
-    beds: ['bedB', 'bedA', 'matt'], crate: 'Grn', q: 'pan',
-    wall: [['winPink', 2, 0, 0, 4], ['posterPin', 5, 0, 6, 4], ['tvA', 4, 1, 0, 24],
-           ['shirtR', 1, 0, 2, 8]],
-    floor: [['rug', 3, 4, -12, -6], ['table', 2, 5, 0, -2], ['micro', 4, 3, 2, 2],
-            ['boxTall', 4, 4, 2, -2], ['coolbox', 2, 4, 2, -8], ['flower', 4, 5, 12, 0],
-            ['cupB', 3, 5, 16, 4], ['book', 2, 3, 6, 8], ['tvA', 5, 3, -4, 4]],
-  },
-  dig4: {
-    warm: 'rgba(248,190,128,.07)', lit: 0.74,
-    beds: ['bedA', 'bedB'], crate: 'Grey', q: 'magA',
-    wall: [['winPlain', 2, 0, 4, 6], ['posterCar', 4, 0, 0, 6], ['shelfBooks', 3, 1, 2, 20]],
-    floor: [['rug', 3, 4, -14, -8], ['desk', 4, 6, 0, -4], ['wardrobe', 5, 5, 2, 8],
-            ['lowTable', 4, 3, 0, 6], ['tvA', 2, 3, 0, 2], ['boxBig', 2, 6, 0, -10],
-            ['plant', 5, 3, 10, 4], ['bottleA', 2, 4, 8, 4], ['cupA', 4, 5, 6, 8]],
-  },
-  dig5: {
-    warm: 'rgba(255,184,112,.08)', lit: 0.55,
-    beds: ['bedB', 'matt'], crate: 'Red', q: 'cupA', q2: 'cupB',
-    wall: [['winYellow', 4, 0, 0, 2], ['posterPin', 2, 0, 6, 6], ['shirtW', 1, 0, 2, 10]],
-    floor: [['rug', 2, 4, 4, 0], ['table', 3, 6, -6, -2], ['wardrobeOpen', 5, 5, 2, 8],
-            ['coolbox', 1, 6, 4, -4], ['shelfLow', 4, 3, 14, 2], ['boxTall', 3, 3, 0, 8],
-            ['micro', 2, 3, 2, 4], ['flower', 5, 3, 10, 2], ['magB', 4, 6, 8, 4]],
-  },
-  dig6: {
-    warm: 'rgba(255,170,96,.10)', lit: 0.42,
-    beds: ['matt', 'bedA'], crate: 'Blue', q: null,
-    wall: [['winPink', 2, 0, 2, 8], ['posterCar', 3, 0, 0, 4]],
-    floor: [['rug', 3, 4, -12, 2], ['lowTable', 2, 4, 4, 6], ['cupboard', 5, 5, 4, 8],
-            ['boxBig', 2, 6, 0, -8], ['coolbox', 4, 3, 2, 4], ['pillowA', 3, 3, 4, 12],
-            ['bottleB', 2, 3, 12, 6], ['cupB', 3, 6, 10, 6]],
-  },
+  dig1: { ref: 'twoRooms',  lit: 1.00, warm: 'rgba(255,196,120,.06)' },
+  dig2: { ref: 'twoRoomsB', lit: 0.66, warm: 'rgba(255,178,104,.08)' },
+  dig3: { ref: 'twoRoomsB', lit: 0.90, warm: 'rgba(255,206,140,.06)' },
+  dig4: { ref: 'bedsit',    lit: 0.78, warm: 'rgba(248,190,128,.06)' },
+  dig5: { ref: 'bedsit',    lit: 0.58, warm: 'rgba(255,184,112,.08)' },
+  dig6: { ref: 'bedsit',    lit: 0.44, warm: 'rgba(255,170,96,.10)' },
 };
 
 const P = '../../public/assets/props/';
-const NEED = { mk: 'makeshift.png', rt: 'makeshift_roomtiles.png',
-               ws: 'workshop.png', kit: 'kitchen.png' };
+const NEED = { mk: 'makeshift.png', rt: 'makeshift_roomtiles.png' };
 const SH = {};
 const LOG = [];
-
 const plan = await fetch('./habitat-plan.json').then((r) => r.json());
 await Promise.all(Object.entries(NEED).map(([k, f]) => new Promise((ok, no) => {
   const im = new Image(); im.onload = () => { SH[k] = im; ok(); }; im.onerror = no; im.src = P + f;
 })));
 
 const wrap = document.getElementById('wrap');
-for (const id of Object.keys(SIZE)) {
+for (const id of Object.keys(ROOM)) {
   const room = plan.placements.find((p) => p.id === id);
-  if (!room) { LOG.push('MISSING  ' + id); continue; }
-  const [W, H] = SIZE[id];
+  const R = ROOM[id], r = REF[R.ref];
   const cv = document.createElement('canvas');
-  cv.width = W; cv.height = H;
-  draw(cv.getContext('2d'), room, W, H, ROOM[id]);
+  cv.width = r.W; cv.height = r.H;
+  const g = cv.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  shell(g, SH, r);
+  for (const [sx, sy, w, h, dx, dy] of TRACE[R.ref]) {
+    g.drawImage(SH.mk, sx, sy, w, h, dx, dy, w, h);
+  }
+  mouth(g, r);
+  lamp(g, r.W, r.H, [r.W / 2, (r.y0 + r.y1) / 2], R.lit, R.warm);
 
   const fig = document.createElement('figure');
   const big = document.createElement('canvas');
-  big.width = W * 2; big.height = H * 2;
+  big.width = r.W * 2; big.height = r.H * 2;
   const bc = big.getContext('2d'); bc.imageSmoothingEnabled = false;
-  bc.drawImage(cv, 0, 0, W * 2, H * 2);
+  bc.drawImage(cv, 0, 0, r.W * 2, r.H * 2);
   fig.appendChild(big);
-  const beds = room.grid.join('').split('b').length - 1;
   const cap = document.createElement('figcaption');
-  cap.innerHTML = '<b>' + room.name + '</b> · ' + W + '×' + H + ' · '
-    + room.grid[0].length + '×' + room.grid.length + ' tiles · '
-    + room.sleeps.length + ' sleep here, ' + (beds / 2) + ' places<br>'
-    + room.sleeps.map((s) => s.name).join(', ');
+  cap.innerHTML = '<b>' + (room ? room.name : id) + '</b> &middot; ' + r.W + '&times;' + r.H
+    + ' &middot; traced off <code>' + R.ref + '</code> &middot; ' + TRACE[R.ref].length + ' objects<br>'
+    + (room ? room.sleeps.map((s) => s.name).join(', ') : '');
   fig.appendChild(cap);
   wrap.appendChild(fig);
+  if (!room) LOG.push('MISSING  ' + id + ' is not in habitat-plan.json');
 }
-
-function draw(g, room, W, H, R) {
-  g.imageSmoothingEnabled = false;
-  const grid = room.grid, cols = grid[0].length, rows = grid.length;
-  const f = frame(W, H, cols, rows);
-  shell(g, SH, grid, f);
-
-  g.save();
-  g.beginPath();
-  g.rect(f.ix0, f.iy0, f.ix1 - f.ix0 + 1, f.iy1 - f.iy0 + 1);
-  g.clip();
-
-  // Everything standing on the floor is remembered, so two things cannot end up
-  // in the same place without saying so. Wall-hung pieces are exempt: a poster
-  // over a bed's head is how the references look.
-  const STOOD = [];
-  const put = (name, c, r, dx = 0, dy = 0, hspan = 1, vspan = 1, onWall = false) => {
-    const s = S[name];
-    if (!s) { LOG.push('NO SPRITE  ' + room.id + '  ' + name); return; }
-    const [sheet, sx, sy, w, h] = s;
-    const x = f.px(c) + Math.round((hspan * T - w) / 2) + dx;
-    const y = f.py(r) + Math.round((vspan * T - h) / 2) + dy;
-    if (!onWall && !LOOSE.has(name)) {
-      for (const o of STOOD) {
-        const ox = Math.min(x + w, o.x + o.w) - Math.max(x, o.x);
-        const oy = Math.min(y + h, o.y + o.h) - Math.max(y, o.y);
-        if (ox > 7 && oy > 7) {
-          LOG.push('OVERLAP  ' + room.id + '  ' + name + ' x ' + o.name + '  (' + ox + 'x' + oy + ')');
-        }
-      }
-      STOOD.push({ x, y, w, h, name });
-    }
-    if (!onWall) {
-      if (x < f.ix0 - 2 || y < f.iy0 - 2 || x + w > f.ix1 + 3 || y + h > f.iy1 + 3) {
-        LOG.push('OFF-FRAME  ' + room.id + '  ' + name);
-      }
-    }
-    g.drawImage(SH[sheet], sx, sy, w, h, x, y, w, h);
-  };
-
-  // what hangs on the brick, above the skirting
-  for (const [name, c, r, dx = 0, dy = 0] of R.wall) put(name, c, r + 1, dx, dy, 1, 1, true);
-
-  // what the grid declares: sleeping places, stowage, the one object
-  let bed = 0;
-  const seen = new Set();
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const ch = grid[r][c];
-      if (ch !== 'b' && ch !== 'k' && ch !== 'q') continue;
-      if (seen.has(c + ',' + r)) continue;
-      const tall = grid[r + 1] && grid[r + 1][c] === ch;
-      if (tall) seen.add(c + ',' + (r + 1));
-      if (ch === 'b') {
-        const which = R.beds[bed % R.beds.length];
-        put(which, c, r, 0, tall ? 0 : -12, 1, tall ? 2 : 1);
-        // a bare mattress reads as stock until somebody's pillow is on it
-        if (which === 'matt') put('pillowA', c, r, 0, tall ? -18 : -22, 1, tall ? 2 : 1, true);
-        bed += 1;
-      } else if (ch === 'k') {
-        put('crate' + R.crate + 'T', c, r, 0, 2);
-        if (tall) put('crate' + R.crate + 'B', c, r + 1, 0, -2);
-      } else if (ch === 'q' && R.q) {
-        put(R.q, c, r, R.q2 ? -7 : 0, 0);
-        if (R.q2) put(R.q2, c, r, 7, 5);
-      } else if (ch === 'q') {
-        LOG.push('NAMED, NOT DRAWN  ' + room.id + '  marks in the rock — in no sheet');
-      }
-    }
-  }
-  if (bed !== room.sleeps.length) {
-    LOG.push('SLEEPERS  ' + room.id + '  ' + room.sleeps.length + ' live here, ' + bed + ' places drawn');
-  }
-
-  // and what a room accumulates
-  for (const [name, c, r, dx = 0, dy = 0] of R.floor) {
-    if (!isOpen(grid, c, r)) { LOG.push('IN THE WALL  ' + room.id + ' ' + name + ' at ' + c + ',' + r); continue; }
-    put(name, c, r, dx, dy);
-  }
-  g.restore();
-
-  lamp(g, W, H, [W / 2, f.iy0 + (rows - 2) * T * 0.55], R.lit, R.warm);
-}
-
-const log = document.getElementById('log');
-log.className = LOG.length > 1 ? 'bad' : '';
-log.textContent = LOG.length ? LOG.join('\n') : 'CLEAN';
+document.getElementById('log').textContent = LOG.length ? LOG.join('\n')
+  : 'CLEAN - six diggings, three traces, ' + Object.values(TRACE).reduce((n, t) => n + t.length, 0) + ' objects placed';
 window.__ready = 1;
 </script>

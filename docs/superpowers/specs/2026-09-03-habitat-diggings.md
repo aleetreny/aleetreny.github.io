@@ -1,130 +1,92 @@
-# The Diggings — six rooms, and a verdict that got reversed
+# The Diggings — six rooms, three traces
 
-**Status:** drawn, `tools/roomlab/diggings.html` + `tools/roomlab/digging-kit.js`.
-Six rooms, each at its canon size, each drawn from its own grid in `rooms.ts`.
+**Status:** done, `tools/roomlab/diggings.html` + `tools/roomlab/digging-kit.js`.
+Six rooms, each a **1:1 trace** of one of 0_mem0ry's own makeshift rooms.
+
+| | Reference | Size | Objects | Pixels differing inside the outline |
+| --- | --- | --- | --- | --- |
+| **Mara's** | `makeshift-two-rooms.png` | 245 × 181 | 39 | **7.8 %** |
+| **Quim's**, **Pilar's** | `makeshift-two-rooms-b.jpg` | 181 × 187 | 24 | **5.5 %** |
+| **Xan's**, **Ulla's**, **Yara's** | `makeshift-bedsit.jpg` | 179 × 217 | 18 | **8.9 %** |
+
+That is the closest any room in the habitat has come — the Workshops sits at
+10.4 % and the Well at 15.8 %. The sizes are the canon ones and they are already
+each reference's own native size, so a trace drops in without moving anything.
 
 ---
 
-## The reversal, and what it is worth remembering for
+## How the trace was made, because the obvious way does not work
 
-These rooms were built once in the wrong material, on a conclusion that was
-carefully argued and correct at the time:
+A plain best-NCC search over the sheet's components finds the small props and
+misses almost every large one. The reason is occlusion: a sofa half hidden
+behind a table scores badly over the whole sprite even when the visible half is
+exact, so the true placement never wins. Nineteen objects out of forty, and none
+of the furniture.
 
-> The Diggings' references trace nothing. Their furniture matches no sheet above
-> **0.766** at ×0.5, ×1 or ×2, and their wall band `#c0b8b2`, brick `#f2eae4` and
-> floor `#a8a09a` exist in no sheet we own. `trace.py` reports their band pieces
-> at **1.000** against three different roomtiles sheets anyway — because
-> `ncc_map` is mean-removed and contrast-normalised and therefore scores *shape*,
-> not art. Same 1 px ink / 4 px fill / 1 px ink cross-section, recoloured.
+Three changes fixed it, and they are the transferable part:
 
-Every word of that was true, and the two lessons in it stand:
+1. **Score on the part you can still see.** Each candidate is scored by the
+   *trimmed* mean colour error over its own opaque pixels — the best 55 % of
+   them. A sprite half covered still matches perfectly on its visible half.
+2. **Search the residual, not the picture.** Each pass works on what the
+   reference has and the canvas does not, so the search shrinks as the room
+   fills and never re-finds what is already drawn.
+3. **Keep a placement only if the picture gets closer.** The top candidates by
+   score are each composited on a copy and measured; the one that removes the
+   most differing pixels wins, and if none removes at least forty, the pass
+   stops. **A score can be fooled. The difference cannot.** Without this the
+   solver cheerfully added a rug at 23.7 error that made the room worse.
 
-1. **A perfect score is not proof of the same art. Check a colour.**
-2. **When a reference will not trace, prove it — every sheet, several scales,
-   colour as well as score — then say so out loud.**
+A final pass force-places the large flat pieces — rugs, mattresses, wardrobes —
+which are too low-contrast for the residual search to rank highly on its own.
+That found the blue rug in all three rooms, worth 866, 955 and 187 pixels.
 
-The second one is what mattered. Because the finding was written down as *"this
-pack is missing and it is the single highest-value unblock in the art"*, the
-owner went and got it. `makeshift_furnitureset.png` and
-`makeshift_room_door_tiles.png` are now in `public/assets/props/` as
-`makeshift.png` and `makeshift_roomtiles.png`, and the same three references
-that matched nothing now match at **1.000**, in the dozens, including the band
-whose colour was the proof it was missing.
+## The shell
 
-So the substitution is gone and these six rooms are traced. **A blocked room is
-worth reporting precisely; the report is what unblocks it.**
-
-## The shell, measured
-
-All of it off `makeshift-two-rooms-b` by brute force — every opaque tile ×
-every phase, scored on the lowest 55 % of per-pixel errors so the furniture
-could not drag the fit.
+Solved by brute force over every opaque tile and every phase, scored on the
+lowest 55 % of per-pixel errors so the furniture could not drag the fit:
 
 | Part | What it is |
 | --- | --- |
 | band | 1 px ink, 4 px of `#c0b8b2`, 1 px ink — the sheet's own cross-section |
-| wall | `makeshift_roomtiles` column 4, rows 7–8: one 32 × 64 block of white brick whose bottom four rows are the skirting |
-| floor | the same sheet's column 5, rows 7–8, grey concrete — **median error 6** out of a possible 765 |
-| door | one 32 px tile of the band cut away, its inner ink line running on across the gap as a threshold |
+| wall | `makeshift_roomtiles` column 4, rows 7–8: one 32 × 64 block of white brick whose bottom four rows are the skirting. Block top y 10, 10 and 29; x phase 10, 10 and 25. |
+| floor | the same sheet's column 5, rows 7–8, grey concrete |
+| shape | a rectangle **minus rectangular cuts**, so the two-room flat keeps the notch in its top wall (x 80–131, y 4–35) and the corner missing from its bottom right (x 144–239, y 144–175). Drawn as one even-odd path filled at four insets, which gives the ink/fill/ink cross-section for free. |
+| door | one 32 px tile of band cut away at x 74–105, its inner ink line running on across the gap as a threshold — **the same tile in all three renders**, which is how we knew they are one template scene dressed three ways |
 
-The doorway is in the same place in all three references, which is how we knew
-they came from one template scene rather than three rooms.
+## What varies between two diggings sharing a reference
 
-## What the owner asked for, and what changed
+The lamp, and nothing else. The map's art direction gives every private door its
+own warm, so Quim's and Pilar's are the same room at different brightnesses, and
+so are Xan's, Ulla's and Yara's. That is the deliberate consequence of tracing
+to the letter: three references, six rooms.
 
-**1 · A sleeping place for every resident, and you can count them.**
-Three-resident rooms have three, two-resident rooms have two, and the page fails
-loudly if a room's count stops matching `SLEEPS`. They are deliberately not all
-the same: a bed under a duvet, a bed made up, a bare blue mattress with somebody's
-pillow on it. A mattress without a pillow reads as stock rather than as a person's
-place, so the pillow is not decoration.
+## Two things this leaves open
 
-An armchair is **not** a sleeping place, whatever you call it. The first pass used
-the sofa sprite as a third bed in two rooms and it read as an armchair, because
-that is what it is.
+1. **The drawing no longer derives from `rooms.ts`.** It used to, and that is
+   what caught three homes nobody could enter. Now each room is an exact copy of
+   a render, so the furniture in the picture and the `b`/`k`/`q` glyphs in the
+   grid agree on size and shape but not on where anything stands — and the drawn
+   doorway is one tile left of where the grid puts it, because the reference puts
+   it there and the grid column is pinned by the Row. Reconciling them belongs
+   with the corridor phase.
+2. **Two rooms the owner showed do not fit any digging.**
+   `library/rooms/Xmas_2.jpg` **traces** — 23 objects at ncc ≥ 0.90, and it is
+   the densest domestic room in the archive — but it is 207 × 213 and no digging
+   is that size. `library/rooms/Post Apoc Shelter - Asset Pack_4.jpg` is the
+   Hold's reference and **still does not trace**, even against the shadow
+   variants and the 16 × 16 cut that came with the full pack: its footlocker is
+   85 px wide where the sheet's is 48, which is not an integer ratio.
 
-**2 · The division between the two chambers.** It used to be a one-tile neck
-sitting directly on top of the door, which read as a pinch rather than as two
-rooms. Now the partition runs **three courses down from the back wall and stops**,
-leaving two clear rows of shared floor you come into — which is also how
-`makeshift-two-rooms-b` does it: its partition is a 6 px band from the top wall
-that stops well short of halfway. The free end is capped in ink so it reads as
-built and finished rather than as a wall that ran out.
+## The history, kept because it is the lesson
 
-**3 · Shape.** Each room now has its own bite out of the outline, drawn as wall
-because that is what it is. Xan's is the exception and has none — *"small, square,
-and finished to the millimetre… the only room in the habitat where every corner
-is right"* — so it is the only rectangle of the six, and that reads.
+These six were drawn twice before. First in a substituted rock material, on a
+finding that was correct — the makeshift references matched nothing above 0.766
+and their wall band `#c0b8b2` existed in no sheet we owned, while `trace.py`
+reported their band pieces at 1.000 anyway, because NCC is mean-removed and
+contrast-normalised and scores *shape*, not art. Then, when the owner supplied
+the pack that finding had named, as compositions in the makeshift style with a
+sleeping place per resident. Now, as traces.
 
-**4 · Density.** Fifteen to twenty objects a room, which is what the references
-carry. The page tracks every piece standing on the floor and reports any two that
-overlap by more than 7 px, or anything crossing the frame. Rugs and the things you
-put down on a surface — cups, bottles, magazines, a laptop on a desk — are exempt,
-because those overlaps are the point.
-
-## The six
-
-| | Size | Grid | Sleeps | Its one object |
-| --- | --- | --- | --- | --- |
-| **Mara's** | 245 × 181 | 9 × 7 | 3 | a chair somebody brought and left |
-| **Quim's** | 181 × 187 | 7 × 7 | 3 | a tool left mid-job, for the ninth time |
-| **Pilar's** | 181 × 187 | 7 × 7 | 3 | a pan that has never been back to the kitchen |
-| **Xan's** | 179 × 217 | 7 × 8 | 2 | a drawing pinned square to a wall that is not |
-| **Ulla's** | 179 × 217 | 7 × 8 | 2 | two cups, and only one of them used |
-| **Yara's** | 179 × 217 | 7 × 8 | 2 | *marks in the rock — named, not drawn* |
-
-Two of those objects come from a neighbouring pack — Quim's toolbox from
-`workshop.png`, Pilar's pan from `kitchen.png` — because `makeshift` is a bedsit
-set and has neither. 0_mem0ry's own three-room render mixes sheets the same way.
-
-Yara's is the one thing still named and left out: *"marks in the rock, three
-weeks old, unsigned"* exists in no sheet. It is also the room the canon calls the
-smallest and the one she dug alone, so its bareness reads.
-
-## Three homes nobody could enter
-
-Drawing a room from its own grid makes the grid's mistakes visible. Mara's,
-Quim's and Pilar's each had their front door in the wall directly below the
-partition, so the first step inside was unwalkable and the entire interior —
-31, 21 and 21 tiles — was sealed. Every existing test passed: the room graph was
-connected, the boundary was closed, the doors met the Row's. Nothing looked
-inside.
-
-The new test then found two more of the same class: the Bridge sealed one tile
-between its two dead consoles and the pilot's chair, and the Cold Berths sealed
-two behind the bunks.
-
-`rooms.test.ts` now carries **"can be walked into: every open tile is reachable
-from a door"**, across all twenty-seven rooms, allowing two things deliberately:
-vacuum is crossable, because the Breach is islands of floor in a tear and
-reaching them is what a suit is for; and a sealed `X` mouth still seeds the
-search, because it means *needs a key*, not *no way in*.
-
-## What is still open
-
-**`dig4`, `dig5` and `dig6` have identical grids**, and `dig2` and `dig3` share
-one. The canon says *the difference between them is the most public document in
-the habitat*. They now differ by shape, lamp, bedding, contents and the one
-object, which carries a lot of it — but Yara's cannot be *smaller* than Xan's
-while their grids are the same size. Re-cutting them moves rooms on the map, so
-it stays with the corridor phase.
+**Naming the missing pack precisely is what got it.** The Hold, the Infirmary
+and the Well are still waiting on theirs; name them the same way.

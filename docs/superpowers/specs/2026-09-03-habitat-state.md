@@ -2,8 +2,8 @@
 
 **This is the handoff. If you are picking this project up, start here, then read
 only the specs this file sends you to.** Branch: `night-shift-habitat`.
-Last updated: 4 September 2026, after the Diggings — and after the makeshift
-pack arrived and reversed their verdict.
+Last updated: 4 September 2026, after the Diggings were traced 1:1 and the
+whole asset library was vendored into the repo.
 
 ---
 
@@ -152,6 +152,16 @@ Read this before you measure anything. Each of these cost real time once.
    That number is the target. The Workshops sits at 10.4 % and the Well at 15.8 %,
    most of which is the reference being a JPEG — its ink lines are grey, ours are
    black, and that difference cannot be closed and should not be.
+7b. **When a whole room has to be traced, not a handful of props, solve the
+   residual instead of the picture.** Plain best-NCC finds the small things and
+   misses the furniture, because a sofa half hidden behind a table scores badly
+   over the whole sprite. Score each candidate on the **trimmed** mean colour
+   error over its own opaque pixels — the best 55 % of them, which is the part
+   you can still see — search only where the residual still is, and **keep a
+   placement only when it actually removes differing pixels**. A score can be
+   fooled; the difference cannot. That took the Diggings from nineteen objects
+   and 35 % to forty and 7.8 %. Large flat pieces — rugs, mattresses — still
+   need a forced pass; they are too low-contrast to rank.
 8. **Then run every placed prop back through a ±5 px local search.** This is the
    step that pays for itself: on the Well it moved five props, two of them badly
    (a tag at mean error 133 → 58, a puddle 27 → 9), and it *confirmed* the toilet
@@ -172,7 +182,7 @@ Read this before you measure anything. Each of these cost real time once.
 | **The Infirmary** | **done**; traced, then composed on the owner's call | `shelter-bunker-room.png` ×3 → 154 × 218 | `infirmary.html` |
 | The Hold | **blocked** — its reference is not traceable from our sheets, see below | `shelter-bunk-and-stores.jpg` | — |
 | **The Well** | **done**; one object substituted, see below | `bathroom-wet-and-filthy.jpg` **×4 → 184 × 170** | `well.html` |
-| **The six diggings** | **done, traced** — their pack arrived and the substitution is gone | `makeshift-two-rooms.png`, `-two-rooms-b.jpg`, `-bedsit.jpg` | `diggings.html`, `digging-kit.js` |
+| **The six diggings** | **done — 1:1 traces**, 7.8 % / 5.5 % / 8.9 %, the closest in the habitat | `makeshift-two-rooms.png`, `-two-rooms-b.jpg`, `-bedsit.jpg` | `diggings.html`, `digging-kit.js` |
 | The other sixteen | not started | some have none | — |
 
 `tools/roomlab/reference/README.md` carries the measured scale of every reference.
@@ -288,6 +298,19 @@ door"**, which runs against all twenty-seven rooms:
   sealed `X` mouth still seeds the search** (it means "needs a key", not "no way
   in"). Floor sealed behind *furniture* is always a mistake.
 
+## The library is in the repo
+
+`tools/roomlab/library/` holds every 0_mem0ry pack the habitat draws from, as
+downloaded, plus the artist's own example room renders — `sheets/` and `rooms/`.
+It is **not** copied into `dist/`. Read `library/README.md` before hunting for a
+sheet: it holds the 16 × 16 cuts and the `_Shadow` variants that
+`public/assets/props/` does not, and it records which example rooms trace and
+which do not.
+
+**It also puts the whole archive in a public repository, and the artist's licence
+forbids redistribution.** The owner asked for it there so other agents could use
+it; it is his call, and it is recorded here so nobody assumes it was settled.
+
 ## The specs, and what each one closed
 
 Read them in this order if you need the history. Each is closed unless it says
@@ -307,5 +330,5 @@ otherwise.
 | `2026-09-03-habitat-workshops.md` | **the trace rule**, and what it cost to learn it |
 | `2026-09-03-habitat-infirmary.md` | the trace, and the first room the sheets cannot finish |
 | `2026-09-03-habitat-the-well.md` | the shell solved by brute force, the stall that is a sprite, and the three ways to place a prop |
-| `2026-09-03-habitat-diggings.md` | the reference that scores 1.000 and is the wrong pack, and the three homes nobody could enter |
+| `2026-09-03-habitat-diggings.md` | how to trace a whole room by solving the residual, and the reference that scored 1.000 off the wrong pack |
 | `2026-09-02-habitat-room-handoff.md` | superseded by this file |
