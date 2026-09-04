@@ -54,6 +54,62 @@ the block wall and dust instead of the tiled floor, and was rejected. The spec f
 it (`2026-09-03-habitat-workshops.md`) records why, and it is the clearest
 statement of the rule in the repo.
 
+## Every trap that has actually bitten, and its tell
+
+Read this before you measure anything. Each of these cost real time once.
+
+1. **A score of 1.000 is not proof of the same art.** `ncc_map` is mean-removed
+   and contrast-normalised: it scores *shape*. The Diggings' references match
+   three different roomtiles sheets at 1.000 on a band whose colour exists in
+   none of them. **Tell:** a low-detail object (a band, a pipe, a plain panel)
+   scoring perfectly against several sheets at once. **Fix:** sample one pixel
+   in both images before believing it.
+2. **`native.py` under-reads heavily compressed JPEGs.** It called the Well's
+   reference ×2 when it is ×4. **Tell:** `provenance.py` then reports its best
+   matches at `x2.0` — the sprites having to be *doubled* to fit. **Fix:** reduce
+   by hand with `Image.resize(..., NEAREST)`. Not BOX: BOX averages the JPEG's
+   ringing into the pixels and halves the hit count.
+3. **Never address a sprite by its tile.** Half these sheets put two or three
+   objects in one 32 px tile. Use `objects.components`.
+4. **When components merge, split them by their own period, not by the tile
+   grid.** The bathroom sheet's four urinals touch, so they come back as one
+   78 px blob. Their alpha column profile repeats every 16; cut on 16 they match
+   at 0.97, cut any other way they top out at 0.6.
+5. **`ncc_map` refuses a mask under 30 px** and returns `None`. Every small
+   sprite — graffiti, and anything drawn at half alpha, like puddles — needs a
+   different method: lowest mean colour error inside a box, or matching the
+   colour blob's bounding box in sheet and render. Say which one placed each
+   prop, in the comment.
+6. **Re-run every placed prop through a ±5 px local search afterwards.** On the
+   Well it moved five and confirmed the one my eye was certain was wrong.
+7. **Solve walls and floors by brute force, not by eye:** every opaque tile ×
+   every phase, scored on the *lowest half* of per-pixel errors so the props
+   covering the wall cannot drag the fit. And check the sub-period — a tile with
+   a 4 px or 8 px grid has several phases that score within noise of each other,
+   and only its sparse features separate them.
+8. **An autotile's edge may run through the middle of its rim tiles, not along
+   their border.** `shelter_terrain`'s dirt families do. Lay the nine-slice on a
+   half-tile offset or every floor lands 16 px out, which looks almost right.
+9. **Canvas path fills antialias their diagonals.** Anything not axis-aligned
+   must be filled a scanline at a time with `fillRect`.
+10. **Draw order matters for two of the same sprite overlapping.** The back one
+    first, so the front one's own outline separates them; the other way round
+    they merge into one object.
+11. **Serve the roomlab pages over `python3 -m http.server`, from the repo root.**
+    `file://` taints the canvas and the pages read pixels back off it; a server
+    started from the wrong directory 404s the sheets and the page just hangs.
+12. **Draw a room from its own data, not beside it.** `diggings.html` reads the
+    grids out of `habitat-plan.json`, which is generated from `rooms.ts`. That is
+    what made three unenterable homes visible — they had passed every structural
+    test for weeks.
+13. **A room can be connected, closed and correct and still be impossible to walk
+    into.** Graph connectivity is not interior reachability. There is a test for
+    it now; keep it.
+14. **The promo renders were made with more sheets than the packs ship.** Four
+    room groups are blocked or substituted on it. When a reference will not
+    trace, prove it — every sheet, several scales, colour as well as score — then
+    name what is missing rather than quietly substituting.
+
 ## The method, in order
 
 1. **`measure/native.py <render>`** — what integer scale was this exported at, and
