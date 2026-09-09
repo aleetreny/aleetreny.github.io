@@ -34,6 +34,12 @@ author, or co-author in the GitHub history.
   already pushed has the wrong committer, fix it with `--amend` under the four
   variables and `git push --force-with-lease`.
 
+## Incremental commits
+
+The owner authorizes saving completed, checked changes in incremental commits.
+Keep each commit focused and preserve the sole owner author/committer identity
+above. Do not leave finished work accumulated as uncommitted changes.
+
 ## Shipping — merge straight to `main`
 
 The owner does not want work parked on a branch waiting for a pull request.

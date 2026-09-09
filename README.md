@@ -341,6 +341,19 @@ pnpm storage:import -- --input=backups/storage-safe-copy
 Backups are written with restrictive local permissions and are git-ignored; keep
 them encrypted off this machine. See [docs/storage.md](docs/storage.md).
 
+## Independent releases
+
+This repository owns the portfolio, its original Night Shift mode, its Pages
+workflow and its Neon content, authentication and storage. It has no dependency
+on an external agent simulation, debate service or shared application shell.
+The production site uses only this repository's build and backend configuration.
+
+Save completed changes as small, verified commits and push `main` to publish.
+Content edited through owner mode is stored in Neon and appears without a source
+commit or rebuild. Code changes go through GitHub Actions. Personal editor launch
+paths and local credentials are ignored. See [docs/releases.md](docs/releases.md)
+for the release boundary and verification steps.
+
 ## Deployment
 
 ### GitHub Pages

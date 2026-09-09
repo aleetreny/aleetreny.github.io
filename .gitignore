@@ -30,3 +30,6 @@ temp/
 .eslintcache
 .vite/
 .vitest/
+
+# Personal editor launch paths
+.claude/
