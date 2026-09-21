@@ -2215,6 +2215,8 @@ body.has-tool iframe { pointer-events: none; }
    stops the field ending on a visible rim instead of in empty space. */
 .obj--blackhole canvas {
   border-radius: 50%;
+  /* Keep the shadow visible while the animated canvas is offscreen or motion is reduced. */
+  background: radial-gradient(circle, #000 0 14%, #ffe4b1 15%, rgba(244, 177, 95, .65) 17%, transparent 32%);
   mask-image: radial-gradient(circle, #000 58%, rgba(0, 0, 0, .55) 78%, transparent 100%);
 }
 .hole__count {

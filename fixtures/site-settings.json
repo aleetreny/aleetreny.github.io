@@ -1520,9 +1520,9 @@
       {
         "id": "blackhole",
         "x": 2324,
-        "y": 1164,
+        "y": 1090,
         "rot": 0,
-        "scale": 1,
+        "scale": 1.4,
         "visible": true
       }
     ],

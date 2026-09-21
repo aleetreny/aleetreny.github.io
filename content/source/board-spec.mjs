@@ -779,7 +779,7 @@ export const OBJECTS = [
   { id: 'garden', x: 3684, y: 744, rot: 0, scale: 1, visible: true },
   { id: 'life', x: 2344, y: 64, rot: 2.5, scale: 1, visible: true },
   { id: 'pcalamp', x: 3244, y: 2238, rot: -2, scale: 1, visible: true },
-  { id: 'blackhole', x: 2324, y: 1164, rot: 0, scale: 1, visible: true },
+  { id: 'blackhole', x: 2324, y: 1090, rot: 0, scale: 1.4, visible: true },
 ];
 
 // How long a splat of paint lasts: none | session | global.
