@@ -729,6 +729,8 @@ a { color: var(--c-accent); text-decoration: none; }
 .toolbar__sep { width: 1px; height: 22px; background: rgba(243, 236, 221, .2); margin: 0 6px; }
 .tbtn { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: transparent; color: var(--c-dark-ink); border: 1px solid rgba(243, 236, 221, .28); padding: 6px 11px; cursor: pointer; white-space: nowrap; }
 .tbtn:hover { background: rgba(243, 236, 221, .14); }
+.tbtn--danger { color: var(--c-danger-ink); border-color: color-mix(in oklch, var(--c-danger-ink) 50%, transparent); }
+.tbtn--danger:hover:not(:disabled) { background: color-mix(in oklch, var(--c-danger-ink) 18%, transparent); }
 .tbtn--ghost { border: none; color: rgba(243, 236, 221, .75); padding: 6px 8px; }
 .tbtn--ghost:hover { color: var(--c-signal-soft); background: transparent; }
 .tbtn--icon { width: 30px; height: 28px; font-size: 14px; line-height: 1; padding: 0; }
@@ -821,6 +823,9 @@ a { color: var(--c-accent); text-decoration: none; }
 .entry-order button:hover:not(:disabled), .entry-order button:focus-visible:not(:disabled) { border-color: var(--c-signal); color: var(--c-signal-soft); }
 .entry-order button:disabled { cursor: default; opacity: .3; }
 .panel__section { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--c-signal-soft); margin: 18px 0 6px; }
+.panel__sectionbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 18px 0 6px; }
+.panel__sectionbar .panel__section { margin: 0; }
+.panel__sectionbar .tbtn { padding-block: 5px; }
 .panel__actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 .panel__err { font-size: 11px; color: var(--c-signal-soft); margin-top: 10px; min-height: 16px; }
 .panel__note { font-size: 10.5px; line-height: 1.5; color: rgba(243, 236, 221, .5); margin: -4px 0 8px; font-style: italic; }

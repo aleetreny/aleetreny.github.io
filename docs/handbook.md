@@ -396,10 +396,13 @@ The `entries` panel is the one place that is not on the board:
 - **Lists**: rename, create, delete. Deleting a list moves its dossiers to
   another one rather than losing them, and asks first.
 - **Move** any dossier between lists.
-- **Delete** to a recoverable trash, and **restore** from it.
+- **Delete** to a recoverable trash, **restore** from it, or **empty** it after
+  a separate confirmation when its articles are no longer needed.
 
-Nothing is ever hard-deleted. Entries, blocks and assets all use `deleted_at`,
-and every save snapshots the previous version into `entry_versions`.
+Ordinary deletion is always recoverable and every save snapshots the previous
+version into `entry_versions`. Emptying the article trash permanently removes
+only entries already in it, together with their blocks and version history;
+uploaded assets remain available because they may be shared or reused.
 
 ### Interface wording
 

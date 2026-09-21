@@ -6,6 +6,7 @@ import {
   DEFAULT_BOARD,
   dossierOrder,
   entriesForGroup,
+  firstEntryOrder,
   parseBoard,
   parseLayout,
   parseTheme,
@@ -1482,7 +1483,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent, skipTour = false, on
       summary: '',
       status: 'published',
       publishedAt: new Date().toISOString(),
-      metadata: { kicker: label, when: '', where: '', group, order: entriesForGroup(entries, group).length },
+      metadata: { kicker: label, when: '', where: '', group, order: firstEntryOrder(entries, group) },
       blocks: [],
     };
 

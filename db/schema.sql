@@ -8,3 +8,5 @@
 \ir migrations/0006_allow_video_uploads.sql
 \ir migrations/0007_increase_video_upload_limit.sql
 \ir migrations/0008_visitor_world.sql
+\ir migrations/0009_garden_water_on_demand.sql
+\ir migrations/0010_empty_entry_trash.sql

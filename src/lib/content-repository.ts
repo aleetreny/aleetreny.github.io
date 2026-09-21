@@ -328,6 +328,15 @@ export async function restoreDeletedContentEntry(
   return hydrateEntry(await storedEntry(data));
 }
 
+/** Permanently remove every entry that is already in the owner's trash.
+ * Active entries can never match the database function's deletion scope. */
+export async function emptyDeletedContentEntries(): Promise<number> {
+  const neonClient = await getAuthorizedOwnerClient();
+  const { data, error } = await neonClient.rpc('empty_deleted_content_entries');
+  if (error) throw new Error(error.message);
+  return typeof data === 'number' ? data : 0;
+}
+
 export async function listEntryVersions(entryId: string): Promise<EntryVersionSummary[]> {
   const neonClient = await getAuthorizedOwnerClient();
   const { data, error } = await neonClient

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { EntryType, PortfolioEntry, StoredPortfolioEntry, DeletedEntrySummary } from '../../types/content';
 import { createEntry, slugify } from '../../lib/editor';
-import { entriesForGroup, reorderGroupEntries, type BoardConfig } from '../../lib/board';
+import { entriesForGroup, firstEntryOrder, reorderGroupEntries, type BoardConfig } from '../../lib/board';
 import {
   deleteContentEntry,
+  emptyDeletedContentEntries,
   listDeletedEntries,
   restoreDeletedContentEntry,
   saveContentEntry,
@@ -39,6 +40,7 @@ export function InventoryPanel({
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
   const [trash, setTrash] = useState<DeletedEntrySummary[]>([]);
+  const [trashBusy, setTrashBusy] = useState<string | null>(null);
   const [newListName, setNewListName] = useState('');
 
   useEffect(() => {
@@ -54,7 +56,6 @@ export function InventoryPanel({
     setBusy(true);
     try {
       const base = createEntry(GROUP_TYPE[group] ?? 'note');
-      const order = entriesForGroup(entries, group).length;
       const entry: PortfolioEntry = {
         ...base,
         // Version 0 tells save_content_entry that this is a new row. The RPC
@@ -65,7 +66,7 @@ export function InventoryPanel({
         summary: '',
         status: 'published',
         publishedAt: new Date().toISOString(),
-        metadata: { kicker: labelFor(group), when: '', where: '', group, order },
+        metadata: { kicker: labelFor(group), when: '', where: '', group, order: firstEntryOrder(entries, group) },
         blocks: [],
       };
       // Local preview keeps it in session; production persists to Neon.
@@ -95,6 +96,7 @@ export function InventoryPanel({
   }
 
   async function restore(item: DeletedEntrySummary) {
+    setTrashBusy(item.id);
     try {
       const restored = await restoreDeletedContentEntry({ id: item.id, version: item.version });
       onRestored(restored);
@@ -102,6 +104,22 @@ export function InventoryPanel({
       notify(t('inv.restored'));
     } catch (error) {
       notify(error instanceof Error ? error.message : t('inv.restoreFailed'), true);
+    } finally {
+      setTrashBusy(null);
+    }
+  }
+
+  async function emptyTrash() {
+    if (!window.confirm(t('inv.confirmEmptyTrash', { count: trash.length }))) return;
+    setTrashBusy('empty');
+    try {
+      await emptyDeletedContentEntries();
+      setTrash([]);
+      notify(t('inv.trashEmptied'));
+    } catch (error) {
+      notify(error instanceof Error ? error.message : t('inv.emptyTrashFailed'), true);
+    } finally {
+      setTrashBusy(null);
     }
   }
 
@@ -235,12 +253,29 @@ export function InventoryPanel({
 
         {trash.length > 0 ? (
           <>
-            <div className="panel__section">{t('inv.trash', { count: trash.length })}</div>
+            <div className="panel__sectionbar">
+              <div className="panel__section">{t('inv.trash', { count: trash.length })}</div>
+              <button
+                className="tbtn tbtn--danger"
+                type="button"
+                onClick={() => void emptyTrash()}
+                disabled={trashBusy !== null}
+              >
+                {trashBusy === 'empty' ? t('inv.emptyingTrash') : t('inv.emptyTrash')}
+              </button>
+            </div>
             <div style={{ maxHeight: 120, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
               {trash.map((item) => (
                 <div key={item.id} className="field-row" style={{ margin: 0 }}>
                   <label style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</label>
-                  <button className="tbtn" type="button" onClick={() => restore(item)}>{t('inv.restore')}</button>
+                  <button
+                    className="tbtn"
+                    type="button"
+                    onClick={() => void restore(item)}
+                    disabled={trashBusy !== null}
+                  >
+                    {trashBusy === item.id ? t('inv.restoring') : t('inv.restore')}
+                  </button>
                 </div>
               ))}
             </div>

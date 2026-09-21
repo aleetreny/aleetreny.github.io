@@ -862,6 +862,14 @@ export function entriesForGroup(entries: PortfolioEntry[], group: string): Portf
     .sort((a, b) => metaNumber(a, 'order') - metaNumber(b, 'order'));
 }
 
+/** Stored order for a new drawer entry so it appears before everything that
+ * is already there. Using the current minimum avoids rewriting and saving the
+ * whole drawer just to make one new dossier the first row. */
+export function firstEntryOrder(entries: PortfolioEntry[], group: string): number {
+  const first = entriesForGroup(entries, group)[0];
+  return first ? metaNumber(first, 'order') - 1 : 0;
+}
+
 /** Return a drawer's entries after moving one item and normalising every
  * stored order. Keeping this operation here means every editor surface uses
  * the same ordering rules, including entries that arrived without an order. */

@@ -13,6 +13,7 @@ import {
   WALLS,
   dossierOrder,
   entriesForGroup,
+  firstEntryOrder,
   parseBoard,
   parseLayout,
   parseTheme,
@@ -303,6 +304,11 @@ describe('board derivations', () => {
 
   it('orders drawer entries by their stored order', () => {
     expect(entriesForGroup(entries, 'work').map((item) => item.slug)).toEqual(['a', 'b']);
+  });
+
+  it('puts a new drawer entry before the current first one', () => {
+    expect(firstEntryOrder(entries, 'work')).toBe(-1);
+    expect(firstEntryOrder(entries, 'empty')).toBe(0);
   });
 
   it('moves a drawer entry and normalises the stored order', () => {

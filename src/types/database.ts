@@ -210,6 +210,10 @@ export type Database = {
         Args: { p_entry_id: string; p_expected_version: number };
         Returns: Json;
       };
+      empty_deleted_content_entries: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
       // ---- the garden and the vote, reached only through these
       garden_plot: {
         Args: Record<PropertyKey, never>;

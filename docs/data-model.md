@@ -87,8 +87,10 @@ rest are owner-only. The four documents this project uses are `theme`, `board`,
 ## Soft deletion
 
 `content_entries`, `content_blocks` and `assets` use `deleted_at`. Public
-policies exclude deleted rows. Physical deletion should only run during
-maintenance/retention, after checking references and backups.
+policies exclude deleted rows. The owner may permanently empty the article
+trash after an explicit confirmation; the database removes only entries whose
+`deleted_at` is set, with their blocks and version history cascading from the
+entry. Assets remain untouched because they may be shared or reusable.
 
 ## Indexes
 
