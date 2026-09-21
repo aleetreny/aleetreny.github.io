@@ -4,7 +4,7 @@ The portfolio is independently deployable from this repository. The original Nig
 
 ## Source changes
 
-1. Work in this repository only; follow the owner commit identity in `CLAUDE.md`.
+1. Work in this repository only; follow the owner commit identity in `AGENTS.md`.
 2. Run `pnpm check` and `pnpm build` for a completed change. Add relevant browser verification for changed interactions.
 3. Save verified logical changes as incremental commits. Fast-forward `main` if working on a branch and push `main`.
 4. Wait for `.github/workflows/deploy-pages.yml` to succeed. It publishes the Vite `dist/` artifact through GitHub Pages.
