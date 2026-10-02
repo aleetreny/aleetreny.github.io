@@ -256,7 +256,8 @@ describe('the i18n document', () => {
 
   it('ships the seeded language setup', () => {
     expect(DEFAULT_I18N.enabled).toBe(true);
-    expect(DEFAULT_I18N.primary).toBe('en');
+    expect(DEFAULT_I18N.primary).toBe('es');
+    expect(DEFAULT_I18N.defaultLanguage).toBe('en');
     expect(DEFAULT_I18N.languages.map((l) => l.code)).toEqual(['en', 'es']);
     expect(DEFAULT_I18N.followBrowser).toBe(false);
     expect(parseI18n(null)).toEqual(DEFAULT_I18N);
@@ -275,5 +276,13 @@ describe('the i18n document', () => {
     const off = parseI18n({ enabled: false });
     expect(off.enabled).toBe(false);
     expect(initialLanguage(off)).toBe(off.primary);
+  });
+
+  it('opens a new visit in English even with a Spanish browser and Spanish authoring', () => {
+    vi.stubGlobal('window', { localStorage: { getItem: () => null, setItem: () => {} } });
+    vi.stubGlobal('navigator', { languages: ['es-ES'] });
+    expect(initialLanguage(DEFAULT_I18N)).toBe('en');
+    vi.stubGlobal('window', { localStorage: { getItem: () => 'es', setItem: () => {} } });
+    expect(initialLanguage(DEFAULT_I18N)).toBe('es');
   });
 });

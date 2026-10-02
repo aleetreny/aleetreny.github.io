@@ -24,6 +24,8 @@ export type I18nConfig = {
   enabled: boolean;
   /** The language the owner authors in. Everything falls back to it. */
   primary: string;
+  /** Initial visitor language, independent of the language the owner writes. */
+  defaultLanguage: string;
   /** Every language offered, primary included, in switcher order. */
   languages: LanguageOption[];
   /** Translate a field into the other languages when the owner leaves it. */
@@ -39,6 +41,7 @@ export type I18nConfig = {
 const BASE_I18N: I18nConfig = {
   enabled: false,
   primary: 'en',
+  defaultLanguage: 'en',
   languages: [{ code: 'en', label: 'English' }, { code: 'es', label: 'Español' }],
   auto: true,
   provider: 'mymemory',
@@ -65,12 +68,16 @@ function parseLanguages(value: unknown, fallback: LanguageOption[]): LanguageOpt
 export function parseI18n(value: unknown, base: I18nConfig = DEFAULT_I18N): I18nConfig {
   if (!isRecord(value)) return base;
   const languages = parseLanguages(value.languages, base.languages);
-  const primary = typeof value.primary === 'string' && languages.some((l) => l.code === value.primary)
-    ? value.primary
+  const requestedPrimary = typeof value.primary === 'string' ? value.primary : base.primary;
+  const primary = languages.some((l) => l.code === requestedPrimary)
+    ? requestedPrimary
     : languages[0].code;
   return {
     enabled: typeof value.enabled === 'boolean' ? value.enabled : base.enabled,
     primary,
+    defaultLanguage: typeof value.defaultLanguage === 'string' && languages.some((l) => l.code === value.defaultLanguage)
+      ? value.defaultLanguage
+      : primary,
     languages,
     auto: typeof value.auto === 'boolean' ? value.auto : base.auto,
     provider: (TRANSLATE_PROVIDERS as readonly string[]).includes(value.provider as string)
@@ -338,7 +345,7 @@ export function missingAt(
 const LANG_KEY = 'board.lang';
 
 /** Which language to open in: the visitor's remembered choice, then what their
- *  browser asks for, then the primary. */
+ *  browser asks for when enabled, then the visitor default. */
 export function initialLanguage(config: I18nConfig): string {
   if (!config.enabled) return config.primary;
   const codes = config.languages.map((l) => l.code);
@@ -355,7 +362,7 @@ export function initialLanguage(config: I18nConfig): string {
       if (hit) return hit;
     }
   }
-  return config.primary;
+  return config.defaultLanguage;
 }
 
 export function rememberLanguage(config: I18nConfig, lang: string): void {

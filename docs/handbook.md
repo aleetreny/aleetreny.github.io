@@ -1101,7 +1101,8 @@ Languages. **Panel:** owner bar → `theme` → **languages**. See
 | Field | Values | Default | What it does |
 | --- | --- | --- | --- |
 | `enabled` | bool | true | Off means one language and no switcher, exactly as the board behaves without this. |
-| `primary` | a language code | `en` | The language you author in. Everything falls back to it. |
+| `primary` | a language code | `es` | The language you author in. Content falls back to it. |
+| `defaultLanguage` | a language code | `en` | Initial visitor language, independent of authoring. A remembered choice takes priority. |
 | `languages` | `[{ code, label }]` | English, Español | Every language offered, in switcher order. Add or remove rows in the panel. |
 | `auto` | bool | true | Translate a dossier's empty languages shortly after you stop typing. |
 | `provider` | `mymemory` `function` `off` | `mymemory` | Where translations come from. |

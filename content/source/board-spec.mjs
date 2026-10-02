@@ -795,7 +795,8 @@ export { PASSPORT } from './passport-data.mjs';
 // writes in `primary`, and the translate action in the owner bar fills the rest.
 export const I18N = {
   enabled: true,
-  primary: 'en',
+  primary: 'es',
+  defaultLanguage: 'en',
   languages: [
     { code: 'en', label: 'English' },
     { code: 'es', label: 'Español' },
@@ -803,7 +804,7 @@ export const I18N = {
   auto: true, // translate a field when the owner leaves it
   provider: 'mymemory', // mymemory (keyless) | function (your own key) | off
   remember: true, // keep the visitor's choice
-  followBrowser: false, // default directly to primary (English) on fresh/incognito visits
+  followBrowser: false, // new visits open in English; authoring remains Spanish
 };
 
 // The guided tour — the slate slams onto the wall and the visitor walks the

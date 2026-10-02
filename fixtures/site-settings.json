@@ -2985,7 +2985,8 @@
     "key": "site.i18n",
     "value": {
       "enabled": true,
-      "primary": "en",
+      "primary": "es",
+      "defaultLanguage": "en",
       "languages": [
         {
           "code": "en",
