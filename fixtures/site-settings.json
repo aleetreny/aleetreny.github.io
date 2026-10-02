@@ -185,7 +185,7 @@
           },
           "hint": {
             "es": "Este panel es un viaje por mi vida, tanto profesional como personal. Tiene un enfoque diferente a los posts ultra pulidos de LinkedIn; aquí la transparencia es lo primero. Haz clic en cualquier entrada para ver los detalles. Los objetos son interactivos :)",
-            "en": "This dashboard is a journey through my life, both professional and personal. It takes a different approach to the ultra-polished LinkedIn posts; here, transparency comes first. Click on any entry to see the details. The objects are interactive :)"
+            "en": "This board is a journey through my life, both professional and personal. It takes a different approach to the ultra-polished LinkedIn posts; here, transparency comes first. Click on any entry to see the details. The objects are interactive :)"
           }
         },
         {
@@ -240,7 +240,7 @@
           },
           "title": {
             "es": "Mi recorrido laboral",
-            "en": "My working path"
+            "en": "My work journey"
           },
           "subtitle": {
             "es": "Acumulo alrededor de 1 año y medio de experiencia laboral. He estado en varios sectores y tanto en empresa grande como pequeña. ",
@@ -536,7 +536,7 @@
           },
           "footer": {
             "es": "También: ciencia ficción y fantasía (Douglas Adams es innegociable), juegos de mesa, comida asiática, y un grillo que me comí en un TEDx. No como aguacate.",
-            "en": "Also: sci-fi and fantasy (Douglas Adams is non-negotiable), board games, Asian food, and one cricket eaten at a TEDx. I do not eat avocado."
+            "en": "Also: sci-fi and fantasy (Douglas Adams is non-negotiable), board games, Asian food, and a cricket I ate at a TEDx. I do not eat avocado."
           },
           "layout": "notes",
           "maxItems": 7
@@ -1639,7 +1639,7 @@
         },
         "code": "BS",
         "note": {
-          "es": "Una isla parque acuatico KHE",
+          "es": "Una isla parque acuático KHE",
           "en": "A whole water-park island, KHE"
         },
         "page": 2,
@@ -1735,7 +1735,7 @@
         },
         "code": "GB",
         "note": {
-          "es": "Tranqui el avion está en buenas manos.",
+          "es": "Tranqui el avión está en buenas manos.",
           "en": "Relax, the plane is in good hands."
         },
         "page": 3,
@@ -1759,7 +1759,7 @@
         },
         "code": "CH",
         "note": {
-          "es": "A moverse por el rio",
+          "es": "A moverse por el río",
           "en": "Time to move along the river"
         },
         "page": 3,
@@ -1807,7 +1807,7 @@
         },
         "code": "FR",
         "note": {
-          "es": "La ciudad mas bonita del mundo",
+          "es": "La ciudad más bonita del mundo",
           "en": "The most beautiful city in the world"
         },
         "page": 3,
@@ -2053,7 +2053,7 @@
         "page": 6,
         "year": "2023",
         "place": {
-          "es": "Republica Checa",
+          "es": "República Checa",
           "en": "Czech Republic"
         },
         "shape": "rect",
@@ -2143,7 +2143,7 @@
         },
         "code": "SK",
         "note": {
-          "es": "🏒 Como puedes patinar, sostener un palo, y llevar un disco al mismo tiempo.",
+          "es": "🏒 Cómo puedes patinar, sostener un palo, y llevar un disco al mismo tiempo.",
           "en": "🏒 How can you skate, hold a stick and carry a puck at the same time?"
         },
         "page": 7,
@@ -2173,7 +2173,7 @@
         "page": 7,
         "year": "2023",
         "place": {
-          "es": "Paises Bajos",
+          "es": "Países Bajos",
           "en": "Netherlands"
         },
         "shape": "shield",
@@ -2221,7 +2221,7 @@
         "page": 8,
         "year": "2023",
         "place": {
-          "es": "Republica Checa",
+          "es": "República Checa",
           "en": "Czech Republic"
         },
         "shape": "oval",
@@ -2335,7 +2335,7 @@
         },
         "code": "IS",
         "note": {
-          "es": "Que barbaridad",
+          "es": "Qué barbaridad",
           "en": "Unbelievable"
         },
         "page": 9,
@@ -2383,7 +2383,7 @@
         },
         "code": "CY",
         "note": {
-          "es": "Que rico",
+          "es": "Qué rico",
           "en": "So good"
         },
         "page": 9,
@@ -2570,7 +2570,7 @@
         "ink": "ochre",
         "rot": 16.457020680549668,
         "city": {
-          "es": "Seul, Busan y Gyeongju",
+          "es": "Seúl, Busan y Gyeongju",
           "en": "Seoul, Busan and Gyeongju"
         },
         "code": "KR",
@@ -2653,7 +2653,7 @@
         "page": 12,
         "year": "2024",
         "place": {
-          "es": "Canada",
+          "es": "Canadá",
           "en": "Canada"
         },
         "shape": "shield",
@@ -2714,7 +2714,7 @@
         "ink": "coral",
         "rot": 17.4641004449569,
         "city": {
-          "es": "Colchester y Cambdrige",
+          "es": "Colchester y Cambridge",
           "en": "Colchester and Cambridge"
         },
         "code": "GB",
@@ -2935,7 +2935,7 @@
         },
         "code": "NO",
         "note": {
-          "es": "Fria pero fria fria",
+          "es": "Fría pero fría fría",
           "en": "Cold, but really, really cold"
         },
         "page": 15,
@@ -2959,13 +2959,13 @@
         },
         "code": "AE",
         "note": {
-          "es": "Express, que calor.",
+          "es": "Express, qué calor.",
           "en": "Express stop — so hot."
         },
         "page": 15,
         "year": "2026",
         "place": {
-          "es": "Emiratos Arabes",
+          "es": "Emiratos Árabes",
           "en": "United Arab Emirates"
         },
         "shape": "rect",

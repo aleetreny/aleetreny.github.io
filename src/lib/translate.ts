@@ -127,26 +127,30 @@ type MyMemoryBody = {
  *  "Hola mundo, esto es una prueba" answers "hello this is a test 123" while
  *  the machine translation sitting in `matches` says "Hello world, this is a
  *  test". So: take the machine entry when there is one, take a memory entry
- *  only when it matches the source exactly, and fall back to the headline
- *  answer last. */
+ *  only when it matches the source exactly. Reject a headline known to be a
+ *  fuzzy match: another author's sentence is not this author's translation. */
 export function pickMyMemoryText(body: unknown, source: string): string {
   const parsed = (body ?? {}) as MyMemoryBody;
   const matches = Array.isArray(parsed.matches) ? (parsed.matches as MyMemoryMatch[]) : [];
 
   const machine = matches.find((match) => {
     const by = typeof match['created-by'] === 'string' ? match['created-by'] : '';
-    return by.toUpperCase().startsWith('MT') && typeof match.translation === 'string' && match.translation.trim();
+    return by.toUpperCase().startsWith('MT')
+      && typeof match.segment === 'string' && match.segment.trim() === source.trim()
+      && typeof match.translation === 'string' && match.translation.trim();
   });
   if (machine && typeof machine.translation === 'string') return machine.translation;
 
-  const wanted = source.trim().toLowerCase();
+  const wanted = source.trim();
   const exact = matches.find((match) => {
-    const segment = typeof match.segment === 'string' ? match.segment.trim().toLowerCase() : '';
+    const segment = typeof match.segment === 'string' ? match.segment.trim() : '';
     return segment === wanted && typeof match.translation === 'string' && match.translation.trim();
   });
   if (exact && typeof exact.translation === 'string') return exact.translation;
 
   const headline = parsed.responseData?.translatedText;
+  if (typeof parsed.responseData?.match === 'number' && parsed.responseData.match < 1) return '';
+  if (matches.length > 0) return '';
   return typeof headline === 'string' ? headline : '';
 }
 
@@ -239,10 +243,11 @@ function splitWords(text: string, limit: number): string[] {
   const out: string[] = [];
   let current = '';
   for (const word of text.split(/\s+/)) {
-    if (!current) { current = word.slice(0, limit); continue; }
+    if (word.length > limit) throw new TranslateError('A word exceeds the translator limit; translate this field manually.');
+    if (!current) { current = word; continue; }
     if (current.length + word.length + 1 <= limit) { current = `${current} ${word}`; continue; }
     out.push(current);
-    current = word.slice(0, limit);
+    current = word;
   }
   if (current) out.push(current);
   return out;

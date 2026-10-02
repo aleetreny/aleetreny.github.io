@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ITEMS, ORDER } from '../../content/source/desk-data.mjs';
+import { TEXT_REVIEW } from '../../content/source/text-review-2026-10-02.mjs';
+import { applyTextReview } from './text-review.mjs';
 import {
   BOARD, THEME, GROUPS, GROUP_LABELS, GROUP_LABELS_ES, GROUP_ENTRY_TYPE, ENTRY_TYPE_OVERRIDE, TRAVEL_CODES,
   CARDS, POLAROIDS, MARGINALIA, TOUR, I18N, OBJECTS, PASSPORT, WORLD,
@@ -237,6 +239,7 @@ const settings = [
 ];
 
 const root = resolve('.');
+if (bilingual) applyTextReview(publicEntries, settings, TEXT_REVIEW);
 await writeFile(resolve(root, 'fixtures/demo-content.json'), `${JSON.stringify(publicEntries, null, 2)}\n`, 'utf8');
 await writeFile(resolve(root, 'fixtures/site-settings.json'), `${JSON.stringify(settings, null, 2)}\n`, 'utf8');
 

@@ -184,7 +184,7 @@
         "position": 9,
         "props": {
           "text": {
-            "es": "Para el datalake y el ETL usamos Azure. Para la predicción, mi base en estadística nos llevó primero a probar modelos tradicionales como regresiones lineales, ridge, lasso o arboles, que en ciertos entornos con pocas observaciones como este funcionan sorprendentemente bien. Y a continuación probamos con otros más sofisticados como Random Forest, Gradient Boosting o GAM.",
+            "es": "Para el datalake y el ETL usamos Azure. Para la predicción, mi base en estadística nos llevó primero a probar modelos tradicionales como regresiones lineales, ridge, lasso o árboles, que en ciertos entornos con pocas observaciones como este funcionan sorprendentemente bien. Y a continuación probamos con otros más sofisticados como Random Forest, Gradient Boosting o GAM.",
             "en": "For the datalake and the ETL we used Azure. For the prediction, my background in statistics led us to try traditional models first — linear regressions, ridge, lasso or trees — which in certain settings with few observations like this one work surprisingly well. And then we tried more sophisticated ones like Random Forest, Gradient Boosting or GAM."
           }
         },
@@ -294,7 +294,7 @@
         "position": 0,
         "props": {
           "text": {
-            "es": "Accenture es la consultora tecnológica más grande del mundo, básicamente se dedica a ofrecer servicios IT a otras empresas, y lo hace a lo grande. El departamento de Ciencia de Datos e IA de Madrid es pionero en soluciones agénticas y LLMs, con un equipo super joven del que he tenido la suerte de formar parte. ",
+            "es": "Accenture es la consultora tecnológica más grande del mundo, básicamente se dedica a ofrecer servicios IT a otras empresas, y lo hace a lo grande. El departamento de Ciencia de Datos e IA de Madrid es pionero en soluciones agénticas y LLMs, con un equipo súper joven del que he tenido la suerte de formar parte. ",
             "en": "Accenture is the largest technology consultancy in the world; basically it provides IT services to other companies, and it does it on a grand scale. The Data Science and AI department in Madrid is a pioneer in agentic solutions and LLMs, with a super young team I have been lucky to be part of."
           },
           "textLinks": {
@@ -387,7 +387,7 @@
             },
             {
               "es": "MCP: uno de los grandes problemas en las tecnológicas con decenas de proyectos es que no hay un repositorio centralizado de tools repetitivas para los agentes. Creamos este proyecto desde 0 para solucionarlo. Básicamente, diseñamos cientos de tools versátiles que se usan en muchos casos, y creamos un servidor MCP padre con todas ellas. Cuando un nuevo proyecto surge, va a una interfaz sencilla y describe el proyecto. Entonces, un flujo de agentes escoge las tools útiles para el caso, levantándolas en un servidor MCP hijo para que los participantes puedan tenerlas rápido al alcance, ahorrando tiempo a toda la empresa. Este es el que más ilusión me hizo por estar completamente en las manos de 4 becarios desde el principio, y usar nuevos frameworks como StrandAgents. ",
-              "en": "MCP: one of the big problems at tech companies with dozens of projects is that there is no centralised repository of repetitive tools for the agents. We built this project from scratch to solve it. Basically, we designed hundreds of versatile tools that get used across many cases, and we created a parent MCP server holding all of them. When a new project comes up, it goes to a simple interface and describes itself. Then a flow of agents picks the tools useful for that case and spins them up in a child MCP server so the people on it have them to hand quickly, saving time for the whole company. This is the one that excited me most, because it was entirely in the hands of 4 interns from the start, and because we used new frameworks like StrandAgents."
+              "en": "MCP: one of the big problems at tech companies with dozens of projects is that there is no centralised repository of repetitive tools for the agents. We built this project from scratch to solve it. Basically, we designed hundreds of versatile tools that get used across many cases, and we created a parent MCP server holding all of them. When a new project comes up, you go to a simple interface and describe the project. Then a flow of agents picks the tools useful for that case and spins them up in a child MCP server so the people on it have them to hand quickly, saving time for the whole company. This is the one that excited me most, because it was entirely in the hands of 4 interns from the start, and because we used new frameworks like StrandAgents."
             },
             {
               "es": "Iniciativa X: el proyecto de mayor alcance que tuvimos en mi opinión. Un grupo de 8 becarios exploramos las dinámicas de trabajo de los empleados de otro gran banco español, para identificar tareas automatizables y diseñar workflows que mejorasen su productividad. Dividimos las tareas por área, yo me encargué de hacer una herramienta de transcripción de entrevistas y posterior interpretación por LLM en diferentes criterios, acelerando el trabajo del departamento de recursos humanos. No solo tuve que aprender a usar Whisper, sino que impartí formaciones al equipo para usar correctamente la herramienta, enfrentándome a transmitir ideas complejas de forma simple. ",
@@ -427,7 +427,7 @@
         "props": {
           "text": {
             "es": "He aprendido muchísimo y me llevo muchas amistades con un talento infinito. Me ha sorprendido mucho ver cómo una empresa con tanto protocolo nos daba tanta libertad a los becarios. ",
-            "en": "I have learned a huge amount and I am taking away many friendships with infinite talent. It really surprised me to see a company with so much protocol give us interns so much freedom."
+            "en": "I have learned a huge amount and made lots of incredibly talented friends. It really surprised me to see a company with so much protocol give us interns so much freedom."
           },
           "textLinks": {
             "es": []
@@ -528,7 +528,7 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "La Axarquia (pequeña región malagueña) es el mayor productor de aguacate y mango de toda europa, dando lugar a muchas empresas sólidas que se dedican a exportar tanto la cosecha regional como la internacional. El modelo de negocio se basa en comprar fruta al productor o a otro distribuidor (ya sea en España o en cualquier otro país), para seleccionarla, madurarla y distribuirla a los supermercados europeos. ",
+            "es": "La Axarquía (pequeña región malagueña) es el mayor productor de aguacate y mango de toda Europa, dando lugar a muchas empresas sólidas que se dedican a exportar tanto la cosecha regional como la internacional. El modelo de negocio se basa en comprar fruta al productor o a otro distribuidor (ya sea en España o en cualquier otro país), para seleccionarla, madurarla y distribuirla a los supermercados europeos. ",
             "en": "The Axarquia (a small region of Málaga) is the biggest producer of avocado and mango in the whole of Europe, which has given rise to many solid companies that export both the regional harvest and the international one. The business model is based on buying fruit from the grower or from another distributor (whether in Spain or in any other country), to sort it, ripen it and distribute it to European supermarkets."
           },
           "textLinks": {
@@ -543,7 +543,7 @@
         "position": 3,
         "props": {
           "text": {
-            "es": "Es un mercado difícil porque los márgenes son minúsculos. La mayoría de los aguacates y mangos se producen en Latinoamérica, por lo que cuando no hay cosecha regional estas empresas de la Axarquia se dedican a comprar los productos de Colombia, Chile, Ecuador... Las empresas distribuidoras latinoamericanas no suelen vender directamente al supermercado europeo porque la maduración es muy importante y solo se puede hacer en destino. ",
+            "es": "Es un mercado difícil porque los márgenes son minúsculos. La mayoría de los aguacates y mangos se producen en Latinoamérica, por lo que cuando no hay cosecha regional estas empresas de la Axarquía se dedican a comprar los productos de Colombia, Chile, Ecuador... Las empresas distribuidoras latinoamericanas no suelen vender directamente al supermercado europeo porque la maduración es muy importante y solo se puede hacer en destino. ",
             "en": "It is a hard market because the margins are minuscule. Most avocados and mangoes are grown in Latin America, so when there is no regional harvest these companies in the Axarquia buy the produce from Colombia, Chile, Ecuador... Latin American distributors do not usually sell straight to the European supermarket because ripening matters a great deal and can only be done at the destination. "
           },
           "textLinks": {
@@ -558,7 +558,7 @@
         "position": 4,
         "props": {
           "text": {
-            "es": "Muchas de las empresas del sector son familiares, y me encantó poder formar parte de un equipo menos corporativo. La información fluye más fácilmente, lideras iniciativas sin tanta burocracia, y se tiene mucho en cuenta las ideas frescas. Realmente fui capaz de sentirme en casa, echando más horas de las habituales por puro placer.",
+            "es": "Muchas de las empresas del sector son familiares, y me encantó poder formar parte de un equipo menos corporativo. La información fluye más fácilmente, lideras iniciativas sin tanta burocracia, y se tienen mucho en cuenta las ideas frescas. Realmente fui capaz de sentirme en casa, echando más horas de las habituales por puro placer.",
             "en": "Many of the companies in the sector are family businesses, and I loved being able to be part of a less corporate team. Information flows more easily, you lead initiatives without so much bureaucracy, and fresh ideas are really taken into account. I was genuinely able to feel at home, putting in more hours than usual out of pure pleasure."
           },
           "textLinks": {
@@ -622,7 +622,7 @@
             "en": "Málaga"
           },
           "text": {
-            "es": "Se me empezó a dar más responsabilidades y empecé a trabajar como un departamento aparte de \"mejora continua\" con el nuevo CEO. Es justo esto lo que me encanta de las pequeñas empresas, la meritocracia es instantánea y sientes responsabilidad en cada una de tus acciones. Aprendí mucho con él, era un experto en abstraerse y compartía ese valor por la objetividad de los datos que tanto me gusta. Me abrumé cuando me asignó un presupuesto de 420k € para iniciativas, no era capaz ni de asimilar esa cifra. Viéndolo en perspectiva, es justamente este ritmo de responsabilidades lo que me obligaba a aprender tan rápido y no dejar hueco para el miedo, quería cumplir expectativas. ",
+            "es": "Se me empezaron a dar más responsabilidades y empecé a trabajar como un departamento aparte de \"mejora continua\" con el nuevo CEO. Es justo esto lo que me encanta de las pequeñas empresas, la meritocracia es instantánea y sientes responsabilidad en cada una de tus acciones. Aprendí mucho con él, era un experto en abstraerse y compartía ese valor por la objetividad de los datos que tanto me gusta. Me abrumé cuando me asignó un presupuesto de 420k € para iniciativas, no era capaz ni de asimilar esa cifra. Viéndolo en perspectiva, es justamente este ritmo de responsabilidades lo que me obligaba a aprender tan rápido y no dejar hueco para el miedo, quería cumplir expectativas. ",
             "en": "They started giving me more responsibilities and I began working as a separate \"continuous improvement\" department with the new CEO. This is exactly what I love about small companies, meritocracy is instant and you feel responsible in every one of your actions. I learned a lot with him, he was an expert at stepping back and he shared that regard for the objectivity of data that I like so much. I was overwhelmed when he assigned me a budget of €420k for initiatives, I could not even take that figure in. Looking at it in perspective, it is precisely this pace of responsibility that forced me to learn so fast and left no room for fear, I wanted to live up to expectations. "
           },
           "caption": {
@@ -822,7 +822,7 @@
         "props": {
           "text": {
             "es": "En Málaga tenemos una oficina de EY en el Parque Tecnológico y es un sitio genial para hacer las prácticas de la carrera. A mi parecer, las consultoras tienen el inconveniente de hacerte sentir un pequeño granito en una estructura rígida infinita: pocas libertades y mucha monotonía. Sin embargo, para empezar en el mundo laboral es perfecto, porque tienes un colchón grande de procesos que evita errores grandes, y se recompensa el esfuerzo por lo que echas más horas que un reloj, aprendiendo el doble. Además te permiten exponerte al mayor pragmatismo posible ya que todo son casos reales para clientes.",
-            "en": "In Málaga we have an EY office in the Technology Park and it is a great place to do your degree internship. To my mind, consultancies have the drawback of making you feel like a tiny grain of sand in an endless rigid structure: few freedoms and a lot of monotony. However, to start out in working life it is perfect, because you have a big cushion of processes that keeps you from making big mistakes, and effort is rewarded, so you put in more hours than a clock and learn twice as much. They also let you expose yourself to the greatest possible pragmatism, since it is all real cases for clients."
+            "en": "In Málaga we have an EY office in the Technology Park and it is a great place to do your degree internship. To my mind, consultancies have the drawback of making you feel like a tiny grain of sand in an endless rigid structure: few freedoms and a lot of monotony. However, to start out in working life it is perfect, because you have a big cushion of processes that keeps you from making big mistakes, and effort is rewarded, so you work around the clock and learn twice as much. They also let you expose yourself to the greatest possible pragmatism, since it is all real cases for clients."
           },
           "textLinks": {
             "es": []
@@ -881,7 +881,7 @@
         "position": 6,
         "props": {
           "text": {
-            "es": "Sin embargo, al intentar extenderla al resto de equipos y formalizarla, la burocracia y permisos necesarios hacían infinitamente lento el proceso, y finalmente desistí. Había firmado ya contrato con otra empresa y estaba trabajando por las mañanas en EY y por las tardes en Tropical Millenium. Decidí no renovar el contrato y centrarme en el otro puesto de trabajo porque me gustaba y aportaba mucho más. Aún así, fue una primera experiencia laboral intensa y gratificante, con un ambiente juvenil e intelectual inigualable.",
+            "es": "Sin embargo, al intentar extenderla al resto de equipos y formalizarla, la burocracia y permisos necesarios hacían infinitamente lento el proceso, y finalmente desistí. Había firmado ya contrato con otra empresa y estaba trabajando por las mañanas en EY y por las tardes en Tropical Millenium. Decidí no renovar el contrato y centrarme en el otro puesto de trabajo porque me gustaba y aportaba mucho más. Aun así, fue una primera experiencia laboral intensa y gratificante, con un ambiente juvenil e intelectual inigualable.",
             "en": "However, when I tried to extend it to the rest of the teams and make it official, the bureaucracy and the permissions needed made the process infinitely slow, and in the end I gave up. I had already signed a contract with another company and I was working mornings at EY and afternoons at Tropical Millenium. I decided not to renew the contract and to focus on the other job because I liked it and it gave me much more. Even so, it was an intense and rewarding first experience of work, with an unbeatable young, intellectual atmosphere."
           },
           "textLinks": {
@@ -1005,16 +1005,16 @@
         "props": {
           "items": [
             {
-              "es": "MSc in Business Analytics and AI en el Imperial College, el cuarto mejor programa del mundo en su categoría, y en la segunda mejor universidad del planeta. Desde la primera vez que visité Londres, el Imperial College había sido mi universidad soñada. Coincidí con una jornada de puertas abiertas al salir del Museo de Historia Natural y pude ver la esencia de curiosidad genuina que desprendían los estudiantes, como contaban sus investigaciones y como explicaban conceptos abstractos con tanta sencillez. El único inconveniente de este Máster era que se impartía en el Departamento de Business, y yo quería algo más técnico.  ",
+              "es": "MSc in Business Analytics and AI en el Imperial College, el cuarto mejor programa del mundo en su categoría, y en la segunda mejor universidad del planeta. Desde la primera vez que visité Londres, el Imperial College había sido mi universidad soñada. Coincidí con una jornada de puertas abiertas al salir del Museo de Historia Natural y pude ver la esencia de curiosidad genuina que desprendían los estudiantes, cómo contaban sus investigaciones y cómo explicaban conceptos abstractos con tanta sencillez. El único inconveniente de este Máster era que se impartía en el Departamento de Business, y yo quería algo más técnico.  ",
               "en": "MSc in Business Analytics and AI at Imperial College, the fourth best programme in the world in its category, and at the second best university on the planet. From the first time I visited London, Imperial College had been my dream university. I happened to hit an open day on my way out of the Natural History Museum and I could see the genuine curiosity coming off the students, the way they talked about their research and explained abstract concepts so simply. The only drawback of this master's was that it was taught in the Business Department, and I wanted something more technical.  "
             },
             {
-              "es": "MSc in Data Science en la LSE, un ratio de aceptación de 13:1, en una de las instituciones más selectivas y rigurosas matemáticamente del planeta. La LSE es la meca en lo que respecta a las ciencias sociales y la estadística aplicada, sin embargo, al ser impartido el máster por el Departamento de Estadística, muchas asignaturas se solapaban con cosas que ya había dado en Madrid, y aunque aún así el programa era brutal, me decante por la tercera opción:",
-              "en": "MSc in Data Science at the LSE, an acceptance ratio of 13:1, at one of the most selective and mathematically rigorous institutions on the planet. The LSE is the mecca as far as social sciences and applied statistics go; however, since the master's is taught by the Statistics Department, a lot of the courses overlapped with things I had already done in Madrid, and even though the programme was still brutal, I went for the third option:"
+              "es": "MSc in Data Science en la LSE, un ratio de aceptación de 13:1, en una de las instituciones más selectivas y rigurosas matemáticamente del planeta. La LSE es la meca en lo que respecta a las ciencias sociales y la estadística aplicada, sin embargo, al ser impartido el máster por el Departamento de Estadística, muchas asignaturas se solapaban con cosas que ya había dado en Madrid, y aunque aun así el programa era brutal, me decanté por la tercera opción:",
+              "en": "MSc in Data Science at the LSE, an acceptance ratio of 13:1, at one of the most selective and mathematically rigorous institutions on the planet. The LSE is the mecca as far as social sciences and applied statistics go; however, since the master's is taught by the Statistics Department, a lot of the courses overlapped with things I had already done in Madrid, and even though the programme was still amazing, I went for the third option:"
             },
             {
               "es": "MSc in Data Science and Machine Learning en la UCL. Me da la sensación de que esta universidad es un poco más desconocida para el estudiante español, aunque su nivel educativo está a la par o por encima de las dos anteriores. Sin embargo, lo que realmente me hizo decidirme por este programa fue que lo impartía el Departamento de Computer Science, que además de ser de reconocido prestigio mundial es el entorno perfecto que necesito para desarrollar la competencia en la que más flojo me siento: la programación. Y más que a sintaxis me refiero al pensamiento lógico que lleva aparejado, a esa extrapolación de un problema a su fórmula lógico-matemática. Además, se imparte en colaboración con Google Deepmind, ya que la UCL es su cuna, y tenemos módulos bestiales.  ",
-              "en": "MSc in Data Science and Machine Learning at UCL. I get the feeling that this university is a bit less known to the Spanish student, even though its academic level is on a par with or above the previous two. What really made me decide on this programme, though, was that it is taught by the Computer Science Department, which as well as being of recognised world prestige is the perfect setting for what I need in order to build up the skill I feel weakest in: programming. And more than syntax I mean the logical thinking that comes with it, that extrapolation of a problem into its logical-mathematical form. On top of that, it is taught in collaboration with Google Deepmind, since UCL is its birthplace, and we have some beastly modules.  "
+              "en": "MSc in Data Science and Machine Learning at UCL. I get the feeling that this university is a bit less known to the Spanish student, even though its academic level is on a par with or above the previous two. What really made me decide on this programme, though, was that it is taught by the Computer Science Department, which as well as being of recognised world prestige is the perfect setting for what I need in order to build up the skill I feel weakest in: programming. And more than syntax I mean the logical thinking that comes with it, that extrapolation of a problem into its logical-mathematical form. On top of that, it is taught in collaboration with Google Deepmind, since UCL is its birthplace, and we have some awesome modules.  "
             }
           ],
           "itemTextLinks": {
@@ -1086,7 +1086,7 @@
         "position": 0,
         "props": {
           "text": {
-            "es": "Esta aventura empieza con la pequeña obsesión por la econometría y la estadística que desarrolle en la carrera. Sentía que había descubierto mi pasión, y el uso de datos para anticipar decisiones tenía que ser mi foco laboral. La cosa es que me veía bastante primerizo en esta rama y quería aprender más. Me aceptaron en algunos programas de estadística a los que había aplicado en Ginebra, Copenhague y Londres, pero los tiempos se me echaron encima y recibí la noticia después de los plazos para aplicar a becas para el extranjero. ",
+            "es": "Esta aventura empieza con la pequeña obsesión por la econometría y la estadística que desarrollé en la carrera. Sentía que había descubierto mi pasión, y el uso de datos para anticipar decisiones tenía que ser mi foco laboral. La cosa es que me veía bastante primerizo en esta rama y quería aprender más. Me aceptaron en algunos programas de estadística a los que había aplicado en Ginebra, Copenhague y Londres, pero los tiempos se me echaron encima y recibí la noticia después de los plazos para aplicar a becas para el extranjero. ",
             "en": "This adventure starts with the small obsession with econometrics and statistics I developed during my degree. I felt I had found my passion, and using data to anticipate decisions had to be my focus at work. The thing is I saw myself as pretty new to this branch and I wanted to learn more. I was accepted onto some statistics programmes I had applied to in Geneva, Copenhagen and London, but time caught up with me and I got the news after the deadlines for applying to grants to study abroad. "
           },
           "textLinks": {
@@ -1116,7 +1116,7 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "La Carlos III es la mejor universidad pública de españa y la exigencia lo avala. Yo recién llegaba de un voluntariado en Paraguay y un par de semanas tarde a clase. Esos primeros días fueron intensos a más no poder, matemática pura para sentar las bases de los métodos estadísticos que veríamos posteriormente. Solo eramos 2 chicos de economía (que justo coincidía que era mi compañero de piso, mi amigo y mi compañero de carrera), mientras que el resto de la clase venia de Mates o Física. ",
+            "es": "La Carlos III es la mejor universidad pública de España y la exigencia lo avala. Yo recién llegaba de un voluntariado en Paraguay y un par de semanas tarde a clase. Esos primeros días fueron intensos a más no poder, matemática pura para sentar las bases de los métodos estadísticos que veríamos posteriormente. Solo éramos 2 chicos de economía (que justo coincidía que era mi compañero de piso, mi amigo y mi compañero de carrera), mientras que el resto de la clase venía de Mates o Física. ",
             "en": "The Carlos III is the best public university in Spain and how demanding it is backs that up. I had just arrived from volunteer work in Paraguay and got to class a couple of weeks late. Those first days were as intense as they come, pure maths to lay the foundations for the statistical methods we would see later on. There were only 2 of us from economics (and it just happened to be my flatmate, my friend and my coursemate from the degree), while the rest of the class came from Maths or Physics. "
           },
           "textLinks": {
@@ -1144,7 +1144,7 @@
         "position": 3,
         "props": {
           "text": {
-            "es": "Teníamos 5 asignaturas cada bimestre, jornadas de 5 horas seguidas con la misma materia, pero aprendíamos como locos. Siento que he desarrollado especialmente la formulación matemática y la capacidad de abstracción para demostrar teorías, algo que me quedaba bastante lejos en la carrera. Además, la peculiaridad de la educación española es esa combinación de exámenes durísimos con muchos trabajos en grupo, lo que te refuerza tanto en habilidades de colaboración como en rigurosidad teórica. Normalmente la competencia en las aulas es brutal pero en este Máster me sentí un equipo con mis compañeros, encima era completamente en ingles por lo que había estudiantes de todo el mundo. ",
+            "es": "Teníamos 5 asignaturas cada bimestre, jornadas de 5 horas seguidas con la misma materia, pero aprendíamos como locos. Siento que he desarrollado especialmente la formulación matemática y la capacidad de abstracción para demostrar teorías, algo que me quedaba bastante lejos en la carrera. Además, la peculiaridad de la educación española es esa combinación de exámenes durísimos con muchos trabajos en grupo, lo que te refuerza tanto en habilidades de colaboración como en rigurosidad teórica. Normalmente la competencia en las aulas es brutal pero en este Máster me sentí un equipo con mis compañeros, encima era completamente en inglés por lo que había estudiantes de todo el mundo. ",
             "en": "We had 5 courses each two-month block, days of 5 hours straight on the same subject, but we learned like mad. I feel I have particularly developed mathematical formulation and the capacity for abstraction needed to prove theories, something that was pretty far out of reach during my degree. On top of that, the peculiarity of Spanish education is that combination of brutally hard exams with a lot of group work, which builds you up in collaboration skills as much as in theoretical rigour. Normally the competition in the classroom is brutal but in this Master's I felt like a team with my classmates, and it was completely in English on top of that so there were students from all over the world. "
           },
           "textLinks": {
@@ -1175,11 +1175,11 @@
         "props": {
           "items": [
             {
-              "es": "Estadística No Paramétrica: está fue completamente teórica pero aún así me encantó por la exigencia del profesor Eduardo García Portugués. Es la persona más competente en su materia que he conocido y la dificultad del contenido te obligaba a comprender cada detalle del proceso. Solo a posteriori aprecias lo muchisisimo que has aprendido de formas alternativas de estimar distribuciones, de versiones no paramétricas de algoritmos de clustering o de regresiones multivariantes. Además su examen era completamente en R y sin ningún recurso externo, obligándonos a aprender toda la sintaxis y detalles.   ",
+              "es": "Estadística No Paramétrica: esta fue completamente teórica pero aun así me encantó por la exigencia del profesor Eduardo García Portugués. Es la persona más competente en su materia que he conocido y la dificultad del contenido te obligaba a comprender cada detalle del proceso. Solo a posteriori aprecias lo muchisísimo que has aprendido de formas alternativas de estimar distribuciones, de versiones no paramétricas de algoritmos de clustering o de regresiones multivariantes. Además su examen era completamente en R y sin ningún recurso externo, obligándonos a aprender toda la sintaxis y detalles.   ",
               "en": "Non-Parametric Statistics: this one was completely theoretical but even so I loved it because of how demanding the professor, Eduardo García Portugués, was. He is the most competent person in his subject I have ever met and the difficulty of the content forced you to understand every detail of the process. Only afterwards do you appreciate how enormously much you have learned about alternative ways of estimating distributions, about non-parametric versions of clustering algorithms or of multivariate regressions. On top of that his exam was completely in R and without any external resource, forcing us to learn all the syntax and details.   "
             },
             {
-              "es": "Statistical Learning: viendo mi recorrido no es de extrañar que me volviese loco aprendiendo los algoritmos clásicos y modernos de Machine Learning que dimos en esta asignatura. Pablo Morala Miguélez fue un profesor verdaderamente actualizado que nos explico desde arboles simples hasta interpretabilidad de Black Boxes con SHAP y LIME. Siempre sugería recursos adicionales con papers de actualidad, que como buen friki ya me había leído, pero me hizo empatizar mucho con el y tener conversaciones muy interesantes sobre LLMs.  ",
+              "es": "Statistical Learning: viendo mi recorrido no es de extrañar que me volviese loco aprendiendo los algoritmos clásicos y modernos de Machine Learning que dimos en esta asignatura. Pablo Morala Miguélez fue un profesor verdaderamente actualizado que nos explicó desde árboles simples hasta interpretabilidad de Black Boxes con SHAP y LIME. Siempre sugería recursos adicionales con papers de actualidad, que como buen friki ya me había leído, pero me hizo empatizar mucho con él y tener conversaciones muy interesantes sobre LLMs.  ",
               "en": "Statistical Learning: looking at where I have come from it is no surprise that I went mad learning the classic and modern Machine Learning algorithms we covered in this course. Pablo Morala Miguélez was a truly up-to-date professor who explained everything from simple trees to the interpretability of Black Boxes with SHAP and LIME. He always suggested extra resources with current papers, which as the good geek I am I had already read, but it made me really empathise with him and have very interesting conversations about LLMs.  "
             },
             {
@@ -1204,7 +1204,7 @@
         "props": {
           "text": {
             "es": "En conjunto, el máster se ha centrado sobre todo en los fundamentos matemáticos detrás de los modelos y algoritmos más conocidos. Sobre todo hemos usado R, pero también Python e incluso C++. Me ha gustado tanto que me he replanteado hasta empezar la carrera de Matemáticas de 0. ",
-            "en": "Taken as a whole, the master's has focused above all on the mathematical foundations behind the best known models and algorithms. We have mostly used R, but also Python and even C++. I have liked it so much that I have even reconsidered starting a Maths degree from scratch. "
+            "en": "Taken as a whole, the master's has focused above all on the mathematical foundations behind the best known models and algorithms. We have mostly used R, but also Python and even C++. I have liked it so much that I have even considered starting a Maths degree from scratch. "
           },
           "textLinks": {
             "es": []
@@ -1270,7 +1270,7 @@
         "position": 0,
         "props": {
           "text": {
-            "es": "Como todo estudiante de 17 años, yo no tenía ni idea de que hacer con mi vida.  Había hecho el bachillerato de ciencias y tocaba empezar a prepararse para selectividad (prueba de acceso a la universidad). A pesar de gustarme las ciencias naturales, me encantaba la inversión y las finanzas, había comprado mis primeras acciones y lo vi claro: economía. El problema era que no tenía esa asignatura en clase y tuve que prepararme por mi cuenta la materia para el examen de selectividad, igual que las matemáticas de sociales. La prueba salió muy bien, saqué un 13.5/14 y pude elegir la carrera que quería, prefería no hacer solo economía sino optar por un doble grado, así que hice el doble de ECO + ADE. ",
+            "es": "Como todo estudiante de 17 años, yo no tenía ni idea de qué hacer con mi vida.  Había hecho el bachillerato de ciencias y tocaba empezar a prepararse para selectividad (prueba de acceso a la universidad). A pesar de gustarme las ciencias naturales, me encantaba la inversión y las finanzas, había comprado mis primeras acciones y lo vi claro: economía. El problema era que no tenía esa asignatura en clase y tuve que prepararme por mi cuenta la materia para el examen de selectividad, igual que las matemáticas de sociales. La prueba salió muy bien, saqué un 13.5/14 y pude elegir la carrera que quería, prefería no hacer solo economía sino optar por un doble grado, así que hice el doble de ECO + ADE. ",
             "en": "Like every 17-year-old student, I had no idea what to do with my life.  I had done the science track at school and it was time to start preparing for selectividad (the university entrance exam). Even though I liked the natural sciences, I loved investing and finance, I had bought my first shares and I saw it clearly: economics. The problem was that I did not have that subject at school and I had to prepare the material for the selectividad exam on my own, the same with social sciences maths. The exam went very well, I got a 13.5/14 and I was able to choose the degree I wanted; I preferred not to do only economics but to go for a double degree, so I did the double in ECO + Business. "
           },
           "textLinks": {
@@ -1300,7 +1300,7 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "La economía me gustó mucho más que la empresa, más que nada porque se erigía como la ciencia que estudia la interacción humana y la toma de decisiones, un generalismo atractivo. Mientras tanto, las asignaturas de empresa las veía demasiado diferentes entre ellas y solo me gustaban cuando se aplicaba estadística o datos. Una gran frustración que sentí con la economía era la poca utilidad que tenían sus formulas en el contexto real, estaban cerca de ser preciosas y omnipresentes pero se sujetaban en millones de supuestos para poder aplicarse. Claro que después aprendí que cualquier ciencia que se base en el comportamiento humano tiene variables incontrolables y por ende un componente aleatorio. ",
+            "es": "La economía me gustó mucho más que la empresa, más que nada porque se erigía como la ciencia que estudia la interacción humana y la toma de decisiones, un generalismo atractivo. Mientras tanto, las asignaturas de empresa las veía demasiado diferentes entre ellas y solo me gustaban cuando se aplicaba estadística o datos. Una gran frustración que sentí con la economía era la poca utilidad que tenían sus fórmulas en el contexto real, estaban cerca de ser preciosas y omnipresentes pero se sujetaban en millones de supuestos para poder aplicarse. Claro que después aprendí que cualquier ciencia que se base en el comportamiento humano tiene variables incontrolables y por ende un componente aleatorio. ",
             "en": "I liked economics much more than business, mainly because it stood as the science that studies human interaction and decision-making, an attractive kind of generalism. Meanwhile, I found the business courses too different from one another and I only liked them when statistics or data came into it. One big frustration I felt with economics was how little use its formulas had in the real context, they were close to being beautiful and omnipresent but they leaned on millions of assumptions in order to be applied. Of course I later learned that any science based on human behaviour has uncontrollable variables and therefore a random component. "
           },
           "textLinks": {
@@ -1316,7 +1316,7 @@
         "props": {
           "text": {
             "es": "Me gusta la objetividad de los datos, mis asignaturas favoritas fueron las 3 Estadísticas y las 2 Econometrías, era brutal ver cómo podía anticipar el valor futuro de una variable con su registro histórico. Aunque también me encantaron las más teóricas y lógicas como Teoría de Juegos o Microeconomía. ",
-            "en": "I like the objectivity of data, my favourite courses were the 3 Statistics and the 2 Econometrics ones, it was brutal to see how I could anticipate the future value of a variable from its historical record. Although I also loved the more theoretical and logical ones like Game Theory or Microeconomics. "
+            "en": "I like the objectivity of data, my favourite courses were the 3 Statistics and the 2 Econometrics ones, it was amazing to see how I could anticipate the future value of a variable from its historical record. Although I also loved the more theoretical and logical ones like Game Theory or Microeconomics. "
           },
           "textLinks": {
             "es": []
@@ -1398,7 +1398,7 @@
         "props": {
           "text": {
             "es": "Este proyecto sale de una idea de proyecto en el CERN openlab y de una obsesión que arrastro desde hace años con la física de partículas. El problema de partida es que un colisionador genera muchísimos más datos de los que se pueden guardar, así que hay un sistema, el trigger, que decide en microsegundos qué se conserva y qué se tira para siempre. Lo que no pasa ese filtro no existe.",
-            "en": "This project comes out of a project idea at CERN openlab and an obsession with particle physics I have been carrying for years. The starting problem is that a collider produces far more data than anyone can store, so there is a system, the trigger, that decides in microseconds what is kept and what is thrown away forever. Whatever does not pass that filter never existed."
+            "en": "This project comes out of a project idea at CERN openlab and an obsession with particle physics I have been carrying for years. The starting problem is that a collider produces far more data than anyone can store, so there is a system, the trigger, that decides in microseconds what is kept and what is thrown away forever. Whatever does not pass that filter does not exist."
           }
         },
         "layout": {}
@@ -1409,7 +1409,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Aquí aparece interesante. Si lo que buscas es un suceso que nadie ha visto todavía, no puedes entrenar un clasificador, porque no tienes etiquetas de algo que aún no tiene nombre. Estás buscando precisamente lo que no pudiste anotar.",
+            "es": "Aquí aparece lo interesante. Si lo que buscas es un suceso que nadie ha visto todavía, no puedes entrenar un clasificador, porque no tienes etiquetas de algo que aún no tiene nombre. Estás buscando precisamente lo que no pudiste anotar.",
             "en": "This is where it gets interesting. If what you are looking for is an event nobody has seen yet, you cannot train a classifier, because you have no labels for something that does not have a name yet. You are looking for exactly what you could not annotate."
           }
         },
@@ -1598,7 +1598,7 @@
         "props": {
           "text": {
             "es": "Este proyecto fue puro arte. El modelo de Gray–Scott son dos reactivos, uno que alimenta al otro, difundiéndose a velocidades distintas, nada más. Lo discretizas, lo dejas correr y de ahí salen rayas, lunares, laberintos y manchas que se replican solas.",
-            "en": "This project was pure art. The Gray–Scott model is two reagents, one feeding on the other, diffusing at different speeds, and nothing else. You discretise it, let it run, and out come stripes, spots, mazes and blobs that replicate on their own."
+            "en": "This project was pure art. The Gray–Scott model is two reagents, one feeding the other, diffusing at different speeds, and nothing else. You discretise it, let it run, and out come stripes, spots, mazes and blobs that replicate on their own."
           }
         },
         "layout": {}
@@ -1686,7 +1686,7 @@
         "props": {
           "text": {
             "es": "El 2020 nos convirtió a todos. Este proyecto es volver a aquello unos años después, pero con las ecuaciones en la mano.",
-            "en": "2020 turned all of us into epidemiologists. This project is going back to that a few years later, but with the equations in hand."
+            "en": "2020 changed us all. This project is going back to that a few years later, but with the equations in hand."
           }
         },
         "layout": {}
@@ -1885,7 +1885,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "La red va pasando mensajes entre nodos vecinos hasta que las aristas que sobreviven derivan en las trayectorias reales. Es un cambio de representación curioso, porque el problema físico sigue estando pero lo intentas solucionar desde otro angulo.",
+            "es": "La red va pasando mensajes entre nodos vecinos hasta que las aristas que sobreviven derivan en las trayectorias reales. Es un cambio de representación curioso, porque el problema físico sigue estando pero lo intentas solucionar desde otro ángulo.",
             "en": "The network passes messages between neighbouring nodes until the surviving edges lead to the real trajectories. It is a curious change of representation, because the physical problem is still there but you are trying to solve it from another angle."
           }
         },
@@ -1986,7 +1986,7 @@
         "props": {
           "text": {
             "es": "Un PCA te habría dado componentes incorreladas y se habría parado ahí. El ICA va a por algo bastante más ambicioso, que es la independencia estadística de verdad. Y lo curioso es que necesita que las fuentes no sean gaussianas porque si no salen infinitas soluciones",
-            "en": "A PCA would have given me uncorrelated components and stopped there. ICA goes after something rather more ambitious, which is genuine statistical independence. And the curious part is that it needs the sources to be non-Gaussian, because otherwise there are infinitely many solutions"
+            "en": "A PCA would have given you uncorrelated components and stopped there. ICA goes after something rather more ambitious, which is genuine statistical independence. And the curious part is that it needs the sources to be non-Gaussian, because otherwise there are infinitely many solutions"
           }
         },
         "layout": {}
@@ -2265,7 +2265,7 @@
         "props": {
           "text": {
             "es": "El conjunto son 13.611 granos de alubia fotografiados uno a uno. De cada imagen se extraen 16 descriptores morfológicos (área, perímetro, excentricidad, elongación y varios índices de forma compuestos) y la tarea es decir a cuál de las siete variedades pertenece cada grano.",
-            "en": "The set is 13,611 bean grains photographed one by one. From each image 16 morphological descriptors are extracted (area, perimeter, eccentricity, elongation and several composite shape indices) and the task is to say which of the seven varieties each grain belongs to. The interest is seed quality control: separating varieties by hand is slow and a mixed batch is worth less."
+            "en": "The set is 13,611 bean grains photographed one by one. From each image 16 morphological descriptors are extracted (area, perimeter, eccentricity, elongation and several composite shape indices) and the task is to say which of the seven varieties each grain belongs to."
           },
           "textLinks": {
             "es": []
@@ -2304,7 +2304,7 @@
         "props": {
           "text": {
             "es": "Los coeficientes de la SVM lineal enseñan además algo curioso: las variables de elongación (ShapeFactor1, AspectRation, Eccentricity) discriminan mejor que el tamaño en bruto.",
-            "en": "The linear SVM coefficients also show something I was not expecting: the elongation variables (ShapeFactor1, AspectRation, Eccentricity) discriminate better than raw size."
+            "en": "The linear SVM coefficients also show something curious: the elongation variables (ShapeFactor1, AspectRation, Eccentricity) discriminate better than raw size."
           },
           "textLinks": {
             "es": []
@@ -2439,7 +2439,7 @@
               "en": "Maths and science support: secondary education in Limpio was pretty precarious, a lot of dead hours and little effort from the teachers. We put in place a series of support classes where we covered maths and science concepts with the sixth-form children, guided their skills and prepared them to do a university degree.  "
             },
             {
-              "es": "Talleres de robótica: colaboramos con una empresa de energía renovables que tenía pequeñas maquetas eléctricas de molinos, motores y otros artilugios. Aprendimos a montarlos y a crear circuitos para hacerlos funcionar desde un ordenador, para posteriormente impartir talleres educativos en los colegios y que los niños se divirtieran y aprendiesen. Se trataba de crear mentes curiosas para promover que continuaran estudiando, dada la alta tasa de absentismo escolar.",
+              "es": "Talleres de robótica: colaboramos con una empresa de energías renovables que tenía pequeñas maquetas eléctricas de molinos, motores y otros artilugios. Aprendimos a montarlos y a crear circuitos para hacerlos funcionar desde un ordenador, para posteriormente impartir talleres educativos en los colegios y que los niños se divirtieran y aprendiesen. Se trataba de crear mentes curiosas para promover que continuaran estudiando, dada la alta tasa de absentismo escolar.",
               "en": "Robotics workshops: we collaborated with a renewable energy company that had small electrical models of windmills, motors and other contraptions. We learned to assemble them and to build circuits to run them from a computer, and then ran educational workshops in the schools so the children could have fun and learn. It was about creating curious minds to encourage them to keep studying, given the high rate of school absenteeism."
             }
           ],
@@ -2614,7 +2614,7 @@
         "en": "2025"
       },
       "where": {
-        "es": "La valeta, Malta",
+        "es": "La Valeta, Malta",
         "en": "Valletta, Malta"
       },
       "group": "vol",
@@ -2759,7 +2759,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Eramos 12 jóvenes que tenían que pasar 2 semanas viendo todos los documentales presentados al festival. Había que tomar notas y detalles porque los primeros se te iban olvidando, nos pasamos horas y horas en una sala de cine reservada para nosotros. ",
+            "es": "Éramos 12 jóvenes que tenían que pasar 2 semanas viendo todos los documentales presentados al festival. Había que tomar notas y detalles porque los primeros se te iban olvidando, nos pasamos horas y horas en una sala de cine reservada para nosotros. ",
             "en": "There were 12 of us young people who had to spend 2 weeks watching every documentary submitted to the festival. You had to take notes and details because you started forgetting the first ones, we spent hours and hours in a screening room reserved for us. "
           },
           "textLinks": {
@@ -2807,7 +2807,7 @@
           "url": "https://br-blue-dawn-ay0e37ed.storage.c-5.us-east-2.aws.neon.tech/portfolio-assets/d245e522-0791-420d-9454-04e3f0e7e34e/3bcb4c1c-a6f8-40e9-8268-c3ada058a682-8d3d5a3f-8889-457e-b092-6e17b0ba6c29.jpg",
           "caption": {
             "es": "Los del móvil en blanco y negro.",
-            "en": "The ones on the phone in black and white."
+            "en": "The ones with the black-and-white phone."
           }
         },
         "layout": {}
@@ -3018,7 +3018,7 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "Nuestra propuesta diferenciadora se enfocó en ofrecer una combinación de tipos de transportes desde el punto A al punto B cuando esta fuese más óptima, por ejemplo, coge un cabify hasta la estación Príncipe Pío y después la linea 10 hasta Tribunal. ",
+            "es": "Nuestra propuesta diferenciadora se enfocó en ofrecer una combinación de tipos de transportes desde el punto A al punto B cuando esta fuese más óptima, por ejemplo, coge un cabify hasta la estación Príncipe Pío y después la línea 10 hasta Tribunal. ",
             "en": "Our differentiating proposal focused on offering a combination of transport types from point A to point B whenever that was the better option, for example, take a cabify to Príncipe Pío station and then line 10 to Tribunal. "
           },
           "textLinks": {
@@ -3048,8 +3048,8 @@
         "position": 4,
         "props": {
           "text": {
-            "es": "El rankeo de opciones lo daba un algoritmo de pesos en función de las preferencias. Hicimos una extracción masiva de lineas de bus, metro, cercanías, larga distancia, bicimad y patinetes eléctricos, además de APIs para horarios y precios en tiempo real, quedó genial. ",
-            "en": "The ranking of options came from a weighting algorithm based on the preferences. We did a massive extraction of bus, metro, cercanías, long-distance, bicimad and electric scooter lines, plus APIs for real-time timetables and prices, it turned out great. "
+            "es": "El rankeo de opciones lo daba un algoritmo de pesos en función de las preferencias. Hicimos una extracción masiva de líneas de bus, metro, cercanías, larga distancia, bicimad y patinetes eléctricos, además de APIs para horarios y precios en tiempo real, quedó genial. ",
+            "en": "The ranking of options came from a weighting algorithm based on the preferences. We did a massive extraction of bus, metro, commuter rail, long-distance, bicimad and electric scooter lines, plus APIs for real-time timetables and prices, it turned out great. "
           },
           "textLinks": {
             "es": []
@@ -3064,7 +3064,7 @@
         "props": {
           "text": {
             "es": "Quedamos finalistas!! Os dejo el proyecto por aquí",
-            "en": "We were finalists!! I leave you the project over here"
+            "en": "We were finalists!! Here's the project for you"
           },
           "textLinks": {
             "es": [
@@ -3091,7 +3091,7 @@
     "id": "62bcd397-3573-5991-add0-798b3ea2aa39",
     "version": 1,
     "slug": "hack-malaga",
-    "title": "Desafio de Datos del Ayuntamiento de Málaga",
+    "title": "Desafío de Datos del Ayuntamiento de Málaga",
     "summary": "",
     "entryType": "project",
     "status": "published",
@@ -3113,7 +3113,7 @@
       "order": 1,
       "i18n": {
         "title": {
-          "es": "Desafio de Datos del Ayuntamiento de Málaga",
+          "es": "Desafío de Datos del Ayuntamiento de Málaga",
           "en": "Málaga City Council Data Challenge"
         }
       }
@@ -3140,7 +3140,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "El reto era usar los datos abiertos de la plataforma de Edint del Ayuntamiento para construir una herramienta de utilidad para el ciudadano. Nos costaba elegir la base de datos, así que las cogimos todas. Hicimos un visor con granularidad de distrito, barrio o sección censal donde dábamos puntuaciones a diferentes criterios como \"Zonas Verdes\", \"Ruido\", \"Trafico\" o \"Educación\", en función de otras variables como hectáreas de parques, decibelios, numero de coches por hora, numero de instituciones educativas... ",
+            "es": "El reto era usar los datos abiertos de la plataforma de Edint del Ayuntamiento para construir una herramienta de utilidad para el ciudadano. Nos costaba elegir la base de datos, así que las cogimos todas. Hicimos un visor con granularidad de distrito, barrio o sección censal donde dábamos puntuaciones a diferentes criterios como \"Zonas Verdes\", \"Ruido\", \"Tráfico\" o \"Educación\", en función de otras variables como hectáreas de parques, decibelios, número de coches por hora, número de instituciones educativas... ",
             "en": "The challenge was to use the open data on the Council's Edint platform to build a tool that would be useful to the citizen. We were struggling to choose the database, so we took them all. We built a viewer with district, neighbourhood or census section granularity where we gave scores to different criteria like \"Green Spaces\", \"Noise\", \"Traffic\" or \"Education\", based on other variables like hectares of parks, decibels, number of cars per hour, number of educational institutions... "
           },
           "textLinks": {
@@ -3170,7 +3170,7 @@
         "position": 3,
         "props": {
           "text": {
-            "es": "En conjunto, construimos una plataforma que agrupa datos abiertos, pero que están dispersos en muchas fuentes publicas y en formatos no accesibles para los ciudadanos habituales. ",
+            "es": "En conjunto, construimos una plataforma que agrupa datos abiertos, pero que están dispersos en muchas fuentes públicas y en formatos no accesibles para los ciudadanos habituales. ",
             "en": "Taken as a whole, we built a platform that brings together open data that is scattered across many public sources and in formats not accessible to ordinary citizens. "
           },
           "textLinks": {
@@ -3359,7 +3359,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Yo fui solo y a mi equipo nos tocó desarrollar un chatbot para las empresas de moda. La idea era integrar todo el catalogo de una web como Pull and Bear en un asistente para poder encontrar lo que quieres más rápido. El bot era proactivo, te hacia unas cuantas preguntas, o bien tú podías interrumpirle y darle sugerencias. ",
+            "es": "Yo fui solo y a mi equipo nos tocó desarrollar un chatbot para las empresas de moda. La idea era integrar todo el catálogo de una web como Pull and Bear en un asistente para poder encontrar lo que quieres más rápido. El bot era proactivo, te hacía unas cuantas preguntas, o bien tú podías interrumpirle y darle sugerencias. ",
             "en": "I went on my own and my team was given the job of developing a chatbot for fashion companies. The idea was to integrate the whole catalogue of a site like Pull and Bear into an assistant so you could find what you want faster. The bot was proactive, it asked you a few questions, or you could interrupt it and give it suggestions. "
           },
           "textLinks": {
@@ -3374,7 +3374,7 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "El nuestro funcionaba con embeddings, el catalogo era una base de datos tabular, con las mismas columnas predefinidas para cada prenda: corte, color, categoría... entonces normalizamos los valores a números y situamos a cada prenda en el mismo espacio n-dimensional. La consulta al bot creaba otro punto en ese espacio y se escogían los puntos de prendas que quedasen más cerca. ",
+            "es": "El nuestro funcionaba con embeddings, el catálogo era una base de datos tabular, con las mismas columnas predefinidas para cada prenda: corte, color, categoría... entonces normalizamos los valores a números y situamos a cada prenda en el mismo espacio n-dimensional. La consulta al bot creaba otro punto en ese espacio y se escogían los puntos de prendas que quedasen más cerca. ",
             "en": "Ours worked with embeddings, the catalogue was a tabular database, with the same predefined columns for each garment: cut, colour, category... so we normalised the values into numbers and placed each garment in the same n-dimensional space. The query to the bot created another point in that space and the garment points that ended up closest were the ones picked. "
           },
           "textLinks": {
@@ -3449,7 +3449,7 @@
         "position": 0,
         "props": {
           "text": {
-            "es": "ThePower es una escuela de negocios en Madrid muy popular, tiene una rama de IA y Ciencia de Datos con la Academia Hackio. Organizaron este Hackathon de 3 días donde te daban una base de datos de clientes por grupo y tenias que desarrollar una idea de negocio en el sector del calzado. ",
+            "es": "ThePower es una escuela de negocios en Madrid muy popular, tiene una rama de IA y Ciencia de Datos con la Academia Hackio. Organizaron este Hackathon de 3 días donde te daban una base de datos de clientes por grupo y tenías que desarrollar una idea de negocio en el sector del calzado. ",
             "en": "ThePower is a very popular business school in Madrid, it has an AI and Data Science branch with the Hackio Academy. They organised this 3-day Hackathon where they gave you a customer database per group and you had to develop a business idea in the footwear sector. "
           },
           "textLinks": {
@@ -3881,7 +3881,7 @@
         "position": 0,
         "props": {
           "text": {
-            "es": "Mi proyecto favorito. En un intento de aprender por mi cuenta todos los algoritmos modernos, empecé hace unos años a crear pequeñas notebooks de python para probar con casos reales, que acabaron convirtiéndose sin querer en una especie de articulo en markdown explicando el algoritmo. Este año he recopilado todas estas libretas y las he agrupado bajo el paraguas de ATLAS: Algorithmic Techniques for Learning And Statistics. ",
+            "es": "Mi proyecto favorito. En un intento de aprender por mi cuenta todos los algoritmos modernos, empecé hace unos años a crear pequeñas notebooks de python para probar con casos reales, que acabaron convirtiéndose sin querer en una especie de artículo en markdown explicando el algoritmo. Este año he recopilado todas estas libretas y las he agrupado bajo el paraguas de ATLAS: Algorithmic Techniques for Learning And Statistics. ",
             "en": "My favourite project. In an attempt to learn all the modern algorithms on my own, a few years ago I started creating small python notebooks to try them out on real cases, which without meaning to ended up turning into a sort of markdown article explaining the algorithm. This year I have collected all these notebooks and grouped them under the umbrella of ATLAS: Algorithmic Techniques for Learning And Statistics. "
           },
           "textLinks": {
@@ -4021,7 +4021,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Bueno, este proyecto se basa en encontrar un nuevo eje para examinar un campo de investigación en conjunto. Actualmente nos fijamos en citas, autores, numero de publicaciones... pero no podemos comparar más profundamente dos disciplinas totalmente dispares. ",
+            "es": "Bueno, este proyecto se basa en encontrar un nuevo eje para examinar un campo de investigación en conjunto. Actualmente nos fijamos en citas, autores, número de publicaciones... pero no podemos comparar más profundamente dos disciplinas totalmente dispares. ",
             "en": "Well, this project is about finding a new axis for examining a research field as a whole. At the moment we look at citations, authors, number of publications... but we cannot compare two completely different disciplines any more deeply than that. "
           },
           "textLinks": {
@@ -4239,7 +4239,7 @@
         "position": 4,
         "props": {
           "text": {
-            "es": "Para que el modelo fuera robusto, incorporé otras muchas bases de datos que describen mejor cada hexágono. Renta y demografía del INE, metro y bus con la EMT, transito con Datos Abiertos... Al final tenias cientos de variables para cada hexágono.",
+            "es": "Para que el modelo fuera robusto, incorporé otras muchas bases de datos que describen mejor cada hexágono. Renta y demografía del INE, metro y bus con la EMT, transito con Datos Abiertos... Al final tenías cientos de variables para cada hexágono.",
             "en": "To make the model robust, I brought in many other databases that describe each hexagon better. Income and demographics from the INE, metro and bus with the EMT, traffic with Open Data... In the end you had hundreds of variables for each hexagon."
           },
           "textLinks": {
@@ -4351,7 +4351,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "El problema básico es que en los primeros días de un nuevo paper la señal es bastante baja como para decidir cuáles van a ser más importantes que otros, sin embargo, usando variables como el tamaño del equipo, la periodicidad de publicación de sus autores, la longitud del titulo y otros factores, podemos predecir importancia futura.",
+            "es": "El problema básico es que en los primeros días de un nuevo paper la señal es bastante baja como para decidir cuáles van a ser más importantes que otros, sin embargo, usando variables como el tamaño del equipo, la periodicidad de publicación de sus autores, la longitud del título y otros factores, podemos predecir importancia futura.",
             "en": "The basic problem is that in the first days of a new paper the signal is quite weak for deciding which ones are going to be more important than others; however, using variables like the size of the team, how regularly its authors publish, the length of the title and other factors, we can predict future importance."
           },
           "textLinks": {
@@ -4437,7 +4437,7 @@
         "position": 0,
         "props": {
           "text": {
-            "es": "Este proyecto me hace especial ilusión. Siempre me ha gustado como las banderas, a pesar de ser diseños relativamente sencillos, representan naciones enteras. Surgieron como estandartes para diferenciar las tropas en las batallas, pero han evolucionado hasta convertirse en signos políticos que identifican a la patria. ",
+            "es": "Este proyecto me hace especial ilusión. Siempre me ha gustado cómo las banderas, a pesar de ser diseños relativamente sencillos, representan naciones enteras. Surgieron como estandartes para diferenciar las tropas en las batallas, pero han evolucionado hasta convertirse en signos políticos que identifican a la patria. ",
             "en": "This project makes me especially happy. I have always liked how flags, despite being relatively simple designs, represent whole nations. They came about as standards to tell the troops apart in battle, but they have evolved into political signs that identify the homeland. "
           },
           "textLinks": {
@@ -4452,7 +4452,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Como reglas de diseño generales tenemos la simplicidad, la unicidad y el simbolismo, pero dentro de estos margenes hay mucho margen de decisiones en cuanto a colores, angulación, trazados, iconos... Este estudio propio de la Vexilología (ciencia que estudia las banderas) comenzó en respuesta a una pregunta: ¿existe algún patrón en el diseño de las banderas en función del contexto social, climático, político o económico? La respuesta intuitiva debería de ser que sí, pero es difícil demostrarlo de forma objetiva y general ya que cada diseño es único.",
+            "es": "Como reglas de diseño generales tenemos la simplicidad, la unicidad y el simbolismo, pero dentro de estos márgenes hay mucho margen de decisiones en cuanto a colores, angulación, trazados, iconos... Este estudio propio de la Vexilología (ciencia que estudia las banderas) comenzó en respuesta a una pregunta: ¿existe algún patrón en el diseño de las banderas en función del contexto social, climático, político o económico? La respuesta intuitiva debería de ser que sí, pero es difícil demostrarlo de forma objetiva y general ya que cada diseño es único.",
             "en": "As general design rules we have simplicity, uniqueness and symbolism, but within those bounds there is a lot of room for decisions about colours, angles, lines, icons... This study of my own into Vexillology (the science that studies flags) started in response to a question: is there any pattern in the design of flags depending on the social, climatic, political or economic context? The intuitive answer should be yes, but it is hard to prove objectively and in general since every design is unique."
           },
           "textLinks": {
@@ -4467,7 +4467,7 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "Para poder estudiar este caso, transformamos todas las banderas en vectores numéricos. Esto lo hacemos creando variables de características de las banderas, como su componente de blanco, numero de colores, contraste... De esta forma conseguimos una representación en números que poder correlacionar con otros factores como el PIB, la temperatura promedio u otros factores. ",
+            "es": "Para poder estudiar este caso, transformamos todas las banderas en vectores numéricos. Esto lo hacemos creando variables de características de las banderas, como su componente de blanco, número de colores, contraste... De esta forma conseguimos una representación en números que poder correlacionar con otros factores como el PIB, la temperatura promedio u otros factores. ",
             "en": "To be able to study this case, we turn all the flags into numerical vectors. We do this by creating variables for the characteristics of the flags, like their white component, number of colours, contrast... This way we get a representation in numbers that we can correlate with other factors like GDP, average temperature or others. "
           },
           "textLinks": {
@@ -4498,7 +4498,7 @@
         "props": {
           "text": {
             "es": "Con ello conseguimos algo examinable, medible y estudiable, espero que os guste :)",
-            "en": "With that we get something examinable, measurable and studiable, I hope you like it :)"
+            "en": "With that we get something we can examine, measure and study, I hope you like it :)"
           },
           "textLinks": {
             "es": []
@@ -4595,7 +4595,7 @@
         "props": {
           "text": {
             "es": "Lo complicado en este caso estaba en hacer un embedding de un input tan extenso, no quería perder contenido y hacer solo una parte porque es el todo lo que simboliza una película. Es por ello que dividí en chunks de texto el guión, hice un embedding para cada chunk y después la media de todos esos embeddings para sacar un vector para toda la película. Evidentemente se suavizaba la temática pero se guardaba la esencia general. ",
-            "en": "The tricky part here was making an embedding of such a long input; I did not want to lose content and do only part of it because it is the whole that a film stands for. That is why I split the script into chunks of text, made an embedding for each chunk and then averaged all of those embeddings to get one vector for the whole film. Obviously the theme got smoothed out but the general essence was kept. "
+            "en": "The tricky part here was making an embedding of such a long input; I did not want to lose content and do only part of it because it is the whole that represents a film. That is why I split the script into chunks of text, made an embedding for each chunk and then averaged all of those embeddings to get one vector for the whole film. Obviously the theme got smoothed out but the general essence was kept. "
           },
           "textLinks": {
             "es": []
@@ -4695,8 +4695,8 @@
         "position": 0,
         "props": {
           "text": {
-            "es": "Este proyecto forma parte del Hackathon de Cabify. El reto era elegir una linea sobre la que sugerir mejoras, nosotros escogimos multimodalidad de transporte en la app. Nuestra propuesta se enfocó en ofrecer una combinación de tipos de transportes desde el punto A hasta el punto B cuando esta fuese óptima, por ejemplo, coge un cabify hasta la estación Príncipe Pio y después la linea 10 hasta Tribunal. ",
-            "en": "This project is part of the Cabify Hackathon. The challenge was to pick one line to suggest improvements on, and we chose transport multimodality in the app. Our proposal focused on offering a combination of transport types from point A to point B whenever that was the better option, for example, take a cabify to Príncipe Pio station and then line 10 to Tribunal. "
+            "es": "Este proyecto forma parte del Hackathon de Cabify. El reto era elegir una línea sobre la que sugerir mejoras, nosotros escogimos multimodalidad de transporte en la app. Nuestra propuesta se enfocó en ofrecer una combinación de tipos de transportes desde el punto A hasta el punto B cuando esta fuese óptima, por ejemplo, coge un cabify hasta la estación Príncipe Pío y después la línea 10 hasta Tribunal. ",
+            "en": "This project is part of the Cabify Hackathon. The challenge was to pick an area to suggest improvements in, and we chose transport multimodality in the app. Our proposal focused on offering a combination of transport types from point A to point B whenever that was the better option, for example, take a cabify to Príncipe Pío station and then line 10 to Tribunal. "
           },
           "textLinks": {
             "es": [
@@ -4738,8 +4738,8 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "Las posibles combinaciones se hacían basándose en el algoritmo geoespacial de google maps y el rankeo de opciones dependía de las preferencias que indicaba el usuario. Hicimos una extracción masiva de lineas de bus, metro, cercanías, larga distancia, bicimad y patinetes eléctricos, además de APIs para horarios y precios en tiempo real. ",
-            "en": "The possible combinations were built on google maps' geospatial algorithm and the ranking of options depended on the preferences the user gave. We did a massive extraction of bus, metro, cercanías, long-distance, bicimad and electric scooter lines, plus APIs for real-time timetables and prices. "
+            "es": "Las posibles combinaciones se hacían basándose en el algoritmo geoespacial de google maps y el rankeo de opciones dependía de las preferencias que indicaba el usuario. Hicimos una extracción masiva de líneas de bus, metro, cercanías, larga distancia, bicimad y patinetes eléctricos, además de APIs para horarios y precios en tiempo real. ",
+            "en": "The possible combinations were built on google maps' geospatial algorithm and the ranking of options depended on the preferences the user gave. We did a massive extraction of bus, metro, commuter rail, long-distance, bicimad and electric scooter lines, plus APIs for real-time timetables and prices. "
           },
           "textLinks": {
             "es": []
@@ -4754,7 +4754,7 @@
         "props": {
           "text": {
             "es": "Quedó una versión funcional bastante bonita, con los diseños de marca de Cabify y la preview de la integración en la app. Por supuesto le quedaban por pulir fallos en los tiempos y las distancias, que un día dan para poco por mucho Claude que tengas.",
-            "en": "It ended up as a pretty nice working version, with Cabify's brand designs and a preview of the integration into the app. Of course it still had bugs to polish in the times and the distances, which in one day you can only get so far with however much Claude you have."
+            "en": "It ended up as a pretty nice working version, with Cabify's brand designs and a preview of the integration into the app. Of course it still had bugs to iron out in the times and distances, because there's only so much you can do in a day, no matter how much Claude you have."
           },
           "textLinks": {
             "es": []
@@ -4812,8 +4812,8 @@
         "en": "2026"
       },
       "where": {
-        "es": "Webscrapping",
-        "en": "Webscrapping"
+        "es": "Web scraping",
+        "en": "Web scraping"
       },
       "group": "repos",
       "order": 7,
@@ -4865,7 +4865,7 @@
         "position": 2,
         "props": {
           "text": {
-            "es": "Tienes vista de lista y vista de mapa. Incluso una pestaña con un scrapping similar pero para webs de noticias, para estar al día de lo que sucede en cada zona. ",
+            "es": "Tienes vista de lista y vista de mapa. Incluso una pestaña con un scraping similar pero para webs de noticias, para estar al día de lo que sucede en cada zona. ",
             "en": "You have a list view and a map view. Even a tab with a similar scraping but for news sites, so you can keep up with what is happening in each area. "
           },
           "textLinks": {
@@ -5073,7 +5073,7 @@
         "props": {
           "text": {
             "es": "Me encanta la naturaleza, pero mucho. No me refiero solo a los paisajes, sino a toda la ciencia que hay detrás: botánica, edafología, geología... Estoy muy lejos de ser experto en alguna de estas ramas pero como aficionado me trago libros enteros de suelos o cultivos.",
-            "en": "I love nature, but a lot. I do not just mean the landscapes, but all the science behind it: botany, soil science, geology... I am a long way from being an expert in any of these branches but as an amateur I swallow whole books on soils or crops."
+            "en": "I love nature, and I mean a lot. I do not just mean the landscapes, but all the science behind it: botany, soil science, geology... I am a long way from being an expert in any of these branches but as an amateur I devour whole books on soils or crops."
           },
           "items": {
             "0": "horticulture",
@@ -5112,7 +5112,7 @@
             },
             {
               "es": "Disfruto experimentando. Hago un poco de laboratorio, pruebo tipos de suelo nuevos, diferentes composiciones, distancias entre las plantas, cruzo variedades, mido cosechas y tiempos. Hay mil variables incontrolables pero es interesante intentar entender su comportamiento objetivo.",
-              "en": "I enjoy experimenting. I do a bit of a laboratory, I try new soil types, different compositions, distances between the plants, I cross varieties, I measure harvests and times. There are a thousand uncontrollable variables but it is interesting to try to understand their objective behaviour."
+              "en": "I enjoy experimenting. I do a bit of lab work, I try new soil types, different compositions, distances between the plants, I cross varieties, I measure harvests and times. There are a thousand uncontrollable variables but it is interesting to try to understand their objective behaviour."
             },
             {
               "es": "Como mis propias verduras. Esto es un nuevo placer desbloqueado, no hay comparación entre comerte una verdura del supermercado y otra plantada por uno mismo. No solo por el efecto psicológico del esfuerzo que lleva detrás, sino por la pureza e inmensidad de sabor que tienen. Son más feas pero una explosión de sabor natural.  ",
@@ -5341,7 +5341,7 @@
         "props": {
           "text": {
             "es": "No sé cómo será en otros países, pero en España existe la costumbre de apuntar a tus hijos desde chicos en 3 cosas indispensables: inglés, música y algún deporte. A mí me tocó hacer violín y piano en el conservatorio, que no estaban mal, y pádel como deporte, que me pareció brutal.",
-            "en": "I do not know what it is like in other countries, but in Spain there is a custom of signing your children up from a young age for 3 essential things: English, music and some sport. I got violin and piano at the conservatory, which were not bad, and padel as my sport, which I thought was brutal."
+            "en": "I do not know what it is like in other countries, but in Spain there is a custom of signing your children up from a young age for 3 essential things: English, music and some sport. I got violin and piano at the conservatory, which were not bad, and padel as my sport, which I thought was awesome."
           },
           "textLinks": {
             "es": []
@@ -5659,7 +5659,7 @@
         "props": {
           "text": {
             "es": "El formato empezó siendo agresivo, una hoja por día contando qué tal había ido, pero rápidamente cambié a una entrada semanal para hacerlo más plausible. A fecha de 2026 llevo 6 años documentando mi vida y es la mejor decisión que he podido tomar. ",
-            "en": "The format started out aggressive, a page a day telling how it had gone, but I quickly switched to a weekly entry to make it more plausible. As of 2026 I have been documenting my life for 6 years and it is the best decision I could have made. "
+            "en": "The format started out aggressive, a page a day telling how it had gone, but I quickly switched to a weekly entry to make it more manageable. As of 2026 I have been documenting my life for 6 years and it is the best decision I could have made. "
           },
           "textLinks": {
             "es": []
@@ -5674,7 +5674,7 @@
         "props": {
           "text": {
             "es": "Creo que llevar un diario es, por encima de todo, la mejor forma de autoconocimiento y gestión de emociones. No solo tengo guardadas todas las vivencias, sino que las escribió mi personalidad de la época y has podido ir viendo cómo se desarrolla tu arco de personaje con los años. Tu tendencia argumentativa, tus manías, tus fallos. ",
-            "en": "I think keeping a diary is, above all, the best way of getting to know yourself and managing your emotions. Not only do I have all the experiences saved, they were written by the personality I had at the time and you get to watch how your character arc develops over the years. Your tendency to argue, your quirks, your mistakes. "
+            "en": "I think keeping a diary is, above all, the best way of getting to know yourself and managing your emotions. Not only do I have all the experiences saved, they were written by the personality I had at the time and you get to watch how your character arc develops over the years. Your patterns of reasoning, your quirks, your mistakes. "
           },
           "textLinks": {
             "es": []
@@ -5703,7 +5703,7 @@
         "position": 5,
         "props": {
           "text": {
-            "es": "Por otro lado, en el día a día es increíblemente útil para reflexionar sobre tus problemas y sentir tus decisiones más fundadas. Libera estrés e incluso abre la mente al plantearte debates inexplorados solo por rellenar paginas cuando no tienes mucho que contar. ",
+            "es": "Por otro lado, en el día a día es increíblemente útil para reflexionar sobre tus problemas y sentir tus decisiones más fundadas. Libera estrés e incluso abre la mente al plantearte debates inexplorados solo por rellenar páginas cuando no tienes mucho que contar. ",
             "en": "On the other hand, day to day it is incredibly useful for reflecting on your problems and feeling your decisions are better grounded. It releases stress and even opens your mind when you set yourself unexplored debates just to fill pages when you do not have much to tell. "
           },
           "textLinks": {
@@ -5786,7 +5786,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Este programa ha sido un antes y un después en la vida de muchas personas, incluyendo la mía, porque hay un frenesí inigualable que rodea cada minuto. La parte del estudio esta bien porque sales de tu zona de confort, pero lo realmente transformador es cómo aprendes a relacionarte socialmente para disfrutar este año fuera. ",
+            "es": "Este programa ha sido un antes y un después en la vida de muchas personas, incluyendo la mía, porque hay un frenesí inigualable que rodea cada minuto. La parte del estudio está bien porque sales de tu zona de confort, pero lo realmente transformador es cómo aprendes a relacionarte socialmente para disfrutar este año fuera. ",
             "en": "This programme has been a before and after in a lot of people's lives, including mine, because there is an unmatched frenzy around every minute of it. The study part is fine because you get out of your comfort zone, but what is really transformative is how you learn to relate to people socially in order to enjoy this year away. "
           },
           "textLinks": {
@@ -5816,8 +5816,8 @@
         "position": 3,
         "props": {
           "text": {
-            "es": "Visitamos 45 países, prácticamente uno por fin de semana xD. Tren, coche, avión o bus, daba igual. Pasamos de las playas de Croacia al frio de Islandia, de las montañas de Suiza a los valles de Georgia, de las korean bbq de Seúl a los rascacielos de Nueva York. Se nos fue la pinza, queríamos comernos el mundo.",
-            "en": "We visited 45 countries, practically one per weekend xD. Train, car, plane or bus, it did not matter. We went from the beaches of Croatia to the cold of Iceland, from the mountains of Switzerland to the valleys of Georgia, from the korean bbq of Seoul to the skyscrapers of New York. We lost the plot, we wanted to eat the world."
+            "es": "Visitamos 45 países, prácticamente uno por fin de semana xD. Tren, coche, avión o bus, daba igual. Pasamos de las playas de Croacia al frío de Islandia, de las montañas de Suiza a los valles de Georgia, de las korean bbq de Seúl a los rascacielos de Nueva York. Se nos fue la pinza, queríamos comernos el mundo.",
+            "en": "We visited 45 countries, practically one per weekend xD. Train, car, plane or bus, it did not matter. We went from the beaches of Croatia to the cold of Iceland, from the mountains of Switzerland to the valleys of Georgia, from the korean bbq of Seoul to the skyscrapers of New York. We lost the plot, we wanted to take on the world."
           },
           "textLinks": {
             "es": []
@@ -5847,7 +5847,7 @@
         "props": {
           "text": {
             "es": "Creo que el Erasmus es la ocasión perfecta para poner en orden tu vida, porque conversaciones de esas no te van a faltar y vas a plantear cada posible camino. Creo que es el punto de inflexión donde pasas de dejarte llevar a tomar las riendas. Donde tomas decisiones proactivamente, y donde encuentras la confianza para comerte los años venideros. ",
-            "en": "I think the Erasmus is the perfect chance to put your life in order, because you will not be short of those conversations and you will go through every possible path. I think it is the turning point where you go from letting yourself be carried along to taking the reins. Where you make decisions proactively, and where you find the confidence to eat up the years ahead. "
+            "en": "I think the Erasmus is the perfect chance to put your life in order, because you will not be short of those conversations and you will go through every possible path. I think it is the turning point where you go from letting yourself be carried along to taking the reins. Where you make decisions proactively, and where you find the confidence to take on the years ahead. "
           },
           "textLinks": {
             "es": []
@@ -5940,7 +5940,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Fue en Kaunas, y la dinámica era clases por la mañana, y actividades en grupo por la tarde. Entonces, aprendías por ejemplo una herramienta de Adobe para editar audio con IA por la mañana, y por la tarde salias a grabar un podcast con tu grupo para probarlo. ",
+            "es": "Fue en Kaunas, y la dinámica era clases por la mañana, y actividades en grupo por la tarde. Entonces, aprendías por ejemplo una herramienta de Adobe para editar audio con IA por la mañana, y por la tarde salías a grabar un podcast con tu grupo para probarlo. ",
             "en": "It was in Kaunas, and the format was classes in the morning, and group activities in the afternoon. So you would learn, for example, an Adobe tool for editing audio with AI in the morning, and in the afternoon you would go out to record a podcast with your group to try it out. "
           },
           "textLinks": {
@@ -6113,7 +6113,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Eramos bastante jóvenes así que el choque de independencia fue brutal. Una inmersión lingüística brutal, tanto para ellos como para nosotros, porque ni Nantes ni Málaga son precisamente referencias del español y francés estándar.",
+            "es": "Éramos bastante jóvenes así que el choque de independencia fue brutal. Una inmersión lingüística brutal, tanto para ellos como para nosotros, porque ni Nantes ni Málaga son precisamente referencias del español y francés estándar.",
             "en": "We were pretty young so the shock of independence was brutal. A brutal language immersion, for them as much as for us, because neither Nantes nor Málaga are exactly the reference points for standard Spanish and French."
           },
           "textLinks": {
@@ -6212,7 +6212,7 @@
         "props": {
           "text": {
             "es": "Fue mi proyecto del verano del 2023, duré 3 meses, 100 oyentes mensuales, y 5 estrellas. Humilde, pero algo es algo. La portada la hice con IA cuando Midjourney recién empezaba y la edición la hacía con Garage Band. No había guion, solo una idea y un poquito de improvisación. ",
-            "en": "It was my project for the summer of 2023, I lasted 3 months, 100 monthly listeners, and 5 stars. Humble, but something is something. I made the cover with AI when Midjourney was just starting and I did the editing with Garage Band. There was no script, just an idea and a little bit of improvisation. "
+            "en": "It was my project for the summer of 2023, I lasted 3 months, 100 monthly listeners, and 5 stars. Modest, but it's something. I made the cover with AI when Midjourney was just starting and I did the editing with Garage Band. There was no script, just an idea and a little bit of improvisation. "
           },
           "textLinks": {
             "es": []
@@ -6304,7 +6304,7 @@
         "position": 1,
         "props": {
           "text": {
-            "es": "Frulogy nació como una plataforma para condensar toda la cadena de intermediarios en un solo escalón: productor -> consumidor. La idea era otorgar un valor extra al consumidor ecológico europeo, que pueda recibir su fruta sin ningún tipo de procesamiento ni maduración artificial, directamente desde el campo a la mesa en 48h. Y al mismo tiempo, devolver el margen perdido al productor. Unicamente aceptábamos fruta ecológica en la plataforma, que es aquella cultivada sin productos químicos. ",
+            "es": "Frulogy nació como una plataforma para condensar toda la cadena de intermediarios en un solo escalón: productor -> consumidor. La idea era otorgar un valor extra al consumidor ecológico europeo, que pueda recibir su fruta sin ningún tipo de procesamiento ni maduración artificial, directamente desde el campo a la mesa en 48h. Y al mismo tiempo, devolver el margen perdido al productor. Únicamente aceptábamos fruta ecológica en la plataforma, que es aquella cultivada sin productos químicos. ",
             "en": "Frulogy was born as a platform to condense the whole chain of middlemen into a single step: producer -> consumer. The idea was to give something extra to the European organic consumer, who could get their fruit with no processing or artificial ripening at all, straight from the field to the table in 48h. And at the same time, to give the lost margin back to the grower. We only accepted organic fruit on the platform, meaning fruit grown without chemicals. "
           },
           "textLinks": {
@@ -6334,7 +6334,7 @@
         "position": 3,
         "props": {
           "text": {
-            "es": "Estaba yo solo así que diseñé la plataforma con Wordpress y WooCommerce, integré Stripe, idiomas, blog con recetas, productos e iniciativas como apadrina un árbol o suscripción mensual. Como podéis imaginar aprendí más que en 1 año de carrera: cómo gestionar envíos con proveedores, incidencias con clientes, gestión de caja, margenes, SEO, contratos por Fiverr para el logo y copywriting, cuenta de instagram, Facebook ads, incluso llegué a colaborar con una marca de cosméticos para hacer una crema de aguacate... Estuve un año con el proyecto y los números no fueron mal, incrementé los márgenes de los productores un 150%, recibí un 4.5 en Trustpilot de mis clientes e hice más de 300 envíos. ",
+            "es": "Estaba yo solo así que diseñé la plataforma con Wordpress y WooCommerce, integré Stripe, idiomas, blog con recetas, productos e iniciativas como apadrina un árbol o suscripción mensual. Como podéis imaginar aprendí más que en 1 año de carrera: cómo gestionar envíos con proveedores, incidencias con clientes, gestión de caja, márgenes, SEO, contratos por Fiverr para el logo y copywriting, cuenta de instagram, Facebook ads, incluso llegué a colaborar con una marca de cosméticos para hacer una crema de aguacate... Estuve un año con el proyecto y los números no fueron mal, incrementé los márgenes de los productores un 150%, recibí un 4.5 en Trustpilot de mis clientes e hice más de 300 envíos. ",
             "en": "I was on my own so I designed the platform with Wordpress and WooCommerce, integrated Stripe, languages, a blog with recipes, products and initiatives like sponsor a tree or a monthly subscription. As you can imagine I learned more than in 1 year of my degree: how to manage shipping with suppliers, problems with customers, cash management, margins, SEO, contracts on Fiverr for the logo and copywriting, an instagram account, Facebook ads, I even ended up working with a cosmetics brand to make an avocado cream... I spent a year on the project and the numbers were not bad, I increased the growers' margins by 150%, I got a 4.5 on Trustpilot from my customers and I made more than 300 shipments. "
           },
           "textLinks": {
@@ -6350,7 +6350,7 @@
         "props": {
           "text": {
             "es": "Sin embargo, era muy exigente en tiempo y no supe delegar. Además me costaba seguir creciendo y me comían las prisas. No supe gestionar bien la paciencia que requiere un negocio y finalmente lo dejé. Fue una experiencia increíble. ",
-            "en": "However, it was very demanding on time and I did not know how to delegate. I also struggled to keep growing and the rush ate me up. I did not manage the patience a business needs well and in the end I gave it up. It was an incredible experience. "
+            "en": "However, it was very demanding on time and I did not know how to delegate. I also struggled to keep growing and felt overwhelmed by the urge to rush things. I did not manage the patience a business needs well and in the end I gave it up. It was an incredible experience."
           },
           "textLinks": {
             "es": []

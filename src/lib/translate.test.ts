@@ -65,6 +65,21 @@ describe('translation providers', () => {
     )).rejects.toBeInstanceOf(TranslateQuotaError);
   });
 
+  it('rejects fuzzy headlines and machine entries for a different source', () => {
+    expect(pickMyMemoryText({ responseData: { translatedText: 'Someone else', match: 0.86 } }, 'Mi texto')).toBe('');
+    expect(pickMyMemoryText({
+      responseData: { translatedText: 'Someone else' },
+      matches: [{ 'created-by': 'MT!', segment: 'Otro texto', translation: 'Someone else' }],
+    }, 'Mi texto')).toBe('');
+    expect(pickMyMemoryText({
+      matches: [{ segment: 'papa', translation: 'potato' }],
+    }, 'Papa')).toBe('');
+  });
+
+  it('refuses an oversized word instead of silently cutting off its end', () => {
+    expect(() => splitForLimit(`Hola ${'x'.repeat(481)} fin`, 480)).toThrow('exceeds');
+  });
+
   it('retries a throttled call instead of losing the run', async () => {
     let calls = 0;
     const result = await translateTexts(

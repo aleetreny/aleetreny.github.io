@@ -596,8 +596,18 @@ on somebody else's sentence often outranks the real one. Asked for *"Hola mundo,
 esto es una prueba"* it answers *"hello this is a test 123"*, while the machine
 translation sitting further down the same response says *"Hello world, this is a
 test"*. The board reads the machine entry, accepts a memory entry only when it
-is the very same sentence, and falls back to the headline answer last. If your
-translations used to come back subtly wrong, that was why.
+is the very same sentence, and rejects a headline known to be a fuzzy match.
+Machine entries must also refer to the requested source. An oversized word is
+refused instead of silently truncated.
+
+Spanish is the author's original. Correct only clear spelling, accents or
+grammar errors; keep the author's register, repetitions, jokes, laughter,
+exaggerations and deliberate fragments. English must carry the same meaning,
+point of view and tone, with the nearest natural equivalent for colloquialisms.
+Do not add explanations, remove claims, summarise or polish it into corporate
+copy. Automatic translation is a draft: none of these providers guarantees
+faithful jokes or idioms. Review before publishing and keep reviewed English
+when filling empty slots; an explicit refresh replaces it.
 
 #### Wiring up your own translator
 
