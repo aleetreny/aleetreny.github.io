@@ -180,6 +180,10 @@
 
 /* ------------------------------------------------------------------ heading */
 .m-head { display: flex; align-items: baseline; gap: 10px; padding: 2px 4px 0; }
+.m-scholarship { padding: 70px 12px 6px; }
+.m-scholarship .letter { height: auto; min-height: 154px; padding-top: 154px; }
+.m-scholarship .letter__env { bottom: auto; height: 154px; }
+.m-scholarship .letter__sheet { position: relative; left: 0; top: 0; width: 100%; margin-top: 16px; }
 .m-head__no {
   flex: none;
   font-size: 11px;

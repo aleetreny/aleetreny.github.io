@@ -6370,5 +6370,531 @@
         "layout": {}
       }
     ]
+  },
+  {
+    "id": "17af664d-0b75-5eb7-bd39-6688972f958a",
+    "version": 1,
+    "slug": "investigacion-economia",
+    "title": "IA, automatización y sector público",
+    "summary": "Si las máquinas producen cada vez más, ¿cómo repartimos lo que sale de ahí?",
+    "entryType": "note",
+    "status": "published",
+    "publishedAt": "2026-08-05T00:00:00.000Z",
+    "metadata": {
+      "kicker": {
+        "es": "TFG · Economía",
+        "en": "Undergraduate thesis · Economics"
+      },
+      "when": {
+        "es": "2025"
+      },
+      "where": {
+        "es": "Universidad de Málaga · con Ignacio Ortiz Serratosa",
+        "en": "University of Málaga · with Ignacio Ortiz Serratosa"
+      },
+      "group": "research",
+      "order": 0,
+      "i18n": {
+        "title": {
+          "es": "IA, automatización y sector público",
+          "en": "AI, automation and the public sector"
+        },
+        "summary": {
+          "es": "Si las máquinas producen cada vez más, ¿cómo repartimos lo que sale de ahí?",
+          "en": "If machines produce more and more, how do we share what comes out of it?"
+        }
+      }
+    },
+    "blocks": [
+      {
+        "id": "148b6496-58fc-5892-b6ab-0ff259e04e7d",
+        "type": "text",
+        "position": 0,
+        "props": {
+          "text": {
+            "es": "Este fue mi TFG de Economía, que hice con Ignacio Ortiz Serratosa. Nos interesaba una pregunta bastante grande: qué pasa con el empleo, la desigualdad y las cuentas públicas cuando una parte creciente del trabajo se puede automatizar.",
+            "en": "This was my Economics undergraduate thesis, which I did with Ignacio Ortiz Serratosa. We were interested in a fairly big question: what happens to jobs, inequality and public finances when a growing share of work can be automated."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "113e4d1c-3ebd-5a42-bc95-fbb49cbbfe38",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "es": "Lo de que la IA nos va a quitar el trabajo se escucha por todas partes, pero decirlo así deja muchas cosas fuera. Un empleo contiene tareas muy diferentes, y que una de ellas se pueda automatizar no significa que desaparezca la ocupación entera. La tecnología también puede cambiar lo que hacemos, aumentar la productividad y crear trabajo en otros sitios.",
+            "en": "You hear everywhere that AI is going to take our jobs, but putting it like that leaves quite a lot out. A job contains very different tasks, and being able to automate one of them does not mean the whole occupation disappears. Technology can also change what we do, increase productivity and create work elsewhere."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "03fb5004-3f6c-58aa-8cd8-2801d7d7e46b",
+        "type": "text",
+        "position": 2,
+        "props": {
+          "text": {
+            "es": "A partir de la literatura y de la evidencia disponible, revisamos estas posibilidades con el foco puesto en Europa. El trabajo es una revisión y una discusión de políticas: fuimos conectando lo que se sabe sobre automatización con preguntas de economía pública.",
+            "en": "Using the literature and the available evidence, we reviewed these possibilities with Europe in mind. The thesis is a review and a discussion of policy: we connected what is known about automation with questions from public economics."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "19e528bc-71c4-5900-9c65-f842fdfb6908",
+        "type": "text",
+        "position": 3,
+        "props": {
+          "text": {
+            "es": "La parte que más me interesaba era la fiscal. Si una parte de la renta se desplaza del trabajo hacia el capital, un sistema que recauda mucho a través de los salarios tiene un problema bastante concreto. ¿Cómo financiamos los servicios públicos y la protección social en ese escenario? Revisamos la tributación del capital, el debate sobre gravar los robots y las dificultades de hacerlo sin frenar la innovación.",
+            "en": "The part that interested me most was taxation. If some income moves from labour towards capital, a system that raises a lot of its revenue through wages has a fairly concrete problem. How do we fund public services and social protection in that situation? We reviewed capital taxation, the debate about taxing robots, and the difficulty of doing it without slowing innovation."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "20297a4d-302b-5e52-84c2-9f0de15176ee",
+        "type": "text",
+        "position": 4,
+        "props": {
+          "text": {
+            "es": "También entran la formación, los cuidados, las prestaciones y la renta básica. Todas parecen más sencillas cuando las nombras que cuando intentas financiarlas y ponerlas a funcionar. Ahí estaba buena parte del trabajo: mirar qué intenta resolver cada propuesta y qué problemas trae consigo.",
+            "en": "Training, care, benefits and basic income also enter the picture. All of them sound simpler when you name them than when you try to fund them and make them work. A good part of the thesis was there: looking at what each proposal tries to solve and what problems come with it."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "37b064e2-ff0f-536d-a90d-f160236bd9aa",
+        "type": "text",
+        "position": 5,
+        "props": {
+          "text": {
+            "es": "Me quedé con que aumentar la productividad y mejorar la vida de la gente son dos cosas que hay que conectar. La conexión pasa por decisiones sobre impuestos, formación y protección social, y esas decisiones también forman parte de cómo se desarrolla la tecnología.",
+            "en": "What stayed with me is that increasing productivity and improving people’s lives are two things we have to connect. That connection runs through decisions about taxation, training and social protection, and those decisions are also part of how technology develops."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "73d09d6e-71a4-546f-8444-220a24a0b32f",
+        "type": "links",
+        "position": 6,
+        "props": {
+          "items": [
+            [
+              {
+                "es": "Leer el TFG de Economía completo",
+                "en": "Read the full Economics thesis"
+              },
+              "https://aleetreny.github.io/trabajos-academicos/TFG-Economia.pdf"
+            ]
+          ]
+        },
+        "layout": {}
+      }
+    ]
+  },
+  {
+    "id": "b41e355b-e14c-5065-8d6a-62b8da308974",
+    "version": 1,
+    "slug": "investigacion-ade",
+    "title": "Trabajar y seguir siendo pobre",
+    "summary": "Un sueldo cuenta una parte de la historia. Lo que pasa en casa cuenta otra.",
+    "entryType": "note",
+    "status": "published",
+    "publishedAt": "2026-08-05T00:00:00.000Z",
+    "metadata": {
+      "kicker": {
+        "es": "TFG · ADE",
+        "en": "Undergraduate thesis · Business"
+      },
+      "when": {
+        "es": "2025"
+      },
+      "where": {
+        "es": "Universidad de Málaga · con Ignacio Ortiz Serratosa",
+        "en": "University of Málaga · with Ignacio Ortiz Serratosa"
+      },
+      "group": "research",
+      "order": 1,
+      "i18n": {
+        "title": {
+          "es": "Trabajar y seguir siendo pobre",
+          "en": "Working and still being poor"
+        },
+        "summary": {
+          "es": "Un sueldo cuenta una parte de la historia. Lo que pasa en casa cuenta otra.",
+          "en": "A wage tells part of the story. What happens at home tells another part."
+        }
+      }
+    },
+    "blocks": [
+      {
+        "id": "86333f27-c482-54bc-aad3-f26882ec310a",
+        "type": "text",
+        "position": 0,
+        "props": {
+          "text": {
+            "es": "Para el TFG de ADE, Ignacio Ortiz Serratosa y yo estudiamos la pobreza laboral en España. La pregunta era bastante directa: cómo puede alguien tener trabajo y aun así vivir en un hogar pobre. El título de la memoria es In-work poverty: the case of Spain.",
+            "en": "For our Business undergraduate thesis, Ignacio Ortiz Serratosa and I studied in-work poverty in Spain. The question was fairly direct: how can someone have a job and still live in a poor household? The write-up is titled In-work poverty: the case of Spain."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "83be6d23-b169-5efe-b1ed-9336e7115729",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "es": "Usamos los microdatos de la Encuesta de Condiciones de Vida de 2024, que recoge los ingresos de 2023. Aplicamos la definición de Eurostat, basada en la renta disponible equivalente del hogar. En nuestro análisis, el 11,3 % de las personas ocupadas quedaba por debajo del umbral de pobreza. Tener trabajo, por sí solo, dejaba bastante por explicar.",
+            "en": "We used microdata from the 2024 Spanish Living Conditions Survey, which records income from 2023. We followed Eurostat’s definition, based on the household’s equivalised disposable income. In our analysis, 11.3% of employed people fell below the poverty threshold. Having a job, on its own, left quite a lot to explain."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "7f211b95-cfac-5b88-b13a-733b2199f58e",
+        "type": "text",
+        "position": 2,
+        "props": {
+          "text": {
+            "es": "Primero miramos cómo se repartía el problema: salarios, horas trabajadas, contratos, estudios, origen y composición familiar. Después fuimos añadiendo estos bloques a regresiones logísticas, usando las ponderaciones de la encuesta. Así podíamos ver qué asociaciones se mantenían al tener en cuenta el resto de variables.",
+            "en": "First we looked at how the problem was distributed: wages, hours worked, contracts, education, origin and family structure. Then we added these blocks to logistic regressions, using the survey weights. That let us see which associations remained once the other variables were taken into account."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "8b28aeac-b28f-5906-af70-c3025c14981d",
+        "type": "text",
+        "position": 3,
+        "props": {
+          "text": {
+            "es": "La parte del hogar acaba pesando mucho. El mismo salario tiene que dar para cosas muy diferentes si vives solo, si hay otra persona trabajando o si tienes hijos a cargo. Los salarios bajos y las pocas horas importan, pero mirar únicamente el contrato de una persona se queda corto para entender su situación.",
+            "en": "The household ends up mattering a lot. The same wage has to cover very different things if you live alone, if someone else is also working, or if you have children to support. Low wages and limited hours matter, but looking only at one person’s contract leaves a lot of their situation out."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "a2afd306-0995-52f4-8eba-589ec727bbb0",
+        "type": "text",
+        "position": 4,
+        "props": {
+          "text": {
+            "es": "También comparamos la selección de variables guiada por la teoría con una búsqueda mediante entropía cruzada. Cambian algunos detalles del modelo, pero se mantiene la importancia de los salarios, la intensidad laboral del hogar y la estructura familiar. Me interesaba comprobar si la historia dependía demasiado de cómo habíamos elegido las variables.",
+            "en": "We also compared theory-guided variable selection with a search using cross entropy. Some details of the model change, but wages, household work intensity and family structure remain important. I wanted to check whether the story depended too much on how we had chosen the variables."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "9313b046-838b-5058-b208-b785f34c57a2",
+        "type": "text",
+        "position": 5,
+        "props": {
+          "text": {
+            "es": "Son datos de un momento concreto y las relaciones son asociaciones. Para saber qué cambios de política sacan realmente a alguien de la pobreza haría falta otro diseño. Este trabajo nos sirvió para describir mejor a quién deja fuera la idea de que con encontrar empleo ya está todo resuelto.",
+            "en": "The data describe one point in time, and the relationships are associations. Finding out which policy changes actually take someone out of poverty would need a different design. This thesis helped us describe who gets left out of the idea that finding a job solves everything."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "afc14527-ff79-54ce-aa4b-6c0f9e2ad2b3",
+        "type": "links",
+        "position": 6,
+        "props": {
+          "items": [
+            [
+              {
+                "es": "Leer el TFG de ADE completo",
+                "en": "Read the full Business thesis"
+              },
+              "https://aleetreny.github.io/trabajos-academicos/TFG-ADE.pdf"
+            ]
+          ]
+        },
+        "layout": {}
+      }
+    ]
+  },
+  {
+    "id": "979f892b-a2a2-5b41-9884-2f6bcf1d1125",
+    "version": 1,
+    "slug": "investigacion-tfm",
+    "title": "Medir la forma de la ciencia",
+    "summary": "Convertir los artículos de una disciplina en una nube de puntos y ver qué forma tiene.",
+    "entryType": "note",
+    "status": "published",
+    "publishedAt": "2026-08-05T00:00:00.000Z",
+    "metadata": {
+      "kicker": {
+        "es": "TFM · UC3M",
+        "en": "Master’s thesis · UC3M"
+      },
+      "when": {
+        "es": "2026"
+      },
+      "where": {
+        "es": "Universidad Carlos III de Madrid · tutora: María Luz Durbán Reguera",
+        "en": "Universidad Carlos III de Madrid · supervisor: María Luz Durbán Reguera"
+      },
+      "group": "research",
+      "order": 2,
+      "i18n": {
+        "title": {
+          "es": "Medir la forma de la ciencia",
+          "en": "Measuring the shape of science"
+        },
+        "summary": {
+          "es": "Convertir los artículos de una disciplina en una nube de puntos y ver qué forma tiene.",
+          "en": "Turn a discipline’s papers into a cloud of points and see what shape it has."
+        }
+      }
+    },
+    "blocks": [
+      {
+        "id": "65293394-3dfb-5efc-9bec-f3c27b1f0ec9",
+        "type": "text",
+        "position": 0,
+        "props": {
+          "text": {
+            "es": "Este es mi TFM del Máster en Estadística para la Ciencia de Datos de la UC3M, dirigido por María Luz Durbán Reguera. Partía de algo que ya había explorado en Mapping Science: si cada paper puede convertirse en un vector, una disciplina entera se puede mirar como una nube de puntos.",
+            "en": "This is my thesis for the Master’s in Statistics for Data Science at UC3M, supervised by María Luz Durbán Reguera. It started from something I had already explored in Mapping Science: if each paper can be turned into a vector, a whole discipline can be viewed as a cloud of points."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "bb189e9a-3c3d-5b71-ae20-a246b273165d",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "es": "A partir de ahí la pregunta cambia un poco. Además de dónde está la nube, podemos preguntar si está muy extendida, si sus puntos se concentran en ciertas zonas o si unas pocas publicaciones aparecen como vecinas de muchísimas otras. Dos disciplinas pueden tener temas muy diferentes y parecerse en esa forma de organizarse.",
+            "en": "From there the question changes a little. As well as asking where the cloud is, we can ask whether it is spread out, whether its points gather in certain areas, or whether a few publications appear as neighbours of many others. Two disciplines can cover very different topics and still resemble each other in that arrangement."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "27dd7204-f0dd-55e6-b3a3-4aa2c60e427e",
+        "type": "text",
+        "position": 2,
+        "props": {
+          "text": {
+            "es": "Construí el corpus con títulos y resúmenes de OpenAlex para 2000–2024. El conjunto final de análisis contiene algo más de 2,3 millones de artículos representados con SPECTER2. Cada uno tiene 768 coordenadas, así que todas las medidas se calculan ahí; el PCA y el UMAP sirven para que podamos mirar una versión reducida.",
+            "en": "I built the corpus from OpenAlex titles and abstracts for 2000–2024. The final analysis set contains a little over 2.3 million papers represented with SPECTER2. Each has 768 coordinates, so all the measurements are calculated there; PCA and UMAP let us look at a reduced version."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "3ab11cb2-f7ff-5763-8c06-39f2463f264e",
+        "type": "text",
+        "position": 3,
+        "props": {
+          "text": {
+            "es": "Usé ocho medidas para describir dispersión, densidad local, concentración de vecinos y estructura espectral. También seguí el movimiento del centro de cada nube a lo largo del tiempo. Que una nube cambie de forma y que se desplace son preguntas distintas, aunque en un dibujo en dos dimensiones se puedan mezclar fácilmente.",
+            "en": "I used eight measures to describe dispersion, local density, neighbour concentration and spectral structure. I also followed the movement of each cloud’s centre over time. A cloud changing shape and a cloud moving are different questions, although they can easily get mixed together in a two-dimensional picture."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "5d871b7e-aa2d-5b05-baa3-a9fa4a2f5b90",
+        "type": "text",
+        "position": 4,
+        "props": {
+          "text": {
+            "es": "Lo curioso es que las etiquetas habituales de la ciencia no explican toda esa estructura. En 17 de los 26 campos, el vecino más parecido en términos de forma pertenece a otro gran dominio de OpenAlex. También aparecen cambios temporales: las nubes se hacen más compactas en algunas medidas mientras los perfiles de los campos se separan, en promedio.",
+            "en": "The curious part is that the usual labels for science do not explain all of that structure. In 17 of the 26 fields, the closest neighbour in terms of shape belongs to another broad OpenAlex domain. There are changes over time too: the clouds become more compact on some measures while the field profiles move further apart on average."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "2c392d24-7c92-521a-a396-c781f04994b5",
+        "type": "text",
+        "position": 5,
+        "props": {
+          "text": {
+            "es": "Todo esto depende de la representación elegida y de los artículos que entran en el corpus. Me quedé con ganas de saber cuánto aguantarían los resultados al cambiar esas decisiones. De seguir esa pregunta salió el artículo que está al lado, con su propio conjunto de datos y sus propias comparaciones.",
+            "en": "All of this depends on the chosen representation and the papers included in the corpus. I wanted to know how much the results would survive changes to those choices. Following that question led to the article next to this thesis, with its own dataset and its own comparisons."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "e695d657-938e-5392-87f9-f68bd8d595f0",
+        "type": "links",
+        "position": 6,
+        "props": {
+          "items": [
+            [
+              {
+                "es": "Leer el TFM completo",
+                "en": "Read the full master’s thesis"
+              },
+              "https://aleetreny.github.io/trabajos-academicos/TFM-UC3M.pdf"
+            ],
+            [
+              {
+                "es": "El artículo que vino después",
+                "en": "The article that followed"
+              },
+              "article:investigacion-articulo"
+            ]
+          ]
+        },
+        "layout": {}
+      }
+    ]
+  },
+  {
+    "id": "6122e260-27bc-594e-ab8a-398ce3e320c9",
+    "version": 1,
+    "slug": "investigacion-articulo",
+    "title": "¿Cuánto depende el mapa del modelo?",
+    "summary": "La pregunta que quedó abierta en el TFM acabó en un paper.",
+    "entryType": "note",
+    "status": "published",
+    "publishedAt": "2026-08-05T00:00:00.000Z",
+    "metadata": {
+      "kicker": {
+        "es": "Artículo · arXiv",
+        "en": "Article · arXiv"
+      },
+      "when": {
+        "es": "Octubre 2026",
+        "en": "October 2026"
+      },
+      "where": {
+        "es": "Autor único · preprint en arXiv",
+        "en": "Sole author · arXiv preprint"
+      },
+      "group": "research",
+      "order": 3,
+      "i18n": {
+        "title": {
+          "es": "¿Cuánto depende el mapa del modelo?",
+          "en": "How much does the map depend on the model?"
+        },
+        "summary": {
+          "es": "La pregunta que quedó abierta en el TFM acabó en un paper.",
+          "en": "The question left open by the master’s thesis became a paper."
+        }
+      }
+    },
+    "blocks": [
+      {
+        "id": "9a1ddeba-db59-5da0-92a4-cec97d7c049f",
+        "type": "text",
+        "position": 0,
+        "props": {
+          "text": {
+            "es": "Después del TFM me seguía rondando una duda: si cambio el modelo que convierte los papers en vectores, ¿voy a seguir viendo la misma ciencia? Acabé dedicándole un trabajo aparte, How much does the map of science depend on the embedding model?, que publiqué como preprint en arXiv en octubre de 2026.",
+            "en": "After the master’s thesis, one question kept coming back: if I change the model that turns papers into vectors, will I still see the same science? I ended up giving it a separate study, How much does the map of science depend on the embedding model?, which I posted as a preprint on arXiv in October 2026."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "f4910696-68a2-58a4-86c8-313608ec37c8",
+        "type": "text",
+        "position": 1,
+        "props": {
+          "text": {
+            "es": "Para compararlos, fijé un conjunto de 500.000 publicaciones de OpenAlex y probé diez modelos de embeddings. Los artículos son los mismos para todos, de modo que podemos mirar qué cambia cuando cambia la forma de representarlos. También comparé usar únicamente el título con añadir el resumen.",
+            "en": "To compare them, I fixed a set of 500,000 OpenAlex publications and tried ten embedding models. The papers are the same for all of them, so we can look at what changes when their representation changes. I also compared using only the title with adding the abstract."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "166c3db8-91ed-54bf-90a2-e96e2de2b103",
+        "type": "text",
+        "position": 2,
+        "props": {
+          "text": {
+            "es": "A gran escala los modelos se ponen bastante de acuerdo: si representas cada disciplina por su posición media, la distribución general se parece. Al acercarte a los artículos concretos, la cosa cambia. Dos modelos comparten, de media, unos ocho de los 25 vecinos más cercanos de un paper.",
+            "en": "At a broad scale the models agree fairly well: if each discipline is represented by its average position, the overall arrangement looks similar. Zoom in to individual papers and things change. Two models share, on average, about eight of a paper’s 25 nearest neighbours."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "877fe700-29b6-5602-8100-04e7c6a92edd",
+        "type": "text",
+        "position": 3,
+        "props": {
+          "text": {
+            "es": "Eso importa si el mapa se usa para encontrar literatura relacionada. El dibujo general puede parecer convincente mientras la lista de artículos a la que te lleva depende bastante del modelo. Darle solo el título también cambia mucho esa lista, y no todos los modelos reaccionan igual.",
+            "en": "That matters if the map is used to find related literature. The overall picture can look convincing while the list of papers it takes you to depends quite a lot on the model. Giving it only the title also changes that list substantially, and the models do not all react in the same way."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "ec4e53af-aa0f-53a7-98eb-cd9530fc233b",
+        "type": "text",
+        "position": 4,
+        "props": {
+          "text": {
+            "es": "Otra parte del trabajo mira cómo comparamos la dispersión de las disciplinas. Algunas medidas dependen del punto desde el que se calculan los ángulos, y moverlo puede invertir qué área parece más dispersa. Era una de esas decisiones de procesamiento que parecen pequeñas hasta que cambian la respuesta.",
+            "en": "Another part looks at how we compare the spread of disciplines. Some measures depend on the point from which angles are calculated, and moving it can reverse which area appears more spread out. It was one of those processing choices that looks small until it changes the answer."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "5a263f3d-bd0b-59ed-95d2-755ba48859f8",
+        "type": "text",
+        "position": 5,
+        "props": {
+          "text": {
+            "es": "Me hizo revisar qué significa que un resultado sea estable. Cambiar los artículos, el modelo y el tratamiento de los vectores pone a prueba cosas distintas. El código y los resultados reproducibles están publicados junto al trabajo, para poder seguir esas comparaciones sin quedarse únicamente con el mapa bonito.",
+            "en": "It made me reconsider what it means for a result to be stable. Changing the papers, the model and the treatment of the vectors tests different things. The code and reproducible results are published alongside the study, so the comparisons can be followed beyond the attractive map."
+          }
+        },
+        "layout": {}
+      },
+      {
+        "id": "34847b5e-b8b0-562e-a39b-1ad36c559452",
+        "type": "links",
+        "position": 6,
+        "props": {
+          "items": [
+            [
+              {
+                "es": "Leer el artículo en arXiv",
+                "en": "Read the article on arXiv"
+              },
+              "https://arxiv.org/abs/2610.16639"
+            ],
+            [
+              {
+                "es": "Código y resultados reproducibles",
+                "en": "Code and reproducible results"
+              },
+              "https://doi.org/10.5281/zenodo.22876602"
+            ],
+            [
+              {
+                "es": "Volver al TFM del que salió",
+                "en": "Back to the master’s thesis it grew out of"
+              },
+              "article:investigacion-tfm"
+            ]
+          ]
+        },
+        "layout": {}
+      }
+    ]
   }
 ]

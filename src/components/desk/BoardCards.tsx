@@ -7,6 +7,7 @@ import type { PortfolioEntry } from '../../types/content';
 import { EditableText } from './EditableText';
 import { useUiText } from './ui-text-context';
 import { ScholarshipCard } from './ScholarshipCard';
+import { ResearchRows } from './ResearchRows';
 
 type CardEdit = (cardId: string, patch: Partial<BoardCard>) => void;
 
@@ -20,6 +21,7 @@ type BoardCardViewProps = {
   onAddEntry: (group: string) => void;
   onDeleteEntry: (entry: PortfolioEntry) => void;
   onReorderEntries: (entries: PortfolioEntry[]) => void;
+  onOpenEntry: (slug: string) => void;
 };
 
 type FieldTag = 'span' | 'div' | 'p';
@@ -474,7 +476,7 @@ function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   const style: CSSProperties | undefined = tone === 'custom'
     ? { background: card.bg ?? '#fbf7ef', color: card.ink ?? '#17150f' }
     : undefined;
-  return <div className={`card__surface card__surface--${tone}${card.presentation === 'abstract' ? ' card__surface--abstract' : ''}`} style={style}>{children}</div>;
+  return <div className={`card__surface card__surface--${tone}${card.presentation === 'abstract' ? ' card__surface--abstract' : ''}${card.presentation === 'research' ? ' card__surface--research' : ''}`} style={style}>{children}</div>;
 }
 
 /** One card.
@@ -485,7 +487,7 @@ function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
  *  or opening a panel — re-rendered every card on the slate to change one line
  *  of chrome. Every prop below is either a value or a stable callback, so the
  *  comparison is honest. */
-export const BoardCardView = memo(function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, onAddEntry, onDeleteEntry, onReorderEntries }: BoardCardViewProps) {
+export const BoardCardView = memo(function BoardCardView({ card, entries, groupLabel, editing, onCardEdit, onAddEntry, onDeleteEntry, onReorderEntries, onOpenEntry }: BoardCardViewProps) {
   const t = useUiText();
   const field = (
     key: keyof BoardCard,
@@ -673,7 +675,9 @@ export const BoardCardView = memo(function BoardCardView({ card, entries, groupL
       {field('title', card.title, { className: 'card__title', placeholder: t('ph.title') })}
       {card.subtitle || editing ? field('subtitle', card.subtitle, { className: 'card__sub', placeholder: t('ph.text') }) : null}
       {card.intro || editing ? field('intro', card.intro, { className: 'card__intro', placeholder: t('ph.text') }) : null}
-      <DrawerRows card={card} entries={entries} editing={editing} onDeleteEntry={onDeleteEntry} onReorderEntries={onReorderEntries} />
+      {card.presentation === 'research' && !editing
+        ? <ResearchRows entries={entriesForGroup(entries, card.group ?? '').slice(0, card.maxItems)} onOpen={onOpenEntry} />
+        : <DrawerRows card={card} entries={entries} editing={editing} onDeleteEntry={onDeleteEntry} onReorderEntries={onReorderEntries} />}
       {editing ? (
         <button className="drawer__add" type="button" data-nodrag onClick={() => onAddEntry(card.group ?? '')}>
           {t('card.addEntry')}

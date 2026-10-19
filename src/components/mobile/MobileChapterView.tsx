@@ -16,6 +16,8 @@ import { entriesForGroup, STICKER_MARKS, type BoardCard, type TagChip } from '..
 import type { PortfolioEntry } from '../../types/content';
 import { mobileArticleSlug, splitLabel, type MobileChapter } from '../../lib/mobile';
 import { useUiText } from '../desk/ui-text-context';
+import { ResearchRows } from '../desk/ResearchRows';
+import { ScholarshipCard } from '../desk/ScholarshipCard';
 
 type ChapterProps = {
   chapter: MobileChapter;
@@ -149,12 +151,14 @@ function CardBody({ card, entries, groupLabel, numbered, onOpen }: {
   }
 
   if (card.type === 'spotlight') {
+    if (card.presentation === 'letter') {
+      return <div className="m-scholarship"><ScholarshipCard card={card} /></div>;
+    }
     return (
       <div className={`m-sheet card__surface card__surface--${tone(card)}`}>
         {kicker ? <span className="k m-sheet__kicker">{kicker}</span> : null}
         <h2 className="m-sheet__title m-sheet__title--big">{card.title}</h2>
         {card.blurb ? <p className="m-sheet__blurb">{card.blurb}</p> : null}
-        {card.presentation === 'letter' && card.label ? <p className="m-sheet__note">{card.label}</p> : null}
         <Stats pairs={card.grid ?? []} />
         {card.bars ? (
           <div className="m-bars" aria-hidden="true">
@@ -232,7 +236,7 @@ function CardBody({ card, entries, groupLabel, numbered, onOpen }: {
   const list = entriesForGroup(entries, card.group ?? '');
   const number = numbered ? '' : card.kicker?.match(/\d+/)?.[0] ?? '';
   return (
-    <div className={`m-sheet card__surface card__surface--${tone(card)}`}>
+    <div className={`m-sheet card__surface card__surface--${tone(card)}${card.presentation === 'research' ? ' card__surface--research' : ''}`}>
       <div className="m-sheet__head">
         <span className="k">
           {number ? <b>{number}</b> : null}
@@ -244,7 +248,7 @@ function CardBody({ card, entries, groupLabel, numbered, onOpen }: {
       <h2 className="m-sheet__title">{card.title}</h2>
       {card.subtitle ? <p className="m-sheet__blurb">{card.subtitle}</p> : null}
       {card.intro ? <p className="m-sheet__note">{card.intro}</p> : null}
-      <Rows entries={list} onOpen={onOpen} />
+      {card.presentation === 'research' ? <ResearchRows entries={list} onOpen={onOpen} /> : <Rows entries={list} onOpen={onOpen} />}
       <Stats pairs={card.stats ?? []} />
       <Chips items={card.tech ?? []} />
       {card.footerLink ? (

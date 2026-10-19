@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ITEMS, ORDER } from '../../content/source/desk-data.mjs';
+import { RESEARCH_ITEMS } from '../../content/source/research-work.mjs';
 import { TEXT_REVIEW } from '../../content/source/text-review-2026-10-02.mjs';
 import { applyTextReview } from './text-review.mjs';
 import { applyBoardAdditions } from '../../content/source/board-additions.mjs';
@@ -34,8 +35,9 @@ for (const [group, keys] of Object.entries(GROUPS)) {
 
 const PUBLISHED_AT = '2026-08-05T00:00:00.000Z';
 
-const entries = ORDER.map((slug) => {
-  const item = ITEMS[slug];
+const contentItems = { ...ITEMS, ...RESEARCH_ITEMS };
+const entries = [...ORDER, ...Object.keys(RESEARCH_ITEMS)].map((slug) => {
+  const item = contentItems[slug];
   if (!item) throw new Error(`ORDER references missing item: ${slug}`);
   // A dossier normally takes its list and its position from GROUPS. One that
   // names its own keeps them, which is how an entry that lives outside every

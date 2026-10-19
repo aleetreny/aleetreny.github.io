@@ -86,6 +86,8 @@ export type TourStop = {
   id: string;
   label: string;
   items: string[];
+  /** A deliberately paired composition stays one stop on every screen. */
+  keepTogether?: boolean;
   /** Pieces that land while this stop is on screen but never decide where the
    *  camera goes. A walk that halts on a loose photo is a walk that halts on
    *  nothing; the photo still has to arrive, so it arrives here — stuck onto
@@ -356,6 +358,7 @@ function parseStops(value: unknown, fallback: TourStop[]): TourStop[] {
       items,
     };
     if (extras.length > 0) stop.extras = extras;
+    if (raw.keepTogether === true) stop.keepTogether = true;
     const reveal = parseStopReveal(raw.reveal);
     if (reveal) stop.reveal = reveal;
     if (typeof raw.motion === 'string' && (CAMERA_MOTIONS as readonly string[]).includes(raw.motion)) stop.motion = raw.motion as CameraMotion;
@@ -826,7 +829,7 @@ export function splitStops(stops: TourStop[], max: number): TourStop[] {
   if (!(max >= 1)) return stops;
   const out: TourStop[] = [];
   for (const stop of stops) {
-    if (stop.items.length <= max) { out.push(stop); continue; }
+    if (stop.keepTogether || stop.items.length <= max) { out.push(stop); continue; }
     chunk(stop.items, max).forEach((items, index) => {
       // The pieces split; the heading and the stop's own flourish do not. What
       // the stop merely carries rides with the first slice, so a phone still

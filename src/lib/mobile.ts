@@ -102,7 +102,8 @@ export function buildChapters(
     // photograph — has no screen of its own.
     if (framed.length === 0) continue;
 
-    const made: MobileChapter[] = framed.map((card, index) => {
+    const leadCards = stop.keepTogether ? framed.slice(0, 1) : framed;
+    const made: MobileChapter[] = leadCards.map((card, index) => {
       used.add(card.id);
       return {
         id: index === 0 ? stop.id : `${stop.id}-${index + 1}`,
@@ -115,6 +116,9 @@ export function buildChapters(
     // What the stop merely carries rides with its first screen, the same way
     // the tour hands a split stop's extras to the first slice.
     const lead = made[0];
+    if (stop.keepTogether) {
+      for (const card of framed.slice(1)) { used.add(card.id); lead.extras.push(card); }
+    }
     for (const id of stop.extras ?? []) {
       const extra = cards.get(id);
       if (!extra || SILENT_CARDS.has(extra.type) || used.has(extra.id)) continue;

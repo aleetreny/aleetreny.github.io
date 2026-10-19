@@ -19,6 +19,7 @@ import type { DossierConfig } from '../../lib/board';
 import { isVideoMedia } from '../../lib/image-upload';
 import { linksForLanguage, linksForLanguageAt } from '../../lib/rich-text';
 import { RichText } from '../desk/RichText';
+import { DossierLink } from '../desk/DossierLink';
 import { useUiText } from '../desk/ui-text-context';
 
 type MobileArticleProps = {
@@ -117,7 +118,7 @@ function BlockBody({ block, language, articles, onOpenArticle }: {
         <div className="db-links">
           {propPairList(block, 'items').map((pair, index) => (
             pair[0] && pair[1]
-              ? <a key={index} href={pair[1]} target="_blank" rel="noreferrer">{pair[0]} →</a>
+              ? <DossierLink key={index} label={pair[0]} href={pair[1]} onOpenArticle={onOpenArticle} />
               : null
           ))}
         </div>

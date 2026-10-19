@@ -81,7 +81,7 @@
     "value": {
       "size": {
         "width": 4120,
-        "height": 2500
+        "height": 2680
       },
       "groups": [
         {
@@ -145,6 +145,13 @@
           "label": {
             "en": "Mobility",
             "es": "Movilidad"
+          }
+        },
+        {
+          "id": "research",
+          "label": {
+            "es": "Investigación",
+            "en": "Research"
           }
         }
       ],
@@ -722,7 +729,7 @@
           "type": "spotlight",
           "presentation": "letter",
           "x": 2780,
-          "y": 1880,
+          "y": 1964,
           "w": 220,
           "rot": 2,
           "tone": "paperCream",
@@ -741,33 +748,50 @@
           }
         },
         {
-          "id": "science-map-paper",
+          "id": "kareema-scholarship",
           "type": "spotlight",
-          "presentation": "abstract",
-          "x": 940,
-          "y": 1625,
-          "w": 280,
-          "rot": 1.5,
-          "tone": "paper",
+          "presentation": "letter",
+          "x": 2524,
+          "y": 1964,
+          "w": 220,
+          "rot": -2.5,
+          "tone": "paperCream",
+          "glyph": "K",
           "title": {
-            "es": "¿Cambia el mapa de la ciencia?",
-            "en": "Does the map of science change?"
+            "es": "Fundación Kareema",
+            "en": "Fundación Kareema"
+          },
+          "label": {
+            "es": "Beca a la Excelencia",
+            "en": "Excellence Scholarship"
           },
           "blurb": {
-            "es": "10 modelos y 500.000 artículos: mapas globales parecidos, vecinos locales distintos.",
-            "en": "10 models, 500,000 papers: similar global maps, different local neighbours."
+            "es": "Máster en Ciencia de Datos y Aprendizaje Automático.",
+            "en": "MSc Data Science & Machine Learning."
           },
-          "barCaption": {
-            "es": "Preprint · arXiv · octubre 2026",
-            "en": "Preprint · arXiv · October 2026"
+          "barCaption": "€45,000",
+          "note": "University College London · 2026"
+        },
+        {
+          "id": "research",
+          "type": "drawer",
+          "presentation": "research",
+          "group": "research",
+          "x": 1080,
+          "y": 2190,
+          "w": 470,
+          "rot": -1.2,
+          "tone": "paperCream",
+          "layout": "list",
+          "maxItems": 4,
+          "title": {
+            "es": "Trabajos de investigación",
+            "en": "Research work"
           },
-          "footerLink": [
-            {
-              "es": "Leer el paper →",
-              "en": "Read the paper →"
-            },
-            "https://arxiv.org/abs/2610.16639"
-          ]
+          "subtitle": {
+            "es": "Dos TFG, un TFM y un paper. El último salió de seguir tirando del hilo del máster.",
+            "en": "Two undergraduate theses, a master’s thesis and a paper. The last one grew out of following the master’s question a little further."
+          }
         }
       ],
       "polaroids": [
@@ -1118,21 +1142,6 @@
           ]
         },
         {
-          "id": "stop-telefonica",
-          "label": {
-            "es": "Beca Fundación Telefónica",
-            "en": "Fundación Telefónica scholarship"
-          },
-          "items": [
-            "telefonica-scholarship"
-          ],
-          "reveal": {
-            "style": "flip"
-          },
-          "motion": "glide",
-          "motif": "ink"
-        },
-        {
           "id": "stop-4",
           "label": {
             "es": "03 · El laboratorio",
@@ -1170,21 +1179,6 @@
             "scrap-coffee",
             "76ef90fd-0892-4f81-895d-d3c499c4c591"
           ]
-        },
-        {
-          "id": "stop-science-paper",
-          "label": {
-            "es": "Mi paper en arXiv",
-            "en": "My paper on arXiv"
-          },
-          "items": [
-            "science-map-paper"
-          ],
-          "reveal": {
-            "style": "rise"
-          },
-          "motion": "glide",
-          "motif": "ink"
         },
         {
           "id": "stop-6",
@@ -1302,6 +1296,21 @@
           ]
         },
         {
+          "id": "stop-research",
+          "label": {
+            "es": "De los TFG al paper",
+            "en": "From undergraduate theses to a paper"
+          },
+          "items": [
+            "research"
+          ],
+          "reveal": {
+            "style": "rise"
+          },
+          "motion": "glide",
+          "motif": "ink"
+        },
+        {
           "id": "stop-12",
           "label": {
             "es": "11 · En el aire",
@@ -1320,6 +1329,23 @@
             "scrap-cross",
             "abd756d1-fef8-4243-938b-4a1e59a11705"
           ]
+        },
+        {
+          "id": "stop-scholarships",
+          "label": {
+            "es": "Kareema y Fundación Telefónica",
+            "en": "Kareema and Fundación Telefónica"
+          },
+          "items": [
+            "kareema-scholarship",
+            "telefonica-scholarship"
+          ],
+          "keepTogether": true,
+          "reveal": {
+            "style": "flip"
+          },
+          "motion": "glide",
+          "motif": "ink"
         },
         {
           "id": "stop-13",
@@ -1397,7 +1423,7 @@
         "y": 1964,
         "rot": -2.5,
         "scale": 1,
-        "visible": true
+        "visible": false
       },
       {
         "id": "hourglass",
@@ -1497,8 +1523,8 @@
       },
       {
         "id": "passport",
-        "x": 1324,
-        "y": 2244,
+        "x": 2680,
+        "y": 2250,
         "rot": 4,
         "scale": 1,
         "visible": true

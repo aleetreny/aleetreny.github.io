@@ -16,7 +16,8 @@ describe('the object catalogue', () => {
     // The authored positions come from content/source, so they are not the
     // diagonal the fallback would have produced.
     expect(DEFAULT_OBJECTS).not.toEqual(BASE_OBJECTS);
-    for (const object of DEFAULT_OBJECTS) expect(object.visible).toBe(true);
+    // Kareema moved from furniture to a readable card beside Telefónica.
+    for (const object of DEFAULT_OBJECTS) expect(object.visible).toBe(object.id !== 'scholarship');
   });
 
   it('keeps everything on the slate', () => {

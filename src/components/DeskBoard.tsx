@@ -2438,6 +2438,7 @@ export function DeskBoard({ remoteDataEnabled, ownerIntent, skipTour = false, on
                   onAddEntry={addEntryToDrawer}
                   onDeleteEntry={deleteEntryFromDrawer}
                   onReorderEntries={reorderEntries}
+                  onOpenEntry={setOpenSlug}
                 />
               </div>
             );

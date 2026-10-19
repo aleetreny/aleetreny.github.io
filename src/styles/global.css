@@ -1658,6 +1658,7 @@ a { color: var(--c-accent); text-decoration: none; }
 .letter--board .letter__env { width: 100%; padding: 0; border: 0; cursor: pointer; text-align: left; }
 .letter--board .letter__env:focus-visible { outline: 3px solid #8a7440; outline-offset: 5px; }
 .letter--board .letter__seal { background: #1b647e; color: #fff7e8; }
+.letter--kareema .letter__seal { background: #8c2f25; }
 .letter--board .letter__addr { right: 12px; font-size: 9px; letter-spacing: .04em; }
 .letter--board .letter__sheet { z-index: 2; }
 .spot--abstract .spot__title { font-size: 23px; line-height: 1.1; }
@@ -1665,6 +1666,31 @@ a { color: var(--c-accent); text-decoration: none; }
 .spot--abstract .spot__blurb { font-size: 12px; line-height: 1.45; }
 .spot--abstract > .k { font-size: 9px; letter-spacing: .04em; }
 .spot--abstract .card__footlink { display: inline-block; margin-top: 8px; padding-top: 6px; font-size: 10px; }
+.card__surface--research {
+  position: relative; padding: 20px; background: #eee4cb; color: #302a1e;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .24), inset 0 0 0 1px rgba(69, 53, 27, .28);
+}
+.card__surface--research::before {
+  content: ''; position: absolute; left: 18px; top: -12px; width: 108px; height: 13px;
+  background: #eee4cb; border: 1px solid rgba(69, 53, 27, .28); border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+}
+.card__surface--research .card__title { font-size: 26px; }
+.card__surface--research .card__sub { font-size: 12px; line-height: 1.5; }
+.research-rows { display: flex; flex-direction: column; margin-top: 14px; }
+.research-row {
+  display: grid; grid-template-columns: 24px minmax(0, 1fr) 16px; gap: 10px;
+  align-items: center; width: 100%; padding: 12px 0; border: 0;
+  border-top: 1px solid rgba(69, 53, 27, .24); background: transparent; color: inherit;
+  text-align: left; cursor: pointer; font-family: var(--font-mono);
+}
+.research-row__index { align-self: start; padding-top: 2px; font-size: 10px; color: #6b593b; }
+.research-row__body { display: flex; flex-direction: column; gap: 4px; }
+.research-row__kind { font-size: 9px; line-height: 1.3; letter-spacing: .05em; color: #6b593b; }
+.research-row__title { font-family: var(--font-display); font-size: 16px; line-height: 1.2; font-weight: 700; }
+.research-row__arrow { color: #775238; }
+.research-row:hover { background: rgba(255, 255, 255, .24); }
+.research-row:focus-visible { outline: 2px solid #775238; outline-offset: 3px; }
 .letter__addr {
   position: absolute; left: 18px; bottom: 20px; display: flex; flex-direction: column; gap: 2px;
   font-size: 7.5px; letter-spacing: .14em; color: #3d3527;

@@ -56,12 +56,12 @@ describe('tour config parsing', () => {
   });
 
   it('halts only on the headline cards, and carries the rest along', () => {
-    // The title, the twelve main cards, plus the scholarship and paper.
+    // The title, twelve main cards, research, and one paired scholarship stop.
     expect(DEFAULT_TOUR.stops).toHaveLength(15);
-    expect(DEFAULT_TOUR.stops.every((stop) => stop.items.length === 1)).toBe(true);
+    expect(DEFAULT_TOUR.stops.every((stop) => stop.items.length === 1 || stop.keepTogether)).toBe(true);
     expect(DEFAULT_TOUR.stops.map((stop) => stop.items[0])).toEqual([
-      'hero', 'work', 'edu', 'telefonica-scholarship', 'lab', 'repos', 'science-map-paper', 'hack', 'diary', 'vol',
-      '9ab9f373-b73a-4d50-824d-06a90005c5fc', 'langs', 'random', 'pod', 'contact',
+      'hero', 'work', 'edu', 'lab', 'repos', 'hack', 'diary', 'vol',
+      '9ab9f373-b73a-4d50-824d-06a90005c5fc', 'langs', 'random', 'research', 'pod', 'kareema-scholarship', 'contact',
     ]);
     // The photos still arrive — they are simply never what the camera stops on.
     const framed = new Set(DEFAULT_TOUR.stops.flatMap((stop) => stop.items));

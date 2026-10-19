@@ -8,7 +8,7 @@ export function ScholarshipCard({ card }: { card: BoardCard }) {
   const [open, setOpen] = useState(false);
   const sheetId = useId();
   return (
-    <div className={`letter letter--board${open ? ' letter--open' : ''}`}>
+    <div className={`letter letter--board${card.glyph === 'K' ? ' letter--kareema' : ''}${open ? ' letter--open' : ''}`}>
       <button
         className="letter__env mat-card"
         type="button"
@@ -30,8 +30,10 @@ export function ScholarshipCard({ card }: { card: BoardCard }) {
             <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" /><path d="M20 6l4 9 10 1-7.5 7 2 10-8.5-5-8.5 5 2-10L6 16l10-1z" /></svg>
           </div>
           <h4 className="letter__title">{card.title}</h4>
+          {card.barCaption ? <p className="letter__amount">{card.barCaption}</p> : null}
           <p className="letter__line">{card.label}</p>
           <p className="letter__line letter__line--quiet">{card.blurb}</p>
+          {card.note ? <p className="letter__line letter__line--quiet">{card.note}</p> : null}
         </section>
       ) : null}
     </div>

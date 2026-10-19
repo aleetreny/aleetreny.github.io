@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createDatabaseClient } from './client.mjs';
 import { applyBoardAdditions } from '../../content/source/board-additions.mjs';
+import { RESEARCH_ITEMS } from '../../content/source/research-work.mjs';
 
 const sql = createDatabaseClient();
 const catalogue = JSON.parse(await readFile(resolve('fixtures/demo-content.json'), 'utf8'));
@@ -20,8 +21,11 @@ const only = list('SEED_ONLY');
 const onlySettings = list('SEED_SETTINGS');
 const targeted = only.length > 0 || onlySettings.length > 0;
 const additiveBoard = process.env.SEED_BOARD_ADDITIONS === 'true';
-if (additiveBoard && (only.length > 0 || onlySettings.length !== 2 || !onlySettings.includes('board') || !onlySettings.includes('board.tour'))) {
-  throw new Error('SEED_BOARD_ADDITIONS requires only board and board.tour settings, with no dossier slugs.');
+const releaseSettings = ['board', 'board.tour', 'board.layout', 'board.objects'];
+const releaseSlugs = Object.keys(RESEARCH_ITEMS);
+if (additiveBoard && (only.length !== releaseSlugs.length || !releaseSlugs.every((slug) => only.includes(slug))
+  || onlySettings.length !== releaseSettings.length || !releaseSettings.every((key) => onlySettings.includes(key)))) {
+  throw new Error('SEED_BOARD_ADDITIONS requires the four research slugs plus board, board.tour, board.layout and board.objects.');
 }
 const unknown = only.filter((slug) => !catalogue.some((entry) => entry.slug === slug));
 if (unknown.length > 0) {

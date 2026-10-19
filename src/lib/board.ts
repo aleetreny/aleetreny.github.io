@@ -183,7 +183,7 @@ export type BoardCard = {
   id: string;
   type: CardType;
   /** Alternative material for a spotlight; its content remains owner-editable. */
-  presentation?: 'letter' | 'abstract';
+  presentation?: 'letter' | 'abstract' | 'research';
   jump?: string;
   open?: string;
   group?: string;

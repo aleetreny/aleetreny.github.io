@@ -5,6 +5,7 @@ import type { DossierConfig } from '../../lib/board';
 import { linksForLanguage, linksForLanguageAt, rebaseTextLinks, removeLinksForLanguageAt, setLinksForLanguage, setLinksForLanguageAt, splitTextLinks, type TextLink } from '../../lib/rich-text';
 import { ImageSlot } from './ImageSlot';
 import { RichText } from './RichText';
+import { DossierLink } from './DossierLink';
 import { EditableText } from './EditableText';
 import { useUiText } from './ui-text-context';
 
@@ -521,7 +522,7 @@ export function DossierPlate({
                 <button className="db-x" type="button" onClick={() => updateBlock(block.id, { items: items.filter((_, i) => i !== index) })} aria-label={t('dossier.delete')}>×</button>
               </div>
             ) : (
-              pair[0] && pair[1] ? <a key={index} href={pair[1]} target="_blank" rel="noreferrer" data-nodrag>{pair[0]} →</a> : null
+              pair[0] && pair[1] ? <DossierLink key={index} label={pair[0]} href={pair[1]} onOpenArticle={onOpenArticle} /> : null
             )))}
             {editing ? <button className="db-add-item" type="button" onClick={() => updateBlock(block.id, { items: [...items, ['', 'https://']] })}>{t('dossier.addLink')}</button> : null}
           </div>

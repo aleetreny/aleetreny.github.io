@@ -27,7 +27,7 @@ on:
         type: boolean
         default: true
       apply_board_additions:
-        description: Add release cards and tour stops to the current live board, preserving owner edits. Requires only_settings=board,board.tour and no only_slugs
+        description: Apply research and paired-scholarship release while preserving owner edits. Requires the four research slugs and board,board.tour,board.layout,board.objects
         required: false
         type: boolean
         default: false
