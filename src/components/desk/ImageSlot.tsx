@@ -1,5 +1,6 @@
 import { useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent } from 'react';
 import { isVideoMedia, MEDIA_INPUT_ACCEPT } from '../../lib/image-upload';
+import { boardImageSources } from '../../lib/board-images';
 import type { MediaFrame } from '../../lib/board';
 import { useUiText } from './ui-text-context';
 
@@ -45,10 +46,12 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
   const [over, setOver] = useState(false);
   const [framing, setFraming] = useState(false);
   const [frameDirty, setFrameDirty] = useState(false);
+  const [failedImage, setFailedImage] = useState<string | null>(null);
   // Dragging should feel immediate, but it must not generate a database write
   // for every pointer-move event. This preview is committed with the ✓.
   const [previewFrame, setPreviewFrame] = useState<{ url: string; frame: MediaFrame | undefined } | null>(null);
   const video = isVideoMedia(mediaType, url);
+  const imageSources = url && !video && failedImage !== url ? boardImageSources(url) : undefined;
   const canFrame = Boolean(editable && url && !video && onFrameChange);
   const hasPreviewFrame = Boolean(url && previewFrame?.url === url);
   const visibleFrame = hasPreviewFrame ? previewFrame?.frame : frame;
@@ -174,7 +177,19 @@ export function ImageSlot({ url, mediaType, alt, placeholder, editable = false, 
     >
       {url ? (video
         ? <video src={url} controls playsInline preload="metadata" aria-label={alt || slotText} />
-        : <img className={framing ? 'slot__media--framing' : undefined} src={url} alt={alt ?? ''} style={frameStyle} draggable={false} />
+        : <img
+          className={framing ? 'slot__media--framing' : undefined}
+          src={url}
+          {...imageSources}
+          alt={alt ?? ''}
+          style={frameStyle}
+          draggable={false}
+          decoding="async"
+          // Photos remain eager: the tour reveals offscreen pieces with camera
+          // transforms, which browser lazy loading cannot anticipate reliably.
+          loading="eager"
+          onError={imageSources ? () => setFailedImage(url) : undefined}
+        />
       ) : <span className="slot__ph">{slotText}</span>}
       {busy ? <span className="slot__busy" aria-hidden="true" /> : null}
       {canFrame ? (

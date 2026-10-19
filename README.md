@@ -316,6 +316,14 @@ More detail: [docs/authentication.md](docs/authentication.md) and
 
 ## Image storage
 
+Board photographs use responsive WebP copies served by GitHub Pages. The exact
+original URL selects its 640px/1280px copies; replacing a photo in the editor
+continues to display the new upload, and a failed copy falls back to the original.
+After updating fixture photographs, run `pnpm content:build` then
+`pnpm images:build` and commit `public/images/board/` and
+`src/content/board-images.json`. This strips EXIF metadata, preserves orientation,
+and keeps storage downloads out of ordinary builds. Originals remain in storage.
+
 Neon Object Storage keeps files and database on the same branch. `neon.ts`
 creates `portfolio-assets` with `public_read`: reads are public, writes need a
 credential.
