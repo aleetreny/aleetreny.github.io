@@ -22,17 +22,18 @@ export const ADDED_CARDS = [
   },
   {
     id: 'research', type: 'drawer', presentation: 'research', group: RESEARCH_GROUP.id,
+    kicker: '11',
     x: 1080, y: 2190, w: 470, rot: -1.2, tone: 'paperCream', layout: 'list', maxItems: 4,
     title: { es: 'Trabajos de investigación', en: 'Research work' },
     subtitle: {
-      es: 'Dos TFG, un TFM y un paper. El último salió de seguir tirando del hilo del máster.',
-      en: 'Two undergraduate theses, a master’s thesis and a paper. The last one grew out of following the master’s question a little further.',
+      es: 'Dos TFG, un TFM y un paper.',
+      en: 'Two undergraduate theses, a master’s thesis and a paper.',
     },
   },
 ];
 
 const ADDED_STOPS = [
-  { after: 'random', stop: { id: 'stop-research', label: { es: 'De los TFG al paper', en: 'From undergraduate theses to a paper' }, items: ['research'], reveal: { style: 'rise' }, motion: 'glide', motif: 'ink' } },
+  { after: 'random', stop: { id: 'stop-research', label: { es: '11 · De los TFG al paper', en: '11 · From undergraduate theses to a paper' }, items: ['research'], reveal: { style: 'rise' }, motion: 'glide', motif: 'ink' } },
   { after: 'pod', stop: { id: 'stop-scholarships', label: { es: 'Kareema y Fundación Telefónica', en: 'Kareema and Fundación Telefónica' }, items: ['kareema-scholarship', 'telefonica-scholarship'], keepTogether: true, reveal: { style: 'flip' }, motion: 'glide', motif: 'ink' } },
 ];
 
@@ -44,7 +45,7 @@ export function applyBoardAdditions(documents) {
     throw new Error('Board additions require board.cards and board.tour.stops.');
   }
   const released = board.cards.some((card) => card.id === 'research') || board.dismissed?.includes('research');
-  if (released) return applyScholarshipCopy(result);
+  if (released) return applyReleaseCopy(result);
   board.cards = board.cards.filter((card) => card.id !== 'science-map-paper');
   if (!board.groups) board.groups = [];
   if (!board.groups.some((group) => group.id === RESEARCH_GROUP.id)) board.groups.push(structuredClone(RESEARCH_GROUP));
@@ -75,11 +76,11 @@ export function applyBoardAdditions(documents) {
       tour.stops.splice(anchor < 0 ? tour.stops.length : anchor + 1, 0, structuredClone(stop));
     }
   }
-  return applyScholarshipCopy(result);
+  return applyReleaseCopy(result);
 }
 
 /** Upgrade only the copy from the previous release, retaining later owner edits. */
-function applyScholarshipCopy(documents) {
+function applyReleaseCopy(documents) {
   const cards = documents.find((row) => row.key === 'board')?.value?.cards ?? [];
   const telefonica = cards.find((card) => card.id === 'telefonica-scholarship');
   if (telefonica && !telefonica.barCaption) telefonica.barCaption = '€80,000';
@@ -89,6 +90,31 @@ function applyScholarshipCopy(documents) {
   }
   if (kareema?.note === 'University College London · 2026') {
     kareema.note = { es: '2026', en: kareema.note };
+  }
+  const research = cards.find((card) => card.id === 'research');
+  if (research) {
+    if (!research.kicker) research.kicker = '11';
+    for (const [lang, sentence] of Object.entries({ es: 'Dos TFG, un TFM y un paper.', en: 'Two undergraduate theses, a master’s thesis and a paper.' })) {
+      if (research.subtitle?.[lang]?.startsWith(sentence)) research.subtitle[lang] = sentence;
+    }
+  }
+  for (const [id, oldNumber, newNumber] of [['pod', '11', '12'], ['contact', '12', '13']]) {
+    const card = cards.find((item) => item.id === id);
+    if (card?.kicker && typeof card.kicker === 'object') {
+      for (const lang of Object.keys(card.kicker)) card.kicker[lang] = card.kicker[lang].replace(`${oldNumber} —`, `${newNumber} —`);
+    }
+    const stops = documents.find((row) => row.key === 'board.tour')?.value?.stops ?? [];
+    for (const stop of stops.filter((item) => item.items?.includes(id))) {
+      if (stop.label && typeof stop.label === 'object') {
+        for (const lang of Object.keys(stop.label)) stop.label[lang] = stop.label[lang].replace(`${oldNumber} ·`, `${newNumber} ·`);
+      }
+    }
+  }
+  const researchStop = documents.find((row) => row.key === 'board.tour')?.value?.stops?.find((stop) => stop.id === 'stop-research');
+  if (researchStop?.label && typeof researchStop.label === 'object') {
+    for (const lang of Object.keys(researchStop.label)) {
+      if (!/^\d/.test(researchStop.label[lang])) researchStop.label[lang] = `11 · ${researchStop.label[lang]}`;
+    }
   }
   return documents;
 }

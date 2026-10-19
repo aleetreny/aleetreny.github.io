@@ -27,7 +27,7 @@ on:
         type: boolean
         default: true
       apply_board_additions:
-        description: Apply research and paired-scholarship release while preserving owner edits. Requires the four research slugs and board,board.tour,board.layout,board.objects
+        description: Apply research and paired-scholarship release while preserving owner edits. Requires board,board.tour,board.layout,board.objects; optionally include all four research slugs
         required: false
         type: boolean
         default: false

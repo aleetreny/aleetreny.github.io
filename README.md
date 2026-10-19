@@ -109,6 +109,7 @@ To add them to an existing database without resetting owner edits, run
 `only_settings=board,board.tour,board.layout,board.objects`, `apply_board_additions=true` and
 `replace_catalogue=false` (production also requires `APPLY_PRODUCTION`). This
 mode merges under a row lock and keeps subsequent owner edits to the new cards.
+Leave `only_slugs` blank for a board-copy-only update without rewriting dossiers.
 It replaces the old single-paper card, migrates Kareema's loose letter into the
 paired readable cards, and moves the passport out of the folder's footprint.
 Mapping Science keeps its original ID and links, moves from code projects to

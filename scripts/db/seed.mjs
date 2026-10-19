@@ -23,9 +23,9 @@ const targeted = only.length > 0 || onlySettings.length > 0;
 const additiveBoard = process.env.SEED_BOARD_ADDITIONS === 'true';
 const releaseSettings = ['board', 'board.tour', 'board.layout', 'board.objects'];
 const releaseSlugs = Object.keys(RESEARCH_ITEMS);
-if (additiveBoard && (only.length !== releaseSlugs.length || !releaseSlugs.every((slug) => only.includes(slug))
+if (additiveBoard && ((only.length > 0 && (only.length !== releaseSlugs.length || !releaseSlugs.every((slug) => only.includes(slug))))
   || onlySettings.length !== releaseSettings.length || !releaseSettings.every((key) => onlySettings.includes(key)))) {
-  throw new Error('SEED_BOARD_ADDITIONS requires the four research slugs plus board, board.tour, board.layout and board.objects.');
+  throw new Error('SEED_BOARD_ADDITIONS requires board, board.tour, board.layout and board.objects, optionally with all four research slugs.');
 }
 const unknown = only.filter((slug) => !catalogue.some((entry) => entry.slug === slug));
 if (unknown.length > 0) {
@@ -116,7 +116,7 @@ try {
 
     // Consolidate the accidental second TFM dossier into Mapping Science.
     // Soft deletion keeps the duplicate and its blocks recoverable.
-    if (additiveBoard) {
+    if (additiveBoard && only.length > 0) {
       await transaction`
         update public.content_entries
         set deleted_at = now()
