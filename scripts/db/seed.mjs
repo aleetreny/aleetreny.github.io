@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createDatabaseClient } from './client.mjs';
 import { applyBoardAdditions } from '../../content/source/board-additions.mjs';
-import { RESEARCH_ITEMS } from '../../content/source/research-work.mjs';
+import { RESEARCH_ITEMS, RETIRED_RESEARCH_SLUGS } from '../../content/source/research-work.mjs';
 
 const sql = createDatabaseClient();
 const catalogue = JSON.parse(await readFile(resolve('fixtures/demo-content.json'), 'utf8'));
@@ -112,6 +112,23 @@ try {
             deleted_at = null
         `;
       }
+    }
+
+    // Consolidate the accidental second TFM dossier into Mapping Science.
+    // Soft deletion keeps the duplicate and its blocks recoverable.
+    if (additiveBoard) {
+      await transaction`
+        update public.content_entries
+        set deleted_at = now()
+        where slug = any(${RETIRED_RESEARCH_SLUGS}) and deleted_at is null
+      `;
+      await transaction`
+        update public.content_blocks b set deleted_at = now()
+        where b.deleted_at is null and exists (
+          select 1 from public.content_entries e
+          where e.id = b.entry_id and e.slug = any(${RETIRED_RESEARCH_SLUGS}) and e.deleted_at is not null
+        )
+      `;
     }
 
     let nextSettings = settings;

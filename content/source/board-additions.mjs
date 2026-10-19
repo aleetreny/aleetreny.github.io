@@ -10,14 +10,15 @@ export const ADDED_CARDS = [
     title: { es: 'Fundación Telefónica', en: 'Fundación Telefónica' },
     label: { es: 'Beca de posgrado', en: 'Postgraduate scholarship' },
     blurb: { es: 'Beca concedida para mis estudios de posgrado.', en: 'A scholarship awarded for my postgraduate studies.' },
+    barCaption: '€80,000',
   },
   {
     id: 'kareema-scholarship', type: 'spotlight', presentation: 'letter',
     x: 2524, y: 1964, w: 220, rot: -2.5, tone: 'paperCream', glyph: 'K',
     title: { es: 'Fundación Kareema', en: 'Fundación Kareema' },
     label: { es: 'Beca a la Excelencia', en: 'Excellence Scholarship' },
-    blurb: { es: 'Máster en Ciencia de Datos y Aprendizaje Automático.', en: 'MSc Data Science & Machine Learning.' },
-    barCaption: '€45,000', note: 'University College London · 2026',
+    blurb: { es: 'Muy agradecido por este apoyo.', en: 'MSc Data Science & Machine Learning.' },
+    barCaption: '€45,000', note: { es: '2026', en: 'University College London · 2026' },
   },
   {
     id: 'research', type: 'drawer', presentation: 'research', group: RESEARCH_GROUP.id,
@@ -43,7 +44,7 @@ export function applyBoardAdditions(documents) {
     throw new Error('Board additions require board.cards and board.tour.stops.');
   }
   const released = board.cards.some((card) => card.id === 'research') || board.dismissed?.includes('research');
-  if (released) return result;
+  if (released) return applyScholarshipCopy(result);
   board.cards = board.cards.filter((card) => card.id !== 'science-map-paper');
   if (!board.groups) board.groups = [];
   if (!board.groups.some((group) => group.id === RESEARCH_GROUP.id)) board.groups.push(structuredClone(RESEARCH_GROUP));
@@ -74,5 +75,20 @@ export function applyBoardAdditions(documents) {
       tour.stops.splice(anchor < 0 ? tour.stops.length : anchor + 1, 0, structuredClone(stop));
     }
   }
-  return result;
+  return applyScholarshipCopy(result);
+}
+
+/** Upgrade only the copy from the previous release, retaining later owner edits. */
+function applyScholarshipCopy(documents) {
+  const cards = documents.find((row) => row.key === 'board')?.value?.cards ?? [];
+  const telefonica = cards.find((card) => card.id === 'telefonica-scholarship');
+  if (telefonica && !telefonica.barCaption) telefonica.barCaption = '€80,000';
+  const kareema = cards.find((card) => card.id === 'kareema-scholarship');
+  if (kareema?.blurb?.es === 'Máster en Ciencia de Datos y Aprendizaje Automático.') {
+    kareema.blurb.es = 'Muy agradecido por este apoyo.';
+  }
+  if (kareema?.note === 'University College London · 2026') {
+    kareema.note = { es: '2026', en: kareema.note };
+  }
+  return documents;
 }

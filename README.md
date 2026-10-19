@@ -99,18 +99,22 @@ motion uses one-shot compositor animations rather than a React frame loop; with
 reduced motion it resolves instantly to the same complete board.
 
 The bilingual research folder opens four dossiers: the Economics and Business
-undergraduate theses, the UC3M master's thesis and its later robustness article
+undergraduate theses, Mapping Science (the UC3M master's thesis) and its later robustness article
 on [arXiv](https://arxiv.org/abs/2610.16639). Each page links to the full work.
 The bottom part of the route follows the board: hobbies → research → podcast →
 both scholarship letters → contact. The letters stay together on a phone too.
 To add them to an existing database without resetting owner edits, run
 `seed-content.yml` first for development and then production with
-`only_slugs=investigacion-economia,investigacion-ade,investigacion-tfm,investigacion-articulo`,
+`only_slugs=investigacion-economia,investigacion-ade,mapping-science,investigacion-articulo`,
 `only_settings=board,board.tour,board.layout,board.objects`, `apply_board_additions=true` and
 `replace_catalogue=false` (production also requires `APPLY_PRODUCTION`). This
 mode merges under a row lock and keeps subsequent owner edits to the new cards.
 It replaces the old single-paper card, migrates Kareema's loose letter into the
 paired readable cards, and moves the passport out of the folder's footprint.
+Mapping Science keeps its original ID and links, moves from code projects to
+research, and replaces the duplicate `investigacion-tfm` in recoverable trash.
+Research appears newest first. The scholarship copy upgrade adds Telefónica's
+€80,000 and removes the programme from Kareema's Spanish letter.
 
 ![The first v2 tour stop on desktop](docs/images/v2-tour-first-stop.jpg)
 

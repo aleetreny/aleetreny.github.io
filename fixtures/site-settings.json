@@ -745,7 +745,8 @@
           "blurb": {
             "es": "Beca concedida para mis estudios de posgrado.",
             "en": "A scholarship awarded for my postgraduate studies."
-          }
+          },
+          "barCaption": "€80,000"
         },
         {
           "id": "kareema-scholarship",
@@ -766,11 +767,14 @@
             "en": "Excellence Scholarship"
           },
           "blurb": {
-            "es": "Máster en Ciencia de Datos y Aprendizaje Automático.",
+            "es": "Muy agradecido por este apoyo.",
             "en": "MSc Data Science & Machine Learning."
           },
           "barCaption": "€45,000",
-          "note": "University College London · 2026"
+          "note": {
+            "es": "2026",
+            "en": "University College London · 2026"
+          }
         },
         {
           "id": "research",

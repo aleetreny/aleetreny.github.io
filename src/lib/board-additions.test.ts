@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { localise } from './i18n';
-import { parseBoard } from './board';
+import { entriesForGroup, parseBoard } from './board';
 import { buildChapters } from './mobile';
 import { parseTour, splitStops } from './tour';
 import { demoEntries, demoSettings } from '../content/demo';
+import type { PortfolioEntry } from '../types/content';
 
 // Release content is deliberately shared with the plain Node seed scripts.
 const source = '../../content/source/board-additions.mjs';
@@ -56,19 +57,41 @@ describe('additive board release', () => {
     expect(splitStops([desktopPair!], 1)).toEqual([desktopPair]);
     expect(board.cards.find((card) => card.id === 'telefonica-scholarship')?.label)
       .toBe(lang === 'es' ? 'Beca de posgrado' : 'Postgraduate scholarship');
-    const entries = localise(demoEntries, lang, 'es').filter((entry) => entry.metadata.group === 'research');
+    const catalogue = localise(demoEntries, lang, 'es') as PortfolioEntry[];
+    const entries = entriesForGroup(catalogue, 'research');
     expect(entries).toHaveLength(4);
+    expect(entries.map((entry) => entry.slug)).toEqual(['investigacion-articulo', 'mapping-science', 'investigacion-ade', 'investigacion-economia']);
+    expect(catalogue.filter((entry) => entry.slug === 'mapping-science')).toHaveLength(1);
+    expect(catalogue.some((entry) => entry.slug === 'investigacion-tfm')).toBe(false);
+    expect(entries[1].id).toBe('4339eddf-208b-5edf-a06d-700019dc03c8');
     const urls = entries.flatMap((entry) => entry.blocks.filter((block) => block.type === 'links').flatMap((block) => block.props.items as string[][]).map((pair) => pair[1]));
     for (const file of ['TFG-Economia.pdf', 'TFG-ADE.pdf', 'TFM-UC3M.pdf']) {
       expect(urls).toContain(`https://aleetreny.github.io/trabajos-academicos/${file}`);
     }
     expect(urls).toContain('https://arxiv.org/abs/2610.16639');
-    expect(urls).toContain('article:investigacion-tfm');
+    expect(urls).toContain('article:mapping-science');
     expect(urls).toContain('article:investigacion-articulo');
     for (const entry of entries) {
       expect(typeof entry.title).toBe('string');
-      expect(entry.blocks.filter((block) => block.type === 'text').length).toBeGreaterThanOrEqual(5);
+      expect(entry.blocks.filter((block) => block.type === 'text').length).toBeLessThanOrEqual(3);
     }
+    const kareema = board.cards.find((card) => card.id === 'kareema-scholarship');
+    expect(`${kareema?.blurb} ${kareema?.note}`).toContain(lang === 'es' ? 'Muy agradecido' : 'MSc Data Science');
+    if (lang === 'es') expect(`${kareema?.blurb} ${kareema?.note}`).not.toMatch(/Máster|University College London/);
+    expect(board.cards.find((card) => card.id === 'telefonica-scholarship')?.barCaption).toBe('€80,000');
+  });
+
+  it('upgrades scholarship copy on an already released live board without changing its layout', () => {
+    const input = [
+      { key: 'board', value: { cards: [{ id: 'research' }, { id: 'telefonica-scholarship', x: 123 }, { id: 'kareema-scholarship', blurb: { es: 'Máster en Ciencia de Datos y Aprendizaje Automático.', en: 'MSc Data Science & Machine Learning.' }, note: 'University College London · 2026' }] } },
+      { key: 'board.tour', value: { stops: [{ id: 'owner-stop' }] } },
+    ];
+    const output = applyBoardAdditions(input);
+    expect(output[0].value.cards[1]).toEqual({ id: 'telefonica-scholarship', x: 123, barCaption: '€80,000' });
+    expect(output[0].value.cards[2].blurb.es).toBe('Muy agradecido por este apoyo.');
+    expect(output[0].value.cards[2].note).toEqual({ es: '2026', en: 'University College London · 2026' });
+    expect(output[1]).toEqual(input[1]);
+    expect(applyBoardAdditions(output)).toEqual(output);
   });
 
   it('replaces only the old paper and loose letter while making room for the folder', () => {

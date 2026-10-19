@@ -36,7 +36,7 @@ for (const [group, keys] of Object.entries(GROUPS)) {
 const PUBLISHED_AT = '2026-08-05T00:00:00.000Z';
 
 const contentItems = { ...ITEMS, ...RESEARCH_ITEMS };
-const entries = [...ORDER, ...Object.keys(RESEARCH_ITEMS)].map((slug) => {
+const entries = [...new Set([...ORDER, ...Object.keys(RESEARCH_ITEMS)])].map((slug) => {
   const item = contentItems[slug];
   if (!item) throw new Error(`ORDER references missing item: ${slug}`);
   // A dossier normally takes its list and its position from GROUPS. One that
