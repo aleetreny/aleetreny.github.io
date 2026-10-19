@@ -26,6 +26,11 @@ on:
         required: true
         type: boolean
         default: true
+      apply_board_additions:
+        description: Add release cards and tour stops to the current live board, preserving owner edits. Requires only_settings=board,board.tour and no only_slugs
+        required: false
+        type: boolean
+        default: false
       production_confirmation:
         description: Type APPLY_PRODUCTION when seeding production; ignored otherwise
         required: false
@@ -44,6 +49,7 @@ jobs:
       SEED_REPLACE: ${{ inputs.replace_catalogue }}
       SEED_ONLY: ${{ inputs.only_slugs }}
       SEED_SETTINGS: ${{ inputs.only_settings }}
+      SEED_BOARD_ADDITIONS: ${{ inputs.apply_board_additions }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6

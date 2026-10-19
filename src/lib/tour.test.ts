@@ -56,11 +56,11 @@ describe('tour config parsing', () => {
   });
 
   it('halts only on the headline cards, and carries the rest along', () => {
-    // Thirteen halts: the title, then the twelve numbered cards, in order.
-    expect(DEFAULT_TOUR.stops).toHaveLength(13);
+    // The title, the twelve main cards, plus the scholarship and paper.
+    expect(DEFAULT_TOUR.stops).toHaveLength(15);
     expect(DEFAULT_TOUR.stops.every((stop) => stop.items.length === 1)).toBe(true);
     expect(DEFAULT_TOUR.stops.map((stop) => stop.items[0])).toEqual([
-      'hero', 'work', 'edu', 'lab', 'repos', 'hack', 'diary', 'vol',
+      'hero', 'work', 'edu', 'telefonica-scholarship', 'lab', 'repos', 'science-map-paper', 'hack', 'diary', 'vol',
       '9ab9f373-b73a-4d50-824d-06a90005c5fc', 'langs', 'random', 'pod', 'contact',
     ]);
     // The photos still arrive — they are simply never what the camera stops on.

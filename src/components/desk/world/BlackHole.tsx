@@ -20,7 +20,7 @@
 // same deflection, so a card at the edge of the effect is untouched and one
 // that gets dragged in visibly gives.
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { OBJECT_SPECS } from '../../../lib/world/kinds';
 import { useWorld } from '../../../lib/world/context';
 import { useFrame, useOnScreen } from '../../../lib/world/frame';
@@ -35,7 +35,7 @@ const SCALE = 2;
 export function BlackHole({ boardSize }: { boardSize: { width: number; height: number } }) {
   const t = useUiText();
   const world = useWorld();
-  const { reduced, placeRef, register, swallowed, boardRef } = world;
+  const { reduced, place, placeRef, register, swallowed, boardRef } = world;
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const disk = useRef<Array<{ r: number; a: number; w: number; hue: number }> | null>(null);
@@ -47,18 +47,18 @@ export function BlackHole({ boardSize }: { boardSize: { width: number; height: n
 
   // Placed like every other object, but bolted down: it is the one thing on the
   // desk that is not furniture.
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = hostRef.current;
     register('blackhole', el);
     if (!el) return undefined;
-    const at = placeRef.current.get('blackhole');
-    if (at) {
-      el.style.left = `${at.x}px`;
-      el.style.top = `${at.y}px`;
-      el.style.transform = `rotate(${at.rot}deg) scale(${at.scale})`;
-    }
+    // Child effects can run before the provider fills placeRef. Resolve the
+    // authored placement on demand, and apply it before the first paint.
+    const at = place('blackhole');
+    el.style.left = `${at.x}px`;
+    el.style.top = `${at.y}px`;
+    el.style.transform = `rotate(${at.rot}deg) scale(${at.scale})`;
     return () => register('blackhole', null);
-  }, [placeRef, register]);
+  }, [place, register]);
 
   /** The gas, made once. Keplerian: the inner ring goes round very much faster
    *  than the outer one, which is what gives the disk its shear. */

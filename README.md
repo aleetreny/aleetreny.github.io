@@ -87,8 +87,9 @@ runtime dependency on any translation service.
 ## The first visit
 
 A visitor does not get the board all at once. The slate lands first, then the
-camera walks exactly thirteen authored stops — the title and the twelve numbered
-cards. During that walk only those thirteen cards may exist on screen: loose
+camera walks fifteen authored stops — the title, the twelve main cards, the
+Fundación Telefónica scholarship letter and the arXiv paper. Only the pieces
+visited by the tour appear during the walk: loose
 photographs, notes, paint and all thirty-three objects are held behind a rendered
 gate, including lazy chunks that finish loading halfway through the tour.
 
@@ -96,6 +97,15 @@ After the last stop, the camera pulls out to the complete slate. Paper lands
 softly and the objects arrive on staggered, deterministic meteor paths. The
 motion uses one-shot compositor animations rather than a React frame loop; with
 reduced motion it resolves instantly to the same complete board.
+
+The Telefónica letter shares Kareema's envelope and seal styling. The paper card
+links directly to [arXiv:2610.16639](https://arxiv.org/abs/2610.16639); both pieces
+have authored English and Spanish text and appear in the phone walkthrough too.
+To add them to an existing database without resetting owner edits, run
+`seed-content.yml` first for development and then production with
+`only_settings=board,board.tour`, `apply_board_additions=true` and
+`replace_catalogue=false` (production also requires `APPLY_PRODUCTION`). This
+mode merges under a row lock and keeps subsequent owner edits to the new cards.
 
 ![The first v2 tour stop on desktop](docs/images/v2-tour-first-stop.jpg)
 

@@ -154,6 +154,7 @@ function CardBody({ card, entries, groupLabel, numbered, onOpen }: {
         {kicker ? <span className="k m-sheet__kicker">{kicker}</span> : null}
         <h2 className="m-sheet__title m-sheet__title--big">{card.title}</h2>
         {card.blurb ? <p className="m-sheet__blurb">{card.blurb}</p> : null}
+        {card.presentation === 'letter' && card.label ? <p className="m-sheet__note">{card.label}</p> : null}
         <Stats pairs={card.grid ?? []} />
         {card.bars ? (
           <div className="m-bars" aria-hidden="true">
@@ -170,6 +171,11 @@ function CardBody({ card, entries, groupLabel, numbered, onOpen }: {
           </div>
         ) : null}
         {articleSlug ? <OpenAction slug={articleSlug} label={t('mobile.readFile')} onOpen={onOpen} /> : null}
+        {card.footerLink ? (
+          <a className="m-sheet__footlink" href={card.footerLink[1]} target="_blank" rel="noreferrer">
+            {card.footerLink[0]} <span aria-hidden="true">↗</span>
+          </a>
+        ) : null}
       </div>
     );
   }

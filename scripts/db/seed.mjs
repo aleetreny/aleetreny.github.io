@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createDatabaseClient } from './client.mjs';
+import { applyBoardAdditions } from '../../content/source/board-additions.mjs';
 
 const sql = createDatabaseClient();
 const catalogue = JSON.parse(await readFile(resolve('fixtures/demo-content.json'), 'utf8'));
@@ -18,6 +19,10 @@ const list = (name) => (process.env[name] ?? '').split(',').map((item) => item.t
 const only = list('SEED_ONLY');
 const onlySettings = list('SEED_SETTINGS');
 const targeted = only.length > 0 || onlySettings.length > 0;
+const additiveBoard = process.env.SEED_BOARD_ADDITIONS === 'true';
+if (additiveBoard && (only.length > 0 || onlySettings.length !== 2 || !onlySettings.includes('board') || !onlySettings.includes('board.tour'))) {
+  throw new Error('SEED_BOARD_ADDITIONS requires only board and board.tour settings, with no dossier slugs.');
+}
 const unknown = only.filter((slug) => !catalogue.some((entry) => entry.slug === slug));
 if (unknown.length > 0) {
   throw new Error(`SEED_ONLY names slugs that are not in the catalogue: ${unknown.join(', ')}`);
@@ -105,7 +110,17 @@ try {
       }
     }
 
-    for (const setting of settings) {
+    let nextSettings = settings;
+    if (additiveBoard) {
+      // Lock and merge inside the write transaction: an owner save cannot be
+      // silently replaced by the repository's older fixture or a stale read.
+      const current = await transaction`select key, value from public.site_settings where key = any(${onlySettings}) for update`;
+      nextSettings = applyBoardAdditions(settings.map((setting) => ({
+        ...setting,
+        value: current.find((row) => row.key === setting.key)?.value ?? setting.value,
+      })));
+    }
+    for (const setting of nextSettings) {
       await transaction`
         insert into public.site_settings (key, value, is_public, updated_by)
         values (${setting.key}, ${transaction.json(setting.value)}, ${setting.is_public ?? true}, ${ownerId})

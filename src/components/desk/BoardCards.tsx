@@ -6,6 +6,7 @@ import { spotifyTrackEmbedUrl } from '../../lib/spotify-embed';
 import type { PortfolioEntry } from '../../types/content';
 import { EditableText } from './EditableText';
 import { useUiText } from './ui-text-context';
+import { ScholarshipCard } from './ScholarshipCard';
 
 type CardEdit = (cardId: string, patch: Partial<BoardCard>) => void;
 
@@ -473,7 +474,7 @@ function Surface({ card, children }: { card: BoardCard; children: ReactNode }) {
   const style: CSSProperties | undefined = tone === 'custom'
     ? { background: card.bg ?? '#fbf7ef', color: card.ink ?? '#17150f' }
     : undefined;
-  return <div className={`card__surface card__surface--${tone}`} style={style}>{children}</div>;
+  return <div className={`card__surface card__surface--${tone}${card.presentation === 'abstract' ? ' card__surface--abstract' : ''}`} style={style}>{children}</div>;
 }
 
 /** One card.
@@ -552,13 +553,15 @@ export const BoardCardView = memo(function BoardCardView({ card, entries, groupL
   }
 
   if (card.type === 'spotlight') {
+    // The normal spotlight fields remain the editing interface for a letter.
+    if (card.presentation === 'letter' && !editing) return <ScholarshipCard card={card} />;
     return (
       <Surface card={card}>
         {card.ruled ? <div className="spot--ruled" /> : null}
         <div className="card__head">
           {field('kicker', card.kicker, { as: 'span', className: 'k', placeholder: t('ph.kicker'), multiline: false })}
         </div>
-        <div className="spot" data-open={editing ? undefined : card.open}>
+        <div className={`spot${card.presentation === 'abstract' ? ' spot--abstract' : ''}`} data-open={editing ? undefined : card.open}>
           {field('title', card.title, { className: 'spot__title', placeholder: t('ph.title') })}
           {field('blurb', card.blurb, { className: 'spot__blurb', placeholder: t('ph.text') })}
           <SpotlightGrid card={card} editing={editing} onCardEdit={onCardEdit} />
@@ -580,6 +583,9 @@ export const BoardCardView = memo(function BoardCardView({ card, entries, groupL
           ) : null}
           {card.barCaption || editing ? field('barCaption', card.barCaption, { className: 'k', style: { marginTop: 6, opacity: 0.6 }, placeholder: t('ph.text'), multiline: false }) : null}
           <SpotlightFooter card={card} editing={editing} onCardEdit={onCardEdit} />
+          {card.footerLink ? (
+            <a className="card__footlink" href={card.footerLink[1]} target="_blank" rel="noreferrer" data-nodrag>{card.footerLink[0]}</a>
+          ) : null}
         </div>
       </Surface>
     );

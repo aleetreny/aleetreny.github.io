@@ -182,6 +182,8 @@ export type CardType = (typeof CARD_TYPES)[number];
 export type BoardCard = {
   id: string;
   type: CardType;
+  /** Alternative material for a spotlight; its content remains owner-editable. */
+  presentation?: 'letter' | 'abstract';
   jump?: string;
   open?: string;
   group?: string;

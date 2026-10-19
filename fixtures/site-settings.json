@@ -716,6 +716,58 @@
           "rot": -5,
           "w": 100,
           "kind": "die"
+        },
+        {
+          "id": "telefonica-scholarship",
+          "type": "spotlight",
+          "presentation": "letter",
+          "x": 2780,
+          "y": 1880,
+          "w": 220,
+          "rot": 2,
+          "tone": "paperCream",
+          "glyph": "FT",
+          "title": {
+            "es": "Fundación Telefónica",
+            "en": "Fundación Telefónica"
+          },
+          "label": {
+            "es": "Beca de posgrado",
+            "en": "Postgraduate scholarship"
+          },
+          "blurb": {
+            "es": "Beca concedida para mis estudios de posgrado.",
+            "en": "A scholarship awarded for my postgraduate studies."
+          }
+        },
+        {
+          "id": "science-map-paper",
+          "type": "spotlight",
+          "presentation": "abstract",
+          "x": 940,
+          "y": 1625,
+          "w": 280,
+          "rot": 1.5,
+          "tone": "paper",
+          "title": {
+            "es": "¿Cambia el mapa de la ciencia?",
+            "en": "Does the map of science change?"
+          },
+          "blurb": {
+            "es": "10 modelos y 500.000 artículos: mapas globales parecidos, vecinos locales distintos.",
+            "en": "10 models, 500,000 papers: similar global maps, different local neighbours."
+          },
+          "barCaption": {
+            "es": "Preprint · arXiv · octubre 2026",
+            "en": "Preprint · arXiv · October 2026"
+          },
+          "footerLink": [
+            {
+              "es": "Leer el paper →",
+              "en": "Read the paper →"
+            },
+            "https://arxiv.org/abs/2610.16639"
+          ]
         }
       ],
       "polaroids": [
@@ -1066,6 +1118,21 @@
           ]
         },
         {
+          "id": "stop-telefonica",
+          "label": {
+            "es": "Beca Fundación Telefónica",
+            "en": "Fundación Telefónica scholarship"
+          },
+          "items": [
+            "telefonica-scholarship"
+          ],
+          "reveal": {
+            "style": "flip"
+          },
+          "motion": "glide",
+          "motif": "ink"
+        },
+        {
           "id": "stop-4",
           "label": {
             "es": "03 · El laboratorio",
@@ -1103,6 +1170,21 @@
             "scrap-coffee",
             "76ef90fd-0892-4f81-895d-d3c499c4c591"
           ]
+        },
+        {
+          "id": "stop-science-paper",
+          "label": {
+            "es": "Mi paper en arXiv",
+            "en": "My paper on arXiv"
+          },
+          "items": [
+            "science-map-paper"
+          ],
+          "reveal": {
+            "style": "rise"
+          },
+          "motion": "glide",
+          "motif": "ink"
         },
         {
           "id": "stop-6",

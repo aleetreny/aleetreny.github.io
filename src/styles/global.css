@@ -1654,6 +1654,17 @@ a { color: var(--c-accent); text-decoration: none; }
   transition: opacity .3s ease .1s;
 }
 .letter--open .letter__seal { opacity: 0; }
+.letter--board { width: 100%; height: 154px; }
+.letter--board .letter__env { width: 100%; padding: 0; border: 0; cursor: pointer; text-align: left; }
+.letter--board .letter__env:focus-visible { outline: 3px solid #8a7440; outline-offset: 5px; }
+.letter--board .letter__seal { background: #1b647e; color: #fff7e8; }
+.letter--board .letter__addr { right: 12px; font-size: 9px; letter-spacing: .04em; }
+.letter--board .letter__sheet { z-index: 2; }
+.spot--abstract .spot__title { font-size: 23px; line-height: 1.1; }
+.card__surface--abstract { padding: 16px; }
+.spot--abstract .spot__blurb { font-size: 12px; line-height: 1.45; }
+.spot--abstract > .k { font-size: 9px; letter-spacing: .04em; }
+.spot--abstract .card__footlink { display: inline-block; margin-top: 8px; padding-top: 6px; font-size: 10px; }
 .letter__addr {
   position: absolute; left: 18px; bottom: 20px; display: flex; flex-direction: column; gap: 2px;
   font-size: 7.5px; letter-spacing: .14em; color: #3d3527;
